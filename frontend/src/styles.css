@@ -356,8 +356,10 @@ textarea:focus { border-color: #2dd4bf; box-shadow: 0 0 0 4px rgba(45, 212, 191,
   background: rgba(2, 6, 23, 0.62);
   padding: 20px;
 }
-.posterior-card, .watermark-card { grid-column: span 6; }
-.waterfall-card, .limits-card { grid-column: span 6; }
+.posterior-card, .waterfall-card { grid-column: span 6; }
+.watermark-card { grid-column: span 12; }
+.watermark-card .stat-grid { grid-template-columns: repeat(4, 1fr); }
+.limits-card { grid-column: span 8; }
 .card-heading { gap: 9px; margin-bottom: 14px; }
 .card-heading svg { color: #5eead4; }
 .equation {
@@ -520,7 +522,7 @@ textarea:focus { border-color: #2dd4bf; box-shadow: 0 0 0 4px rgba(45, 212, 191,
   .observatory-shell { width: min(100% - 20px, 1440px); }
   .topbar, .panel-heading, .command-row, .lab-heading { align-items: flex-start; flex-direction: column; }
   .probability-row, .family-row, .waterfall-row { grid-template-columns: 1fr; }
-  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat-grid, .watermark-card .stat-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

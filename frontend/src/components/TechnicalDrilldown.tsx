@@ -62,6 +62,35 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
           <p className="lab-note">Calibration cohort: {result.posterior.cohort}</p>
         </article>
 
+        <article className="lab-card waterfall-card">
+          <div className="card-heading">
+            <GitBranch size={17} />
+            <h3>Evidence contribution waterfall</h3>
+            <InfoTip
+              label="Evidence contribution waterfall"
+              text="How each step moves the odds, in order: where they start (prior), how the detector evidence shifts them (log likelihood ratio), any penalty for short or unsupported text, and the final odds."
+            />
+          </div>
+          <div className="waterfall">
+            {result.matrices.contribution_waterfall.map((item) => (
+              <div className={`waterfall-row kind-${item.kind}`} key={item.label}>
+                <span>
+                  {item.label}
+                  <InfoTip
+                    label={item.label}
+                    text={WATERFALL_TIPS[item.label] ?? "This step's contribution to the final odds."}
+                  />
+                </span>
+                <div className="waterfall-track">
+                  <div style={{ width: `${Math.min(Math.abs(item.value) * 18, 100)}%` }} />
+                </div>
+                <strong>{formatSigned(item.value, 2)}</strong>
+              </div>
+            ))}
+          </div>
+          <p className="lab-note">Bar length shows the size of each contribution. Detector evidence is a log likelihood ratio; the other rows are odds.</p>
+        </article>
+
         <article className="lab-card watermark-card">
           <div className="card-heading">
             <Database size={17} />
@@ -137,35 +166,6 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
               </div>
             </div>
           ))}
-        </article>
-
-        <article className="lab-card waterfall-card">
-          <div className="card-heading">
-            <GitBranch size={17} />
-            <h3>Evidence contribution waterfall</h3>
-            <InfoTip
-              label="Evidence contribution waterfall"
-              text="How each step moves the odds, in order: where they start (prior), how the detector evidence shifts them (log likelihood ratio), any penalty for short or unsupported text, and the final odds."
-            />
-          </div>
-          <div className="waterfall">
-            {result.matrices.contribution_waterfall.map((item) => (
-              <div className={`waterfall-row kind-${item.kind}`} key={item.label}>
-                <span>
-                  {item.label}
-                  <InfoTip
-                    label={item.label}
-                    text={WATERFALL_TIPS[item.label] ?? "This step's contribution to the final odds."}
-                  />
-                </span>
-                <div className="waterfall-track">
-                  <div style={{ width: `${Math.min(Math.abs(item.value) * 18, 100)}%` }} />
-                </div>
-                <strong>{formatSigned(item.value, 2)}</strong>
-              </div>
-            ))}
-          </div>
-          <p className="lab-note">Bar length shows the size of each contribution. Detector evidence is a log likelihood ratio; the other rows are odds.</p>
         </article>
 
         {result.math.map((item) => (
