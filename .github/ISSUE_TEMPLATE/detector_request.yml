@@ -1,0 +1,24 @@
+name: Detector or watermark support
+description: Request a new detector, watermark adapter, source family, or provenance surface
+title: "[Detector] "
+labels: ["enhancement", "detector"]
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Name, publisher, license, supported content, and public detector details.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evaluation evidence
+      description: Benchmarks, false-positive data, tokenizer/config requirements, and limitations.
+    validations:
+      required: true
+  - type: textarea
+    id: integration
+    attributes:
+      label: Integration notes
+      description: Expected schema fields, runtime requirements, and abstention behavior.

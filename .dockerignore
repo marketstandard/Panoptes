@@ -1,0 +1,12 @@
+node_modules
+frontend/node_modules
+frontend/dist
+backend/.pytest_cache
+backend/.mypy_cache
+backend/.ruff_cache
+backend/panoptes.egg-info
+__pycache__
+*.pyc
+.git
+.cursor
+agent-transcripts

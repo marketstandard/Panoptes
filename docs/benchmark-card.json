@@ -1,0 +1,16 @@
+{
+  "dataset": "synthetic-development",
+  "limitations": [
+    "Synthetic values are placeholders until RAID-derived calibration is downloaded and approved.",
+    "Report separate prose/code metrics and fixed-FPR operating points in release cards."
+  ],
+  "metrics": {
+    "auroc": 0.9600000000000001,
+    "brier": 0.08725,
+    "ece": 0.265,
+    "ece_20_bins": 0.265,
+    "tpr_at_1fpr": 0.8,
+    "tpr_at_5fpr": 0.8
+  },
+  "schema": "panoptes-benchmark-card-v1"
+}

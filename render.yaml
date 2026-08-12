@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: panoptes
+    runtime: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /healthz
+    envVars:
+      - key: PANOPTES_PROFILE
+        value: fixture
