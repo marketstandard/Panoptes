@@ -21,6 +21,8 @@ Thumbs.db
 
 # Local development utilities
 scripts/
+docs/screenshots/
+.floodg8/
 
 # Local runtime
 .env
