@@ -33,3 +33,6 @@ baselines/runs/
 
 # Trained model weights (local-only; cards and metrics are committed under backend/artifacts/)
 models/
+
+research/figures/ui-audit/
+

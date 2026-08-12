@@ -14,8 +14,8 @@ interface CardShape {
 }
 
 const W = 520;
-const H = 260;
-const PAD = { left: 44, right: 16, top: 18, bottom: 34 };
+const H = 280;
+const PAD = { left: 52, right: 16, top: 18, bottom: 52 };
 
 export function CoverageCurve() {
   const { data } = useArtifact<CardShape>('logistic-tier0-card');
@@ -37,9 +37,16 @@ export function CoverageCurve() {
           <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Coverage versus accuracy curve">
             {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
               <g key={tick}>
+                <line
+                  x1={PAD.left + tick * (W - PAD.left - PAD.right)}
+                  y1={H - PAD.bottom}
+                  x2={PAD.left + tick * (W - PAD.left - PAD.right)}
+                  y2={PAD.top}
+                  className="grid-line"
+                />
                 <text
                   x={PAD.left + tick * (W - PAD.left - PAD.right)}
-                  y={H - 14}
+                  y={H - 30}
                   className="axis-label"
                   textAnchor="middle"
                 >
@@ -55,6 +62,12 @@ export function CoverageCurve() {
                 </text>
               </g>
             ))}
+            <text x={(PAD.left + W - PAD.right) / 2} y={H - 8} className="axis-title" textAnchor="middle">
+              Coverage (fraction of cases kept)
+            </text>
+            <text x={14} y={(PAD.top + H - PAD.bottom) / 2} className="axis-title" textAnchor="middle" transform={`rotate(-90 14 ${(PAD.top + H - PAD.bottom) / 2})`}>
+              Accuracy on kept cases
+            </text>
             <path
               d={curve
                 .map((row, index) => {
@@ -65,18 +78,23 @@ export function CoverageCurve() {
                 .join(' ')}
               className="sensitivity-curve"
             />
-            {curve.map((row) => (
-              <circle
-                key={row.min_confidence}
-                cx={PAD.left + row.coverage * (W - PAD.left - PAD.right)}
-                cy={H - PAD.bottom - row.accuracy * (H - PAD.top - PAD.bottom)}
-                r={4}
-                className="reliability-point"
-              >
-                <title>{`confidence >= ${row.min_confidence.toFixed(2)}: coverage ${(row.coverage * 100).toFixed(0)}%, accuracy ${(row.accuracy * 100).toFixed(1)}%, n=${row.n_kept}`}</title>
-              </circle>
-            ))}
+            {curve.map((row) => {
+              const cx = PAD.left + row.coverage * (W - PAD.left - PAD.right);
+              const cy = H - PAD.bottom - row.accuracy * (H - PAD.top - PAD.bottom);
+              return (
+                <g key={row.min_confidence}>
+                  <circle cx={cx} cy={cy} r={4} className="reliability-point" />
+                  <circle cx={cx} cy={cy} r={13} className="hit-target">
+                    <title>{`confidence >= ${row.min_confidence.toFixed(2)}: coverage ${(row.coverage * 100).toFixed(0)}%, accuracy ${(row.accuracy * 100).toFixed(1)}%, n=${row.n_kept}`}</title>
+                  </circle>
+                </g>
+              );
+            })}
           </svg>
+          <div className="chart-legend">
+            <span><i className="legend-line legend-blue" /> Out-of-fold accuracy</span>
+            <span><i className="legend-dot legend-teal" /> Confidence thresholds (hover)</span>
+          </div>
           <p className="figure-caption">{data?.model.name} · out-of-fold, grouped by prompt</p>
         </>
       )}
