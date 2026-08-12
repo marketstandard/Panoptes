@@ -1,0 +1,9 @@
+A hash map stores pairs of **keys** and **values**, such as a username and that user’s profile. Underneath, it usually uses an array divided into slots called **buckets**.
+
+When you insert a key, the hash map runs it through a **hash function**, which turns the key into a number. That number is converted into a valid array index, identifying the bucket where the value should be stored. To look up the key later, the map repeats the same calculation and goes directly to the expected bucket instead of searching every entry. This is why insertion and lookup are usually close to constant time, or O(1).
+
+Think of a mailroom with numbered cubbies. A clerk applies a consistent rule to a person’s name to choose a cubby, so the clerk knows where to put and retrieve that person’s mail.
+
+Sometimes two different keys produce the same bucket index. This is a **hash collision**. A map must handle collisions while still distinguishing the original keys. One common method, called chaining, stores a small collection of key-value pairs in each bucket. Another method, open addressing, searches nearby buckets for an available position. During lookup, the map compares keys as well as hashes to find the correct entry.
+
+As more entries are added, buckets become crowded and collisions become more frequent. The map tracks its **load factor**, the ratio of stored entries to available buckets. When that ratio passes a threshold, it **resizes**, usually by creating a larger bucket array. It then recalculates where every existing key belongs in the new array, a process called rehashing. Resizing is occasionally expensive, but because it happens infrequently, operations remain O(1) on average.
