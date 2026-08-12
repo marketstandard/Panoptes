@@ -58,22 +58,27 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     confidence = _confidence(len(spans), state, calibrated, document_score.abstain_reason)
 
     watermark_results = []
-    token_results = []
+    tokens_by_scheme: dict[str, list] = {}
+    include_overlay = request.include_text
     for adapter in watermark_adapters():
-        result, tokens = adapter.detect(text, content_type)
+        result, tokens = adapter.detect(text, content_type, include_tokens=include_overlay)
         watermark_results.append(result)
         if tokens:
-            token_results = tokens
+            tokens_by_scheme[adapter.id] = tokens
     watermark_results = apply_fdr(watermark_results)
 
     attribution = source_family_distribution(text, content_type)
     provenance = verify_provenance(upload)
     segment_scores = _score_segments(text, segments, detector, content_type, language)
-    segment_evidence = evidence_by_segment(
-        [(segment.start, segment.end) for segment in segment_scores], token_results
-    )
-    for segment, evidence in zip(segment_scores, segment_evidence, strict=True):
-        segment.watermark_evidence = {"kgw-v1": evidence}
+    segment_ranges = [(segment.start, segment.end) for segment in segment_scores]
+    evidence_by_scheme = {
+        scheme: evidence_by_segment(segment_ranges, tokens)
+        for scheme, tokens in tokens_by_scheme.items()
+    }
+    for index, segment in enumerate(segment_scores):
+        segment.watermark_evidence = {
+            scheme: values[index] for scheme, values in evidence_by_scheme.items()
+        }
         segment.source_family = {
             item.family: item.probability for item in attribution.conditional_on_ai[:3]
         }
@@ -339,17 +344,35 @@ def _math_definitions() -> list[MathDefinition]:
         MathDefinition(
             name="Watermark z-score",
             meaning="How many standard deviations the green-token count is above the null expectation.",
-            formula="z=(G-gamma*n)/sqrt(n*gamma*(1-gamma))",
+            formula=r"z=\frac{G-\gamma n}{\sqrt{n\gamma(1-\gamma)}}",
             units="standard deviations",
             assumptions=["The tokenizer and watermark configuration match generation."],
             limitations=["A p-value is not P(watermarked).", "Editing and short text reduce power."],
             kind="hypothesis_test",
         ),
         MathDefinition(
+            name="One-sided p-value",
+            meaning="Probability of evidence at least this extreme under the null hypothesis.",
+            formula=r"p=1-\Phi(z)",
+            units="probability",
+            assumptions=["Asymptotic normal approximation is adequate, or an exact test is used."],
+            limitations=["A p-value is not the probability that text is watermarked."],
+            kind="hypothesis_test",
+        ),
+        MathDefinition(
+            name="Benjamini-Hochberg q-value",
+            meaning="False-discovery-adjusted significance across schemes and windows.",
+            formula=r"q_{(i)}=\min_{j\ge i}\left\{\frac{m}{j}p_{(j)}\right\}",
+            units="probability",
+            assumptions=["Tests are independent or positively dependent."],
+            limitations=["Does not provide a posterior probability of watermarking."],
+            kind="hypothesis_test",
+        ),
+        MathDefinition(
             name="Calibrated posterior",
             meaning="Detector evidence mapped to a probability using held-out calibration data.",
-            formula="posterior_odds=prior_odds*likelihood_ratio",
-            units="probability or odds",
+            formula=r"O_1=O_0 \times \mathrm{LR}",
+            units="odds",
             assumptions=["The input belongs to the calibration cohort."],
             limitations=["Domain shift, paraphrase, and mixed authorship can invalidate calibration."],
             kind="calibrated_evidence",
@@ -357,11 +380,29 @@ def _math_definitions() -> list[MathDefinition]:
         MathDefinition(
             name="Source-family Mahalanobis distance",
             meaning="Distance from a segment feature vector to each calibrated family centroid.",
-            formula="d_m^2=(x-mu_m)^T Sigma^-1 (x-mu_m)",
+            formula=r"d_m^2=(x-\mu_m)^{T}\Sigma^{-1}(x-\mu_m)",
             units="squared standardized distance",
             assumptions=["Feature distributions are approximately stable for the calibration cohort."],
             limitations=["Unsupported generators should remain unknown."],
             kind="descriptive_context",
+        ),
+        MathDefinition(
+            name="Wilson confidence interval",
+            meaning="Binomial uncertainty interval for the observed green-token rate.",
+            formula=r"\hat{p}\pm z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}+\frac{z^2}{4n^2}}",
+            units="proportion",
+            assumptions=["Eligible token decisions are approximately exchangeable under the null."],
+            limitations=["The interval describes rate uncertainty, not authorship."],
+            kind="descriptive_context",
+        ),
+        MathDefinition(
+            name="Conformal knownness",
+            meaning="Open-set threshold for whether an input resembles any calibrated source family.",
+            formula=r"t_\alpha=\mathrm{Quantile}\left(\{s_i\}; \frac{\lceil (n+1)(1-\alpha)\rceil}{n}\right)",
+            units="nonconformity score",
+            assumptions=["Held-out known-family examples are exchangeable with the input."],
+            limitations=["Coverage can degrade under domain shift."],
+            kind="calibrated_evidence",
         ),
     ]
 

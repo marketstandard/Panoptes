@@ -98,18 +98,34 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["scheme", "status", "eligible_tokens", "green_tokens", "expected_green", "z", "p_value", "q_value", "effect", "power"],
+        "required": ["scheme", "status", "eligible_tokens", "green_tokens", "expected_green", "green_rate", "green_rate_interval", "dilution_estimate", "z", "p_value", "q_value", "effect", "power", "tokens"],
         "properties": {
           "scheme": {"type": "string"},
           "status": {"enum": ["tested", "insufficient_data", "adapter_unavailable", "not_applicable"]},
           "eligible_tokens": {"type": "integer", "minimum": 0},
           "green_tokens": {"type": ["integer", "null"], "minimum": 0},
           "expected_green": {"type": ["number", "null"], "minimum": 0},
+          "green_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "green_rate_interval": {"anyOf": [{"$ref": "#/$defs/confidence_interval"}, {"type": "null"}]},
+          "dilution_estimate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
           "z": {"type": ["number", "null"]},
           "p_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
           "q_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
           "effect": {"type": ["number", "null"]},
-          "power": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+          "power": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "tokens": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["start", "end", "green"],
+              "properties": {
+                "start": {"type": "integer", "minimum": 0},
+                "end": {"type": "integer", "minimum": 0},
+                "green": {"type": "boolean"}
+              }
+            }
+          }
         }
       }
     },
@@ -222,6 +238,17 @@
         "values": {"type": "array", "items": {"type": "array", "items": {"type": ["number", "null"]}}},
         "scale": {"type": "string"},
         "legend": {"type": "string"}
+      }
+    },
+    "confidence_interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lower", "upper", "level", "method"],
+      "properties": {
+        "lower": {"type": "number", "minimum": 0, "maximum": 1},
+        "upper": {"type": "number", "minimum": 0, "maximum": 1},
+        "level": {"type": "number", "minimum": 0, "maximum": 1},
+        "method": {"type": "string"}
       }
     }
   }

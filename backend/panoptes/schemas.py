@@ -112,6 +112,23 @@ class SourceFamilies(BaseModel):
     interpretation: str
 
 
+class WatermarkTokenSpan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    start: int = Field(ge=0)
+    end: int = Field(ge=0)
+    green: bool
+
+
+class ConfidenceInterval(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lower: float = Field(ge=0, le=1)
+    upper: float = Field(ge=0, le=1)
+    level: float = Field(default=0.95, ge=0, le=1)
+    method: str = "wilson"
+
+
 class WatermarkResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -120,11 +137,15 @@ class WatermarkResult(BaseModel):
     eligible_tokens: int = Field(ge=0)
     green_tokens: int | None = Field(default=None, ge=0)
     expected_green: float | None = Field(default=None, ge=0)
+    green_rate: float | None = Field(default=None, ge=0, le=1)
+    green_rate_interval: ConfidenceInterval | None = None
+    dilution_estimate: float | None = Field(default=None, ge=0, le=1)
     z: float | None = None
     p_value: float | None = Field(default=None, ge=0, le=1)
     q_value: float | None = Field(default=None, ge=0, le=1)
     effect: float | None = None
     power: float | None = Field(default=None, ge=0, le=1)
+    tokens: list[WatermarkTokenSpan] | None = None
 
 
 class ProvenanceResult(BaseModel):
@@ -215,7 +236,7 @@ class AnalysisRequest(BaseModel):
 class AnalysisResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "1.0.0"
+    schema_version: str = "1.1.0"
     report_id: str
     runtime: RuntimeInfo
     input: InputDiagnostics

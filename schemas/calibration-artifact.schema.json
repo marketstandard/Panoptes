@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/calibration-artifact.schema.json",
+  "title": "Panoptes Calibration Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "bundle_id",
+    "cohort",
+    "dataset_manifest_id",
+    "detector_id",
+    "detector_version",
+    "feature_schema",
+    "created_utc",
+    "repro",
+    "metrics",
+    "binary_calibrator",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-calibration-v1"},
+    "bundle_id": {"type": "string"},
+    "cohort": {"type": "string"},
+    "dataset_manifest_id": {"type": "string"},
+    "detector_id": {"type": "string"},
+    "detector_version": {"type": "string"},
+    "feature_schema": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "repro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "seed", "code_commit", "group_cv"],
+      "properties": {
+        "command": {"type": "string"},
+        "seed": {"type": "integer"},
+        "code_commit": {"type": "string"},
+        "group_cv": {"type": "string"}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["auroc", "brier", "ece", "tpr_at_1fpr", "tpr_at_5fpr"],
+      "properties": {
+        "auroc": {"type": "number"},
+        "brier": {"type": "number"},
+        "ece": {"type": "number"},
+        "tpr_at_1fpr": {"type": "number"},
+        "tpr_at_5fpr": {"type": "number"}
+      }
+    },
+    "binary_calibrator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x_thresholds", "y_thresholds"],
+      "properties": {
+        "x_thresholds": {"type": "array", "items": {"type": "number"}},
+        "y_thresholds": {"type": "array", "items": {"type": "number"}}
+      }
+    },
+    "source_geometry": {"type": "object"},
+    "conformal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alpha", "threshold"],
+      "properties": {
+        "alpha": {"type": "number", "minimum": 0, "maximum": 1},
+        "threshold": {"type": "number"}
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

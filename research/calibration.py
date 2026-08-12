@@ -217,13 +217,26 @@ def main() -> None:
     save_signed_artifact(
         {
             "schema": "panoptes-calibration-v1",
+            "bundle_id": "prose-en-baseline-v0",
             "cohort": "synthetic-development-cohort",
+            "dataset_manifest_id": "synthetic-development-v1",
+            "detector_id": "heuristic-prose-detector",
+            "detector_version": "0.1.0",
+            "feature_schema": "panoptes-features-v1",
+            "created_utc": "2026-08-11T00:00:00Z",
+            "repro": {
+                "command": "python research/calibration.py",
+                "seed": 13,
+                "code_commit": "workspace",
+                "group_cv": "GroupKFold(n_splits=5)",
+            },
             "metrics": metrics,
             "binary_calibrator": {
                 "x_thresholds": fit_binary_calibrator(raw_scores, labels).X_thresholds_.tolist(),
                 "y_thresholds": fit_binary_calibrator(raw_scores, labels).y_thresholds_.tolist(),
             },
             "source_geometry": geometry,
+            "conformal": {"alpha": 0.1, "threshold": 0.0},
         },
         Path(__file__).resolve().parents[1] / "backend" / "artifacts" / "baseline-calibration.json",
     )

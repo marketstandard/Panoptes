@@ -4,7 +4,7 @@ export async function analyze(request: AnalysisRequest): Promise<AnalysisRespons
   const response = await fetch('/api/v1/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request)
+    body: JSON.stringify({ include_text: true, ...request })
   });
   if (!response.ok) {
     throw new Error(`Analysis failed: ${response.status}`);
