@@ -1,0 +1,525 @@
+{
+  "artifact_sha256": "3e38d4cd52314c499f47d83d4ff6c5effbd831d4ec34d10f9ab79588ae504d75",
+  "attribution": {
+    "best_by_macro_f1": "multinomial-logistic",
+    "contenders": {
+      "multinomial-logistic": {
+        "accuracy": 0.6937738955711216,
+        "classes": [
+          "human",
+          "gemma-2-9b",
+          "gpt-4o",
+          "llama-8b",
+          "mistral-7b",
+          "qwen-2-72b",
+          "yi-large"
+        ],
+        "confusion_matrix": [
+          [
+            8265,
+            289,
+            346,
+            290,
+            30,
+            201,
+            62
+          ],
+          [
+            155,
+            8381,
+            221,
+            178,
+            977,
+            227,
+            292
+          ],
+          [
+            158,
+            122,
+            9310,
+            119,
+            1,
+            10,
+            321
+          ],
+          [
+            405,
+            391,
+            131,
+            5443,
+            1208,
+            1488,
+            1338
+          ],
+          [
+            207,
+            1173,
+            58,
+            1106,
+            4593,
+            1847,
+            1459
+          ],
+          [
+            234,
+            328,
+            34,
+            647,
+            1302,
+            7051,
+            846
+          ],
+          [
+            217,
+            417,
+            626,
+            901,
+            843,
+            741,
+            6677
+          ]
+        ],
+        "macro_f1": 0.692520973827189,
+        "per_family_f1": {
+          "gemma-2-9b": 0.778469255062233,
+          "gpt-4o": 0.8966148215919487,
+          "human": 0.8643589207278812,
+          "llama-8b": 0.5703059513830679,
+          "mistral-7b": 0.473578388410579,
+          "qwen-2-72b": 0.6407961103285318,
+          "yi-large": 0.6235233692860811
+        }
+      },
+      "panoptes-v0-dirichlet-k7": {
+        "accuracy": 0.13232216113638268,
+        "classes": [
+          "human",
+          "gemma-2-9b",
+          "gpt-4o",
+          "llama-8b",
+          "mistral-7b",
+          "qwen-2-72b",
+          "yi-large"
+        ],
+        "confusion_matrix": [
+          [
+            9483,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10431,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10041,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10404,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10443,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10442,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10422,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "macro_f1": 0.033388317433715405,
+        "per_family_f1": {
+          "gemma-2-9b": 0.0,
+          "gpt-4o": 0.0,
+          "human": 0.23371822203600784,
+          "llama-8b": 0.0,
+          "mistral-7b": 0.0,
+          "qwen-2-72b": 0.0,
+          "yi-large": 0.0
+        },
+        "seeds": [
+          13,
+          42,
+          87
+        ]
+      }
+    },
+    "external_reference": {
+      "high": 0.09,
+      "low": 0.05,
+      "note": "Roy et al. 2026 attribution baselines (paper Table 4)"
+    }
+  },
+  "config": {
+    "best_by_macro_f1": "multinomial-logistic",
+    "classes": [
+      "human",
+      "gemma-2-9b",
+      "gpt-4o",
+      "llama-8b",
+      "mistral-7b",
+      "qwen-2-72b",
+      "yi-large"
+    ],
+    "contenders": [
+      "multinomial-logistic",
+      "panoptes-v0-dirichlet-k7"
+    ],
+    "task": "7-class source attribution (human + 6 LLM families)"
+  },
+  "created_utc": "2026-08-12T21:45:39Z",
+  "evaluation": {
+    "auroc_ci95": [
+      0.9779525444668572,
+      0.981458969068598
+    ],
+    "conformal": {
+      "abstention_rate": 0.0,
+      "alpha": 0.1,
+      "empirical_coverage": 0.9000362794072503,
+      "mean_set_size": 0.910250327910027,
+      "singleton_rate": 0.910250327910027,
+      "threshold": 0.07035148927122492
+    },
+    "coverage_curve": [
+      {
+        "accuracy": 0.9679903999106968,
+        "coverage": 1.0,
+        "min_confidence": 0.5,
+        "n_kept": 71666
+      },
+      {
+        "accuracy": 0.9709517923362175,
+        "coverage": 0.9933859849859068,
+        "min_confidence": 0.5544444444444444,
+        "n_kept": 71192
+      },
+      {
+        "accuracy": 0.9731116671614572,
+        "coverage": 0.9870370887171044,
+        "min_confidence": 0.6088888888888889,
+        "n_kept": 70737
+      },
+      {
+        "accuracy": 0.9753879003558719,
+        "coverage": 0.9802416766667597,
+        "min_confidence": 0.6633333333333333,
+        "n_kept": 70250
+      },
+      {
+        "accuracy": 0.9780298678920161,
+        "coverage": 0.9717299695811124,
+        "min_confidence": 0.7177777777777777,
+        "n_kept": 69640
+      },
+      {
+        "accuracy": 0.9801390699695784,
+        "coverage": 0.963218262495465,
+        "min_confidence": 0.7722222222222221,
+        "n_kept": 69030
+      },
+      {
+        "accuracy": 0.9827619089535379,
+        "coverage": 0.9511204755393073,
+        "min_confidence": 0.8266666666666667,
+        "n_kept": 68163
+      },
+      {
+        "accuracy": 0.9856843679880329,
+        "coverage": 0.9327993748779059,
+        "min_confidence": 0.8811111111111111,
+        "n_kept": 66850
+      },
+      {
+        "accuracy": 0.9891475016163296,
+        "coverage": 0.9064549437669187,
+        "min_confidence": 0.9355555555555555,
+        "n_kept": 64962
+      },
+      {
+        "accuracy": 0.9940301579949565,
+        "coverage": 0.8133982641698992,
+        "min_confidence": 0.99,
+        "n_kept": 58293
+      }
+    ],
+    "fairness_slices": {
+      "family": [
+        {
+          "brier": 0.0075249833777330764,
+          "mean_predicted": 0.9816820313118912,
+          "n": 10431,
+          "value": "gemma-2-9b"
+        },
+        {
+          "brier": 0.009062600364568655,
+          "mean_predicted": 0.9803848387191538,
+          "n": 10041,
+          "value": "gpt-4o"
+        },
+        {
+          "brier": 0.11380628209360551,
+          "mean_predicted": 0.16895709603628592,
+          "n": 9483,
+          "value": "human"
+        },
+        {
+          "brier": 0.022595347023460867,
+          "mean_predicted": 0.9574448383561333,
+          "n": 10404,
+          "value": "llama-8b"
+        },
+        {
+          "brier": 0.010235034860759391,
+          "mean_predicted": 0.9800001997331701,
+          "n": 10443,
+          "value": "mistral-7b"
+        },
+        {
+          "brier": 0.011844877882168434,
+          "mean_predicted": 0.9779841807105522,
+          "n": 10442,
+          "value": "qwen-2-72b"
+        },
+        {
+          "brier": 0.011083032199693739,
+          "mean_predicted": 0.9781495219128615,
+          "n": 10422,
+          "value": "yi-large"
+        }
+      ],
+      "kind": [
+        {
+          "auroc": 0.9797499052492566,
+          "brier": 0.02553335864819073,
+          "mean_predicted": 0.8691425905217481,
+          "n": 71666,
+          "value": "text"
+        }
+      ],
+      "length_bucket": [
+        {
+          "auroc": 0.9874023335485165,
+          "brier": 0.0164845053846873,
+          "mean_predicted": 0.90646565416246,
+          "n": 47208,
+          "value": "150-499"
+        },
+        {
+          "auroc": 0.9366135725811008,
+          "brier": 0.15718850716121616,
+          "mean_predicted": 0.23970761455019568,
+          "n": 1678,
+          "value": "50-149"
+        },
+        {
+          "auroc": 0.9836163128282833,
+          "brier": 0.03411375769834078,
+          "mean_predicted": 0.8382221482252977,
+          "n": 22763,
+          "value": "500plus"
+        },
+        {
+          "auroc": 0.875,
+          "brier": 0.6693746574745169,
+          "mean_predicted": 0.7565972566174286,
+          "n": 17,
+          "value": "lt50"
+        }
+      ]
+    },
+    "folds": [],
+    "metrics": {
+      "accuracy": 0.9679903999106968,
+      "auroc": 0.9797499052492566,
+      "brier": 0.02553335864819073,
+      "ece": 0.00944175361432454,
+      "tpr_at_1fpr": 0.4848270427608832,
+      "tpr_at_5fpr": 0.9310583278387984
+    },
+    "protocol": "GroupKFold(5) by prompt group; all metrics out-of-fold.",
+    "reliability_bins": [
+      {
+        "bin_hi": 0.1,
+        "bin_lo": 0.0,
+        "mean_predicted": 0.013043619782890696,
+        "n": 6696,
+        "observed": 0.04241338112305854
+      },
+      {
+        "bin_hi": 0.2,
+        "bin_lo": 0.1,
+        "mean_predicted": 0.14372074278102948,
+        "n": 963,
+        "observed": 0.15991692627206647
+      },
+      {
+        "bin_hi": 0.30000000000000004,
+        "bin_lo": 0.2,
+        "mean_predicted": 0.24487036953584207,
+        "n": 554,
+        "observed": 0.26895306859205775
+      },
+      {
+        "bin_hi": 0.4,
+        "bin_lo": 0.30000000000000004,
+        "mean_predicted": 0.347934661981543,
+        "n": 480,
+        "observed": 0.36666666666666664
+      },
+      {
+        "bin_hi": 0.5,
+        "bin_lo": 0.4,
+        "mean_predicted": 0.45056440306781587,
+        "n": 406,
+        "observed": 0.4729064039408867
+      },
+      {
+        "bin_hi": 0.6000000000000001,
+        "bin_lo": 0.5,
+        "mean_predicted": 0.5497934508948654,
+        "n": 437,
+        "observed": 0.6338672768878718
+      },
+      {
+        "bin_hi": 0.7000000000000001,
+        "bin_lo": 0.6000000000000001,
+        "mean_predicted": 0.6554586939393292,
+        "n": 515,
+        "observed": 0.6679611650485436
+      },
+      {
+        "bin_hi": 0.8,
+        "bin_lo": 0.7000000000000001,
+        "mean_predicted": 0.7549898712035511,
+        "n": 676,
+        "observed": 0.7292899408284024
+      },
+      {
+        "bin_hi": 0.9,
+        "bin_lo": 0.8,
+        "mean_predicted": 0.8558885035522003,
+        "n": 1359,
+        "observed": 0.82560706401766
+      },
+      {
+        "bin_hi": 1.0,
+        "bin_lo": 0.9,
+        "mean_predicted": 0.9957230656396079,
+        "n": 59555,
+        "observed": 0.9901603559734699
+      }
+    ]
+  },
+  "intended_use": "Research-grade AI-text detection support with visible uncertainty. Not for high-stakes automated decisions about individuals.",
+  "leakage_audit": {
+    "official_split_story_leakage_rate": 0.11477388801188597,
+    "official_test_rows": 10769,
+    "official_test_rows_with_train_near_duplicate": 1236
+  },
+  "limitations": [
+    "Exploratory: attribution is far harder than detection; Roy et al. baselines are 5-9% accuracy.",
+    "AI texts are single-prompt rewrites of NYT stories; family cues may be prompt-specific.",
+    "Family labels are the generating model names, not verified provenance.",
+    "Not for accusing individuals of using a specific model."
+  ],
+  "model": {
+    "name": "panoptes-v0-attribution-k7",
+    "tier": 2
+  },
+  "power_gate": {
+    "alpha": 0.05,
+    "mde": 0.05,
+    "n": 71666,
+    "passes": true,
+    "power": 0.8,
+    "rationale": "n=71666 >= 3140 required (two-proportion worst case, mde=0.05, alpha=0.05, power=0.8): gate passes",
+    "required_n": 3140
+  },
+  "schema": "panoptes-model-card-v1",
+  "story_groups": {
+    "edges": 10660,
+    "group_size_max": 1401,
+    "group_size_mean": 1.174736911123496,
+    "group_size_median": 1.0,
+    "n_groups": 61006,
+    "singletons": 58917,
+    "threshold": 0.45
+  },
+  "training_data": {
+    "datasheet": {
+      "collection": "Reference runs: single-turn responses to 8 pinned prompts per kind, product defaults. Human controls: original texts written by project authors. Community datasets: contributor-declared labels.",
+      "composition": {
+        "families": [
+          "gemma-2-9b",
+          "gpt-4o",
+          "human",
+          "llama-8b",
+          "mistral-7b",
+          "qwen-2-72b",
+          "yi-large"
+        ],
+        "kinds": [
+          "text"
+        ],
+        "length_buckets": {
+          "150-499": 47208,
+          "50-149": 1678,
+          "500plus": 22763,
+          "lt50": 17
+        },
+        "n": 71666,
+        "n_ai": 62183,
+        "n_human": 9483,
+        "sha256": "2669f1cae481b304c05cd8a9c95501bf6109774b8f12cb6c30a34618257fe65d"
+      },
+      "distribution": "Hash-pointer manifests only for community data; raw text stays with the contributor.",
+      "labeling": "Labels are declared at ingestion and verified structurally (manifest hashes); content labels are contributor claims.",
+      "maintenance": "Maintained by the Panoptes project; corrections via pull request.",
+      "motivation": "AI-text detection evaluation corpus. The project corpus is hash-verified from run manifests; community datasets are contributor-supplied.",
+      "recommended_uses": "Model evaluation and calibration research. Not for training generators."
+    },
+    "n": 71666,
+    "provenance": "defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)",
+    "sha256": "2669f1cae481b304c05cd8a9c95501bf6109774b8f12cb6c30a34618257fe65d"
+  }
+}

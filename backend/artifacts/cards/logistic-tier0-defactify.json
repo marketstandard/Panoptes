@@ -1,0 +1,373 @@
+{
+  "artifact_sha256": "9c2a1f893c9b5a4bffd288b64fdc793df3fad54fdd6b0944bb36b91ffdd252d6",
+  "config": {
+    "data": "defactify",
+    "model": "logistic"
+  },
+  "created_utc": "2026-08-12T21:45:39Z",
+  "evaluation": {
+    "auroc_ci95": [
+      0.9877282950560893,
+      0.9901479338891163
+    ],
+    "conformal": {
+      "abstention_rate": 0.0,
+      "alpha": 0.1,
+      "empirical_coverage": 0.9000362794072503,
+      "mean_set_size": 0.905380515167583,
+      "singleton_rate": 0.905380515167583,
+      "threshold": 0.08086792482035121
+    },
+    "coverage_curve": [
+      {
+        "accuracy": 0.977506767504814,
+        "coverage": 1.0,
+        "min_confidence": 0.5,
+        "n_kept": 71666
+      },
+      {
+        "accuracy": 0.9801648019989612,
+        "coverage": 0.9940138978037005,
+        "min_confidence": 0.5544444444444444,
+        "n_kept": 71237
+      },
+      {
+        "accuracy": 0.982692851087878,
+        "coverage": 0.9876370942985516,
+        "min_confidence": 0.6088888888888889,
+        "n_kept": 70780
+      },
+      {
+        "accuracy": 0.984809874293524,
+        "coverage": 0.9801440013395474,
+        "min_confidence": 0.6633333333333333,
+        "n_kept": 70243
+      },
+      {
+        "accuracy": 0.9871047416640341,
+        "coverage": 0.971702062344766,
+        "min_confidence": 0.7177777777777777,
+        "n_kept": 69638
+      },
+      {
+        "accuracy": 0.9889991716681441,
+        "coverage": 0.9601903273518824,
+        "min_confidence": 0.7722222222222221,
+        "n_kept": 68813
+      },
+      {
+        "accuracy": 0.9909325469959455,
+        "coverage": 0.9464041525967684,
+        "min_confidence": 0.8266666666666667,
+        "n_kept": 67825
+      },
+      {
+        "accuracy": 0.9927592954990215,
+        "coverage": 0.9269388552451651,
+        "min_confidence": 0.8811111111111111,
+        "n_kept": 66430
+      },
+      {
+        "accuracy": 0.994679186228482,
+        "coverage": 0.8916362012669885,
+        "min_confidence": 0.9355555555555555,
+        "n_kept": 63900
+      },
+      {
+        "accuracy": 0.9973470309324904,
+        "coverage": 0.7416068986688248,
+        "min_confidence": 0.99,
+        "n_kept": 53148
+      }
+    ],
+    "fairness_slices": {
+      "family": [
+        {
+          "brier": 0.005088614545515401,
+          "mean_predicted": 0.9823087026737697,
+          "n": 10431,
+          "value": "gemma-2-9b"
+        },
+        {
+          "brier": 0.0075421352846000425,
+          "mean_predicted": 0.9739695693140706,
+          "n": 10041,
+          "value": "gpt-4o"
+        },
+        {
+          "brier": 0.0847294113271198,
+          "mean_predicted": 0.1521291578168972,
+          "n": 9483,
+          "value": "human"
+        },
+        {
+          "brier": 0.014050519780399161,
+          "mean_predicted": 0.965390657725605,
+          "n": 10404,
+          "value": "llama-8b"
+        },
+        {
+          "brier": 0.005208659185262238,
+          "mean_predicted": 0.9850159029189955,
+          "n": 10443,
+          "value": "mistral-7b"
+        },
+        {
+          "brier": 0.009650689377308733,
+          "mean_predicted": 0.9762125592056361,
+          "n": 10442,
+          "value": "qwen-2-72b"
+        },
+        {
+          "brier": 0.00593232144892923,
+          "mean_predicted": 0.9846805810035573,
+          "n": 10422,
+          "value": "yi-large"
+        }
+      ],
+      "kind": [
+        {
+          "auroc": 0.9889915874553742,
+          "brier": 0.018076545567180836,
+          "mean_predicted": 0.868684304443598,
+          "n": 71666,
+          "value": "text"
+        }
+      ],
+      "length_bucket": [
+        {
+          "auroc": 0.990975682480489,
+          "brier": 0.013605300641498796,
+          "mean_predicted": 0.9108728566300527,
+          "n": 47208,
+          "value": "150-499"
+        },
+        {
+          "auroc": 0.9365884590995561,
+          "brier": 0.09433957987764108,
+          "mean_predicted": 0.16868596265442545,
+          "n": 1678,
+          "value": "50-149"
+        },
+        {
+          "auroc": 0.992028609112323,
+          "brier": 0.02144291886772503,
+          "mean_predicted": 0.8330369125230953,
+          "n": 22763,
+          "value": "500plus"
+        },
+        {
+          "auroc": 0.875,
+          "brier": 0.39927674782354206,
+          "mean_predicted": 0.5393683156486846,
+          "n": 17,
+          "value": "lt50"
+        }
+      ]
+    },
+    "folds": [
+      {
+        "accuracy": 0.9790707408957723,
+        "auroc": 0.9863314499047109,
+        "brier": 0.017067611570710423,
+        "ece": 0.007516933315255207,
+        "fold": 0,
+        "n_test": 14334,
+        "tpr_at_1fpr": 0.7503395201448619,
+        "tpr_at_5fpr": 0.9409234947940245
+      },
+      {
+        "accuracy": 0.9737668317867857,
+        "auroc": 0.9898720860754938,
+        "brier": 0.0214330299749793,
+        "ece": 0.013672935037369653,
+        "fold": 1,
+        "n_test": 14333,
+        "tpr_at_1fpr": 0.8148209825145712,
+        "tpr_at_5fpr": 0.9766860949208993
+      },
+      {
+        "accuracy": 0.9802553547756925,
+        "auroc": 0.992195649486213,
+        "brier": 0.015691403119613225,
+        "ece": 0.006603420163225838,
+        "fold": 2,
+        "n_test": 14333,
+        "tpr_at_1fpr": 0.8214548126377663,
+        "tpr_at_5fpr": 0.9835088578659482
+      },
+      {
+        "accuracy": 0.9771157468778344,
+        "auroc": 0.9881583286442303,
+        "brier": 0.01837640321305026,
+        "ece": 0.00854452990566082,
+        "fold": 3,
+        "n_test": 14333,
+        "tpr_at_1fpr": 0.6525590551181102,
+        "tpr_at_5fpr": 0.9771981627296588
+      },
+      {
+        "accuracy": 0.9773250540710249,
+        "auroc": 0.9869411565973363,
+        "brier": 0.017814350349931955,
+        "ece": 0.0038880596612914644,
+        "fold": 4,
+        "n_test": 14333,
+        "tpr_at_1fpr": 0.5631511460169899,
+        "tpr_at_5fpr": 0.970187530052893
+      }
+    ],
+    "metrics": {
+      "accuracy": 0.977506767504814,
+      "auroc": 0.9889915874553742,
+      "brier": 0.018076545567180836,
+      "ece": 0.006017456319339851,
+      "tpr_at_1fpr": 0.7525368669893701,
+      "tpr_at_5fpr": 0.9733367640673496
+    },
+    "protocol": "GroupKFold(5) by prompt group; all metrics out-of-fold.",
+    "reliability_bins": [
+      {
+        "bin_hi": 0.1,
+        "bin_lo": 0.0,
+        "mean_predicted": 0.018568575803489706,
+        "n": 6416,
+        "observed": 0.01917082294264339
+      },
+      {
+        "bin_hi": 0.2,
+        "bin_lo": 0.1,
+        "mean_predicted": 0.14642205485318138,
+        "n": 963,
+        "observed": 0.09449636552440291
+      },
+      {
+        "bin_hi": 0.30000000000000004,
+        "bin_lo": 0.2,
+        "mean_predicted": 0.24636691966235516,
+        "n": 781,
+        "observed": 0.13956466069142126
+      },
+      {
+        "bin_hi": 0.4,
+        "bin_lo": 0.30000000000000004,
+        "mean_predicted": 0.3470874766379188,
+        "n": 464,
+        "observed": 0.21551724137931033
+      },
+      {
+        "bin_hi": 0.5,
+        "bin_lo": 0.4,
+        "mean_predicted": 0.4491304204925819,
+        "n": 381,
+        "observed": 0.3779527559055118
+      },
+      {
+        "bin_hi": 0.6000000000000001,
+        "bin_lo": 0.5,
+        "mean_predicted": 0.5519361173298594,
+        "n": 444,
+        "observed": 0.5067567567567568
+      },
+      {
+        "bin_hi": 0.7000000000000001,
+        "bin_lo": 0.6000000000000001,
+        "mean_predicted": 0.6523836683454415,
+        "n": 522,
+        "observed": 0.6340996168582376
+      },
+      {
+        "bin_hi": 0.8,
+        "bin_lo": 0.7000000000000001,
+        "mean_predicted": 0.7542289847898636,
+        "n": 746,
+        "observed": 0.7761394101876675
+      },
+      {
+        "bin_hi": 0.9,
+        "bin_lo": 0.8,
+        "mean_predicted": 0.8583096075203269,
+        "n": 1589,
+        "observed": 0.8974197608558842
+      },
+      {
+        "bin_hi": 1.0,
+        "bin_lo": 0.9,
+        "mean_predicted": 0.993232642016852,
+        "n": 59359,
+        "observed": 0.9948786199228423
+      }
+    ]
+  },
+  "intended_use": "Research-grade AI-text detection support with visible uncertainty. Not for high-stakes automated decisions about individuals.",
+  "leakage_audit": {
+    "official_split_story_leakage_rate": 0.11477388801188597,
+    "official_test_rows": 10769,
+    "official_test_rows_with_train_near_duplicate": 1236
+  },
+  "limitations": [
+    "Small corpus: absolute performance estimates carry wide intervals.",
+    "Stylometric signals degrade under paraphrase and heavy editing.",
+    "Family labels are contributor-declared."
+  ],
+  "model": {
+    "name": "logistic-tier0",
+    "tier": 0
+  },
+  "power_gate": {
+    "alpha": 0.05,
+    "mde": 0.05,
+    "n": 71666,
+    "passes": true,
+    "power": 0.8,
+    "rationale": "n=71666 >= 3140 required (two-proportion worst case, mde=0.05, alpha=0.05, power=0.8): gate passes",
+    "required_n": 3140
+  },
+  "schema": "panoptes-model-card-v1",
+  "story_groups": {
+    "edges": 10660,
+    "group_size_max": 1401,
+    "group_size_mean": 1.174736911123496,
+    "group_size_median": 1.0,
+    "n_groups": 61006,
+    "singletons": 58917,
+    "threshold": 0.45
+  },
+  "training_data": {
+    "datasheet": {
+      "collection": "Reference runs: single-turn responses to 8 pinned prompts per kind, product defaults. Human controls: original texts written by project authors. Community datasets: contributor-declared labels.",
+      "composition": {
+        "families": [
+          "gemma-2-9b",
+          "gpt-4o",
+          "human",
+          "llama-8b",
+          "mistral-7b",
+          "qwen-2-72b",
+          "yi-large"
+        ],
+        "kinds": [
+          "text"
+        ],
+        "length_buckets": {
+          "150-499": 47208,
+          "50-149": 1678,
+          "500plus": 22763,
+          "lt50": 17
+        },
+        "n": 71666,
+        "n_ai": 62183,
+        "n_human": 9483,
+        "sha256": "2669f1cae481b304c05cd8a9c95501bf6109774b8f12cb6c30a34618257fe65d"
+      },
+      "distribution": "Hash-pointer manifests only for community data; raw text stays with the contributor.",
+      "labeling": "Labels are declared at ingestion and verified structurally (manifest hashes); content labels are contributor claims.",
+      "maintenance": "Maintained by the Panoptes project; corrections via pull request.",
+      "motivation": "AI-text detection evaluation corpus. The project corpus is hash-verified from run manifests; community datasets are contributor-supplied.",
+      "recommended_uses": "Model evaluation and calibration research. Not for training generators."
+    },
+    "n": 71666,
+    "provenance": "defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)",
+    "sha256": "2669f1cae481b304c05cd8a9c95501bf6109774b8f12cb6c30a34618257fe65d"
+  }
+}

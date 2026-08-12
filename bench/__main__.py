@@ -51,6 +51,8 @@ def _file_sha256(path: Path) -> str:
 def _load_dataset(spec: str) -> datasets.Dataset:
     if spec == "corpus":
         return datasets.load_verified_corpus()
+    if spec == "defactify":
+        return datasets.load_defactify()
     return datasets.load_user_dataset(Path(spec))
 
 
@@ -103,13 +105,16 @@ def _load_model(path: Path):
 
 
 def _corpus_created_utc(data_arg: str) -> str | None:
-    """Deterministic timestamp for corpus-trained cards: the newest run
-    manifest's declared time. User datasets keep the wall clock."""
-    if data_arg != "corpus":
-        return None
-    from research.baseline_corpus import run_manifests
+    """Deterministic timestamp for pinned datasets: the newest run manifest's
+    declared time for the corpus, the fetch manifest's time for Defactify.
+    User datasets keep the wall clock."""
+    if data_arg == "corpus":
+        from research.baseline_corpus import run_manifests
 
-    return max(manifest["created_utc"] for manifest in run_manifests())
+        return max(manifest["created_utc"] for manifest in run_manifests())
+    if data_arg == "defactify":
+        return datasets.defactify_created_utc()
+    return None
 
 
 def cmd_train(args: argparse.Namespace) -> int:
@@ -117,6 +122,19 @@ def cmd_train(args: argparse.Namespace) -> int:
     gate = models.power_gate(len(dataset))
     created_utc = _corpus_created_utc(args.data)
     print(f"Dataset: {dataset.provenance} (n={len(dataset)}, sha256={dataset.sha256[:16]}…)")
+    if dataset.meta.get("group_reconstruction"):
+        stats = dataset.meta["group_reconstruction"]
+        print(
+            f"Story groups: {stats['n_groups']} (mean size {stats['group_size_mean']:.1f}, "
+            f"singletons {stats['singletons']}, threshold {stats['threshold']})"
+        )
+    if dataset.meta.get("leakage_audit"):
+        audit = dataset.meta["leakage_audit"]
+        print(
+            f"Official-split leakage audit: {audit['official_test_rows_with_train_near_duplicate']}"
+            f"/{audit['official_test_rows']} test rows share a story with train "
+            f"({audit['official_split_story_leakage_rate']:.1%})"
+        )
     print(f"Power gate: {gate['rationale']}")
 
     if args.model == "panoptes-v0":
@@ -136,9 +154,11 @@ def cmd_train(args: argparse.Namespace) -> int:
     if model.tier == 2 and not gate["passes"]:
         print("WARNING: neural tier below the power gate; results are exploratory, not comparative.")
 
+    suffix = "-defactify" if args.data == "defactify" else ""
     evaluation = evaluate.cross_validate(lambda: _make_model(args.model), dataset)
     final = _make_model(args.model).fit(dataset.features(), dataset.labels)
-    model_path = _save_model(final, model.name, dataset, Path(args.out) if args.out else None)
+    out_dir = Path(args.out) if args.out else MODELS_DIR / f"{model.name}{suffix}"
+    model_path = _save_model(final, model.name, dataset, out_dir)
 
     card = cards.model_card(
         model_name=model.name,
@@ -148,8 +168,12 @@ def cmd_train(args: argparse.Namespace) -> int:
         gate=gate,
         config={"model": args.model, "data": args.data},
         created_utc=created_utc,
+        extra={"story_groups": dataset.meta["group_reconstruction"], "leakage_audit": dataset.meta["leakage_audit"]}
+        if dataset.meta.get("group_reconstruction")
+        else None,
     )
-    card_path = cards.write_card(card, CARDS_DIR / f"{model.name}.json")
+    card_name = args.card or f"{model.name}{suffix}.json"
+    card_path = cards.write_card(card, CARDS_DIR / card_name)
 
     metrics = evaluation["metrics"]
     print(f"Out-of-fold: AUROC {metrics['auroc']:.3f} "
@@ -245,6 +269,52 @@ def cmd_contribute(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_external_validate(args: argparse.Namespace) -> int:
+    """Score an external dataset with the *shipped* runtime (heuristic +
+    corpus-fitted calibration) and write a signed benchmark card. The
+    heuristic is training-free, so the full external set is a valid holdout."""
+    dataset = _load_dataset(args.data)
+    probabilities = _shipped_probabilities(dataset)
+    metrics = evaluate.binary_metrics(dataset.labels, probabilities)
+    ci = evaluate.auroc_ci(dataset.labels, probabilities)
+    card = {
+        "schema": "panoptes-benchmark-card-v1",
+        "dataset": dataset.provenance,
+        "metrics": {
+            "auroc": metrics["auroc"],
+            "auroc_ci95_lo": ci[0],
+            "auroc_ci95_hi": ci[1],
+            "brier": metrics["brier"],
+            "ece": metrics["ece"],
+            "accuracy": metrics["accuracy"],
+            "tpr_at_1fpr": metrics["tpr_at_1fpr"],
+            "tpr_at_5fpr": metrics["tpr_at_5fpr"],
+            "n": float(len(dataset)),
+        },
+        "limitations": [
+            "Shipped runtime = heuristic raw score + corpus-fitted isotonic calibration; it never saw this dataset.",
+            "Domain shift: calibration was fitted on the 104-record project corpus, not on NYT prose.",
+            "External validation measures transportability, not the bench-trained tiers (see their cards).",
+        ],
+    }
+    cards.sign(card)
+    out = CARDS_DIR / args.card
+    cards.write_card(card, out)
+    print(f"External validation on {dataset.provenance} (n={len(dataset)})")
+    print(json.dumps(card["metrics"], indent=2, sort_keys=True))
+    print(f"Card: {out} (sha256 {card['artifact_sha256'][:16]}…)")
+    return 0
+
+
+def cmd_attribute(args: argparse.Namespace) -> int:
+    from bench import attribution
+
+    dataset = _load_dataset(args.data)
+    created_utc = _corpus_created_utc(args.data)
+    attribution.run_attribution(dataset, created_utc=created_utc, skip_dirichlet=args.skip_dirichlet)
+    return 0
+
+
 def cmd_predict(args: argparse.Namespace) -> int:
     if args.model == "panoptes-v0":
         from bench.panoptes_v0 import predict_text
@@ -264,8 +334,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     train = sub.add_parser("train", help="cross-validate, fit, and card a model")
     train.add_argument("--model", required=True, choices=["logistic", "gbm", "panoptes-v0"])
-    train.add_argument("--data", default="corpus", help="'corpus' or a CSV/JSONL path")
+    train.add_argument("--data", default="corpus", help="'corpus', 'defactify', or a CSV/JSONL path")
     train.add_argument("--out", default=None, help="model output directory")
+    train.add_argument("--card", default=None, help="card filename override (default: <model>[-defactify].json)")
     train.set_defaults(func=cmd_train)
 
     evaluate_cmd = sub.add_parser("evaluate", help="re-evaluate a saved model on the corpus")
@@ -284,6 +355,16 @@ def build_parser() -> argparse.ArgumentParser:
     contribute.add_argument("--contributor", default=None)
     contribute.add_argument("--license", dest="license", default=None)
     contribute.set_defaults(func=cmd_contribute)
+
+    external = sub.add_parser("external-validate", help="score an external dataset with the shipped runtime")
+    external.add_argument("--data", default="defactify", help="'defactify', 'corpus', or a CSV/JSONL path")
+    external.add_argument("--card", default="defactify-external-validation.json", help="card filename under backend/artifacts/cards/")
+    external.set_defaults(func=cmd_external_validate)
+
+    attribute = sub.add_parser("attribute", help="exploratory 7-class source attribution experiment")
+    attribute.add_argument("--data", default="defactify", help="'defactify' (the only 7-family dataset) or a CSV/JSONL path")
+    attribute.add_argument("--skip-dirichlet", action="store_true", help="run only the multinomial logistic contender")
+    attribute.set_defaults(func=cmd_attribute)
 
     predict = sub.add_parser("predict", help="score one text with a saved model")
     predict.add_argument("--model", required=True)

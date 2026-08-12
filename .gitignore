@@ -35,4 +35,8 @@ baselines/runs/
 models/
 
 research/figures/ui-audit/
+research/figures/paper-audit/
+
+
+datasets/local/
 

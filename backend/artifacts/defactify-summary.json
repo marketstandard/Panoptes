@@ -1,0 +1,42 @@
+{
+  "artifact_sha256": "a232e1f0cf3e763ad81dd0a46f184bc7ca896e1ebc58f91c9cd3ff5caeaab803",
+  "citation": "@misc{roy2026comprehensivedatasethumanvs, title={A Comprehensive Dataset for Human vs. AI Generated Text Detection}, author={Rajarshi Roy and Gurpreet Singh and Ashhar Aziz and Shashwat Bajpai and Nasrin Imanpour and Shwetangshu Biswas and Kapil Wanaskar and Parth Patwa and Subhankar Ghosh and Shreyas Dixit and Nilesh Ranjan Pal and Vipula Rawte and Ritvik Garimella and Gaytri Jena and Amitava Das and Amit Sheth and Vasu Sharma and Aishwarya Naresh Reganti and Vinija Jain and Aman Chadha}, year={2026}, eprint={2510.22874}, archivePrefix={arXiv}, primaryClass={cs.CL}}",
+  "created_utc": "2026-08-12T21:45:39Z",
+  "dataset": "Rajarshi-Roy-research/Defactify_Text_Dataset",
+  "families": {
+    "gemma-2-9b": 10431,
+    "gpt-4o": 10041,
+    "human": 9483,
+    "llama-8b": 10404,
+    "mistral-7b": 10443,
+    "qwen-2-72b": 10442,
+    "yi-large": 10422
+  },
+  "group_reconstruction": {
+    "group_size_max": 1401,
+    "group_size_mean": 1.174736911123496,
+    "n_groups": 61006,
+    "singletons": 58917,
+    "threshold": 0.45
+  },
+  "hygiene": {
+    "dropped_error_artifacts": 412,
+    "dropped_exact_duplicates": 73,
+    "dropped_under_50_tokens": 957,
+    "rows_raw": 73193
+  },
+  "leakage_audit": {
+    "official_split_story_leakage_rate": 0.11477388801188597,
+    "official_test_rows": 10769,
+    "official_test_rows_with_train_near_duplicate": 1236
+  },
+  "n_ai": 62183,
+  "n_human": 9483,
+  "n_records": 71666,
+  "schema": "panoptes-defactify-summary-v1",
+  "splits": {
+    "test": 10769,
+    "train": 50120,
+    "validation": 10777
+  }
+}

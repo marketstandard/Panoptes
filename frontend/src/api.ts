@@ -22,11 +22,17 @@ export async function capabilities(): Promise<Record<string, unknown>> {
 
 export type ArtifactName =
   | 'baseline-calibration'
+  | 'defactify-calibration'
   | 'corpus-summary'
+  | 'defactify-summary'
   | 'methodology-report'
   | 'panoptes-v0-card'
   | 'logistic-tier0-card'
-  | 'gbm-tier1-card';
+  | 'gbm-tier1-card'
+  | 'logistic-defactify-card'
+  | 'gbm-defactify-card'
+  | 'attribution-defactify-card'
+  | 'defactify-external-validation';
 
 export async function fetchArtifact<T = unknown>(name: ArtifactName): Promise<T | null> {
   const response = await fetch(`/api/v1/artifacts/${name}`);

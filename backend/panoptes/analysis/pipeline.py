@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import uuid
+from dataclasses import replace
 from statistics import NormalDist
 
 from panoptes.analysis.attribution import source_family_distribution
@@ -51,7 +52,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     segments = make_segments(text, content_type)
     limitations: list[str] = []
 
-    bundle = load_bundle(settings.artifact_dir)
+    bundle = load_bundle(settings.artifact_dir, settings.calibration_bundle)
 
     detector = select_detector(settings.profile.value, content_type)
     document_score = detector.score(text, content_type, language)
@@ -170,12 +171,11 @@ def _apply_corpus_calibration(
     refined = document_score.distribution.ai_refined_or_mixed
     ai_generated = max(0.02, calibrated_raw - refined / 2)
     human = max(0.02, 1 - calibrated_raw - refined / 2)
-    return document_score.model_copy(
-        update={
-            "distribution": OutcomeDistribution(
-                human=human, ai_generated=ai_generated, ai_refined_or_mixed=refined
-            ).normalized()
-        }
+    return replace(
+        document_score,
+        distribution=OutcomeDistribution(
+            human=human, ai_generated=ai_generated, ai_refined_or_mixed=refined
+        ).normalized(),
     )
 
 

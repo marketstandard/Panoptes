@@ -1,345 +1,702 @@
 {
-  "artifact_sha256": "48eebe82333dc09322899200b10034e4bb2f11130b9dec199089cca88d603779",
-  "corpus": {
-    "families": [
-      "claude-opus-5-max",
-      "gemini-3.1-pro",
-      "glm-5.2-max",
-      "gpt-5.6-sol-max",
-      "grok-4.6-extra-high",
-      "human",
-      "kimi-k3-max"
-    ],
-    "n_ai": 96,
-    "n_human": 8,
-    "n_records": 104
-  },
-  "created_utc": "2026-08-12T20:28:24Z",
-  "feature_screening": {
-    "condition_number": 7.625030465998033,
-    "exclusions": [
-      {
-        "feature": "log_words",
-        "justification": "VIF 405.4 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
-        "vif": 405.38360437755233
-      },
-      {
-        "feature": "hapax_ratio",
-        "justification": "VIF 39.9 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
-        "vif": 39.91095163337042
-      },
-      {
-        "feature": "punctuation",
-        "justification": "VIF 18.6 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
-        "vif": 18.593786159074533
-      },
-      {
-        "feature": "mean_word_length",
-        "justification": "VIF 14.9 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
-        "vif": 14.862540526169678
-      },
-      {
-        "feature": "avg_line_len",
-        "justification": "VIF 14.6 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
-        "vif": 14.619746900088488
-      }
-    ],
-    "final_vif": [
-      {
-        "feature": "long_words",
-        "r_squared": 0.3976126554902897,
-        "vif": 1.6600614357426633
-      },
-      {
-        "feature": "connectors",
-        "r_squared": 0.0855400584185867,
-        "vif": 1.0935416135021276
-      },
-      {
-        "feature": "unique_ratio",
-        "r_squared": 0.6315305428581119,
-        "vif": 2.713929148311812
-      },
-      {
-        "feature": "short_sentences",
-        "r_squared": 0.8501869049170809,
-        "vif": 6.674983915434873
-      },
-      {
-        "feature": "structured",
-        "r_squared": 0.7720517085135086,
-        "vif": 4.386959838473988
-      },
-      {
-        "feature": "digits",
-        "r_squared": 0.696290678100191,
-        "vif": 3.292622016817419
-      },
-      {
-        "feature": "balanced_lines",
-        "r_squared": 0.646874836595742,
-        "vif": 2.8318570966725445
-      },
-      {
-        "feature": "token_entropy",
-        "r_squared": 0.7690563894772544,
-        "vif": 4.3300613415390865
-      },
-      {
-        "feature": "word_length_var",
-        "r_squared": 0.6206172925632091,
-        "vif": 2.635860782259324
-      },
-      {
-        "feature": "line_sd",
-        "r_squared": 0.6735058119448611,
-        "vif": 3.0628416571725263
-      },
-      {
-        "feature": "sentence_len_mean",
-        "r_squared": 0.8611877492717915,
-        "vif": 7.2039751156976735
-      },
-      {
-        "feature": "sentence_len_sd",
-        "r_squared": 0.38611148279401275,
-        "vif": 1.6289602622823698
-      }
-    ],
-    "investigations": [
-      {
-        "feature": "short_sentences",
-        "vif": 6.674983915434873
-      },
-      {
-        "feature": "sentence_len_mean",
-        "vif": 7.2039751156976735
-      }
-    ],
-    "kept": [
-      "long_words",
-      "connectors",
-      "unique_ratio",
-      "short_sentences",
-      "structured",
-      "digits",
-      "balanced_lines",
-      "token_entropy",
-      "word_length_var",
-      "line_sd",
-      "sentence_len_mean",
-      "sentence_len_sd"
-    ]
-  },
-  "hypotheses": [
-    {
-      "alpha": 0.05,
-      "ci95": [
-        -2.940696643700747e-05,
-        8.910133128896544e-05
+  "artifact_sha256": "512d6d779f47964ac31221d616eb300f9a1de19208ec8e4e4560d75d5c61d465",
+  "cohorts": {
+    "corpus": {
+      "families": [
+        "claude-opus-5-max",
+        "gemini-3.1-pro",
+        "glm-5.2-max",
+        "gpt-5.6-sol-max",
+        "grok-4.6-extra-high",
+        "human",
+        "kimi-k3-max"
       ],
-      "direction": "ai_greater",
-      "effect_size": {
-        "name": "cohens_d",
-        "value": 0.10575542788110585
+      "feature_screening": {
+        "condition_number": 7.625030465998033,
+        "exclusions": [
+          {
+            "feature": "log_words",
+            "justification": "VIF 405.4 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 405.38360437755233
+          },
+          {
+            "feature": "hapax_ratio",
+            "justification": "VIF 39.9 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 39.91095163337042
+          },
+          {
+            "feature": "punctuation",
+            "justification": "VIF 18.6 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 18.593786159074533
+          },
+          {
+            "feature": "mean_word_length",
+            "justification": "VIF 14.9 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 14.862540526169678
+          },
+          {
+            "feature": "avg_line_len",
+            "justification": "VIF 14.6 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 14.619746900088488
+          }
+        ],
+        "final_vif": [
+          {
+            "feature": "long_words",
+            "r_squared": 0.3976126554902897,
+            "vif": 1.6600614357426633
+          },
+          {
+            "feature": "connectors",
+            "r_squared": 0.0855400584185867,
+            "vif": 1.0935416135021276
+          },
+          {
+            "feature": "unique_ratio",
+            "r_squared": 0.6315305428581119,
+            "vif": 2.713929148311812
+          },
+          {
+            "feature": "short_sentences",
+            "r_squared": 0.8501869049170809,
+            "vif": 6.674983915434873
+          },
+          {
+            "feature": "structured",
+            "r_squared": 0.7720517085135086,
+            "vif": 4.386959838473988
+          },
+          {
+            "feature": "digits",
+            "r_squared": 0.696290678100191,
+            "vif": 3.292622016817419
+          },
+          {
+            "feature": "balanced_lines",
+            "r_squared": 0.646874836595742,
+            "vif": 2.8318570966725445
+          },
+          {
+            "feature": "token_entropy",
+            "r_squared": 0.7690563894772544,
+            "vif": 4.3300613415390865
+          },
+          {
+            "feature": "word_length_var",
+            "r_squared": 0.6206172925632091,
+            "vif": 2.635860782259324
+          },
+          {
+            "feature": "line_sd",
+            "r_squared": 0.6735058119448611,
+            "vif": 3.0628416571725263
+          },
+          {
+            "feature": "sentence_len_mean",
+            "r_squared": 0.8611877492717915,
+            "vif": 7.2039751156976735
+          },
+          {
+            "feature": "sentence_len_sd",
+            "r_squared": 0.38611148279401275,
+            "vif": 1.6289602622823698
+          }
+        ],
+        "investigations": [
+          {
+            "feature": "short_sentences",
+            "vif": 6.674983915434873
+          },
+          {
+            "feature": "sentence_len_mean",
+            "vif": 7.2039751156976735
+          }
+        ],
+        "kept": [
+          "long_words",
+          "connectors",
+          "unique_ratio",
+          "short_sentences",
+          "structured",
+          "digits",
+          "balanced_lines",
+          "token_entropy",
+          "word_length_var",
+          "line_sd",
+          "sentence_len_mean",
+          "sentence_len_sd"
+        ]
       },
-      "estimate": 2.9847182425978987e-05,
-      "id": "H1",
+      "hypotheses": [
+        {
+          "alpha": 0.05,
+          "ci95": [
+            -2.940696643700747e-05,
+            8.910133128896544e-05
+          ],
+          "direction": "ai_greater",
+          "effect_size": {
+            "name": "cohens_d",
+            "value": 0.10575542788110585
+          },
+          "estimate": 2.9847182425978987e-05,
+          "id": "H1",
+          "n_ai": 96,
+          "n_human": 8,
+          "null": "Mean connector rate is equal across AI and human documents.",
+          "null_decision": "not rejected",
+          "p_value": 0.15992542680201338,
+          "q_value": 0.19191051216241606,
+          "statement": "Connector rate (however/therefore/moreover/additionally/overall/furthermore per token) is higher in AI-generated text than in human text.",
+          "statistic": 0.9999999999999998,
+          "test": "welch_t"
+        },
+        {
+          "alpha": 0.05,
+          "bootstrap_resample_size": [
+            96,
+            8
+          ],
+          "ci95": [
+            0.20305989583333334,
+            0.7526041666666666
+          ],
+          "direction": "ai_lower",
+          "effect_size": {
+            "name": "rank_biserial",
+            "value": 0.5104166666666667
+          },
+          "estimate": 0.5104166666666667,
+          "id": "H2",
+          "n_ai": 96,
+          "n_human": 8,
+          "null": "The distributions of token entropy are equal across AI and human documents.",
+          "null_decision": "not rejected",
+          "p_value": 0.008542317644687474,
+          "q_value": 0.051253905868124845,
+          "statement": "Token entropy (Shannon entropy over word tokens) is lower in AI-generated text than in human text.",
+          "statistic": 188.0,
+          "test": "mann_whitney"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            2.061153622438558e-09,
+            1.539123314703179
+          ],
+          "df": 1,
+          "direction": "two_sided",
+          "effect_size": {
+            "name": "odds_ratio",
+            "value": 1.8503220146861612e-05
+          },
+          "estimate": -10.897565779034506,
+          "id": "H3",
+          "null": "Adding unique_ratio to a logistic model containing log_words does not improve fit (likelihood-ratio test, df=1).",
+          "null_decision": "not rejected",
+          "p_value": 0.01890963741070646,
+          "q_value": 0.05672891223211937,
+          "statement": "Unique-token ratio discriminates AI from human text beyond document length.",
+          "statistic": 5.509852882944912,
+          "test": "logistic_lr"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            null,
+            null
+          ],
+          "direction": "two_sided",
+          "effect_size": {
+            "name": "wilks_lambda",
+            "value": 0.5243769971493342
+          },
+          "estimate": 0.5243769971493342,
+          "id": "H4",
+          "null": "All family centroids are equal (one-way MANOVA, Wilks' lambda, permutation p-value).",
+          "null_decision": "not rejected",
+          "p_value": 0.09245377311344327,
+          "permutations": 2000,
+          "q_value": 0.1386806596701649,
+          "statement": "Per-family feature centroids (connectors, unique_ratio, long_words, token_entropy) are separated across source families, including human.",
+          "statistic": 0.5243769971493342,
+          "test": "permutation_manova"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            -0.0029659985695197483,
+            0.09217760795105419
+          ],
+          "direction": "ai_greater",
+          "effect_size": {
+            "name": "cohens_d",
+            "value": 0.5475319453438775
+          },
+          "estimate": 0.04460580469076722,
+          "id": "H5",
+          "n_ai": 48,
+          "n_human": 8,
+          "null": "Mean long-word rate is equal across AI and human text documents.",
+          "null_decision": "not rejected",
+          "p_value": 0.031998454999314765,
+          "q_value": 0.06399690999862953,
+          "statement": "Long-word rate (fraction of tokens with >= 7 characters) is higher in AI prose than in human prose.",
+          "statistic": 2.0097639766777413,
+          "test": "welch_t"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            0.0,
+            4.0
+          ],
+          "direction": "positive_autocorrelation_violates",
+          "effect_size": {
+            "name": "durbin_watson",
+            "value": 2.558454591719352
+          },
+          "estimate": 2.558454591719352,
+          "id": "H6",
+          "n_documents": 56,
+          "n_segments": 168,
+          "null": "Durbin-Watson statistic on document-ordered segment residuals is consistent with no positive autocorrelation.",
+          "null_decision": "not rejected",
+          "p_value": 0.28835582208895555,
+          "permutations": 2000,
+          "q_value": 0.28835582208895555,
+          "statement": "Segment-level detector residuals are uncorrelated within documents (the segment-independence assumption holds).",
+          "statistic": 2.558454591719352,
+          "test": "durbin_watson_permutation"
+        }
+      ],
+      "model": {
+        "features": [
+          "long_words",
+          "connectors",
+          "unique_ratio",
+          "short_sentences",
+          "structured",
+          "digits",
+          "balanced_lines",
+          "token_entropy",
+          "word_length_var",
+          "line_sd",
+          "sentence_len_mean",
+          "sentence_len_sd"
+        ],
+        "log_likelihood": -18.115624499781454,
+        "null_log_likelihood": -28.20369479635221,
+        "standardized": true,
+        "type": "penalized logistic regression (IRLS, ridge 1e-6)"
+      },
       "n_ai": 96,
       "n_human": 8,
-      "null": "Mean connector rate is equal across AI and human documents.",
-      "null_decision": "not rejected",
-      "p_value": 0.15992542680201338,
-      "q_value": 0.19191051216241606,
-      "statement": "Connector rate (however/therefore/moreover/additionally/overall/furthermore per token) is higher in AI-generated text than in human text.",
-      "statistic": 0.9999999999999998,
-      "test": "welch_t"
+      "n_records": 104,
+      "note": "hash-verified project corpus (prompt-grouped)",
+      "specification": {
+        "breusch_pagan": {
+          "adequate": true,
+          "df": 12,
+          "meaning": "H0: error variance is constant (homoscedastic).",
+          "p_value": 0.2995006576128288,
+          "r_squared": 0.13479746653132307,
+          "statistic": 14.0189365192576
+        },
+        "cooks_distance": {
+          "max": 0.24453276126511272,
+          "meaning": "Influential-point screen; 4/n is the conventional flag threshold.",
+          "n_above_4_over_n": 11
+        },
+        "durbin_watson": {
+          "meaning": "Pearson residuals ordered by fitted probability; ~2 indicates no residual trend along the fit. Ingestion order is family-clustered and not used.",
+          "statistic": 2.086820354440445
+        },
+        "hosmer_lemeshow": {
+          "adequate": true,
+          "df": 8,
+          "meaning": "H0: observed and expected event counts agree across risk deciles.",
+          "p_value": 0.8227655938821663,
+          "statistic": 4.365173714256173
+        },
+        "jarque_bera": {
+          "adequate": false,
+          "meaning": "H0: residuals have normal skewness and kurtosis. Diagnostic only: Pearson residuals of a binary model are non-normal by construction, so rejection is expected and does not by itself invalidate the fit.",
+          "p_value": 1.1560878179593378e-102,
+          "statistic": 469.43727550187
+        },
+        "link_test": {
+          "adequate": true,
+          "df": 1,
+          "meaning": "H0: the linear logit link is correctly specified (eta^2 adds nothing).",
+          "p_value": 0.6324676148921007,
+          "statistic": 0.22872933132502027
+        },
+        "pseudo_r2": {
+          "mcfadden": 0.3576861247936749,
+          "tjur": 0.23599530733311502
+        },
+        "reset_test": {
+          "adequate": true,
+          "df": 2,
+          "meaning": "Ramsey RESET: H0: no omitted nonlinear structure in the index.",
+          "p_value": 0.09696272339886083,
+          "statistic": 4.666857338392102
+        }
+      }
     },
-    {
-      "alpha": 0.05,
-      "ci95": [
-        0.20305989583333334,
-        0.7526041666666666
+    "defactify": {
+      "families": [
+        "gemma-2-9b",
+        "gpt-4o",
+        "human",
+        "llama-8b",
+        "mistral-7b",
+        "qwen-2-72b",
+        "yi-large"
       ],
-      "direction": "ai_lower",
-      "effect_size": {
-        "name": "rank_biserial",
-        "value": 0.5104166666666667
+      "feature_screening": {
+        "condition_number": 6.273946281367426,
+        "exclusions": [
+          {
+            "feature": "unique_ratio",
+            "justification": "VIF 77.1 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 77.10585229348173
+          },
+          {
+            "feature": "log_words",
+            "justification": "VIF 11.2 exceeds 10; the feature is a near-linear combination of the retained set and its coefficient would be uninterpretable (variance inflation).",
+            "vif": 11.184349840340104
+          }
+        ],
+        "final_vif": [
+          {
+            "feature": "long_words",
+            "r_squared": 0.8544610306494089,
+            "vif": 6.871011966500083
+          },
+          {
+            "feature": "connectors",
+            "r_squared": 0.09376730167100389,
+            "vif": 1.1034693427459654
+          },
+          {
+            "feature": "short_sentences",
+            "r_squared": 0.4438943116240158,
+            "vif": 1.798219332947909
+          },
+          {
+            "feature": "structured",
+            "r_squared": 0.5930969482660098,
+            "vif": 2.457587859659854
+          },
+          {
+            "feature": "digits",
+            "r_squared": 0.3039894698095955,
+            "vif": 1.4367598716163597
+          },
+          {
+            "feature": "balanced_lines",
+            "r_squared": 0.6177712515194123,
+            "vif": 2.6162343988387544
+          },
+          {
+            "feature": "token_entropy",
+            "r_squared": 0.15091345711660054,
+            "vif": 1.1777362488917984
+          },
+          {
+            "feature": "punctuation",
+            "r_squared": 0.6857574344649833,
+            "vif": 3.182255078326007
+          },
+          {
+            "feature": "mean_word_length",
+            "r_squared": 0.864218445582349,
+            "vif": 7.3647706000190265
+          },
+          {
+            "feature": "word_length_var",
+            "r_squared": 0.09693209382287782,
+            "vif": 1.1073364396628953
+          },
+          {
+            "feature": "avg_line_len",
+            "r_squared": 0.129440358310852,
+            "vif": 1.1486863761105428
+          },
+          {
+            "feature": "line_sd",
+            "r_squared": 0.5316762043120791,
+            "vif": 2.1352748017663714
+          },
+          {
+            "feature": "sentence_len_mean",
+            "r_squared": 0.2603834985455491,
+            "vif": 1.352052040528445
+          },
+          {
+            "feature": "sentence_len_sd",
+            "r_squared": 0.19123589782893047,
+            "vif": 1.2364544832239355
+          },
+          {
+            "feature": "hapax_ratio",
+            "r_squared": 0.1873196297203975,
+            "vif": 1.2304960677910188
+          }
+        ],
+        "investigations": [
+          {
+            "feature": "long_words",
+            "vif": 6.871011966500083
+          },
+          {
+            "feature": "mean_word_length",
+            "vif": 7.3647706000190265
+          }
+        ],
+        "kept": [
+          "long_words",
+          "connectors",
+          "short_sentences",
+          "structured",
+          "digits",
+          "balanced_lines",
+          "token_entropy",
+          "punctuation",
+          "mean_word_length",
+          "word_length_var",
+          "avg_line_len",
+          "line_sd",
+          "sentence_len_mean",
+          "sentence_len_sd",
+          "hapax_ratio"
+        ]
       },
-      "estimate": 0.5104166666666667,
-      "id": "H2",
-      "n_ai": 96,
-      "n_human": 8,
-      "null": "The distributions of token entropy are equal across AI and human documents.",
-      "null_decision": "not rejected",
-      "p_value": 0.008542317644687474,
-      "q_value": 0.051253905868124845,
-      "statement": "Token entropy (Shannon entropy over word tokens) is lower in AI-generated text than in human text.",
-      "statistic": 188.0,
-      "test": "mann_whitney"
-    },
-    {
-      "alpha": 0.05,
-      "ci95": [
-        2.061153622438558e-09,
-        1.539123314703179
+      "hypotheses": [
+        {
+          "alpha": 0.05,
+          "ci95": [
+            0.0012932368488058797,
+            0.0013331916214228974
+          ],
+          "direction": "ai_greater",
+          "effect_size": {
+            "name": "cohens_d",
+            "value": 0.6731249783459107
+          },
+          "estimate": 0.0013132142351143885,
+          "id": "H1",
+          "n_ai": 62183,
+          "n_human": 9483,
+          "null": "Mean connector rate is equal across AI and human documents.",
+          "null_decision": "rejected",
+          "p_value": 0.0,
+          "q_value": 0.0,
+          "statement": "Connector rate (however/therefore/moreover/additionally/overall/furthermore per token) is higher in AI-generated text than in human text.",
+          "statistic": 128.8412122298825,
+          "test": "welch_t"
+        },
+        {
+          "alpha": 0.05,
+          "bootstrap_resample_size": [
+            4000,
+            4000
+          ],
+          "ci95": [
+            0.173271315625,
+            0.22674939375
+          ],
+          "direction": "ai_lower",
+          "effect_size": {
+            "name": "rank_biserial",
+            "value": 0.19982018967873516
+          },
+          "estimate": 0.19982018967873516,
+          "id": "H2",
+          "n_ai": 62183,
+          "n_human": 9483,
+          "null": "The distributions of token entropy are equal across AI and human documents.",
+          "null_decision": "rejected",
+          "p_value": 1.2148945592193079e-216,
+          "q_value": 2.429789118438616e-216,
+          "statement": "Token entropy (Shannon entropy over word tokens) is lower in AI-generated text than in human text.",
+          "statistic": 235925571.0,
+          "test": "mann_whitney"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            0.012222678197583206,
+            0.025661438311290617
+          ],
+          "df": 1,
+          "direction": "two_sided",
+          "effect_size": {
+            "name": "odds_ratio",
+            "value": 0.01771020899272615
+          },
+          "estimate": -4.033614026425508,
+          "id": "H3",
+          "null": "Adding unique_ratio to a logistic model containing log_words does not improve fit (likelihood-ratio test, df=1).",
+          "null_decision": "rejected",
+          "p_value": 1.8065747402504495e-103,
+          "q_value": 2.709862110375674e-103,
+          "statement": "Unique-token ratio discriminates AI from human text beyond document length.",
+          "statistic": 466.5484552108828,
+          "test": "logistic_lr"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            null,
+            null
+          ],
+          "direction": "two_sided",
+          "effect_size": {
+            "name": "wilks_lambda",
+            "value": 0.4552870429467946
+          },
+          "estimate": 0.4552870429467946,
+          "id": "H4",
+          "null": "All family centroids are equal (one-way MANOVA, Wilks' lambda, permutation p-value).",
+          "null_decision": "rejected",
+          "p_value": 0.001996007984031936,
+          "permutations": 500,
+          "q_value": 0.0023952095808383233,
+          "statement": "Per-family feature centroids (connectors, unique_ratio, long_words, token_entropy) are separated across source families, including human.",
+          "statistic": 0.4552870429467946,
+          "test": "permutation_manova"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            0.05731254720218704,
+            0.0595603545771941
+          ],
+          "direction": "ai_greater",
+          "effect_size": {
+            "name": "cohens_d",
+            "value": 1.0742994174390599
+          },
+          "estimate": 0.05843645088969057,
+          "id": "H5",
+          "n_ai": 62183,
+          "n_human": 9483,
+          "null": "Mean long-word rate is equal across AI and human text documents.",
+          "null_decision": "rejected",
+          "p_value": 0.0,
+          "q_value": 0.0,
+          "statement": "Long-word rate (fraction of tokens with >= 7 characters) is higher in AI prose than in human prose.",
+          "statistic": 101.91623007954998,
+          "test": "welch_t"
+        },
+        {
+          "alpha": 0.05,
+          "ci95": [
+            0.0,
+            4.0
+          ],
+          "direction": "positive_autocorrelation_violates",
+          "effect_size": {
+            "name": "durbin_watson",
+            "value": 2.6845589775059326
+          },
+          "estimate": 2.6845589775059326,
+          "id": "H6",
+          "n_documents": 71666,
+          "n_segments": 214998,
+          "null": "Durbin-Watson statistic on document-ordered segment residuals is consistent with no positive autocorrelation.",
+          "null_decision": "not rejected",
+          "p_value": 1.0,
+          "permutations": 500,
+          "q_value": 1.0,
+          "statement": "Segment-level detector residuals are uncorrelated within documents (the segment-independence assumption holds).",
+          "statistic": 2.6845589775059326,
+          "test": "durbin_watson_permutation"
+        }
       ],
-      "df": 1,
-      "direction": "two_sided",
-      "effect_size": {
-        "name": "odds_ratio",
-        "value": 1.8503220146861612e-05
+      "model": {
+        "features": [
+          "long_words",
+          "connectors",
+          "short_sentences",
+          "structured",
+          "digits",
+          "balanced_lines",
+          "token_entropy",
+          "punctuation",
+          "mean_word_length",
+          "word_length_var",
+          "avg_line_len",
+          "line_sd",
+          "sentence_len_mean",
+          "sentence_len_sd",
+          "hapax_ratio"
+        ],
+        "log_likelihood": -6228.7762054638915,
+        "null_log_likelihood": -28005.447362235216,
+        "standardized": true,
+        "type": "penalized logistic regression (IRLS, ridge 1e-6)"
       },
-      "estimate": -10.897565779034506,
-      "id": "H3",
-      "null": "Adding unique_ratio to a logistic model containing log_words does not improve fit (likelihood-ratio test, df=1).",
-      "null_decision": "not rejected",
-      "p_value": 0.01890963741070646,
-      "q_value": 0.05672891223211937,
-      "statement": "Unique-token ratio discriminates AI from human text beyond document length.",
-      "statistic": 5.509852882944912,
-      "test": "logistic_lr"
-    },
-    {
-      "alpha": 0.05,
-      "ci95": [
-        null,
-        null
-      ],
-      "direction": "two_sided",
-      "effect_size": {
-        "name": "wilks_lambda",
-        "value": 0.5243769971493342
-      },
-      "estimate": 0.5243769971493342,
-      "id": "H4",
-      "null": "All family centroids are equal (one-way MANOVA, Wilks' lambda, permutation p-value).",
-      "null_decision": "not rejected",
-      "p_value": 0.09245377311344327,
-      "permutations": 2000,
-      "q_value": 0.1386806596701649,
-      "statement": "Per-family feature centroids (connectors, unique_ratio, long_words, token_entropy) are separated across source families, including human.",
-      "statistic": 0.5243769971493342,
-      "test": "permutation_manova"
-    },
-    {
-      "alpha": 0.05,
-      "ci95": [
-        -0.0029659985695197483,
-        0.09217760795105419
-      ],
-      "direction": "ai_greater",
-      "effect_size": {
-        "name": "cohens_d",
-        "value": 0.5475319453438775
-      },
-      "estimate": 0.04460580469076722,
-      "id": "H5",
-      "n_ai": 48,
-      "n_human": 8,
-      "null": "Mean long-word rate is equal across AI and human text documents.",
-      "null_decision": "not rejected",
-      "p_value": 0.031998454999314765,
-      "q_value": 0.06399690999862953,
-      "statement": "Long-word rate (fraction of tokens with >= 7 characters) is higher in AI prose than in human prose.",
-      "statistic": 2.0097639766777413,
-      "test": "welch_t"
-    },
-    {
-      "alpha": 0.05,
-      "ci95": [
-        0.0,
-        4.0
-      ],
-      "direction": "positive_autocorrelation_violates",
-      "effect_size": {
-        "name": "durbin_watson",
-        "value": 2.558454591719352
-      },
-      "estimate": 2.558454591719352,
-      "id": "H6",
-      "n_documents": 56,
-      "n_segments": 168,
-      "null": "Durbin-Watson statistic on document-ordered segment residuals is consistent with no positive autocorrelation.",
-      "null_decision": "not rejected",
-      "p_value": 0.28835582208895555,
-      "permutations": 2000,
-      "q_value": 0.28835582208895555,
-      "statement": "Segment-level detector residuals are uncorrelated within documents (the segment-independence assumption holds).",
-      "statistic": 2.558454591719352,
-      "test": "durbin_watson_permutation"
+      "n_ai": 62183,
+      "n_human": 9483,
+      "n_records": 71666,
+      "note": "Defactify_Text_Dataset (Roy et al. 2026), hygiene-filtered; story groups reconstructed via TF-IDF near-duplicate clustering",
+      "specification": {
+        "breusch_pagan": {
+          "adequate": false,
+          "df": 15,
+          "meaning": "H0: error variance is constant (homoscedastic).",
+          "p_value": 6.855704634707448e-86,
+          "r_squared": 0.006244550414966299,
+          "statistic": 447.52195003897475
+        },
+        "cooks_distance": {
+          "max": 1618.476283109001,
+          "meaning": "Influential-point screen; 4/n is the conventional flag threshold.",
+          "n_above_4_over_n": 2595
+        },
+        "durbin_watson": {
+          "meaning": "Pearson residuals ordered by fitted probability; ~2 indicates no residual trend along the fit. Ingestion order is family-clustered and not used.",
+          "statistic": 1.9999999770221637
+        },
+        "hosmer_lemeshow": {
+          "adequate": false,
+          "df": 8,
+          "meaning": "H0: observed and expected event counts agree across risk deciles.",
+          "p_value": 0.0,
+          "statistic": 7118.9218716555315
+        },
+        "jarque_bera": {
+          "adequate": false,
+          "meaning": "H0: residuals have normal skewness and kurtosis. Diagnostic only: Pearson residuals of a binary model are non-normal by construction, so rejection is expected and does not by itself invalidate the fit.",
+          "p_value": 0.0,
+          "statistic": 2690612131816.8916
+        },
+        "link_test": {
+          "adequate": false,
+          "df": 1,
+          "meaning": "H0: the linear logit link is correctly specified (eta^2 adds nothing).",
+          "p_value": 3.968414432565001e-62,
+          "statistic": 276.68220167845357
+        },
+        "pseudo_r2": {
+          "mcfadden": 0.7775869771013453,
+          "tjur": 0.8019928819957479
+        },
+        "reset_test": {
+          "adequate": false,
+          "df": 2,
+          "meaning": "Ramsey RESET: H0: no omitted nonlinear structure in the index.",
+          "p_value": 2.0622099944090975e-75,
+          "statistic": 343.9402075079688
+        }
+      }
     }
-  ],
-  "model": {
-    "features": [
-      "long_words",
-      "connectors",
-      "unique_ratio",
-      "short_sentences",
-      "structured",
-      "digits",
-      "balanced_lines",
-      "token_entropy",
-      "word_length_var",
-      "line_sd",
-      "sentence_len_mean",
-      "sentence_len_sd"
-    ],
-    "log_likelihood": -18.115624499781454,
-    "null_log_likelihood": -28.20369479635221,
-    "standardized": true,
-    "type": "penalized logistic regression (IRLS, ridge 1e-6)"
   },
+  "created_utc": "2026-08-12T21:45:39Z",
   "schema": "panoptes-methodology-v1",
-  "seed": 13,
-  "specification": {
-    "breusch_pagan": {
-      "adequate": true,
-      "df": 12,
-      "meaning": "H0: error variance is constant (homoscedastic).",
-      "p_value": 0.2995006576128288,
-      "r_squared": 0.13479746653132307,
-      "statistic": 14.0189365192576
-    },
-    "cooks_distance": {
-      "max": 0.24453276126511272,
-      "meaning": "Influential-point screen; 4/n is the conventional flag threshold.",
-      "n_above_4_over_n": 11
-    },
-    "durbin_watson": {
-      "meaning": "Pearson residuals ordered by fitted probability; ~2 indicates no residual trend along the fit. Ingestion order is family-clustered and not used.",
-      "statistic": 2.086820354440445
-    },
-    "hosmer_lemeshow": {
-      "adequate": true,
-      "df": 8,
-      "meaning": "H0: observed and expected event counts agree across risk deciles.",
-      "p_value": 0.8227655938821663,
-      "statistic": 4.365173714256173
-    },
-    "jarque_bera": {
-      "adequate": false,
-      "meaning": "H0: residuals have normal skewness and kurtosis. Diagnostic only: Pearson residuals of a binary model are non-normal by construction, so rejection is expected and does not by itself invalidate the fit.",
-      "p_value": 1.1560878179593378e-102,
-      "statistic": 469.43727550187
-    },
-    "link_test": {
-      "adequate": true,
-      "df": 1,
-      "meaning": "H0: the linear logit link is correctly specified (eta^2 adds nothing).",
-      "p_value": 0.6324676148921007,
-      "statistic": 0.22872933132502027
-    },
-    "pseudo_r2": {
-      "mcfadden": 0.3576861247936749,
-      "tjur": 0.23599530733311502
-    },
-    "reset_test": {
-      "adequate": true,
-      "df": 2,
-      "meaning": "Ramsey RESET: H0: no omitted nonlinear structure in the index.",
-      "p_value": 0.09696272339886083,
-      "statistic": 4.666857338392102
-    }
-  }
+  "seed": 13
 }
