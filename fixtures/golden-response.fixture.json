@@ -1,0 +1,15 @@
+{
+  "purpose": "Generated at test time from the fixture profile; used as a stable contract example.",
+  "request": {"fixture": "ai-prose", "prior_odds": 1.0},
+  "required_fields": [
+    "summary",
+    "posterior",
+    "source_families",
+    "watermarks",
+    "segments",
+    "matrices",
+    "math",
+    "limitations",
+    "capabilities"
+  ]
+}

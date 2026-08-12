@@ -38,6 +38,14 @@ def length_bucket(token_count: int) -> str:
     return "500plus"
 
 
+def _token_entropy(tokens: list[str]) -> float:
+    counts: dict[str, int] = {}
+    for token in tokens:
+        counts[token] = counts.get(token, 0) + 1
+    total = len(tokens)
+    return -sum((count / total) * math.log2(count / total) for count in counts.values())
+
+
 def extract_features(text: str) -> list[float]:
     tokens = [token.lower() for token in text.split()]
     if not tokens:
@@ -93,7 +101,7 @@ def fit_source_geometry(features: np.ndarray, families: np.ndarray) -> dict:
         centroids[family] = family_rows.mean(axis=0).tolist()
         covariances[family] = LedoitWolf().fit(family_rows).covariance_.tolist()
 
-    classifier = LogisticRegression(max_iter=1000, multi_class="multinomial", C=0.5)
+    classifier = LogisticRegression(max_iter=1000, C=0.5)
     classifier.fit(embedded, families)
     return {
         "schema": "source-geometry-v1",

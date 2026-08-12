@@ -1,0 +1,14 @@
+Panoptes bundles or references third-party open-source components.
+
+Core runtime packages are declared in backend/pyproject.toml and frontend/package.json.
+
+Planned detector artifacts:
+- desklib/ai-text-detector-v1.01: Hugging Face model; verify exact model card and license before release.
+- DroidDetect-Base: verify exact model card and license before release.
+- C2PA tooling: verify package and specification terms before enabling non-development provenance verification.
+
+Research datasets:
+- RAID: cite and follow dataset terms; do not redistribute unless permitted.
+- DroidCollection: cite and follow dataset terms; do not redistribute unless permitted.
+
+The current checked-in calibration artifact is synthetic and intended only to validate the pipeline.
