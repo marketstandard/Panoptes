@@ -1,0 +1,21 @@
+{
+  "artifact_sha256": "7c2589a6643a759f9b7603a20fe2da456931671c9f8fef95532412a0822a2c54",
+  "dataset": "defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)",
+  "limitations": [
+    "Shipped runtime = heuristic raw score + corpus-fitted isotonic calibration; it never saw this dataset.",
+    "Domain shift: calibration was fitted on the 104-record project corpus, not on NYT prose.",
+    "External validation measures transportability, not the bench-trained tiers (see their cards)."
+  ],
+  "metrics": {
+    "accuracy": 0.8676778388636174,
+    "auroc": 0.647620470348607,
+    "auroc_ci95_hi": 0.6522161101925881,
+    "auroc_ci95_lo": 0.6428876740833565,
+    "brier": 0.11753581511503831,
+    "ece": 0.02943410485198992,
+    "n": 71666.0,
+    "tpr_at_1fpr": 0.9780325812521107,
+    "tpr_at_5fpr": 0.9780325812521107
+  },
+  "schema": "panoptes-benchmark-card-v1"
+}

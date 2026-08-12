@@ -14,6 +14,8 @@ import { ReliabilityDiagram } from './components/ReliabilityDiagram';
 import { SourceFamilyPanel } from './components/SourceFamilyPanel';
 import { TechnicalDrilldown } from './components/TechnicalDrilldown';
 import { TokenEvidenceOverlay } from './components/TokenEvidenceOverlay';
+import { useArtifact } from './hooks';
+import type { DefactifySummary } from './components/CorpusPanel';
 import type { AnalysisResponse } from './types';
 import 'katex/dist/katex.min.css';
 import './styles.css';
@@ -32,6 +34,7 @@ export default function App() {
   const [showTechnical, setShowTechnical] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { data: defactifySummary } = useArtifact<DefactifySummary>('defactify-summary');
 
   const selected = useMemo(
     () => result?.segments.find((segment) => segment.id === selectedSegment) ?? result?.segments[0] ?? null,
@@ -160,7 +163,7 @@ export default function App() {
           <section className="figures-grid" aria-label="Statistical figures">
             <PosteriorSensitivity priorOdds={priorOdds} likelihoodRatio={result.posterior.likelihood_ratio} />
             <ReliabilityDiagram calibration={result.calibration} />
-            <PowerCurve currentN={result.calibration?.n_records ?? 0} />
+            <PowerCurve currentN={result.calibration?.n_records ?? 0} defactifyN={defactifySummary?.n_records} />
             <CoverageCurve />
             <InputProfile featureProfile={result.input.feature_profile} />
           </section>

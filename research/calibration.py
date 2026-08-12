@@ -340,6 +340,93 @@ def corpus_main(output: Path, min_family_n: int = 8) -> None:
                       "dropped_families": dropped}, indent=2, sort_keys=True))
 
 
+def defactify_main(output: Path, min_family_n: int = 8) -> None:
+    """Fit a second calibration artifact on the Defactify_Text_Dataset.
+
+    Same recipe as the corpus artifact — isotonic calibration of the shipped
+    heuristic raw score under story-grouped GroupKFold, reliability bins,
+    split-conformal threshold, and per-family Mahalanobis geometry — but
+    fitted on 71,666 hygiene-filtered NYT-domain rows across 7 families.
+    Selected at runtime with PANOPTES_CALIBRATION_BUNDLE=defactify-calibration.json.
+    """
+    from bench.datasets import defactify_created_utc, load_defactify
+    from bench.features import ATTRIBUTION_FEATURES, heuristic_raw_score
+
+    dataset = load_defactify()
+    created = defactify_created_utc() or "2026-08-12T00:00:00Z"
+
+    labels = dataset.labels
+    groups = np.array(dataset.groups)
+    raw = np.array([heuristic_raw_score(text, "text") for text in dataset.texts])
+
+    n_splits = 5
+    splitter = GroupKFold(n_splits=n_splits)
+    calibrated = np.zeros_like(raw, dtype=float)
+    for train, test in splitter.split(raw.reshape(-1, 1), labels, groups=groups):
+        calibrator = fit_binary_calibrator(raw[train], labels[train])
+        calibrated[test] = calibrator.predict(raw[test])
+    metrics = evaluate_binary(labels, calibrated)
+    bins = _reliability_bins(labels, calibrated)
+    nonconformity = np.abs(labels - calibrated)
+    threshold = conformal_threshold(nonconformity, alpha=0.1)
+
+    family_counts: dict[str, int] = {}
+    for family in dataset.families:
+        family_counts[family] = family_counts.get(family, 0) + 1
+    dropped = sorted(f for f, n in family_counts.items() if n < min_family_n)
+    kept_idx = [i for i, f in enumerate(dataset.families) if family_counts[f] >= min_family_n]
+    geometry_features = np.array(
+        [
+            [extract_attribution(dataset.texts[i], "text")[name] for name in ATTRIBUTION_FEATURES]
+            for i in kept_idx
+        ]
+    )
+    geometry = fit_source_geometry(
+        geometry_features, np.array([dataset.families[i] for i in kept_idx])
+    )
+
+    full_calibrator = fit_binary_calibrator(raw, labels)
+    save_signed_artifact(
+        {
+            "schema": "panoptes-calibration-v1",
+            "bundle_id": "defactify-text-v1",
+            "cohort": "defactify-text (Roy et al. 2026; NYT human + 6 LLM families; hygiene-filtered)",
+            "dataset_manifest_id": "defactify-text",
+            "detector_id": "heuristic-prose-detector",
+            "detector_version": "0.1.0",
+            "feature_schema": "panoptes-attribution-features-v1",
+            "feature_names": list(ATTRIBUTION_FEATURES),
+            "created_utc": created,
+            "corpus": {
+                "n_records": len(dataset),
+                "n_text_records": len(dataset),
+                "n_human": int((labels == 0).sum()),
+                "n_ai": int((labels == 1).sum()),
+                "families": sorted(family_counts),
+                "geometry_dropped_families": dropped,
+                "geometry_min_family_n": min_family_n,
+            },
+            "repro": {
+                "command": "python research/calibration.py --dataset defactify",
+                "seed": 13,
+                "code_commit": "workspace",
+                "group_cv": f"GroupKFold(n_splits={n_splits}, groups=reconstructed story id)",
+            },
+            "metrics": metrics,
+            "reliability_bins": bins,
+            "binary_calibrator": {
+                "x_thresholds": full_calibrator.X_thresholds_.tolist(),
+                "y_thresholds": full_calibrator.y_thresholds_.tolist(),
+            },
+            "source_geometry": geometry,
+            "conformal": {"alpha": 0.1, "threshold": threshold},
+        },
+        output,
+    )
+    print(json.dumps({"metrics": metrics, "conformal_threshold": threshold,
+                      "dropped_families": dropped}, indent=2, sort_keys=True))
+
+
 def extract_attribution(text: str, kind: str) -> dict[str, float]:
     from bench.features import extract
 
@@ -374,6 +461,12 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="use the synthetic development cohort instead of the verified corpus",
     )
+    parser.add_argument(
+        "--dataset",
+        choices=["corpus", "defactify"],
+        default="corpus",
+        help="corpus (default) fits the verified project corpus; defactify fits the local Defactify parquet",
+    )
     parser.add_argument("--out", type=Path, default=None, help="override output path")
     args = parser.parse_args(argv)
 
@@ -381,6 +474,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.synthetic:
         output = args.out or root / "backend" / "artifacts" / "baseline-calibration.synthetic.json"
         synthetic_main(output)
+    elif args.dataset == "defactify":
+        output = args.out or root / "backend" / "artifacts" / "defactify-calibration.json"
+        defactify_main(output)
     else:
         output = args.out or root / "backend" / "artifacts" / "baseline-calibration.json"
         corpus_main(output)

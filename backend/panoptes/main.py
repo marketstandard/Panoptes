@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from panoptes.analysis.calibration_bundle import available_bundles
 from panoptes.analysis.pipeline import analyze
 from panoptes.registry import enabled_registrations
 from panoptes.schemas import AnalysisRequest, AnalysisResponse, RuntimeInfo
@@ -60,7 +61,7 @@ def runtime(settings: Settings = Depends(get_settings)) -> RuntimeInfo:
         profile=settings.profile,
         device="cpu" if "gpu" not in settings.profile.value else "gpu",
         models_loaded=[],
-        calibration_bundles=[],
+        calibration_bundles=available_bundles(settings.artifact_dir),
     )
 
 
@@ -68,11 +69,17 @@ def runtime(settings: Settings = Depends(get_settings)) -> RuntimeInfo:
 # files contain aggregate statistics and signatures, never raw corpus text.
 _ARTIFACT_ALLOWLIST = {
     "baseline-calibration": "baseline-calibration.json",
+    "defactify-calibration": "defactify-calibration.json",
     "corpus-summary": "corpus-summary.json",
+    "defactify-summary": "defactify-summary.json",
     "methodology-report": "methodology-report.json",
     "panoptes-v0-card": "panoptes-v0-card.json",
     "logistic-tier0-card": "cards/logistic-tier0.json",
     "gbm-tier1-card": "cards/gbm-tier1.json",
+    "logistic-defactify-card": "cards/logistic-tier0-defactify.json",
+    "gbm-defactify-card": "cards/gbm-tier1-defactify.json",
+    "attribution-defactify-card": "cards/attribution-defactify.json",
+    "defactify-external-validation": "cards/defactify-external-validation.json",
 }
 
 

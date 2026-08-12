@@ -71,29 +71,63 @@ def canonical_hash(payload: dict) -> str:
     return hashlib.sha256(canonical).hexdigest()
 
 
-def _candidate_paths(artifact_dir: str) -> list[Path]:
+ALLOWED_BUNDLES = ("baseline-calibration.json", "defactify-calibration.json")
+DEFAULT_BUNDLE = "baseline-calibration.json"
+
+
+def _candidate_paths(artifact_dir: str, bundle_name: str = DEFAULT_BUNDLE) -> list[Path]:
     return [
-        Path(artifact_dir) / "baseline-calibration.json",
-        Path(__file__).resolve().parents[2] / "artifacts" / "baseline-calibration.json",
+        Path(artifact_dir) / bundle_name,
+        Path(__file__).resolve().parents[2] / "artifacts" / bundle_name,
     ]
 
 
-def load_bundle(artifact_dir: str) -> CalibrationBundle | None:
-    """Load the bundle if present and self-consistent; otherwise None."""
-    for path in _candidate_paths(artifact_dir):
-        if not path.exists():
-            continue
-        try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if not REQUIRED_KEYS.issubset(payload):
-            continue
-        if payload.get("schema") != SCHEMA_ID:
-            continue
-        if payload.get("artifact_sha256") != canonical_hash(payload):
-            continue
-        return CalibrationBundle(payload=payload, path=path)
+def available_bundles(artifact_dir: str) -> list[str]:
+    """Allowlisted bundle names whose artifacts exist and self-validate."""
+    found: list[str] = []
+    for name in ALLOWED_BUNDLES:
+        for path in _candidate_paths(artifact_dir, name):
+            if not path.exists():
+                continue
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                break
+            if (
+                REQUIRED_KEYS.issubset(payload)
+                and payload.get("schema") == SCHEMA_ID
+                and payload.get("artifact_sha256") == canonical_hash(payload)
+            ):
+                found.append(name)
+            break
+    return found
+
+
+def load_bundle(artifact_dir: str, bundle_name: str = DEFAULT_BUNDLE) -> CalibrationBundle | None:
+    """Load the selected bundle if present and self-consistent; otherwise None.
+
+    `bundle_name` is allowlist-validated (PANOPTES_CALIBRATION_BUNDLE): an
+    unknown or missing selection falls back to the default corpus-fitted
+    bundle, and an invalid artifact falls back to heuristic behavior.
+    """
+    if bundle_name not in ALLOWED_BUNDLES:
+        bundle_name = DEFAULT_BUNDLE
+    names = [bundle_name] if bundle_name == DEFAULT_BUNDLE else [bundle_name, DEFAULT_BUNDLE]
+    for name in names:
+        for path in _candidate_paths(artifact_dir, name):
+            if not path.exists():
+                continue
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not REQUIRED_KEYS.issubset(payload):
+                continue
+            if payload.get("schema") != SCHEMA_ID:
+                continue
+            if payload.get("artifact_sha256") != canonical_hash(payload):
+                continue
+            return CalibrationBundle(payload=payload, path=path)
     return None
 
 

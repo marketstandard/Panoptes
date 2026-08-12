@@ -3,13 +3,14 @@ import { InfoTip } from './InfoTip';
 
 interface Props {
   currentN: number;
+  defactifyN?: number;
 }
 
 const W = 520;
 const H = 280;
 const PAD = { left: 52, right: 16, top: 18, bottom: 52 };
 const N_MIN = 20;
-const N_MAX = 5000;
+const N_MAX = 75000;
 const MDE = 0.05;
 const Z_ALPHA = 1.959964;
 
@@ -26,25 +27,35 @@ export function powerAt(n: number): number {
 }
 
 function xScale(n: number): number {
-  return PAD.left + ((n - N_MIN) / (N_MAX - N_MIN)) * (W - PAD.left - PAD.right);
+  const lo = Math.log10(N_MIN);
+  const hi = Math.log10(N_MAX);
+  return PAD.left + ((Math.log10(Math.max(n, N_MIN)) - lo) / (hi - lo)) * (W - PAD.left - PAD.right);
+}
+
+function xInvert(x: number): number {
+  const lo = Math.log10(N_MIN);
+  const hi = Math.log10(N_MAX);
+  return 10 ** (lo + ((x - PAD.left) / (W - PAD.left - PAD.right)) * (hi - lo));
 }
 
 function yScale(power: number): number {
   return H - PAD.bottom - power * (H - PAD.top - PAD.bottom);
 }
 
-export function PowerCurve({ currentN }: Props) {
+export function PowerCurve({ currentN, defactifyN }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [hover, setHover] = useState<{ n: number; x: number } | null>(null);
 
-  const steps = 120;
+  const steps = 160;
   const path: string[] = [];
   for (let i = 0; i < steps; i += 1) {
-    const n = N_MIN + (i / (steps - 1)) * (N_MAX - N_MIN);
+    const n = 10 ** (Math.log10(N_MIN) + (i / (steps - 1)) * (Math.log10(N_MAX) - Math.log10(N_MIN)));
     path.push(`${i === 0 ? 'M' : 'L'}${xScale(n).toFixed(1)},${yScale(powerAt(n)).toFixed(1)}`);
   }
   const markerX = xScale(Math.min(Math.max(currentN, N_MIN), N_MAX));
   const markerY = yScale(powerAt(currentN));
+  const defactifyX = defactifyN ? xScale(Math.min(Math.max(defactifyN, N_MIN), N_MAX)) : null;
+  const defactifyY = defactifyN ? yScale(powerAt(defactifyN)) : null;
   const y80 = yScale(0.8);
 
   const onMove = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -53,8 +64,7 @@ export function PowerCurve({ currentN }: Props) {
     const rect = svg.getBoundingClientRect();
     const svgX = ((event.clientX - rect.left) / rect.width) * W;
     const clamped = Math.min(Math.max(svgX, PAD.left), W - PAD.right);
-    const n = N_MIN + ((clamped - PAD.left) / (W - PAD.left - PAD.right)) * (N_MAX - N_MIN);
-    setHover({ n, x: clamped });
+    setHover({ n: xInvert(clamped), x: clamped });
   };
 
   return (
@@ -75,7 +85,7 @@ export function PowerCurve({ currentN }: Props) {
         onMouseLeave={() => setHover(null)}
         className="chart-interactive"
       >
-        {[500, 1000, 2000, 3140, 5000].map((tick) => (
+        {[100, 1000, 3140, 10000, 75000].map((tick) => (
           <g key={tick}>
             <line x1={xScale(tick)} y1={yScale(0)} x2={xScale(tick)} y2={yScale(1)} className="grid-line" />
             <text x={xScale(tick)} y={H - 30} className="axis-label" textAnchor="middle">
@@ -111,16 +121,27 @@ export function PowerCurve({ currentN }: Props) {
         <text x={markerX} y={markerY - 10} className="axis-label marker-label" textAnchor="middle">
           this corpus
         </text>
+        {defactifyX !== null && defactifyY !== null && defactifyN ? (
+          <g>
+            <circle cx={defactifyX} cy={defactifyY} r={5} className="sensitivity-marker defactify-marker">
+              <title>{`Defactify bench: n=${defactifyN.toLocaleString()}, power ${(powerAt(defactifyN) * 100).toFixed(1)}% — the neural gate passes`}</title>
+            </circle>
+            <text x={defactifyX} y={defactifyY - 10} className="axis-label marker-label" textAnchor="end">
+              Defactify bench
+            </text>
+          </g>
+        ) : null}
       </svg>
       <div className="chart-legend">
         <span><i className="legend-line legend-blue" /> Power to detect a 5-pt lift (α = 0.05)</span>
         <span><i className="legend-line legend-dashed" /> 80% target</span>
         <span><i className="legend-dot legend-amber" /> This corpus</span>
+        {defactifyN ? <span><i className="legend-dot legend-green" /> Defactify bench</span> : null}
       </div>
       <p className="figure-caption hover-readout">
         {hover
           ? `n = ${Math.round(hover.n).toLocaleString()} → power ${(powerAt(hover.n) * 100).toFixed(1)}%`
-          : `n = ${currentN} · power ${(powerAt(currentN) * 100).toFixed(1)}% · 80% power at n = 3,140`}
+          : `n = ${currentN} · power ${(powerAt(currentN) * 100).toFixed(1)}% · 80% power at n = 3,140${defactifyN ? ` · Defactify n = ${defactifyN.toLocaleString()}` : ''}`}
       </p>
     </article>
   );

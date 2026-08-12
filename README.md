@@ -192,9 +192,10 @@ Panoptes maintains a canonical prompt set (8 text + 8 code prompts) that anyone 
 **Yes — through signed, hash-verified artifacts.** Raw baseline text never enters the runtime; instead the corpus is distilled offline into artifacts under `backend/artifacts/`, each schema-validated and SHA-256 self-signed, and the backend loads them at request time:
 
 - **`baseline-calibration.json`** — isotonic score→probability map, corpus-fitted source-family Mahalanobis geometry, conformal thresholds, and reliability bins. Produced by `python research/calibration.py` (corpus mode is the default; `--synthetic` reproduces the old development fixture). Consumed by `backend/panoptes/analysis/calibration_bundle.py`; when the artifact is absent or fails verification the pipeline falls back to heuristic behavior and says so (`basis: heuristic`).
-- **`corpus-summary.json`** — cohort composition and feature means, produced by `python research/baseline_corpus.py` after re-hashing every output file against its manifest (a tampered file rejects the whole run).
-- **`methodology-report.json`** — VIF feature screening, the pre-registered hypothesis registry (H1–H6) with q-values and accept/reject decisions, and the econometric specification battery (link, Hosmer–Lemeshow, RESET, Breusch–Pagan, Jarque–Bera, Durbin–Watson). Produced by `python research/methodology.py`.
-- **Model cards** (`cards/logistic-tier0.json`, `panoptes-v0-card.json`) — bench evaluation results with grouped cross-validation, power-gate rationale, and the Panoptes-v0 comparison battery (McNemar, DeLong).
+- **`defactify-calibration.json`** — the same calibration infrastructure fitted on the Defactify_Text_Dataset (n=71,666; seven families). Opt-in via `PANOPTES_CALIBRATION_BUNDLE=defactify-calibration.json`; see [External validation on Defactify-Text](#external-validation-on-defactify-text).
+- **`corpus-summary.json`** / **`defactify-summary.json`** — cohort composition and feature means for the project corpus and the Defactify bench. The corpus summary is produced by `python research/baseline_corpus.py` after re-hashing every output file against its manifest (a tampered file rejects the whole run); the Defactify summary by `python research/fetch_defactify.py --summary`.
+- **`methodology-report.json`** — VIF feature screening, the pre-registered hypothesis registry (H1–H6) with q-values and accept/reject decisions, and the econometric specification battery (link, Hosmer–Lemeshow, RESET, Breusch–Pagan, Jarque–Bera, Durbin–Watson), reported per cohort (`corpus` and `defactify`). Produced by `python research/methodology.py --dataset both`.
+- **Model cards** (`cards/logistic-tier0.json`, `panoptes-v0-card.json`, `cards/logistic-tier0-defactify.json`, `cards/gbm-tier1-defactify.json`, `cards/attribution-defactify.json`, `cards/defactify-external-validation.json`) — bench evaluation results with grouped cross-validation, power-gate rationale, and the Panoptes-v0 comparison battery (McNemar, DeLong).
 
 All five are served read-only at `GET /api/v1/artifacts/<name>` and rendered in the UI (corpus panel, reliability diagram, power curve, coverage curve, model-card panel). Artifact timestamps are derived deterministically from the corpus manifests, so regeneration from the same corpus is byte-identical.
 
@@ -253,6 +254,39 @@ python -m bench predict --model panoptes-v0 --text "..."
 
 See [`bench/README.md`](bench/README.md) for the full protocol and [`research/findings/panoptes-v0.md`](research/findings/panoptes-v0.md) for the training iteration log.
 
+## External validation on Defactify-Text
+
+The project corpus (n=104) is deliberately honest but underpowered. To separate "no effect" from "no power", the bench also runs on the **Defactify_Text_Dataset** (Roy et al. 2026, [arXiv:2510.22874](https://arxiv.org/abs/2510.22874)): 73,193 rows of New York Times human articles and single-prompt rewrites by six LLM families (Gemma-2-9B, GPT-4o, Llama-8B, Mistral-7B, Qwen-2-72B, Yi-Large). The authors' own baselines score 53–58% on detection and 5–9% on attribution — a deliberately hard benchmark.
+
+### Fetching (raw text never enters git)
+
+```bash
+pip install pandas pyarrow          # bench/research only; the runtime never imports these
+python research/fetch_defactify.py  # download, hash-verify, hygiene-filter -> datasets/local/defactify/
+python research/fetch_defactify.py --check    # re-verify local files against the manifest
+python research/fetch_defactify.py --summary  # rebuild the signed defactify-summary.json artifact
+```
+
+The script verifies each parquet split against a pinned SHA-256, drops API-error artifacts (412 rows), exact duplicates (73), and texts under 50 tokens (957), and writes a signed pointer manifest to `datasets/manifests/defactify-text.json`. Raw text lives only under `datasets/local/defactify/` (gitignored); the repo carries hashes, counts, and fitted parameters only. License posture: the paper is CC BY 4.0; the dataset repo declares no separate license, so we redistribute no text.
+
+### What the bench found there (n=71,666 after hygiene)
+
+- **Story-group reconstruction + leakage audit** — TF-IDF near-duplicate clustering (threshold 0.45) reconstructs 61,006 story groups; 11.5% of the official test split shares a story with official train, so official-split numbers are optimistically biased. All Panoptes numbers use story-grouped GroupKFold instead.
+- **Detection (out-of-fold)** — logistic tier-0 AUROC 0.989; GBM tier-1 AUROC 0.999; Panoptes-v0 (sequence branch admitted by the power gate) AUROC 0.998, ECE 0.019. The shipped runtime heuristic, which never saw the dataset, attains AUROC 0.648 — the honest domain-shift measurement, signed into `cards/defactify-external-validation.json`.
+- **Pre-registered hypotheses** — the same six tests re-run unchanged: H1–H5 nulls rejected (q ≤ 0.0024), H6 (segment autocorrelation) again not rejected. Compare the n=104 column in the paper's Table 4.
+- **Exploratory 7-class attribution** — human + six LLM families, per-family F1 against the authors' 5–9% baseline band; signed card at `cards/attribution-defactify.json`.
+
+### Dual calibration bundles
+
+Two signed calibration artifacts ship side by side; the runtime default stays corpus-fitted:
+
+| Bundle | Fitted on | Select with |
+| --- | --- | --- |
+| `baseline-calibration.json` (default) | project corpus (n=104, 6 families + human) | *(nothing — default)* |
+| `defactify-calibration.json` | Defactify (n=71,666, 6 LLM families + NYT human) | `PANOPTES_CALIBRATION_BUNDLE=defactify-calibration.json` |
+
+The selection is allowlist-validated; an unknown or missing bundle falls back to the default, and every analysis response names the live bundle in `calibration.bundle` and `source_families.basis`. The Defactify bundle is opt-in because a NYT-prose calibrator is the wrong prior for mixed-content traffic.
+
 ## Testing and reproduction
 
 Backend, research, bench, and baselines (from the repo root, using the project venv):
@@ -273,10 +307,11 @@ Research artifacts (regeneration is deterministic — byte-identical from the sa
 
 ```bash
 python research/baseline_corpus.py        # verify hashes, rebuild corpus-summary.json
-python research/methodology.py            # rebuild methodology-report.json
+python research/methodology.py            # rebuild methodology-report.json (both cohorts)
 python research/calibration.py            # rebuild baseline-calibration.json from the corpus
+python research/calibration.py --dataset defactify   # rebuild defactify-calibration.json
 python research/make_figures.py           # regenerate paper SVG figures
-python research/validate_submission.py backend/artifacts/baseline-calibration.json backend/artifacts/corpus-summary.json backend/artifacts/methodology-report.json backend/artifacts/cards/logistic-tier0.json backend/artifacts/panoptes-v0-card.json
+python research/validate_submission.py backend/artifacts/baseline-calibration.json backend/artifacts/defactify-calibration.json backend/artifacts/corpus-summary.json backend/artifacts/defactify-summary.json backend/artifacts/methodology-report.json backend/artifacts/cards/logistic-tier0.json backend/artifacts/panoptes-v0-card.json
 python baselines/baseline.py verify-catalog
 ```
 
@@ -321,5 +356,7 @@ Panoptes includes `render.yaml` for a single-container Render deployment. Config
 11. Sensoy, M., Kaplan, L., & Kandemir, M. (2018). **Evidential deep learning to quantify classification uncertainty.** NeurIPS.
 12. Mitchell, M., Wu, S., et al. (2019). **Model cards for model reporting.** FAT*.
 13. Gebru, T., Morgenstern, J., et al. (2021). **Datasheets for datasets.** CACM.
+14. Roy, R., Singh, G., Aziz, A., et al. (2026). **A comprehensive dataset for human vs. AI generated text detection (Defactify_Text_Dataset).** arXiv:2510.22874.
+15. Pedregosa, F., Varoquaux, G., et al. (2011). **Scikit-learn: Machine learning in Python.** JMLR 12.
 
 The full 33-entry bibliography, methodology details, and honest evaluation results are in the research paper at `/paper.html` (served by the app and linked from the UI).

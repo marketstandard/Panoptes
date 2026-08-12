@@ -10,6 +10,10 @@ Planned detector artifacts:
 Research datasets:
 - RAID: cite and follow dataset terms; do not redistribute unless permitted.
 - DroidCollection: cite and follow dataset terms; do not redistribute unless permitted.
+- Defactify_Text_Dataset (Rajarshi-Roy-research, Hugging Face; Roy et al. 2026, arXiv:2510.22874):
+  paper CC BY 4.0; dataset repository declares no separate license. Panoptes uses it as a
+  local-only bench dataset: raw text is never committed or redistributed — only SHA-256
+  hashes, row counts, and fitted model parameters (datasets/manifests/defactify-text.json).
 
 The current checked-in calibration artifact is synthetic and intended only to validate the pipeline.
 

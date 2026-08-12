@@ -21,6 +21,7 @@ FILES = {
     "panoptes-methodology-v1": "methodology-report.schema.json",
     "panoptes-model-card-v1": "model-card.schema.json",
     "panoptes-bench-dataset-v1": "bench-dataset.schema.json",
+    "panoptes-defactify-summary-v1": "defactify-summary.schema.json",
 }
 
 BASELINE_OUTPUT_KEYS = {"prompt_id", "file", "sha256", "bytes"}

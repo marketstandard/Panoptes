@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     enable_metrics: bool = False
     operator_token: str | None = None
     artifact_dir: str = "artifacts"
+    calibration_bundle: str = "baseline-calibration.json"
     plugin_paths: list[str] = []
 
     @property

@@ -5,6 +5,7 @@ Run from the repository root: python -m pytest research/tests
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -126,11 +127,80 @@ def test_hypotheses_record_decisions_and_qvalues():
 
 
 def test_specification_tests_run_on_real_corpus():
-    report = methodology.build_report()
-    spec = report["specification"]
+    report = methodology.build_report(("corpus",))
+    cohort = report["cohorts"]["corpus"]
+    spec = cohort["specification"]
     for key in ("link_test", "reset_test", "hosmer_lemeshow", "breusch_pagan", "jarque_bera"):
         assert 0.0 <= spec[key]["p_value"] <= 1.0
     assert 0.0 <= spec["durbin_watson"]["statistic"] <= 4.0
     assert -1.0 <= spec["pseudo_r2"]["tjur"] <= 1.0
     assert spec["pseudo_r2"]["mcfadden"] > 0.0
-    assert report["feature_screening"]["kept"]  # non-empty model
+    assert cohort["feature_screening"]["kept"]  # non-empty model
+
+
+def _synthetic_defactify(monkeypatch, tmp_path, n_per_family: int = 12):
+    """Tiny Defactify-shaped fixture: 7 families, story groups with one AI
+    near-rewrite each, written as clean parquet splits + a fetch manifest."""
+    import pandas as pd
+
+    from bench import datasets
+
+    rows = {"train": [], "validation": [], "test": []}
+    splits = ["train", "validation", "test"]
+    families = list(datasets.DEFACTIFY_FAMILIES)
+    body = (
+        "the council considered the report on tuesday and the committee voted "
+        "to approve the measure after a long debate about budgets and schools "
+    )
+    for i in range(n_per_family * len(families)):
+        family = families[i % len(families)]
+        story = i // len(families)
+        if family == "Human_Story":
+            text = f"Story {story}: " + body + f"neighbors said the decision mattered to them."
+            label = 0
+        else:
+            text = (
+                f"Story {story}: " + body
+                + "Furthermore, the development additionally represents a significant milestone overall."
+            )
+            label = 1
+        rows[splits[i % 3]].append({"text": text, "label": label, "family": family})
+
+    local = tmp_path / "defactify"
+    local.mkdir()
+    manifest_splits = {}
+    for split, records in rows.items():
+        frame = pd.DataFrame(records)
+        frame.to_parquet(local / f"{split}-clean.parquet", index=False)
+        manifest_splits[split] = {"rows_clean": len(records)}
+    (local / "fetch-manifest.json").write_text(
+        json.dumps({"created_utc": "2026-01-01T00:00:00Z", "splits": manifest_splits,
+                    "artifact_sha256": "0" * 64}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(datasets, "DEFACTIFY_DIR", local)
+    return datasets.load_defactify()
+
+
+def test_defactify_cohort_report_on_synthetic(monkeypatch, tmp_path):
+    """The defactify path builds a per-cohort report from a synthetic fixture."""
+    dataset = _synthetic_defactify(monkeypatch, tmp_path)
+    cohort = methodology.Cohort(
+        name="defactify",
+        texts=dataset.texts,
+        labels=dataset.labels,
+        families=dataset.families,
+        kinds=dataset.kinds,
+        groups=dataset.groups,
+        created_utc="2026-01-01T00:00:00Z",
+        note="synthetic fixture",
+    )
+    report = methodology.build_cohort_report(cohort)
+    assert report["n_records"] == len(dataset)
+    assert [h["id"] for h in report["hypotheses"]] == ["H1", "H2", "H3", "H4", "H5", "H6"]
+    for hypothesis in report["hypotheses"]:
+        if hypothesis.get("skipped"):
+            continue
+        assert 0.0 <= hypothesis["p_value"] <= 1.0
+        assert hypothesis["null_decision"] in {"rejected", "not rejected"}
+    assert report["feature_screening"]["kept"]

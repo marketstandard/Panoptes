@@ -21,6 +21,7 @@ import hashlib
 import json
 import math
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -201,15 +202,19 @@ def welch_t(ai: np.ndarray, human: np.ndarray, direction: str) -> dict:
     }
 
 
-def mann_whitney(ai: np.ndarray, human: np.ndarray, direction: str) -> dict:
+def mann_whitney(ai: np.ndarray, human: np.ndarray, direction: str, bootstrap_cap: int = 4000) -> dict:
     result = stats.mannwhitneyu(ai, human, alternative="two-sided")
     u = float(result.statistic)
     rbc = 1.0 - 2.0 * u / (len(ai) * len(human))  # >0: AI tends lower on this U convention
     rng = np.random.default_rng(SEED)
+    # Large-n regime: resample at a capped size. The capped bootstrap CI is
+    # wider than the full-data CI (conservative); the p-value above is exact.
+    n_a = min(len(ai), bootstrap_cap)
+    n_h = min(len(human), bootstrap_cap)
     boots = []
     for _ in range(BOOTSTRAP):
-        a = rng.choice(ai, size=len(ai), replace=True)
-        h = rng.choice(human, size=len(human), replace=True)
+        a = rng.choice(ai, size=n_a, replace=True)
+        h = rng.choice(human, size=n_h, replace=True)
         boots.append(1.0 - 2.0 * stats.mannwhitneyu(a, h).statistic / (len(a) * len(h)))
     ci = [float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))]
     p_two = float(result.pvalue)
@@ -228,6 +233,7 @@ def mann_whitney(ai: np.ndarray, human: np.ndarray, direction: str) -> dict:
         "estimate": float(rbc),
         "n_ai": len(ai),
         "n_human": len(human),
+        "bootstrap_resample_size": [n_a, n_h],
     }
 
 
@@ -265,22 +271,22 @@ def wilks_lambda(X: np.ndarray, groups: np.ndarray) -> float:
     return float(math.exp(logdet_w - logdet_t))
 
 
-def permutation_manova(X: np.ndarray, groups: np.ndarray) -> dict:
+def permutation_manova(X: np.ndarray, groups: np.ndarray, permutations: int = PERMUTATIONS) -> dict:
     observed = wilks_lambda(X, groups)
     rng = np.random.default_rng(SEED)
     count = 0
-    for _ in range(PERMUTATIONS):
+    for _ in range(permutations):
         shuffled = rng.permutation(groups)
         if wilks_lambda(X, shuffled) <= observed:
             count += 1
-    p_value = (count + 1) / (PERMUTATIONS + 1)
+    p_value = (count + 1) / (permutations + 1)
     return {
         "statistic": observed,
         "p_value": float(p_value),
         "effect_size": {"name": "wilks_lambda", "value": observed},
         "ci95": [None, None],
         "estimate": observed,
-        "permutations": PERMUTATIONS,
+        "permutations": permutations,
     }
 
 
@@ -290,34 +296,40 @@ def durbin_watson(residuals: np.ndarray) -> float:
     return float(np.sum(diff**2) / denom) if denom > 0 else 2.0
 
 
-def durbin_watson_permutation(segment_scores: list[list[float]]) -> dict:
-    """DW on document-ordered residuals with a within-document permutation p."""
+def _dw_matrix(resid: np.ndarray) -> float:
+    """DW over row-major-flattened document residuals (within-row diffs plus
+    document-boundary diffs) — identical to durbin_watson on the flat array."""
+    within = float((np.diff(resid, axis=1) ** 2).sum())
+    boundary = float(((resid[1:, 0] - resid[:-1, -1]) ** 2).sum()) if resid.shape[0] > 1 else 0.0
+    denom = float((resid**2).sum())
+    return (within + boundary) / denom if denom > 0 else 2.0
+
+
+def durbin_watson_permutation(segment_scores: list[list[float]], permutations: int = PERMUTATIONS) -> dict:
+    """DW on document-ordered residuals with a within-document permutation p.
+
+    Vectorized over the (documents x segments) matrix: each permutation
+    shuffles segments within every document independently."""
     doc_means = [float(np.mean(scores)) for scores in segment_scores]
-    residuals: list[float] = []
-    doc_spans: list[tuple[int, int]] = []
-    for scores, mean in zip(segment_scores, doc_means, strict=True):
-        start = len(residuals)
-        residuals.extend(score - mean for score in scores)
-        doc_spans.append((start, len(residuals)))
-    observed = durbin_watson(np.array(residuals))
+    resid = np.array(
+        [[score - mean for score in scores] for scores, mean in zip(segment_scores, doc_means, strict=True)]
+    )
+    observed = _dw_matrix(resid)
     rng = np.random.default_rng(SEED)
     count = 0
-    arr = np.array(residuals)
-    for _ in range(PERMUTATIONS):
-        permuted = arr.copy()
-        for start, end in doc_spans:
-            permuted[start:end] = rng.permutation(permuted[start:end])
-        if durbin_watson(permuted) <= observed:
+    for _ in range(permutations):
+        permuted = rng.permuted(resid, axis=1)
+        if _dw_matrix(permuted) <= observed:
             count += 1
-    p_value = (count + 1) / (PERMUTATIONS + 1)
+    p_value = (count + 1) / (permutations + 1)
     return {
         "statistic": observed,
         "p_value": float(p_value),
         "effect_size": {"name": "durbin_watson", "value": observed},
         "ci95": [0.0, 4.0],
         "estimate": observed,
-        "permutations": PERMUTATIONS,
-        "n_segments": len(residuals),
+        "permutations": permutations,
+        "n_segments": int(resid.size),
         "n_documents": len(segment_scores),
     }
 
@@ -490,49 +502,144 @@ def delong_test(labels: np.ndarray, scores_a: np.ndarray, scores_b: np.ndarray) 
 # ---------------------------------------------------------------------------
 
 
-def _feature_arrays(records, feature: str, kind: str | None = None):
+@dataclass
+class Cohort:
+    """A named evaluation cohort with lazily precomputed features.
+
+    The corpus cohort is the hash-verified project corpus; the defactify
+    cohort is the hygiene-filtered Defactify_Text_Dataset with reconstructed
+    story groups. Precomputing features once keeps the hypothesis battery
+    tractable at n=71k."""
+
+    name: str
+    texts: list[str]
+    labels: np.ndarray
+    families: list[str]
+    kinds: list[str]
+    groups: list[str]
+    created_utc: str
+    note: str
+    _features: list[dict] | None = None
+
+    def __len__(self) -> int:
+        return len(self.texts)
+
+    @property
+    def features(self) -> list[dict]:
+        if self._features is None:
+            self._features = [extract(text, kind) for text, kind in zip(self.texts, self.kinds, strict=True)]
+        return self._features
+
+    @property
+    def large(self) -> bool:
+        return len(self) > 20000
+
+
+def corpus_cohort() -> Cohort:
+    from research.baseline_corpus import run_manifests
+
+    records = load_corpus()
+    return Cohort(
+        name="corpus",
+        texts=[r.text for r in records],
+        labels=np.array([r.label for r in records]),
+        families=[r.family for r in records],
+        kinds=[r.kind for r in records],
+        groups=[r.prompt_id for r in records],
+        created_utc=max(m["created_utc"] for m in run_manifests()),
+        note="hash-verified project corpus (prompt-grouped)",
+    )
+
+
+def defactify_cohort() -> Cohort:
+    from bench.datasets import defactify_created_utc, load_defactify
+
+    dataset = load_defactify()
+    return Cohort(
+        name="defactify",
+        texts=dataset.texts,
+        labels=dataset.labels,
+        families=dataset.families,
+        kinds=dataset.kinds,
+        groups=dataset.groups,
+        created_utc=defactify_created_utc() or "2026-08-12T00:00:00Z",
+        note=(
+            "Defactify_Text_Dataset (Roy et al. 2026), hygiene-filtered; "
+            "story groups reconstructed via TF-IDF near-duplicate clustering"
+        ),
+    )
+
+
+def _feature_arrays_cohort(cohort: Cohort, feature: str, kind: str | None = None):
     ai, human = [], []
-    for record in records:
-        if kind and record.kind != kind:
+    for i, row in enumerate(cohort.features):
+        if kind and cohort.kinds[i] != kind:
             continue
-        value = extract(record.text, record.kind)[feature]
-        (ai if record.label == 1 else human).append(value)
+        (ai if cohort.labels[i] == 1 else human).append(row[feature])
     return np.array(ai), np.array(human)
 
 
 def run_hypotheses(records, registry_path: Path = HYPOTHESES_PATH) -> list[dict]:
+    """Backwards-compatible entry: corpus records are wrapped in a cohort."""
+    if isinstance(records, Cohort):
+        cohort = records
+    else:
+        cohort = Cohort(
+            name="corpus",
+            texts=[r.text for r in records],
+            labels=np.array([r.label for r in records]),
+            families=[r.family for r in records],
+            kinds=[r.kind for r in records],
+            groups=[r.prompt_id for r in records],
+            created_utc="",
+            note="",
+        )
+    return _run_hypotheses_cohort(cohort, registry_path)
+
+
+def _run_hypotheses_cohort(cohort: Cohort, registry_path: Path = HYPOTHESES_PATH) -> list[dict]:
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    # Large-cohort compute budgets, recorded per outcome: permutation and
+    # bootstrap resolution is reduced where the full budget is intractable.
+    # p-value floors (1/(P+1)) remain far below the BH alpha.
+    permutations = 500 if cohort.large else PERMUTATIONS
     results = []
     for hypothesis in registry["hypotheses"]:
         test = hypothesis["test"]
         variables = hypothesis["variables"]
         if test in {"welch_t", "mann_whitney"}:
-            ai, human = _feature_arrays(records, variables["feature"], variables.get("kind"))
+            ai, human = _feature_arrays_cohort(cohort, variables["feature"], variables.get("kind"))
+            if len(ai) < 3 or len(human) < 3:
+                results.append({**{k: hypothesis[k] for k in ("id", "statement", "null", "direction", "alpha")},
+                                "test": test, "statistic": None, "p_value": 1.0,
+                                "effect_size": {"name": "n/a", "value": None}, "ci95": [None, None],
+                                "estimate": None, "skipped": f"cohort lacks kind={variables.get('kind')} support"})
+                continue
             outcome = (
                 welch_t(ai, human, hypothesis["direction"])
                 if test == "welch_t"
                 else mann_whitney(ai, human, hypothesis["direction"])
             )
         elif test == "logistic_lr":
-            feats = [extract(record.text, record.kind) for record in records]
-            y = np.array([record.label for record in records], dtype=float)
+            feats = cohort.features
+            y = cohort.labels.astype(float)
             reduced = np.array([[f[name] for name in variables["reduced"]] for f in feats])
             full = np.array([[f[name] for name in variables["full"]] for f in feats])
             outcome = logistic_lr_test(y, reduced, full)
         elif test == "permutation_manova":
-            subset = [r for r in records if r.kind == "text"]
+            idx = [i for i, kind in enumerate(cohort.kinds) if kind == "text"]
             X = np.array(
-                [[extract(r.text, r.kind)[name] for name in variables["features"]] for r in subset]
+                [[cohort.features[i][name] for name in variables["features"]] for i in idx]
             )
-            groups = np.array([r.family for r in subset])
-            outcome = permutation_manova(X, groups)
+            groups = np.array([cohort.families[i] for i in idx])
+            outcome = permutation_manova(X, groups, permutations=permutations)
         elif test == "durbin_watson_permutation":
             segment_scores = []
-            for record in records:
-                if record.kind != "text":
+            n_segments = variables["segments_per_document"]
+            for text, kind in zip(cohort.texts, cohort.kinds, strict=True):
+                if kind != "text":
                     continue
-                words = record.text.split()
-                n_segments = variables["segments_per_document"]
+                words = text.split()
                 if len(words) < n_segments * 10:
                     continue
                 bounds = [len(words) * i // n_segments for i in range(n_segments + 1)]
@@ -541,7 +648,7 @@ def run_hypotheses(records, registry_path: Path = HYPOTHESES_PATH) -> list[dict]
                     for i in range(n_segments)
                 ]
                 segment_scores.append(scores)
-            outcome = durbin_watson_permutation(segment_scores)
+            outcome = durbin_watson_permutation(segment_scores, permutations=permutations)
         else:  # pragma: no cover - registry guard
             raise ValueError(f"unknown test {test!r}")
         results.append(
@@ -567,12 +674,10 @@ def run_hypotheses(records, registry_path: Path = HYPOTHESES_PATH) -> list[dict]
 # ---------------------------------------------------------------------------
 
 
-def build_report() -> dict:
-    records = load_corpus()
-    features = [extract(record.text, record.kind) for record in records]
+def build_cohort_report(cohort: Cohort) -> dict:
     names = list(FEATURE_NAMES)
-    X = np.array([[row[name] for name in names] for row in features])
-    y = np.array([record.label for record in records], dtype=float)
+    X = np.array([[row[name] for name in names] for row in cohort.features])
+    y = cohort.labels.astype(float)
 
     screening = screen_features(X, names)
     kept_idx = [names.index(name) for name in screening["kept"]]
@@ -614,24 +719,14 @@ def build_report() -> dict:
         },
     }
 
-    hypotheses = run_hypotheses(records)
-
-    # Derive the timestamp from the corpus manifests (not the wall clock) so
-    # regenerating against an unchanged corpus is byte-identical.
-    from research.baseline_corpus import run_manifests
-
-    created = max(manifest["created_utc"] for manifest in run_manifests())
+    hypotheses = _run_hypotheses_cohort(cohort)
 
     return {
-        "schema": "panoptes-methodology-v1",
-        "created_utc": created,
-        "seed": SEED,
-        "corpus": {
-            "n_records": len(records),
-            "n_human": sum(1 for r in records if r.label == 0),
-            "n_ai": sum(1 for r in records if r.label == 1),
-            "families": sorted({r.family for r in records}),
-        },
+        "n_records": len(cohort),
+        "n_human": int((cohort.labels == 0).sum()),
+        "n_ai": int((cohort.labels == 1).sum()),
+        "families": sorted(set(cohort.families)),
+        "note": cohort.note,
         "feature_screening": screening,
         "model": {
             "type": "penalized logistic regression (IRLS, ridge 1e-6)",
@@ -645,6 +740,22 @@ def build_report() -> dict:
     }
 
 
+def build_report(datasets: tuple[str, ...] = ("corpus",)) -> dict:
+    """Per-cohort report. `datasets` selects cohorts: corpus, defactify, both."""
+    cohorts: dict[str, dict] = {}
+    created: list[str] = []
+    for name in datasets:
+        cohort = corpus_cohort() if name == "corpus" else defactify_cohort()
+        cohorts[name] = build_cohort_report(cohort)
+        created.append(cohort.created_utc)
+    return {
+        "schema": "panoptes-methodology-v1",
+        "created_utc": max(created),
+        "seed": SEED,
+        "cohorts": cohorts,
+    }
+
+
 def save_signed(payload: dict, output: Path) -> None:
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     payload["artifact_sha256"] = hashlib.sha256(canonical).hexdigest()
@@ -652,69 +763,67 @@ def save_signed(payload: dict, output: Path) -> None:
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def render_markdown(report: dict) -> str:
-    lines = [
-        "# Methodology report — baseline corpus",
+def _render_cohort(lines: list[str], name: str, cohort: dict) -> list[str]:
+    title = "baseline corpus" if name == "corpus" else "Defactify_Text_Dataset (Roy et al. 2026)"
+    lines += [
+        f"## Cohort: {name} — {title}",
         "",
-        f"Generated {report['created_utc']} from {report['corpus']['n_records']} hash-verified "
-        f"documents ({report['corpus']['n_human']} human, {report['corpus']['n_ai']} AI) across "
-        f"families: {', '.join(report['corpus']['families'])}.",
+        f"{cohort['n_records']} documents ({cohort['n_human']} human, {cohort['n_ai']} AI) across "
+        f"families: {', '.join(cohort['families'])}. {cohort['note']}.",
         "",
-        "All p-values adjusted with Benjamini-Hochberg within the hypothesis registry. "
-        "Decisions use q <= 0.05.",
-        "",
-        "## Variable selection (multicollinearity screen)",
+        "### Variable selection (multicollinearity screen)",
         "",
         "| Feature | VIF | Verdict |",
         "|---|---|---|",
     ]
-    excluded = {row["feature"] for row in report["feature_screening"]["exclusions"]}
-    investigated = {row["feature"] for row in report["feature_screening"]["investigations"]}
-    for row in report["feature_screening"]["final_vif"]:
+    excluded = {row["feature"] for row in cohort["feature_screening"]["exclusions"]}
+    investigated = {row["feature"] for row in cohort["feature_screening"]["investigations"]}
+    for row in cohort["feature_screening"]["final_vif"]:
         verdict = "investigate" if row["feature"] in investigated else "keep"
         lines.append(f"| {row['feature']} | {row['vif']:.2f} | {verdict} |")
-    for row in report["feature_screening"]["exclusions"]:
+    for row in cohort["feature_screening"]["exclusions"]:
         lines.append(f"| {row['feature']} | {row['vif']:.2f} | **excluded** |")
     lines += [
         "",
         f"Condition number (standardized, retained set): "
-        f"{report['feature_screening']['condition_number']:.1f}",
+        f"{cohort['feature_screening']['condition_number']:.1f}",
         "",
     ]
     if excluded:
-        lines.append("### Exclusion justifications")
+        lines.append("#### Exclusion justifications")
         lines.append("")
-        for row in report["feature_screening"]["exclusions"]:
+        for row in cohort["feature_screening"]["exclusions"]:
             lines.append(f"- **{row['feature']}**: {row['justification']}")
         lines.append("")
 
     lines += [
-        "## Hypothesis tests (pre-registered)",
+        "### Hypothesis tests (pre-registered)",
         "",
         "| ID | Test | Statistic | p | q (BH) | Effect | 95% CI | Null decision |",
         "|---|---|---|---|---|---|---|---|",
     ]
-    for result in report["hypotheses"]:
+    for result in cohort["hypotheses"]:
         ci = result["ci95"]
-        ci_text = (
-            f"[{ci[0]:.4g}, {ci[1]:.4g}]" if ci[0] is not None else "—"
-        )
+        ci_text = f"[{ci[0]:.4g}, {ci[1]:.4g}]" if ci[0] is not None else "—"
         effect = result["effect_size"]
+        effect_text = f"{effect['name']} = {effect['value']:.4g}" if effect["value"] is not None else "—"
+        stat_text = f"{result['statistic']:.3f}" if result["statistic"] is not None else "—"
         lines.append(
-            f"| {result['id']} | {result['test']} | {result['statistic']:.3f} | "
+            f"| {result['id']} | {result['test']} | {stat_text} | "
             f"{result['p_value']:.4f} | {result['q_value']:.4f} | "
-            f"{effect['name']} = {effect['value']:.4g} | {ci_text} | **{result['null_decision']}** |"
+            f"{effect_text} | {ci_text} | **{result['null_decision']}** |"
         )
     lines.append("")
-    for result in report["hypotheses"]:
-        lines.append(f"- **{result['id']}**: {result['statement']}")
+    for result in cohort["hypotheses"]:
+        note = f" (skipped: {result['skipped']})" if result.get("skipped") else ""
+        lines.append(f"- **{result['id']}**: {result['statement']}{note}")
     lines.append("")
 
-    spec = report["specification"]
+    spec = cohort["specification"]
     lines += [
-        "## Specification tests (binary logistic model)",
+        "### Specification tests (binary logistic model)",
         "",
-        f"Model: {report['model']['type']} on {len(report['model']['features'])} screened, "
+        f"Model: {cohort['model']['type']} on {len(cohort['model']['features'])} screened, "
         f"standardized features.",
         "",
         "| Test | Statistic | p | Verdict |",
@@ -726,31 +835,65 @@ def render_markdown(report: dict) -> str:
         lines.append(f"| {key} | {row['statistic']:.3f} | {row['p_value']:.4f} | {verdict} |")
     lines += [
         "",
-        f"- Durbin-Watson (ingestion-ordered residuals): {spec['durbin_watson']['statistic']:.3f} "
+        f"- Durbin-Watson (probability-ordered residuals): {spec['durbin_watson']['statistic']:.3f} "
         "(2.0 = no serial correlation)",
         f"- Cook's distance: max {spec['cooks_distance']['max']:.4f}; "
         f"{spec['cooks_distance']['n_above_4_over_n']} points above 4/n",
         f"- Pseudo-R^2: McFadden {spec['pseudo_r2']['mcfadden']:.3f}, "
         f"Tjur {spec['pseudo_r2']['tjur']:.3f}",
         "",
+    ]
+    return lines
+
+
+def render_markdown(report: dict) -> str:
+    lines = [
+        "# Methodology report",
+        "",
+        f"Generated {report['created_utc']} (seed {report['seed']}). Cohorts: "
+        f"{', '.join(report['cohorts'])}.",
+        "",
+        "All p-values adjusted with Benjamini-Hochberg within the hypothesis registry, per cohort. "
+        "Decisions use q <= 0.05. Large cohorts use recorded compute budgets: permutation tests "
+        "drop to 500 permutations and bootstrap CIs resample at most 4,000 per group "
+        "(conservative; p-values remain exact).",
+        "",
+    ]
+    for name, cohort in report["cohorts"].items():
+        lines = _render_cohort(lines, name, cohort)
+    lines += [
         f"Artifact SHA-256: `{report['artifact_sha256']}`",
         "",
     ]
     return "\n".join(lines)
 
 
-def main() -> None:
-    report = build_report()
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run the pre-registered methodology battery.")
+    parser.add_argument(
+        "--dataset",
+        choices=["corpus", "defactify", "both"],
+        default="both",
+        help="which cohort(s) to analyze (default: both)",
+    )
+    args = parser.parse_args(argv)
+    datasets = ("corpus", "defactify") if args.dataset == "both" else (args.dataset,)
+
+    report = build_report(datasets)
     save_signed(report, REPORT_JSON)
     REPORT_MD.write_text(render_markdown(report), encoding="utf-8")
     print(f"Wrote {REPORT_JSON}")
     print(f"Wrote {REPORT_MD}")
     print(f"artifact sha256: {report['artifact_sha256']}")
-    for result in report["hypotheses"]:
-        print(
-            f"  {result['id']}: p={result['p_value']:.4f} q={result['q_value']:.4f} "
-            f"-> null {result['null_decision']}"
-        )
+    for name, cohort in report["cohorts"].items():
+        print(f"[{name}] n={cohort['n_records']}")
+        for result in cohort["hypotheses"]:
+            print(
+                f"  {result['id']}: p={result['p_value']:.4f} q={result['q_value']:.4f} "
+                f"-> null {result['null_decision']}"
+            )
 
 
 if __name__ == "__main__":

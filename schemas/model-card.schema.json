@@ -75,6 +75,11 @@
     "training_curve_seed13": {"type": "array", "items": {"type": "object"}},
     "device": {"type": "string"},
     "weights": {"type": "object"},
+    "cross_domain": {"type": "object"},
+    "corpus_trained": {"type": "object"},
+    "story_groups": {"type": "object"},
+    "leakage_audit": {"type": "object"},
+    "attribution": {"type": "object"},
     "intended_use": {"type": "string"},
     "limitations": {"type": "array", "items": {"type": "string"}},
     "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
