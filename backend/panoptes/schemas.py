@@ -75,6 +75,9 @@ class InputDiagnostics(BaseModel):
     character_count: int = Field(ge=0)
     segment_count: int = Field(ge=0)
     user_overrode_type: bool = False
+    # Stylometric features of the submitted text (same definitions as the
+    # corpus features), so the UI can show the input against cohort ranges.
+    feature_profile: dict[str, float] = {}
 
 
 class Summary(BaseModel):
@@ -110,6 +113,36 @@ class SourceFamilies(BaseModel):
     conditional_on_ai: list[SourceFamilyProbability]
     unknown_score: float = Field(ge=0, le=1)
     interpretation: str
+    basis: str = "heuristic"  # "corpus-fitted" when the signed calibration artifact supplied the geometry
+    cohort_size: int | None = Field(default=None, ge=0)
+
+
+class ReliabilityBin(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    bin_lo: float = Field(ge=0, le=1)
+    bin_hi: float = Field(ge=0, le=1)
+    n: int = Field(ge=0)
+    mean_predicted: float = Field(ge=0, le=1)
+    observed: float = Field(ge=0, le=1)
+
+
+class CalibrationInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    bundle: str
+    cohort: str
+    n_records: int = Field(ge=0)
+    applies_to: str
+    ece: float = Field(ge=0, le=1)
+    brier: float = Field(ge=0, le=1)
+    auroc: float = Field(ge=0, le=1)
+    tpr_at_1fpr: float = Field(ge=0, le=1)
+    tpr_at_5fpr: float = Field(ge=0, le=1)
+    reliability_bins: list[ReliabilityBin]
+    conformal_alpha: float = Field(ge=0, le=1)
+    conformal_threshold: float = Field(ge=0, le=1)
+    artifact_sha256: str
 
 
 class WatermarkTokenSpan(BaseModel):
@@ -242,6 +275,7 @@ class AnalysisResponse(BaseModel):
     input: InputDiagnostics
     summary: Summary
     posterior: PosteriorInfo
+    calibration: CalibrationInfo | None = None
     source_families: SourceFamilies
     watermarks: list[WatermarkResult]
     provenance: ProvenanceResult

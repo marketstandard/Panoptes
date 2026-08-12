@@ -38,7 +38,7 @@ MANIFEST_NAME = "run.manifest.json"
 SCAFFOLD_STATE = "_run.json"
 CHECKLIST_NAME = "_CHECKLIST.md"
 KINDS = ("text", "code")
-INTERFACES = ("chat-ui", "api", "agent-chat")
+INTERFACES = ("chat-ui", "api", "agent-chat", "human")
 
 
 class BaselineError(Exception):
@@ -344,7 +344,7 @@ def cmd_finalize(args: argparse.Namespace) -> int:
             "declares the model; the tool never guesses)"
         )
     if not state.get("interface"):
-        raise BaselineError("no interface recorded; pass --interface chat-ui|api|agent-chat")
+        raise BaselineError("no interface recorded; pass --interface chat-ui|api|agent-chat|human")
     manifest = build_manifest(run_dir, state)
     manifest_path = write_manifest(run_dir, manifest)
     write_scaffold_state(run_dir, state)

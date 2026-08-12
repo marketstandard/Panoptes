@@ -11,8 +11,36 @@ _WORD_RE = re.compile(r"\b[\w']+\b")
 _FAMILIES = ("llama-like", "mistral-like", "qwen-like", "gpt-like", "gemma-like")
 
 
-def source_family_distribution(text: str, content_type: ContentType) -> SourceFamilies:
+def source_family_distribution(
+    text: str,
+    content_type: ContentType,
+    bundle=None,
+) -> SourceFamilies:
     features = _features(text, content_type)
+    if bundle is not None:
+        from panoptes.analysis.calibration_bundle import geometry_membership
+
+        fitted = geometry_membership(bundle, features)
+        if fitted is not None:
+            probabilities, unknown = fitted
+            if len(text) < 500:
+                unknown = min(1.0, unknown + 0.25)
+            return SourceFamilies(
+                conditional_on_ai=[
+                    SourceFamilyProbability(family=family, probability=probability)
+                    for family, probability in sorted(
+                        probabilities.items(), key=lambda item: item[1], reverse=True
+                    )
+                ],
+                unknown_score=unknown,
+                interpretation=(
+                    "Conditional similarity among corpus-observed source families, from the "
+                    "signed calibration artifact's fitted geometry. This is not proof of exact "
+                    "model identity, and unsupported generators should remain unknown."
+                ),
+                basis="corpus-fitted",
+                cohort_size=bundle.n_records,
+            )
     logits = {
         "llama-like": -1.0 + 1.4 * features["long_words"] + 0.5 * features["connectors"],
         "mistral-like": -1.1 + 1.1 * features["unique_ratio"] + 0.4 * features["short_sentences"],
@@ -33,9 +61,12 @@ def source_family_distribution(text: str, content_type: ContentType) -> SourceFa
         ],
         unknown_score=unknown,
         interpretation=(
-            "Conditional similarity among supported source families. This is not proof of exact "
+            "Conditional similarity among supported source families (hand-tuned heuristic "
+            "geometry; no signed corpus artifact loaded). This is not proof of exact "
             "model identity, and unsupported generators should remain unknown."
         ),
+        basis="heuristic",
+        cohort_size=None,
     )
 
 

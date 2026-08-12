@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/model-card.schema.json",
+  "title": "Panoptes Model Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "model", "created_utc", "config", "training_data", "evaluation", "power_gate", "intended_use", "limitations", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "panoptes-model-card-v1"},
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "tier"],
+      "properties": {
+        "name": {"type": "string"},
+        "tier": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "created_utc": {"type": "string"},
+    "config": {"type": "object"},
+    "training_data": {
+      "type": "object",
+      "required": ["datasheet", "sha256", "n"],
+      "properties": {
+        "datasheet": {"type": "object"},
+        "sha256": {"type": "string"},
+        "n": {"type": "integer", "minimum": 1},
+        "provenance": {"type": ["string", "array"]}
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "folds", "metrics", "auroc_ci95", "reliability_bins", "coverage_curve", "conformal", "fairness_slices"],
+      "properties": {
+        "protocol": {"type": "string"},
+        "folds": {"type": "array", "items": {"type": "object"}},
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["accuracy", "auroc", "brier", "ece", "tpr_at_1fpr", "tpr_at_5fpr"],
+          "properties": {
+            "accuracy": {"type": "number"},
+            "auroc": {"type": "number"},
+            "brier": {"type": "number"},
+            "ece": {"type": "number"},
+            "tpr_at_1fpr": {"type": "number"},
+            "tpr_at_5fpr": {"type": "number"}
+          }
+        },
+        "auroc_ci95": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "reliability_bins": {"type": "array", "items": {"type": "object"}},
+        "coverage_curve": {"type": "array", "items": {"type": "object"}},
+        "conformal": {"type": "object"},
+        "fairness_slices": {"type": "object"}
+      }
+    },
+    "power_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alpha", "mde", "n", "passes", "power", "rationale", "required_n"],
+      "properties": {
+        "alpha": {"type": "number"},
+        "mde": {"type": "number"},
+        "n": {"type": "integer", "minimum": 0},
+        "passes": {"type": "boolean"},
+        "power": {"type": "number"},
+        "rationale": {"type": "string"},
+        "required_n": {"type": "integer", "minimum": 1}
+      }
+    },
+    "architecture": {"type": "object"},
+    "comparison_battery": {"type": "object"},
+    "seed_metrics": {"type": "object"},
+    "training_curve_seed13": {"type": "array", "items": {"type": "object"}},
+    "device": {"type": "string"},
+    "weights": {"type": "object"},
+    "intended_use": {"type": "string"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

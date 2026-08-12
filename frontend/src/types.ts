@@ -78,6 +78,7 @@ export interface AnalysisResponse {
     character_count: number;
     segment_count: number;
     user_overrode_type: boolean;
+    feature_profile: Record<string, number>;
   };
   summary: {
     evidence_state: EvidenceState;
@@ -93,10 +94,33 @@ export interface AnalysisResponse {
     reliability_error: number | null;
     cohort: string;
   };
+  calibration: {
+    bundle: string;
+    cohort: string;
+    n_records: number;
+    applies_to: string;
+    ece: number;
+    brier: number;
+    auroc: number;
+    tpr_at_1fpr: number;
+    tpr_at_5fpr: number;
+    reliability_bins: Array<{
+      bin_lo: number;
+      bin_hi: number;
+      n: number;
+      mean_predicted: number;
+      observed: number;
+    }>;
+    conformal_alpha: number;
+    conformal_threshold: number;
+    artifact_sha256: string;
+  } | null;
   source_families: {
     conditional_on_ai: Array<{ family: string; probability: number }>;
     unknown_score: number;
     interpretation: string;
+    basis: 'heuristic' | 'corpus-fitted';
+    cohort_size: number | null;
   };
   watermarks: WatermarkResult[];
   provenance: {

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -16,6 +17,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, roc_auc_score
 from sklearn.model_selection import GroupKFold
 from sklearn.preprocessing import StandardScaler
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
 @dataclass(frozen=True)
@@ -198,7 +203,7 @@ def synthetic_records() -> list[CalibrationRecord]:
     return records
 
 
-def main() -> None:
+def synthetic_main(output: Path) -> None:
     records = synthetic_records()
     features = np.array([extract_features(record.text) for record in records])
     labels = np.array([record.label for record in records])
@@ -225,7 +230,7 @@ def main() -> None:
             "feature_schema": "panoptes-features-v1",
             "created_utc": "2026-08-11T00:00:00Z",
             "repro": {
-                "command": "python research/calibration.py",
+                "command": "python research/calibration.py --synthetic",
                 "seed": 13,
                 "code_commit": "workspace",
                 "group_cv": "GroupKFold(n_splits=5)",
@@ -238,9 +243,147 @@ def main() -> None:
             "source_geometry": geometry,
             "conformal": {"alpha": 0.1, "threshold": 0.0},
         },
-        Path(__file__).resolve().parents[1] / "backend" / "artifacts" / "baseline-calibration.json",
+        output,
     )
     print(json.dumps(metrics, indent=2, sort_keys=True))
+
+
+def corpus_main(output: Path, min_family_n: int = 8) -> None:
+    """Fit the production calibration artifact from the hash-verified corpus.
+
+    Binary calibration: isotonic regression on the shipped heuristic prose
+    detector's raw score, evaluated with GroupKFold by prompt so no prompt
+    (and therefore no topic) appears in both train and test folds.
+    Source geometry: corpus-fitted on the seven runtime attribution
+    features; families below ``min_family_n`` records are excluded and
+    the exclusion is recorded.
+    """
+    from bench.features import ATTRIBUTION_FEATURES, heuristic_raw_score
+    from research.baseline_corpus import load_corpus, run_manifests
+
+    records = load_corpus()
+    manifests = run_manifests()
+    created = max(manifest["created_utc"] for manifest in manifests)
+    prompts_sha256 = manifests[0]["prompts"]["sha256"]
+
+    text_records = [record for record in records if record.kind == "text"]
+    labels = np.array([record.label for record in text_records])
+    groups = np.array([record.prompt_id for record in text_records])
+    raw = np.array([heuristic_raw_score(record.text, "text") for record in text_records])
+
+    n_splits = min(5, len(set(groups)))
+    splitter = GroupKFold(n_splits=n_splits)
+    calibrated = np.zeros_like(raw, dtype=float)
+    for train, test in splitter.split(raw.reshape(-1, 1), labels, groups=groups):
+        calibrator = fit_binary_calibrator(raw[train], labels[train])
+        calibrated[test] = calibrator.predict(raw[test])
+    metrics = evaluate_binary(labels, calibrated)
+    bins = _reliability_bins(labels, calibrated)
+    nonconformity = np.abs(labels - calibrated)
+    threshold = conformal_threshold(nonconformity, alpha=0.1)
+
+    ai_records = [record for record in records if record.label == 1]
+    family_counts: dict[str, int] = {}
+    for record in ai_records:
+        family_counts[record.family] = family_counts.get(record.family, 0) + 1
+    dropped = sorted(f for f, n in family_counts.items() if n < min_family_n)
+    kept = [record for record in ai_records if family_counts[record.family] >= min_family_n]
+    geometry_features = np.array(
+        [
+            [extract_attribution(record.text, record.kind)[name] for name in ATTRIBUTION_FEATURES]
+            for record in kept
+        ]
+    )
+    geometry = fit_source_geometry(
+        geometry_features, np.array([record.family for record in kept])
+    )
+
+    full_calibrator = fit_binary_calibrator(raw, labels)
+    save_signed_artifact(
+        {
+            "schema": "panoptes-calibration-v1",
+            "bundle_id": "panoptes-reference-corpus-v1",
+            "cohort": "panoptes-reference-corpus (6 model families + human controls)",
+            "dataset_manifest_id": f"prompts@{prompts_sha256[:16]}",
+            "detector_id": "heuristic-prose-detector",
+            "detector_version": "0.1.0",
+            "feature_schema": "panoptes-attribution-features-v1",
+            "feature_names": list(ATTRIBUTION_FEATURES),
+            "created_utc": created,
+            "corpus": {
+                "n_records": len(records),
+                "n_text_records": len(text_records),
+                "n_human": sum(1 for r in records if r.label == 0),
+                "n_ai": sum(1 for r in records if r.label == 1),
+                "families": sorted(family_counts),
+                "geometry_dropped_families": dropped,
+                "geometry_min_family_n": min_family_n,
+            },
+            "repro": {
+                "command": "python research/calibration.py",
+                "seed": 13,
+                "code_commit": "workspace",
+                "group_cv": f"GroupKFold(n_splits={n_splits}, groups=prompt_id)",
+            },
+            "metrics": metrics,
+            "reliability_bins": bins,
+            "binary_calibrator": {
+                "x_thresholds": full_calibrator.X_thresholds_.tolist(),
+                "y_thresholds": full_calibrator.y_thresholds_.tolist(),
+            },
+            "source_geometry": geometry,
+            "conformal": {"alpha": 0.1, "threshold": threshold},
+        },
+        output,
+    )
+    print(json.dumps({"metrics": metrics, "conformal_threshold": threshold,
+                      "dropped_families": dropped}, indent=2, sort_keys=True))
+
+
+def extract_attribution(text: str, kind: str) -> dict[str, float]:
+    from bench.features import extract
+
+    return extract(text, kind)
+
+
+def _reliability_bins(labels: np.ndarray, probabilities: np.ndarray, bins: int = 10) -> list[dict]:
+    rows = []
+    edges = np.linspace(0, 1, bins + 1)
+    for index in range(bins):
+        mask = (probabilities >= edges[index]) & (probabilities < edges[index + 1])
+        if not np.any(mask):
+            continue
+        rows.append(
+            {
+                "bin_lo": float(edges[index]),
+                "bin_hi": float(edges[index + 1]),
+                "n": int(mask.sum()),
+                "mean_predicted": float(probabilities[mask].mean()),
+                "observed": float(labels[mask].mean()),
+            }
+        )
+    return rows
+
+
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Fit Panoptes calibration artifacts.")
+    parser.add_argument(
+        "--synthetic",
+        action="store_true",
+        help="use the synthetic development cohort instead of the verified corpus",
+    )
+    parser.add_argument("--out", type=Path, default=None, help="override output path")
+    args = parser.parse_args(argv)
+
+    root = Path(__file__).resolve().parents[1]
+    if args.synthetic:
+        output = args.out or root / "backend" / "artifacts" / "baseline-calibration.synthetic.json"
+        synthetic_main(output)
+    else:
+        output = args.out or root / "backend" / "artifacts" / "baseline-calibration.json"
+        corpus_main(output)
 
 
 if __name__ == "__main__":

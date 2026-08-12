@@ -17,7 +17,7 @@
         "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
         "provider": {"type": "string", "maxLength": 64},
         "reported_version": {"type": "string", "maxLength": 128},
-        "interface": {"enum": ["chat-ui", "api", "agent-chat"]}
+        "interface": {"enum": ["chat-ui", "api", "agent-chat", "human"]}
       }
     },
     "prompts": {

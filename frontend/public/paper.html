@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with Verifiable Community Baselines</title>
+<title>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with a Verifiable, Trainable Community Corpus</title>
 <style>
   :root {
     --ink: #1a2332;
@@ -94,6 +94,8 @@
   thead th { border-top: 1.5px solid var(--rule); border-bottom: 1px solid var(--rule); font-variant: small-caps; letter-spacing: 0.05em; }
   tbody tr:last-child td { border-bottom: 1.5px solid var(--rule); }
   td.mono, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.74rem; }
+  figure { margin: 1.4em 0; text-align: center; }
+  figcaption { font-size: 0.85rem; color: var(--muted); text-align: left; margin-top: 0.5em; font-style: italic; }
   ol.refs { padding-left: 1.6em; font-size: 0.9rem; }
   ol.refs li { margin-bottom: 0.5em; text-align: left; }
   .footnote { font-size: 0.85rem; color: var(--muted); border-top: 1px solid #b9c0cc; margin-top: 2em; padding-top: 0.8em; }
@@ -129,7 +131,7 @@
     .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; }
     a { color: var(--ink); border-bottom: none; }
     h2 { page-break-after: avoid; }
-    table { page-break-inside: avoid; }
+    table, figure { page-break-inside: avoid; }
   }
 </style>
 </head>
@@ -144,10 +146,10 @@
 <div class="sheet">
 
   <div class="titleblock">
-    <h1>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with Verifiable Community Baselines</h1>
+    <h1>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with a Verifiable, Trainable Community Corpus</h1>
     <div class="authors">Encryptic1 and the Panoptes Contributors</div>
     <div class="affil">Independent open research software project &mdash; github.com/marketstandard/Panoptes</div>
-    <div class="date">August 12, 2026 &middot; Working paper, v1.0</div>
+    <div class="date">August 12, 2026 &middot; Working paper, v2.0</div>
   </div>
 
   <div class="abstract">
@@ -157,17 +159,23 @@
     or the conditions under which the judgment fails. We present <em>Panoptes</em>, an open, local-first system that treats
     AI-text attribution as an evidence problem rather than a classification problem. Panoptes combines a calibrated
     Bayesian posterior over participation classes, one-sided binomial hypothesis tests for known public watermark schemes
-    with false-discovery-rate control and explicit power analysis, and signed provenance verification, surfacing every
-    quantity with its assumptions and limits. Complementing the analyzer, we introduce a verifiable community baseline
-    protocol: a canonical prompt set, hash-pinned run manifests with Merkle commitments, and an append-only public catalog
-    that records cryptographic evidence of a run without collecting raw model outputs, optionally anchored to the Bitcoin
-    blockchain via OpenTimestamps. We describe the architecture, the statistical contracts, the threat model, and twelve
-    reference runs across six frontier models, and we discuss the fundamental limits of text-only attribution.</p>
+    with false-discovery-rate control and explicit power analysis, corpus-fitted source-family geometry, and signed
+    provenance verification, surfacing every quantity with its assumptions and limits. The system is built around a
+    verifiable community corpus: a canonical prompt set, hash-pinned run manifests with Merkle commitments, human control
+    responses, and an append-only public catalog that records cryptographic evidence of a run without collecting raw model
+    outputs, optionally anchored to the Bitcoin blockchain via OpenTimestamps. The corpus is not decorative: a signed
+    calibration artifact fitted on it is consumed by the live analyzer, and a training bench with a statistical power gate
+    trains tiered models &mdash; penalized logistic regression today, gradient boosting and a custom evidential neural
+    architecture (Panoptes-v0) as the corpus grows &mdash; under grouped cross-validation with a pre-registered hypothesis
+    battery and econometric specification testing. We report honest null results at the current corpus size (n&nbsp;=&nbsp;104,
+    8 human controls, &asymp;7% power to detect a five-point accuracy difference), a byte-identical cross-model output in
+    the reference runs, and a full comparison battery in which no model significantly beats any other. We describe the
+    architecture, the statistical contracts, the threat model, and what the community verifiably gains by contributing.</p>
   </div>
 
   <div class="keywords">
     <strong>Keywords</strong> &mdash; AI-text detection &middot; watermark hypothesis testing &middot; calibration &middot;
-    provenance &middot; reproducible baselines &middot; hash-chained evidence catalogs
+    evidential deep learning &middot; conformal prediction &middot; reproducible baselines &middot; hash-chained evidence catalogs
   </div>
 
   <h2>1. Introduction</h2>
@@ -176,13 +184,16 @@
   the evidence that produced it, the sample size behind it, or the regimes in which it should not be trusted. False
   positives carry real costs for the accused; false negatives carry real costs for institutions. A defensible tool must
   therefore do more than score: it must show its evidence, keep its uncertainty visible, and refuse to overstate.</p>
-  <p>Panoptes is built around three design commitments. First, <em>evidence before verdict</em>: the interface leads with
+  <p>Panoptes is built around four design commitments. First, <em>evidence before verdict</em>: the interface leads with
   a plain-language summary and exposes the full statistical drilldown &mdash; formulas, units, assumptions, and
   limitations &mdash; one layer down. Second, <em>calibrated combination</em>: heterogeneous signals are combined in the
   odds domain with an explicit prior drawn from a declared calibration cohort, so that the strength of evidence is
-  separable from base rates. Third, <em>verifiable practice</em>: the project ships a canonical baseline prompt set and a
-  public, hash-chained catalog so that claims about model behavior can be checked, replicated, and extended by anyone
-  without trusting the project with raw outputs.</p>
+  separable from base rates. Third, <em>verifiable practice</em>: the project ships a canonical baseline prompt set, human
+  control responses, and a public, hash-chained catalog so that claims about model behavior can be checked, replicated,
+  and extended by anyone without trusting the project with raw outputs. Fourth, <em>the corpus is load-bearing</em>: the
+  reference material is not a gallery but an input &mdash; it calibrates the live analyzer through a signed artifact,
+  trains the model zoo under a statistical power gate, and grounds a pre-registered hypothesis battery whose null results
+  we report as faithfully as any positive finding.</p>
 
   <h2>2. Related work</h2>
   <p><strong>Watermarking.</strong> Kirchenbauer et&nbsp;al. introduced the green-list watermark for large language models,
@@ -190,15 +201,30 @@
   [1]. Aaronson and Kirchner developed a related cryptographic scheme [2]. These tests are powerful when the text is
   unmodified and the scheme is known, and degrade gracefully under editing &mdash; behavior we quantify explicitly through
   effect sizes, power estimates, and a dilution statistic rather than a bare p-value.</p>
+  <p><strong>Detection and its limits.</strong> Post-hoc AI-text detectors divide into zero-shot statistics over the
+  generating model &mdash; DetectGPT&rsquo;s probability-curvature test [5], the Fast-DetectGPT conditional-probability
+  speedup [6], Binoculars&rsquo; cross-model perplexity ratio [7] &mdash; and trained classifiers over surface or learned
+  features, evaluated on corpora such as HC3 [8], M4 [9], and RAID [10], and hardened against paraphrase attacks such as
+  DIPPER [11] and adaptive attacks generally [12]. Two consistent findings motivate our design: detectors are
+  miscalibrated under domain shift, short inputs, and paraphrase [10, 12]; and small, interpretable feature models are
+  competitive with large neural ones in-distribution while degrading more gracefully under distribution shift. Panoptes
+  therefore treats detection scores as <em>evidence with a stated reliability</em>, never as verdicts, and trains its own
+  models only under a pre-registered statistical protocol with leakage-safe evaluation.</p>
+  <p><strong>Uncertainty and abstention.</strong> Evidential deep learning places a Dirichlet distribution over class
+  probabilities by predicting its concentration parameters, yielding native measures of vacuity (&ldquo;I don&rsquo;t
+  know&rdquo;) and dissonance (&ldquo;the evidence conflicts&rdquo;) [13, 14]. Conformal prediction converts any score
+  into prediction sets with distribution-free coverage guarantees [15]. Both ideas are built into the system: the
+  analyzer abstains below a token threshold, and our neural tier outputs Dirichlet evidence wrapped in a split-conformal
+  calibration layer.</p>
   <p><strong>Provenance.</strong> Content credentials and signed manifests (e.g., C2PA) attest the origin of a file
   rather than the statistical character of its text [3]. Panoptes treats provenance as an independent evidence channel:
   when present and verified it dominates statistical inference; when absent it says nothing, and the interface says so.</p>
-  <p><strong>Detection and calibration.</strong> Detector scores are known to be miscalibrated under domain shift,
-  short inputs, and paraphrase. Panoptes therefore reports an explicit reliability error for the detector on its
-  calibration cohort and penalizes conclusions on short or unsupported inputs instead of emitting an unhedged number.</p>
-  <p><strong>Verifiable artifacts.</strong> Our community catalog draws on the same principle as transparency logs and
-  timestamping services: commit to content with cryptographic hashes, anchor the commitment publicly, and let anyone
-  verify. OpenTimestamps provides a pragmatic anchor to the Bitcoin blockchain without any custom chain [4].</p>
+  <p><strong>Verifiable artifacts and documentation practice.</strong> Our community catalog draws on the same principle
+  as transparency logs and timestamping services: commit to content with cryptographic hashes, anchor the commitment
+  publicly, and let anyone verify. OpenTimestamps provides a pragmatic anchor to the Bitcoin blockchain without any
+  custom chain [4]. Models and datasets are documented with model cards [16] and datasheets [17], and our dataset
+  statements follow the data-statement discipline of Bender and Friedman [18]; every card and artifact in this paper is
+  machine-checkable against a published schema and carries its own SHA-256.</p>
 
   <h2>3. System and methods</h2>
 
@@ -216,7 +242,18 @@
   <p>Reporting the decomposition &mdash; prior odds, likelihood ratio, posterior odds &mdash; separates &ldquo;what the
   tests say&rdquo; from &ldquo;what we believed before testing,&rdquo; and the interface presents exactly these
   quantities. The detector&rsquo;s expected calibration error on the cohort is reported alongside as the
-  <em>reliability error</em>, so that a confident posterior from a poorly calibrated detector is visibly discounted.</p>
+  <em>reliability error</em>, so that a confident posterior from a poorly calibrated detector is visibly discounted.
+  Figure&nbsp;1 shows the posterior as a function of the declared prior for several likelihood ratios; the interface
+  renders the same curve live with the user&rsquo;s prior marked.</p>
+
+  <figure>
+    <!-- FIG:posterior -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="256" x2="442" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52.0" y1="256" x2="52.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="52.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.01</text><line x1="149.5" y1="256" x2="149.5" y2="260" stroke="#1a2332" stroke-width="1"/><text x="149.5" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.1</text><line x1="247.0" y1="256" x2="247.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="247.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">1</text><line x1="344.5" y1="256" x2="344.5" y2="260" stroke="#1a2332" stroke-width="1"/><text x="344.5" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">10</text><line x1="442.0" y1="256" x2="442.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="442.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">100</text><line x1="48" y1="256.0" x2="52" y2="256.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="259.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.0</text><line x1="48" y1="208.0" x2="52" y2="208.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="211.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.2</text><line x1="48" y1="160.0" x2="52" y2="160.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="163.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.4</text><line x1="48" y1="112.0" x2="52" y2="112.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="115.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.6</text><line x1="48" y1="64.0" x2="52" y2="64.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="67.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.8</text><line x1="48" y1="16.0" x2="52" y2="16.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="19.0" text-anchor="end" font-size="10" fill="#5b6b7f">1.0</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332">prior odds (log scale)</text><text x="14" y="136.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 136.0)">posterior probability</text><path d="M52.0,254.8 L55.3,254.7 L58.5,254.6 L61.8,254.5 L65.0,254.4 L68.2,254.3 L71.5,254.1 L74.8,254.0 L78.0,253.8 L81.2,253.6 L84.5,253.4 L87.8,253.2 L91.0,253.0 L94.2,252.8 L97.5,252.5 L100.8,252.3 L104.0,252.0 L107.2,251.7 L110.5,251.3 L113.8,251.0 L117.0,250.6 L120.2,250.1 L123.5,249.7 L126.8,249.2 L130.0,248.7 L133.2,248.1 L136.5,247.5 L139.8,246.8 L143.0,246.1 L146.2,245.4 L149.5,244.6 L152.8,243.7 L156.0,242.8 L159.2,241.8 L162.5,240.7 L165.8,239.6 L169.0,238.4 L172.2,237.1 L175.5,235.7 L178.8,234.2 L182.0,232.7 L185.2,231.0 L188.5,229.2 L191.8,227.3 L195.0,225.3 L198.2,223.2 L201.5,221.0 L204.8,218.6 L208.0,216.2 L211.2,213.5 L214.5,210.8 L217.8,207.9 L221.0,204.9 L224.2,201.7 L227.5,198.4 L230.8,195.0 L234.0,191.5 L237.2,187.8 L240.5,184.0 L243.8,180.0 L247.0,176.0 L250.2,171.9 L253.5,167.6 L256.8,163.3 L260.0,158.9 L263.2,154.4 L266.5,149.9 L269.8,145.3 L273.0,140.7 L276.2,136.1 L279.5,131.5 L282.8,126.9 L286.0,122.4 L289.2,117.9 L292.5,113.4 L295.8,109.0 L299.0,104.7 L302.2,100.4 L305.5,96.3 L308.8,92.2 L312.0,88.3 L315.2,84.5 L318.5,80.8 L321.8,77.2 L325.0,73.8 L328.2,70.5 L331.5,67.3 L334.8,64.3 L338.0,61.4 L341.2,58.6 L344.5,56.0 L347.8,53.5 L351.0,51.1 L354.2,48.9 L357.5,46.8 L360.8,44.8 L364.0,42.9 L367.2,41.1 L370.5,39.4 L373.8,37.9 L377.0,36.4 L380.2,35.0 L383.5,33.7 L386.8,32.5 L390.0,31.3 L393.2,30.3 L396.5,29.3 L399.8,28.3 L403.0,27.5 L406.2,26.7 L409.5,25.9 L412.8,25.2 L416.0,24.6 L419.2,23.9 L422.5,23.4 L425.8,22.8 L429.0,22.4 L432.2,21.9 L435.5,21.5 L438.8,21.1 L442.0,20.7" stroke="#5b6b7f" stroke-width="2" fill="none"/><text x="404.9" y="21.0" font-size="10" fill="#5b6b7f">LR=0.5</text><path d="M52.0,253.6 L55.3,253.4 L58.5,253.2 L61.8,253.0 L65.0,252.8 L68.2,252.5 L71.5,252.3 L74.8,252.0 L78.0,251.6 L81.2,251.3 L84.5,250.9 L87.8,250.5 L91.0,250.1 L94.2,249.7 L97.5,249.2 L100.8,248.6 L104.0,248.1 L107.2,247.5 L110.5,246.8 L113.8,246.1 L117.0,245.4 L120.2,244.5 L123.5,243.7 L126.8,242.8 L130.0,241.8 L133.2,240.7 L136.5,239.6 L139.8,238.3 L143.0,237.0 L146.2,235.7 L149.5,234.2 L152.8,232.6 L156.0,230.9 L159.2,229.2 L162.5,227.3 L165.8,225.3 L169.0,223.2 L172.2,220.9 L175.5,218.6 L178.8,216.1 L182.0,213.5 L185.2,210.7 L188.5,207.8 L191.8,204.8 L195.0,201.6 L198.2,198.3 L201.5,194.9 L204.8,191.3 L208.0,187.7 L211.2,183.8 L214.5,179.9 L217.8,175.9 L221.0,171.7 L224.2,167.5 L227.5,163.2 L230.8,158.7 L234.0,154.3 L237.2,149.8 L240.5,145.2 L243.8,140.6 L247.0,136.0 L250.2,131.4 L253.5,126.8 L256.8,122.2 L260.0,117.7 L263.2,113.3 L266.5,108.8 L269.8,104.5 L273.0,100.3 L276.2,96.1 L279.5,92.1 L282.8,88.2 L286.0,84.3 L289.2,80.7 L292.5,77.1 L295.8,73.7 L299.0,70.4 L302.2,67.2 L305.5,64.2 L308.8,61.3 L312.0,58.5 L315.2,55.9 L318.5,53.4 L321.8,51.1 L325.0,48.8 L328.2,46.7 L331.5,44.7 L334.8,42.8 L338.0,41.1 L341.2,39.4 L344.5,37.8 L347.8,36.3 L351.0,35.0 L354.2,33.7 L357.5,32.4 L360.8,31.3 L364.0,30.2 L367.2,29.2 L370.5,28.3 L373.8,27.5 L377.0,26.6 L380.2,25.9 L383.5,25.2 L386.8,24.5 L390.0,23.9 L393.2,23.4 L396.5,22.8 L399.8,22.3 L403.0,21.9 L406.2,21.5 L409.5,21.1 L412.8,20.7 L416.0,20.4 L419.2,20.0 L422.5,19.7 L425.8,19.5 L429.0,19.2 L432.2,19.0 L435.5,18.8 L438.8,18.6 L442.0,18.4" stroke="#9aa7b8" stroke-width="2" fill="none" stroke-dasharray="4 4"/><text x="404.9" y="15.6" font-size="10" fill="#9aa7b8">LR=1</text><path d="M52.0,251.3 L55.3,250.9 L58.5,250.5 L61.8,250.1 L65.0,249.6 L68.2,249.2 L71.5,248.6 L74.8,248.1 L78.0,247.4 L81.2,246.8 L84.5,246.1 L87.8,245.3 L91.0,244.5 L94.2,243.7 L97.5,242.7 L100.8,241.7 L104.0,240.7 L107.2,239.5 L110.5,238.3 L113.8,237.0 L117.0,235.6 L120.2,234.1 L123.5,232.6 L126.8,230.9 L130.0,229.1 L133.2,227.2 L136.5,225.2 L139.8,223.1 L143.0,220.9 L146.2,218.5 L149.5,216.0 L152.8,213.4 L156.0,210.6 L159.2,207.7 L162.5,204.7 L165.8,201.5 L169.0,198.2 L172.2,194.8 L175.5,191.2 L178.8,187.5 L182.0,183.7 L185.2,179.8 L188.5,175.7 L191.8,171.6 L195.0,167.3 L198.2,163.0 L201.5,158.6 L204.8,154.1 L208.0,149.6 L211.2,145.1 L214.5,140.5 L217.8,135.9 L221.0,131.3 L224.2,126.7 L227.5,122.1 L230.8,117.6 L234.0,113.1 L237.2,108.7 L240.5,104.4 L243.8,100.1 L247.0,96.0 L250.2,92.0 L253.5,88.0 L256.8,84.2 L260.0,80.5 L263.2,77.0 L266.5,73.6 L269.8,70.3 L273.0,67.1 L276.2,64.1 L279.5,61.2 L282.8,58.5 L286.0,55.8 L289.2,53.4 L292.5,51.0 L295.8,48.8 L299.0,46.7 L302.2,44.7 L305.5,42.8 L308.8,41.0 L312.0,39.3 L315.2,37.8 L318.5,36.3 L321.8,34.9 L325.0,33.6 L328.2,32.4 L331.5,31.3 L334.8,30.2 L338.0,29.2 L341.2,28.3 L344.5,27.4 L347.8,26.6 L351.0,25.9 L354.2,25.2 L357.5,24.5 L360.8,23.9 L364.0,23.3 L367.2,22.8 L370.5,22.3 L373.8,21.9 L377.0,21.4 L380.2,21.0 L383.5,20.7 L386.8,20.3 L390.0,20.0 L393.2,19.7 L396.5,19.5 L399.8,19.2 L403.0,19.0 L406.2,18.8 L409.5,18.6 L412.8,18.4 L416.0,18.2 L419.2,18.0 L422.5,17.9 L425.8,17.7 L429.0,17.6 L432.2,17.5 L435.5,17.4 L438.8,17.3 L442.0,17.2" stroke="#0f766e" stroke-width="2" fill="none"/><text x="404.9" y="12.8" font-size="10" fill="#0f766e">LR=2</text><path d="M52.0,244.6 L55.3,243.7 L58.5,242.8 L61.8,241.8 L65.0,240.7 L68.2,239.6 L71.5,238.4 L74.8,237.1 L78.0,235.7 L81.2,234.2 L84.5,232.7 L87.8,231.0 L91.0,229.2 L94.2,227.3 L97.5,225.3 L100.8,223.2 L104.0,221.0 L107.2,218.6 L110.5,216.2 L113.8,213.5 L117.0,210.8 L120.2,207.9 L123.5,204.9 L126.8,201.7 L130.0,198.4 L133.2,195.0 L136.5,191.5 L139.8,187.8 L143.0,184.0 L146.2,180.0 L149.5,176.0 L152.8,171.9 L156.0,167.6 L159.2,163.3 L162.5,158.9 L165.8,154.4 L169.0,149.9 L172.2,145.3 L175.5,140.7 L178.8,136.1 L182.0,131.5 L185.2,126.9 L188.5,122.4 L191.8,117.9 L195.0,113.4 L198.2,109.0 L201.5,104.7 L204.8,100.4 L208.0,96.3 L211.2,92.2 L214.5,88.3 L217.8,84.5 L221.0,80.8 L224.2,77.2 L227.5,73.8 L230.8,70.5 L234.0,67.3 L237.2,64.3 L240.5,61.4 L243.8,58.6 L247.0,56.0 L250.2,53.5 L253.5,51.1 L256.8,48.9 L260.0,46.8 L263.2,44.8 L266.5,42.9 L269.8,41.1 L273.0,39.4 L276.2,37.9 L279.5,36.4 L282.8,35.0 L286.0,33.7 L289.2,32.5 L292.5,31.3 L295.8,30.3 L299.0,29.3 L302.2,28.3 L305.5,27.5 L308.8,26.7 L312.0,25.9 L315.2,25.2 L318.5,24.6 L321.8,23.9 L325.0,23.4 L328.2,22.8 L331.5,22.4 L334.8,21.9 L338.0,21.5 L341.2,21.1 L344.5,20.7 L347.8,20.4 L351.0,20.0 L354.2,19.8 L357.5,19.5 L360.8,19.2 L364.0,19.0 L367.2,18.8 L370.5,18.6 L373.8,18.4 L377.0,18.2 L380.2,18.0 L383.5,17.9 L386.8,17.8 L390.0,17.6 L393.2,17.5 L396.5,17.4 L399.8,17.3 L403.0,17.2 L406.2,17.1 L409.5,17.0 L412.8,17.0 L416.0,16.9 L419.2,16.8 L422.5,16.8 L425.8,16.7 L429.0,16.7 L432.2,16.6 L435.5,16.6 L438.8,16.5 L442.0,16.5" stroke="#1d4ed8" stroke-width="2" fill="none"/><text x="404.9" y="11.1" font-size="10" fill="#1d4ed8">LR=5</text></svg>
+<!-- /FIG:posterior -->
+    <figcaption>Figure 1 &mdash; Posterior probability of AI participation as a function of declared prior odds, for
+    likelihood ratios 0.5, 1, 2, and 5. The dashed diagonal is LR&nbsp;=&nbsp;1 (no evidence): the posterior equals the
+    prior. The figure makes explicit that a modest likelihood ratio cannot rescue an extreme prior.</figcaption>
+  </figure>
 
   <h3>3.3 Watermark hypothesis tests</h3>
   <p>For each configured public watermark scheme, eligible tokens are counted and the number falling in the scheme&rsquo;s
@@ -224,34 +261,50 @@
   <em>n</em> eligible tokens,</p>
   <span class="eq"><em>z</em> = (<em>G</em> &minus; &gamma;<em>n</em>) / &radic;(<em>n&gamma;</em>(1 &minus; &gamma;)),&emsp;&emsp; <em>p</em> = 1 &minus; &Phi;(<em>z</em>) <span class="eqnum">(2)</span></span>
   <p>Across the family of tests run on one document we control the false discovery rate with the Benjamini&ndash;Hochberg
-  procedure, reporting <em>q</em>-values rather than bare <em>p</em>-values [5]. Each test additionally reports the
+  procedure, reporting <em>q</em>-values rather than bare <em>p</em>-values [19]. Each test additionally reports the
   observed green rate with a 95% confidence interval, an effect size (lift over &gamma;), the achieved <em>power</em> of
   the test at the configured watermark strength and observed <em>n</em>, and a <em>dilution</em> estimate &mdash; the
   fraction of text that would need to carry the watermark to explain the observed lift, which distinguishes
   &ldquo;absent&rdquo; from &ldquo;edited away.&rdquo; Tests that cannot run (ineligible text, unknown scheme, insufficient
   length) report a structured status rather than a silent null.</p>
 
-  <h3>3.4 Provenance verification</h3>
+  <h3>3.4 Corpus-fitted calibration and source-family geometry</h3>
+  <p>Two runtime components are fitted on the verified reference corpus (&sect;4) and shipped as a single signed artifact,
+  <span class="mono">baseline-calibration.json</span>, which the backend loads at startup and verifies before use.
+  First, the heuristic detector&rsquo;s raw score is recalibrated with isotonic regression [20] fitted out-of-fold under
+  GroupKFold by prompt, so no record&rsquo;s calibration is informed by its own prompt&rsquo;s siblings; the artifact
+  carries the resulting reliability diagram, expected calibration error, Brier score, and a split-conformal threshold
+  [15]. Second, source-family attribution replaces its hand-tuned softmax with corpus-fitted geometry: per-family
+  centroids and covariance in a standardized stylometric feature space, with Mahalanobis distance defining both the
+  conditional family distribution and an explicit <em>unknown score</em> for inputs far from every centroid. The response
+  schema exposes which basis was used (<span class="mono">heuristic</span> or <span class="mono">corpus-fitted</span>)
+  and the cohort size behind it. If the artifact is absent, corrupted, or fails signature verification, both components
+  fall back to their heuristic forms and the response says so; raw community text is never a runtime input.</p>
+
+  <h3>3.5 Provenance verification</h3>
   <p>When an upload carries a signed provenance manifest, Panoptes verifies the signature chain and reports the outcome
   as a separate channel with its own status vocabulary (verified, invalid, not present). Statistical and cryptographic
   evidence are never blended into a single score; the user sees both, labeled.</p>
 
-  <h3>3.5 Interface as methodology</h3>
+  <h3>3.6 Interface as methodology</h3>
   <p>The web interface is part of the method. The first view is a plain-language answer with the outcome distribution;
-  the technical laboratory below exposes the posterior decomposition, per-scheme watermark statistics, an evidence
-  contribution waterfall, and the interpretation limits that apply to the specific input. Every statistic carries an
-  inline explanation of what it measures, so the report can be read by the people it affects.</p>
+  the laboratory below exposes the posterior decomposition, posterior-sensitivity and reliability curves, per-scheme
+  watermark statistics, an evidence contribution waterfall, a coverage&ndash;abstention curve, the input&rsquo;s
+  stylometric profile against corpus ranges, and the interpretation limits that apply to the specific input. Every
+  statistic carries an inline explanation of what it measures, so the report can be read by the people it affects.</p>
 
-  <h2>4. Verifiable community baselines</h2>
+  <h2>4. A verifiable, trainable community corpus</h2>
   <p>Claims about model behavior should be checkable by anyone, not just by those with API budgets. Panoptes defines a
   canonical baseline protocol with four properties:</p>
   <p><strong>A canonical prompt set.</strong> Sixteen prompts &mdash; eight prose, eight code &mdash; spanning genres,
   lengths, and task types, versioned as a machine-readable manifest whose own SHA-256 is embedded in the artifact
   (<span class="mono">2092321d&hellip;8b06b</span> for v1.0.0). Every run pins this hash, so results are comparable by
   construction.</p>
-  <p><strong>Three execution modes.</strong> Runs may be produced manually through a chat interface, programmatically
-  through provider APIs, or agent-assisted inside an editor; the interface used is declared in the manifest, because the
-  channel is part of the evidence.</p>
+  <p><strong>Execution modes and human controls.</strong> Runs may be produced manually through a chat interface,
+  programmatically through provider APIs, or agent-assisted inside an editor; the interface used is declared in the
+  manifest, because the channel is part of the evidence. A fourth run type, <span class="mono">human</span>, records
+  license-clear human-written responses to the same prompts; eight such controls ship with the release and anchor every
+  human-vs-AI comparison in the paper.</p>
   <p><strong>Hash-pinned manifests.</strong> A run manifest records the model identity (as reported by the runner), the
   pinned prompt-set hash, and for each output only its filename, byte count, and SHA-256. Output hashes form a Merkle
   tree whose root commits to the entire set; the manifest&rsquo;s own canonical hash identifies the run. Raw outputs
@@ -261,26 +314,26 @@
   both validated in continuous integration against JSON Schemas. Optional OpenTimestamps anchoring binds the manifest
   hash to a Bitcoin block, giving each claim a tamper-evident timestamp [4]. Verification is a single command
   (<span class="mono">baseline.py verify-catalog</span>) and requires no trust in the submitter.</p>
-  <p><strong>Contribution protocol.</strong> A contributor (1)&nbsp;runs the canonical prompt set by any of the three
-  execution modes, (2)&nbsp;finalizes the run, which hashes each output with SHA-256, builds the Merkle root, and
-  self-hashes the canonical manifest, (3)&nbsp;optionally anchors the manifest hash with OpenTimestamps, and
-  (4)&nbsp;opens a pull request containing only the registry line and the manifest file. Raw outputs remain on the
-  contributor&rsquo;s machine, ignored by version control. External corpora participate by reference rather than by
-  inclusion: a signed pointer manifest records the source URL, access conditions, download instructions, and a SHA-256
-  integrity commitment, so third-party data is never copied into the repository.</p>
-  <p><strong>Relationship to the analyzer.</strong> The catalog is deliberately <em>not</em> a runtime input to the
-  analyzer. In the current release, source-family attribution is a hand-tuned stylometric softmax over surface features,
-  and the posterior&rsquo;s prior odds are supplied per request; no baseline output influences a live score. The
-  reference corpus exists so that future calibrated components &mdash; fitted family centroids, per-model detector
-  reliability estimates, human-control comparisons &mdash; can be trained and audited against material whose provenance
-  is publicly verifiable, and so that claims about model behavior can be replicated independently.</p>
+  <p><strong>Contribution protocol.</strong> A contributor (1)&nbsp;runs the canonical prompt set by any of the execution
+  modes, (2)&nbsp;finalizes the run, which hashes each output with SHA-256, builds the Merkle root, and self-hashes the
+  canonical manifest, (3)&nbsp;optionally anchors the manifest hash with OpenTimestamps, and (4)&nbsp;opens a pull request
+  containing only the registry line and the manifest file. Raw outputs remain on the contributor&rsquo;s machine, ignored
+  by version control. External corpora participate by reference rather than by inclusion: a signed pointer manifest
+  records the source URL, access conditions, download instructions, and a SHA-256 integrity commitment, so third-party
+  data is never copied into the repository. The training bench (&sect;8) consumes these pointers to validate contributed
+  datasets locally.</p>
+  <p><strong>Relationship to the analyzer.</strong> The catalog itself remains a non-runtime input: no live score ever
+  reads community-submitted text. What the corpus feeds is the <em>offline</em> pipeline of &sect;&sect;6&ndash;9 &mdash;
+  hypothesis testing, calibration fitting, and model training &mdash; whose outputs reach the analyzer only as signed,
+  schema-validated, hash-verified artifacts with stated cohort sizes. Every number the corpus influences is therefore
+  traceable to a specific, re-verifiable input set.</p>
 
-  <h2>5. Reference results</h2>
-  <p>Table&nbsp;1 lists the twelve reference runs seeded with this release: six frontier models, each run against the
-  full text and code prompt sets in agent-assisted mode on August&nbsp;12, 2026. Raw outputs are committed in the
-  repository under <span class="mono">baselines/reference/</span>; the catalog entries below commit to them. All twelve
-  manifests validate against schema <span class="mono">panoptes-baseline-run-v1</span> and pin prompt-set hash
-  <span class="mono">2092321d&hellip;8b06b</span>.</p>
+  <h2>5. Analysis of the reference corpus</h2>
+  <p>The release corpus comprises 104 records from 13 verified runs: 96 AI outputs from six frontier model families
+  (claude-opus-5-max, gemini-3.1-pro, glm-5.2-max, gpt-5.6-sol-max, grok-4.6-extra-high, kimi-k3-max; eight text and
+  eight code outputs each) and 8 human control responses to the text prompts. Every record was re-hashed against its run
+  manifest at ingestion; a single mismatch rejects the run. Table&nbsp;1 lists the registered runs; Table&nbsp;2 summarizes
+  cohort-level stylometry.</p>
 
   <table>
     <caption>Table 1 &mdash; Reference baseline runs registered in the public catalog. Hashes truncated to 16 hex digits;
@@ -301,34 +354,274 @@
       <tr><td>grok-4.6-extra-high</td><td>code</td><td class="mono">grok-4.6-extra-high_code-20260812t185932z</td><td class="mono">69a77a793259e1d3&hellip;</td><td class="mono">b605ac384e30cfff&hellip;</td></tr>
       <tr><td>kimi-k3-max</td><td>text</td><td class="mono">kimi-k3-max_text-20260812t185240z</td><td class="mono">85068a301bf15f3f&hellip;</td><td class="mono">942edc2dfe18cbd3&hellip;</td></tr>
       <tr><td>kimi-k3-max</td><td>code</td><td class="mono">kimi-k3-max_code-20260812t185244z</td><td class="mono">e017bdc5ec3f87b9&hellip;</td><td class="mono">b2eb461859b65e2c&hellip;</td></tr>
+      <tr><td>human (control)</td><td>text</td><td class="mono">human-control_text-20260812</td><td class="mono">local run</td><td class="mono">local run</td></tr>
     </tbody>
   </table>
 
-  <p>We make no leaderboard claims from these runs. The catalog&rsquo;s purpose is evidentiary: it fixes what a given
-  model produced on a fixed prompt set at a declared time, so that future analyses &mdash; including detector calibration
-  and human-control comparisons &mdash; can reference material that cannot quietly change.</p>
+  <table>
+    <caption>Table 2 &mdash; Cohort stylometry on the verified corpus (text cohorts). Long-word rate: tokens of seven or
+    more characters per token; unique ratio: distinct tokens per token; token entropy: Shannon entropy of the token
+    distribution in bits. Code cohorts differ chiefly in entropy (4.8&ndash;5.3 bits vs 6.8&ndash;6.9 for text).</caption>
+    <thead>
+      <tr><th>Cohort</th><th>n</th><th>long-word rate</th><th>unique ratio</th><th>token entropy</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>human (control)</td><td>8</td><td>0.168</td><td>0.651</td><td>6.90</td></tr>
+      <tr><td>claude-opus-5-max</td><td>8</td><td>0.199</td><td>0.629</td><td>6.91</td></tr>
+      <tr><td>gemini-3.1-pro</td><td>8</td><td>0.262</td><td>0.642</td><td>6.77</td></tr>
+      <tr><td>glm-5.2-max</td><td>8</td><td>0.171</td><td>0.630</td><td>6.77</td></tr>
+      <tr><td>gpt-5.6-sol-max</td><td>8</td><td>0.252</td><td>0.696</td><td>6.85</td></tr>
+      <tr><td>grok-4.6-extra-high</td><td>8</td><td>0.189</td><td>0.646</td><td>6.90</td></tr>
+      <tr><td>kimi-k3-max</td><td>8</td><td>0.204</td><td>0.664</td><td>6.83</td></tr>
+    </tbody>
+  </table>
 
-  <h2>6. Limitations</h2>
+  <figure>
+    <!-- FIG:corpus -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="236" x2="442" y2="236" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="236" stroke="#1a2332" stroke-width="1"/><line x1="48" y1="236.0" x2="52" y2="236.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="239.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.00</text><line x1="48" y1="181.0" x2="52" y2="181.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="184.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.20</text><line x1="48" y1="126.1" x2="52" y2="126.1" stroke="#1a2332" stroke-width="1"/><text x="45" y="129.1" text-anchor="end" font-size="10" fill="#5b6b7f">0.40</text><line x1="48" y1="71.1" x2="52" y2="71.1" stroke="#1a2332" stroke-width="1"/><text x="45" y="74.1" text-anchor="end" font-size="10" fill="#5b6b7f">0.60</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332"></text><text x="14" y="126.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 126.0)">mean (text cohorts)</text><rect x="61.3" y="189.8" width="15.2" height="46.2" fill="#1d4ed8" fill-opacity="0.8"/><rect x="79.9" y="57.0" width="15.2" height="179.0" fill="#0f766e" fill-opacity="0.8"/><text x="79.9" y="248" text-anchor="start" font-size="9" fill="#5b6b7f" transform="rotate(-28 79.9 248)">human</text><rect x="117.0" y="181.3" width="15.2" height="54.7" fill="#1d4ed8" fill-opacity="0.8"/><rect x="135.6" y="63.1" width="15.2" height="172.9" fill="#0f766e" fill-opacity="0.8"/><text x="135.6" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 135.6 248)">claude-opus-5</text><rect x="172.7" y="164.0" width="15.2" height="72.0" fill="#1d4ed8" fill-opacity="0.8"/><rect x="191.3" y="59.6" width="15.2" height="176.4" fill="#0f766e" fill-opacity="0.8"/><text x="191.3" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 191.3 248)">gemini-3.1-pro</text><rect x="228.4" y="188.9" width="15.2" height="47.1" fill="#1d4ed8" fill-opacity="0.8"/><rect x="247.0" y="62.8" width="15.2" height="173.2" fill="#0f766e" fill-opacity="0.8"/><text x="247.0" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 247.0 248)">glm-5.2</text><rect x="284.1" y="166.9" width="15.2" height="69.1" fill="#1d4ed8" fill-opacity="0.8"/><rect x="302.7" y="44.7" width="15.2" height="191.3" fill="#0f766e" fill-opacity="0.8"/><text x="302.7" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 302.7 248)">gpt-5.6-sol</text><rect x="339.9" y="184.0" width="15.2" height="52.0" fill="#1d4ed8" fill-opacity="0.8"/><rect x="358.4" y="58.6" width="15.2" height="177.4" fill="#0f766e" fill-opacity="0.8"/><text x="358.4" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 358.4 248)">grok-4.6</text><rect x="395.6" y="179.9" width="15.2" height="56.1" fill="#1d4ed8" fill-opacity="0.8"/><rect x="414.1" y="53.5" width="15.2" height="182.5" fill="#0f766e" fill-opacity="0.8"/><text x="414.1" y="248" text-anchor="end" font-size="9" fill="#5b6b7f" transform="rotate(-28 414.1 248)">kimi-k3</text><rect x="58" y="16" width="9" height="9" fill="#1d4ed8" fill-opacity="0.8"/><text x="71" y="24" font-size="10" fill="#1a2332">long-word rate</text><rect x="188" y="16" width="9" height="9" fill="#0f766e" fill-opacity="0.8"/><text x="201" y="24" font-size="10" fill="#1a2332">unique-token ratio</text></svg>
+<!-- /FIG:corpus -->
+    <figcaption>Figure 2 &mdash; Mean long-word rate and unique-token ratio across text cohorts, human control first.
+    Human prose sits at the low end of the long-word distribution; the AI families overlap one another far more than any
+    of them overlaps the human control.</figcaption>
+  </figure>
+
+  <p>Two observations deserve note. First, the human controls are not stylistically extreme: they sit inside the AI
+  range on unique ratio and token entropy and below it on long-word rate, which is why no single feature separates the
+  classes (&sect;7). Second, the corpus caught a provenance-relevant anomaly: the glm-5.2-max and kimi-k3-max outputs for
+  prompt code-07 (a customer-order SQL aggregation) are <em>byte-identical</em> &mdash; the same 202 bytes, SHA-256
+  committed independently by two runs finalized minutes apart. Whether this reflects shared training data, convergent
+  templating of a canonical query, or a common serving component is not determinable from text alone; what the protocol
+  guarantees is that the observation is permanent, independently re-verifiable, and attributable to a declared time and
+  channel. This is the catalog working as intended: not a leaderboard, but evidence that cannot quietly change.</p>
+
+  <h2>6. Variable selection and specification testing</h2>
+  <p>Before any hypothesis is tested, the feature set passes through an econometric screening layer
+  (<span class="mono">research/methodology.py</span>, pre-registered in
+  <span class="mono">research/hypotheses.json</span>). Seventeen candidate stylometric features are screened for
+  multicollinearity by variance inflation factors, VIF<sub><em>j</em></sub>&nbsp;=&nbsp;1/(1&nbsp;&minus;&nbsp;<em>R</em><sub><em>j</em></sub><sup>2</sup>)
+  from an auxiliary regression of each feature on the rest [21]: values above 5 are investigated and above 10 excluded,
+  with the exclusion and its justification recorded in the signed report. Four features were excluded
+  (log&nbsp;word count, VIF&nbsp;=&nbsp;405.4; hapax ratio, 39.9; punctuation rate, 18.6; mean word length, 14.9), leaving
+  twelve features with a condition number of 7.6 &mdash; comfortably below the conventional concern threshold of 30.</p>
+  <p>A penalized logistic model (IRLS with a 10<sup>&minus;6</sup> ridge, features standardized) fitted on the screened set
+  attains a log-likelihood of &minus;18.1 against a null of &minus;28.2: McFadden pseudo-<em>R</em><sup>2</sup>&nbsp;=&nbsp;0.358,
+  Tjur&rsquo;s <em>R</em><sup>2</sup>&nbsp;=&nbsp;0.236 [22]. Specification tests on this fit are summarized in Table&nbsp;3.
+  The link test [23], Hosmer&ndash;Lemeshow decile test [24], and Ramsey RESET [25] all fail to reject adequacy;
+  Breusch&ndash;Pagan finds no heteroscedasticity signal [26]; Jarque&ndash;Bera rejects residual normality, as it
+  necessarily does for Pearson residuals of a binary model, and is reported as a diagnostic only [27]. Cook&rsquo;s
+  distance [28] flags 11 of 104 records above the 4/n screen &mdash; expected in a corpus with eight-record cohorts &mdash;
+  and the Durbin&ndash;Watson statistic on residuals ordered by fitted probability is 2.09, indicating no residual trend
+  along the fit [29].</p>
+
+  <table>
+    <caption>Table 3 &mdash; Specification tests for the screened logistic model (signed methodology report,
+    <span class="mono">backend/artifacts/methodology-report.json</span>).</caption>
+    <thead>
+      <tr><th>Test</th><th>Null hypothesis</th><th>Statistic</th><th>p-value</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Link test</td><td>linear logit link adequate</td><td>0.229</td><td>0.632</td><td>not rejected</td></tr>
+      <tr><td>Hosmer&ndash;Lemeshow</td><td>deciles calibrated</td><td>4.365</td><td>0.823</td><td>not rejected</td></tr>
+      <tr><td>Ramsey RESET</td><td>no omitted nonlinear structure</td><td>4.667</td><td>0.097</td><td>not rejected</td></tr>
+      <tr><td>Breusch&ndash;Pagan</td><td>homoscedastic errors</td><td>14.02</td><td>0.300</td><td>not rejected</td></tr>
+      <tr><td>Jarque&ndash;Bera</td><td>normal residuals (diagnostic)</td><td>469.4</td><td>&lt;10<sup>&minus;99</sup></td><td>rejected (expected)</td></tr>
+      <tr><td>Durbin&ndash;Watson</td><td>no residual trend along fit</td><td>2.087</td><td>&mdash;</td><td>&asymp;2, no trend</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Pre-registered hypothesis tests</h2>
+  <p>Six hypotheses about the corpus were registered before testing, each with its null, test, variables, direction, and
+  &alpha;&nbsp;=&nbsp;0.05; q-values are Benjamini&ndash;Hochberg adjusted across the family [19]. Table&nbsp;4 reports the
+  decisions exactly as the signed methodology report records them.</p>
+
+  <table>
+    <caption>Table 4 &mdash; Hypothesis registry and outcomes (n&nbsp;=&nbsp;96 AI, 8 human). Effect sizes: Cohen&rsquo;s d
+    (H1, H5), rank-biserial r (H2), pseudo-<em>R</em><sup>2</sup> increment (H3), permutation F (H4), Durbin&ndash;Watson
+    statistic (H6).</caption>
+    <thead>
+      <tr><th>ID</th><th>Statement (abbreviated)</th><th>Test</th><th>p</th><th>q</th><th>Effect</th><th>Decision</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>H1</td><td>connector rate higher in AI text</td><td>Welch t</td><td>0.160</td><td>0.192</td><td>d = 0.11</td><td>null not rejected</td></tr>
+      <tr><td>H2</td><td>token entropy lower in AI text</td><td>Mann&ndash;Whitney</td><td>0.009</td><td>0.051</td><td>r = 0.51</td><td>null not rejected</td></tr>
+      <tr><td>H3</td><td>unique ratio discriminates beyond length</td><td>logistic LR</td><td>0.019</td><td>0.057</td><td>&Delta;<em>R</em><sup>2</sup> &lt; 0.001</td><td>null not rejected</td></tr>
+      <tr><td>H4</td><td>per-family centroids separated</td><td>permutation MANOVA</td><td>0.092</td><td>0.139</td><td>F = 0.52</td><td>null not rejected</td></tr>
+      <tr><td>H5</td><td>long-word rate higher in AI prose</td><td>Welch t</td><td>0.032</td><td>0.064</td><td>d = 0.55</td><td>null not rejected</td></tr>
+      <tr><td>H6</td><td>segment residuals uncorrelated</td><td>DW permutation</td><td>0.288</td><td>0.288</td><td>DW = 2.56</td><td>null not rejected</td></tr>
+    </tbody>
+  </table>
+
+  <p>No hypothesis survives multiplicity control at q&nbsp;&le;&nbsp;0.05. This is the honest headline, and it is a
+  sample-size statement before it is a science statement: with eight human controls, a Welch t-test on a medium effect
+  (d&nbsp;=&nbsp;0.5) has power near 23%, and the two-proportion power gate used elsewhere in the system
+  (&sect;8) puts the corpus at roughly 7% power for five-point accuracy differences. Two results are suggestive under
+  the pre-registered directions &mdash; token entropy (H2, q&nbsp;=&nbsp;0.051) and long-word rate (H5,
+  q&nbsp;=&nbsp;0.064), both consistent with the cohort means in Table&nbsp;2 &mdash; and H6 finds no evidence that
+  segment-level residuals are autocorrelated, supporting the segment-independence assumption the analyzer makes. The
+  registry exists precisely so that these numbers cannot be silently re-litigated: when the corpus doubles, the same six
+  tests re-run unchanged.</p>
+
+  <h2>8. The training bench</h2>
+  <p>The <span class="mono">bench/</span> package turns the verified corpus &mdash; and any schema-valid community dataset
+  &mdash; into models under a protocol that refuses to overreach its sample size. Its components: a single-source feature
+  extractor shared with the research layer; a dataset loader that re-verifies every record against its manifest hash;
+  grouped cross-validation by prompt so that no evaluation fold sees a sibling of a training record; a tiered model zoo;
+  and signed model cards [16] and datasheets [17] for everything it trains.</p>
+  <p><strong>The tier gate.</strong> Model complexity is admitted by statistical power, not enthusiasm. Tier&nbsp;0
+  (penalized logistic regression) is always admissible. Tier&nbsp;1 (gradient boosting) requires n&nbsp;&ge;&nbsp;300.
+  Tier&nbsp;2 (neural) requires passing a two-proportion worst-case power calculation: to detect a five-point accuracy
+  gain at &alpha;&nbsp;=&nbsp;0.05 with 80% power demands n&nbsp;&asymp;&nbsp;3,140 eligible records. At the current
+  n&nbsp;=&nbsp;104 the gate fails (Figure&nbsp;3), and the bench says so on every card it writes; Panoptes-v0
+  (&sect;9) is therefore reported as an experimental architecture with a comparison battery, never as an improvement.</p>
+
+  <figure>
+    <!-- FIG:power -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="256" x2="442" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="89.6" y1="256" x2="89.6" y2="260" stroke="#1a2332" stroke-width="1"/><text x="89.6" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">500</text><line x1="167.9" y1="256" x2="167.9" y2="260" stroke="#1a2332" stroke-width="1"/><text x="167.9" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">1500</text><line x1="246.2" y1="256" x2="246.2" y2="260" stroke="#1a2332" stroke-width="1"/><text x="246.2" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">2500</text><line x1="324.5" y1="256" x2="324.5" y2="260" stroke="#1a2332" stroke-width="1"/><text x="324.5" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">3500</text><line x1="402.8" y1="256" x2="402.8" y2="260" stroke="#1a2332" stroke-width="1"/><text x="402.8" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">4500</text><line x1="48" y1="256.0" x2="52" y2="256.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="259.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.0</text><line x1="48" y1="208.0" x2="52" y2="208.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="211.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.2</text><line x1="48" y1="160.0" x2="52" y2="160.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="163.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.4</text><line x1="48" y1="112.0" x2="52" y2="112.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="115.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.6</text><line x1="48" y1="64.0" x2="52" y2="64.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="67.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.8</text><line x1="48" y1="16.0" x2="52" y2="16.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="19.0" text-anchor="end" font-size="10" fill="#5b6b7f">1.0</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332">eligible corpus size n</text><text x="14" y="136.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 136.0)">power</text><line x1="52" y1="64.0" x2="442" y2="64.0" stroke="#5b6b7f" stroke-width="1" stroke-dasharray="4 4"/><text x="438" y="59.0" text-anchor="end" font-size="10" fill="#5b6b7f">80% power (n ≈ 3,140)</text><path d="M52.0,246.1 L55.3,241.9 L58.6,238.4 L61.8,235.0 L65.1,231.7 L68.4,228.5 L71.7,225.3 L74.9,222.1 L78.2,219.0 L81.5,215.8 L84.8,212.6 L88.1,209.5 L91.3,206.4 L94.6,203.2 L97.9,200.1 L101.2,197.0 L104.4,193.9 L107.7,190.8 L111.0,187.7 L114.3,184.7 L117.5,181.6 L120.8,178.6 L124.1,175.6 L127.4,172.7 L130.7,169.7 L133.9,166.8 L137.2,163.9 L140.5,161.0 L143.8,158.2 L147.0,155.4 L150.3,152.6 L153.6,149.9 L156.9,147.1 L160.2,144.5 L163.4,141.8 L166.7,139.2 L170.0,136.6 L173.3,134.1 L176.5,131.6 L179.8,129.1 L183.1,126.6 L186.4,124.2 L189.6,121.9 L192.9,119.5 L196.2,117.2 L199.5,115.0 L202.8,112.8 L206.0,110.6 L209.3,108.4 L212.6,106.3 L215.9,104.2 L219.1,102.2 L222.4,100.2 L225.7,98.2 L229.0,96.3 L232.3,94.4 L235.5,92.5 L238.8,90.7 L242.1,88.9 L245.4,87.2 L248.6,85.4 L251.9,83.7 L255.2,82.1 L258.5,80.5 L261.7,78.9 L265.0,77.3 L268.3,75.8 L271.6,74.3 L274.9,72.8 L278.1,71.4 L281.4,70.0 L284.7,68.6 L288.0,67.3 L291.2,66.0 L294.5,64.7 L297.8,63.4 L301.1,62.2 L304.4,61.0 L307.6,59.8 L310.9,58.7 L314.2,57.6 L317.5,56.5 L320.7,55.4 L324.0,54.4 L327.3,53.3 L330.6,52.3 L333.8,51.4 L337.1,50.4 L340.4,49.5 L343.7,48.6 L347.0,47.7 L350.2,46.8 L353.5,46.0 L356.8,45.2 L360.1,44.4 L363.3,43.6 L366.6,42.8 L369.9,42.1 L373.2,41.4 L376.5,40.7 L379.7,40.0 L383.0,39.3 L386.3,38.6 L389.6,38.0 L392.8,37.4 L396.1,36.8 L399.4,36.2 L402.7,35.6 L405.9,35.1 L409.2,34.5 L412.5,34.0 L415.8,33.5 L419.1,33.0 L422.3,32.5 L425.6,32.0 L428.9,31.5 L432.2,31.1 L435.4,30.7 L438.7,30.2 L442.0,29.8" stroke="#1d4ed8" stroke-width="2" fill="none"/><circle cx="58.6" cy="238.4" r="4.5" fill="#b45309"/><text x="66.6" y="252.4" font-size="10" fill="#b45309">today: n=104, power 7.4%</text></svg>
+<!-- /FIG:power -->
+    <figcaption>Figure 3 &mdash; Power to detect a five-point accuracy difference between two models at
+    &alpha;&nbsp;=&nbsp;0.05 (worst-case variance), as a function of eligible corpus size. The marker is today&rsquo;s
+    verified corpus; the dashed line is the 80% gate for admitting neural-tier comparisons. Community submissions move
+    the marker right.</figcaption>
+  </figure>
+
+  <p><strong>Reference results.</strong> The tier-0 logistic model, evaluated entirely out-of-fold under GroupKFold by
+  prompt, attains AUROC 0.788 (bootstrap 95% CI 0.664&ndash;0.891), Brier 0.077, ECE 0.056, and TPR 0.542 at 1% FPR; a
+  split-conformal wrap at &alpha;&nbsp;=&nbsp;0.1 delivers 0.923 empirical coverage with mean set size 1.06 and a 5.8%
+  abstention rate. Figure&nbsp;4 shows the coverage&ndash;accuracy trade the abstention knob offers. For contrast, the
+  shipped heuristic detector&rsquo;s raw scores on the same held-out folds reach only AUROC 0.589 with ECE 0.127 before
+  isotonic recalibration &mdash; a concrete, quantified motivation for the corpus-fitted calibration of &sect;3.4, whose
+  reliability diagram appears in Figure&nbsp;5.</p>
+
+  <figure>
+    <!-- FIG:coverage -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="256" x2="442" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52.0" y1="256" x2="52.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="52.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.0</text><line x1="130.0" y1="256" x2="130.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="130.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.2</text><line x1="208.0" y1="256" x2="208.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="208.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.4</text><line x1="286.0" y1="256" x2="286.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="286.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.6</text><line x1="364.0" y1="256" x2="364.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="364.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.8</text><line x1="442.0" y1="256" x2="442.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="442.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">1.0</text><line x1="48" y1="256.0" x2="52" y2="256.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="259.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.0</text><line x1="48" y1="208.0" x2="52" y2="208.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="211.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.2</text><line x1="48" y1="160.0" x2="52" y2="160.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="163.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.4</text><line x1="48" y1="112.0" x2="52" y2="112.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="115.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.6</text><line x1="48" y1="64.0" x2="52" y2="64.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="67.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.8</text><line x1="48" y1="16.0" x2="52" y2="16.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="19.0" text-anchor="end" font-size="10" fill="#5b6b7f">1.0</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332">coverage (fraction kept)</text><text x="14" y="136.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 136.0)">accuracy on kept cases</text><path d="M442.0,41.4 L430.8,37.4 L412.0,33.5 L400.8,31.5 L389.5,32.0 L382.0,29.6 L359.5,27.7 L314.5,22.9 L284.5,23.7 L179.5,16.0" stroke="#1d4ed8" stroke-width="2" fill="none"/><circle cx="442.0" cy="41.4" r="3" fill="#1d4ed8"/><circle cx="430.8" cy="37.4" r="3" fill="#1d4ed8"/><circle cx="412.0" cy="33.5" r="3" fill="#1d4ed8"/><circle cx="400.8" cy="31.5" r="3" fill="#1d4ed8"/><circle cx="389.5" cy="32.0" r="3" fill="#1d4ed8"/><circle cx="382.0" cy="29.6" r="3" fill="#1d4ed8"/><circle cx="359.5" cy="27.7" r="3" fill="#1d4ed8"/><circle cx="314.5" cy="22.9" r="3" fill="#1d4ed8"/><circle cx="284.5" cy="23.7" r="3" fill="#1d4ed8"/><circle cx="179.5" cy="16.0" r="3" fill="#1d4ed8"/></svg>
+<!-- /FIG:coverage -->
+    <figcaption>Figure 4 &mdash; Coverage versus accuracy for the tier-0 logistic model as the confidence threshold
+    rises (out-of-fold, grouped by prompt). Abstention is a first-class output: the user can trade coverage for accuracy
+    explicitly rather than having the trade made for them.</figcaption>
+  </figure>
+
+  <figure>
+    <!-- FIG:reliability -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="256" x2="442" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52.0" y1="256" x2="52.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="52.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.0</text><line x1="130.0" y1="256" x2="130.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="130.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.2</text><line x1="208.0" y1="256" x2="208.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="208.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.4</text><line x1="286.0" y1="256" x2="286.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="286.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.6</text><line x1="364.0" y1="256" x2="364.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="364.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0.8</text><line x1="442.0" y1="256" x2="442.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="442.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">1.0</text><line x1="48" y1="256.0" x2="52" y2="256.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="259.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.0</text><line x1="48" y1="208.0" x2="52" y2="208.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="211.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.2</text><line x1="48" y1="160.0" x2="52" y2="160.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="163.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.4</text><line x1="48" y1="112.0" x2="52" y2="112.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="115.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.6</text><line x1="48" y1="64.0" x2="52" y2="64.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="67.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.8</text><line x1="48" y1="16.0" x2="52" y2="16.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="19.0" text-anchor="end" font-size="10" fill="#5b6b7f">1.0</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332">mean predicted probability</text><text x="14" y="136.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 136.0)">observed AI frequency</text><line x1="52" y1="256" x2="442" y2="16" stroke="#5b6b7f" stroke-width="1" stroke-dasharray="4 4"/><circle cx="182.0" cy="46.0" r="7.2" fill="#1d4ed8" fill-opacity="0.55" stroke="#1d4ed8"/><circle cx="346.2" cy="58.4" r="12.0" fill="#1d4ed8" fill-opacity="0.55" stroke="#1d4ed8"/><circle cx="372.1" cy="106.0" r="7.2" fill="#1d4ed8" fill-opacity="0.55" stroke="#1d4ed8"/><circle cx="432.1" cy="16.0" r="3.5" fill="#1d4ed8" fill-opacity="0.55" stroke="#1d4ed8"/><text x="64" y="23" font-size="10.5" fill="#5b6b7f">ECE 0.127 · Brier 0.161 · held-out folds, n=104</text></svg>
+<!-- /FIG:reliability -->
+    <figcaption>Figure 5 &mdash; Reliability diagram of the corpus-calibrated heuristic detector (isotonic, out-of-fold).
+    Point size is bin count; the diagonal is perfect calibration. The signed artifact carries these bins, and the live
+    interface renders them next to every analysis.</figcaption>
+  </figure>
+
+  <p><strong>Community use.</strong> Five commands cover the loop: <span class="mono">bench train</span> (cross-validate,
+  fit, and card a model), <span class="mono">bench evaluate</span> (re-score a saved model on a dataset),
+  <span class="mono">bench validate</span> (score your own CSV/JSONL against the shipped model, with fairness slices by
+  length, kind, and family), <span class="mono">bench contribute</span> (write a signed hash-pointer manifest for your
+  dataset into <span class="mono">datasets/manifests/</span>), and <span class="mono">bench predict</span> (score one
+  text). Datasets are validated against a published JSON Schema; cards are canonical-hashed and verifiable offline.</p>
+
+  <h2>9. Panoptes-v0: an evidential, abstention-native detector</h2>
+  <p>Panoptes-v0 is a small custom neural architecture designed around the system&rsquo;s ethos: uncertainty should be
+  computed, not painted on. A feature branch (Linear(17,64)&nbsp;&rarr;&nbsp;GELU&nbsp;&rarr;&nbsp;LayerNorm&nbsp;&rarr;
+  Linear(64,64)&nbsp;&rarr;&nbsp;GELU) feeds an evidence head (Linear(64,2)&nbsp;&rarr;&nbsp;softplus&nbsp;+&nbsp;1) whose
+  outputs are the concentration parameters of a Dirichlet distribution over the two class probabilities [13, 14]. The
+  prediction is the Dirichlet mean; <em>vacuity</em> (K/S, the fraction of probability mass the evidence cannot
+  allocate) and <em>dissonance</em> (evidence conflict) are native outputs and drive the same SUPPORTED/INSUFFICIENT
+  states the rest of the system uses. Training uses the evidential MSE loss with an annealed KL term [13], AdamW
+  (lr&nbsp;3&times;10<sup>&minus;4</sup>, weight decay 10<sup>&minus;2</sup>, batch 16), early stopping on grouped-validation
+  ECE (patience 20, at most 200 epochs), and three seeds {13, 42, 87} reported as mean&nbsp;&plusmn;&nbsp;sd; a
+  split-conformal wrap calibrates the final scores [15]. A character-n-gram sequence branch exists but is gated off
+  until the power gate passes. Weights are saved locally under <span class="mono">models/panoptes-v0/</span>
+  (gitignored, SHA-256 recorded on the card); an open-weights release on Hugging Face is planned once the corpus is
+  large enough for the numbers to mean something.</p>
+
+  <figure>
+    <!-- FIG:training -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><line x1="52" y1="256" x2="442" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52" y1="16" x2="52" y2="256" stroke="#1a2332" stroke-width="1"/><line x1="52.0" y1="256" x2="52.0" y2="260" stroke="#1a2332" stroke-width="1"/><text x="52.0" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">0</text><line x1="142.7" y1="256" x2="142.7" y2="260" stroke="#1a2332" stroke-width="1"/><text x="142.7" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">20</text><line x1="233.4" y1="256" x2="233.4" y2="260" stroke="#1a2332" stroke-width="1"/><text x="233.4" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">40</text><line x1="324.1" y1="256" x2="324.1" y2="260" stroke="#1a2332" stroke-width="1"/><text x="324.1" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">60</text><line x1="414.8" y1="256" x2="414.8" y2="260" stroke="#1a2332" stroke-width="1"/><text x="414.8" y="272" text-anchor="middle" font-size="10" fill="#5b6b7f">80</text><line x1="48" y1="256.0" x2="52" y2="256.0" stroke="#1a2332" stroke-width="1"/><text x="45" y="259.0" text-anchor="end" font-size="10" fill="#5b6b7f">0.00</text><line x1="48" y1="178.2" x2="52" y2="178.2" stroke="#1a2332" stroke-width="1"/><text x="45" y="181.2" text-anchor="end" font-size="10" fill="#5b6b7f">0.20</text><line x1="48" y1="100.5" x2="52" y2="100.5" stroke="#1a2332" stroke-width="1"/><text x="45" y="103.5" text-anchor="end" font-size="10" fill="#5b6b7f">0.40</text><line x1="48" y1="22.7" x2="52" y2="22.7" stroke="#1a2332" stroke-width="1"/><text x="45" y="25.7" text-anchor="end" font-size="10" fill="#5b6b7f">0.60</text><text x="247.0" y="294" text-anchor="middle" font-size="11" fill="#1a2332">epoch (seed 13)</text><text x="14" y="136.0" text-anchor="middle" font-size="11" fill="#1a2332" transform="rotate(-90 14 136.0)">loss / ECE</text><path d="M52.0,16.0 L56.5,23.1 L61.1,30.0 L65.6,36.8 L70.1,43.5 L74.7,50.5 L79.2,57.1 L83.7,64.3 L88.3,71.4 L92.8,78.4 L97.3,85.7 L101.9,92.8 L106.4,99.8 L111.0,106.5 L115.5,113.3 L120.0,119.6 L124.6,125.7 L129.1,131.4 L133.6,136.9 L138.2,141.9 L142.7,146.6 L147.2,151.0 L151.8,155.0 L156.3,158.5 L160.8,162.2 L165.4,164.9 L169.9,167.9 L174.4,170.3 L179.0,172.7 L183.5,174.7 L188.0,176.6 L192.6,178.4 L197.1,180.0 L201.7,181.4 L206.2,182.8 L210.7,184.0 L215.3,185.1 L219.8,186.1 L224.3,187.0 L228.9,187.8 L233.4,188.6 L237.9,189.5 L242.5,190.1 L247.0,190.7 L251.5,191.3 L256.1,191.8 L260.6,192.4 L265.1,192.9 L269.7,193.3 L274.2,193.8 L278.7,194.1 L283.3,194.6 L287.8,195.0 L292.3,195.3 L296.9,195.7 L301.4,196.0 L306.0,196.4 L310.5,196.7 L315.0,197.0 L319.6,197.3 L324.1,197.6 L328.6,197.9 L333.2,198.1 L337.7,198.4 L342.2,198.6 L346.8,198.9 L351.3,199.1 L355.8,199.3 L360.4,199.6 L364.9,199.8 L369.4,200.0 L374.0,200.2 L378.5,200.5 L383.0,200.7 L387.6,200.9 L392.1,201.1 L396.7,201.3 L401.2,201.6 L405.7,201.8 L410.3,202.0 L414.8,202.2 L419.3,202.5 L423.9,202.7 L428.4,203.0 L432.9,203.3 L437.5,203.5 L442.0,203.8" stroke="#1d4ed8" stroke-width="2" fill="none"/><path d="M52.0,103.0 L56.5,106.1 L61.1,109.4 L65.6,112.5 L70.1,115.8 L74.7,119.4 L79.2,122.8 L83.7,126.6 L88.3,130.3 L92.8,133.9 L97.3,137.9 L101.9,141.9 L106.4,146.0 L111.0,150.2 L115.5,154.4 L120.0,158.5 L124.6,162.6 L129.1,166.6 L133.6,170.6 L138.2,174.6 L142.7,178.4 L147.2,182.0 L151.8,185.6 L156.3,189.0 L160.8,192.0 L165.4,195.0 L169.9,197.7 L174.4,200.5 L179.0,203.0 L183.5,205.4 L188.0,207.6 L192.6,209.6 L197.1,211.3 L201.7,213.1 L206.2,214.8 L210.7,216.3 L215.3,217.8 L219.8,219.1 L224.3,220.4 L228.9,221.9 L233.4,223.0 L237.9,223.8 L242.5,224.8 L247.0,225.6 L251.5,226.5 L256.1,227.5 L260.6,228.3 L265.1,228.9 L269.7,229.5 L274.2,230.1 L278.7,230.8 L283.3,231.2 L287.8,231.7 L292.3,232.1 L296.9,232.6 L301.4,233.2 L306.0,233.4 L310.5,233.8 L315.0,234.1 L319.6,234.5 L324.1,234.7 L328.6,234.8 L333.2,235.0 L337.7,235.1 L342.2,235.3 L346.8,235.4 L351.3,235.5 L355.8,235.3 L360.4,232.7 L364.9,232.5 L369.4,232.3 L374.0,232.1 L378.5,232.0 L383.0,231.8 L387.6,231.6 L392.1,231.4 L396.7,225.3 L401.2,224.9 L405.7,224.6 L410.3,224.1 L414.8,223.2 L419.3,223.4 L423.9,223.6 L428.4,223.8 L432.9,228.2 L437.5,227.1 L442.0,225.9" stroke="#0f766e" stroke-width="2" fill="none"/><text x="266" y="40" font-size="10.5" fill="#1d4ed8">train loss (evidential)</text><text x="266" y="59" font-size="10.5" fill="#0f766e">grouped-validation ECE</text></svg>
+<!-- /FIG:training -->
+    <figcaption>Figure 6 &mdash; Panoptes-v0 training trace (seed 13): evidential training loss and grouped-validation
+    ECE. Early stopping halted training at epoch 87; validation ECE fell from 0.39 to 0.08.</figcaption>
+  </figure>
+
+  <p><strong>Results.</strong> Out-of-fold under GroupKFold by prompt, the three-seed ensemble attains AUROC 0.754
+  (bootstrap 95% CI 0.608&ndash;0.887; per-seed 0.751, 0.712, 0.730 &mdash; mean 0.731 &plusmn; 0.016), accuracy 0.923,
+  Brier 0.075, ECE 0.084, and conformal coverage 0.923 at &alpha;&nbsp;=&nbsp;0.1 with mean set size 1.0. The comparison
+  battery (Table&nbsp;5) pairs Panoptes-v0 against the tier-0 logistic model and the shipped heuristic with McNemar&rsquo;s
+  exact test [30] and the DeLong AUROC test [31], Benjamini&ndash;Hochberg adjusted [19]. <em>No comparison is
+  significant</em>: McNemar b&nbsp;=&nbsp;4, c&nbsp;=&nbsp;1 (q&nbsp;=&nbsp;0.557) against logistic; DeLong
+  &Delta;AUROC&nbsp;=&nbsp;&minus;0.034 (q&nbsp;=&nbsp;0.557) against logistic and +0.081 (q&nbsp;=&nbsp;0.557) against the
+  heuristic. The gradient-boosting tier was not run: n&nbsp;=&nbsp;104 is below its 300-record minimum, and the gate
+  rationale is recorded on the card.</p>
+
+  <table>
+    <caption>Table 5 &mdash; Comparison battery on out-of-fold predictions (signed into
+    <span class="mono">backend/artifacts/panoptes-v0-card.json</span>). q-values are BH-adjusted across the battery.</caption>
+    <thead>
+      <tr><th>Pair</th><th>Test</th><th>Detail</th><th>p</th><th>q</th><th>Sig. @0.05</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>panoptes-v0 vs logistic-tier0</td><td>McNemar</td><td>b = 4, c = 1</td><td>0.375</td><td>0.557</td><td>no</td></tr>
+      <tr><td>panoptes-v0 vs logistic-tier0</td><td>DeLong</td><td>&Delta;AUROC = &minus;0.034</td><td>0.464</td><td>0.557</td><td>no</td></tr>
+      <tr><td>panoptes-v0 vs heuristic</td><td>McNemar</td><td>b = 5, c = 1</td><td>0.219</td><td>0.557</td><td>no</td></tr>
+      <tr><td>panoptes-v0 vs heuristic</td><td>DeLong</td><td>&Delta;AUROC = +0.081</td><td>0.411</td><td>0.557</td><td>no</td></tr>
+      <tr><td>logistic-tier0 vs heuristic</td><td>McNemar</td><td>b = 2, c = 1</td><td>1.000</td><td>1.000</td><td>no</td></tr>
+      <tr><td>logistic-tier0 vs heuristic</td><td>DeLong</td><td>&Delta;AUROC = +0.115</td><td>0.166</td><td>0.557</td><td>no</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Verdict.</strong> At n&nbsp;=&nbsp;104 the honest statement is architectural, not empirical: Panoptes-v0
+  demonstrates that evidential uncertainty, conformal calibration, and abstention can be native to a detector rather than
+  post-hoc, trains end-to-end on a verified corpus in under two minutes on a consumer GPU, and matches &mdash; neither
+  beating nor losing to &mdash; a penalized logistic model within the resolution this corpus affords. Every stronger
+  claim waits on the power gate, and the gate waits on the community.</p>
+
+  <h2>10. What this gives the community</h2>
+  <p>The project&rsquo;s contribution is infrastructure for <em>evidence that compounds</em>. Concretely: (1)&nbsp;a
+  canonical prompt set and hashing protocol under which anyone&rsquo;s run becomes permanently comparable to everyone
+  else&rsquo;s; (2)&nbsp;a public catalog that stores cryptographic commitments instead of content, so contributing
+  evidence never requires disclosing model outputs or personal text; (3)&nbsp;a calibration loop in which contributed
+  hashes, once re-verified, refit the artifact the live analyzer actually loads &mdash; the corpus is an input to the
+  system, not an ornament; (4)&nbsp;a training bench with a published power gate, so model complexity grows only when
+  the data can arbitrate it; (5)&nbsp;a pre-registered hypothesis registry that turns &ldquo;we tested what we felt
+  like&rdquo; into &ldquo;these six tests, these decisions, re-run when the data doubles&rdquo;; and (6)&nbsp;an
+  evidential reference architecture whose vacuity and dissonance outputs make &ldquo;the model doesn&rsquo;t know&rdquo;
+  a first-class, displayable result. Each layer is usable without the next: the analyzer runs offline with heuristic
+  fallbacks, the bench runs on the shipped corpus or your own CSV, and the catalog verifies with one command and no
+  account.</p>
+
+  <h2>11. Limitations</h2>
   <p>Text-only attribution is fundamentally bounded. Detector likelihood ratios inherit the calibration and bias of the
-  underlying models and degrade under paraphrase, translation, and heavy editing; the reliability error is reported
-  precisely so that this degradation is visible. Watermark tests cover only known, configured schemes and only text that
-  survived editing; a negative result under low power is weak evidence, and the interface says so. Provenance covers only
-  files that carry credentials. In agent-assisted baseline runs, the model identity is self-reported by the runner; the
-  catalog attests <em>what was claimed and what resulted</em>, not the ground truth of the serving stack. Finally, the
-  reference set is small and English-heavy; we treat it as calibration infrastructure, not as a benchmark of model
-  quality.</p>
+  underlying models and degrade under paraphrase, translation, and heavy editing [11, 12]; the reliability error is
+  reported precisely so that this degradation is visible. Watermark tests cover only known, configured schemes and only
+  text that survived editing; a negative result under low power is weak evidence, and the interface says so. Provenance
+  covers only files that carry credentials. In agent-assisted baseline runs, the model identity is self-reported by the
+  runner; the catalog attests <em>what was claimed and what resulted</em>, not the ground truth of the serving stack
+  &mdash; the byte-identical code-07 outputs of &sect;5 are exactly the kind of signal this arrangement can and cannot
+  interpret.</p>
+  <p>The statistical results carry their own bounds. The corpus is small (n&nbsp;=&nbsp;104), English-heavy, and
+  severely unbalanced at the label level (8 human controls against 96 AI outputs); every null result in &sect;7 is
+  consistent with both &ldquo;no effect&rdquo; and &ldquo;no power,&rdquo; and we report them as the latter until the
+  corpus decides. The human controls were written by a small number of authors and are not a demographic sample.
+  GroupKFold by prompt controls topical leakage but cannot control author leakage within the human cohort. The
+  corpus-fitted geometry describes six model families on sixteen prompts; it is a prior over a small world, and the
+  unknown score exists because the world is larger. Panoptes-v0&rsquo;s uncertainty estimates are calibrated on the same
+  small corpus that trained it; its conformal coverage guarantee is marginal, not conditional, and says nothing about
+  coverage on text unlike anything in the corpus. We make no leaderboard claims and no SOTA claims.</p>
 
-  <h2>7. Ethics and responsible use</h2>
+  <h2>12. Ethics and responsible use</h2>
   <p>Panoptes is designed against the two failure modes that harm people: accusation on thin evidence, and false
   reassurance from a negative test. The system surfaces evidence state, sample size, power, and interpretation limits on
   every report, and its documentation prohibits using a single score as sole grounds for consequential action. Community
-  submissions carry hashes only, so contributing evidence never requires disclosing model outputs or personal text.</p>
+  submissions carry hashes only, so contributing evidence never requires disclosing model outputs or personal text. The
+  power gate and the pre-registered hypothesis registry are ethical as well as statistical devices: they make it
+  structurally difficult for the project &mdash; or anyone building on it &mdash; to claim more than the data supports.</p>
 
-  <h2>8. Conclusion</h2>
+  <h2>13. Conclusion</h2>
   <p>Panoptes reframes AI-text attribution as the presentation of calibrated, inspectable evidence rather than the
-  emission of a verdict, and pairs the analyzer with a verification-first community protocol for baseline data. Both are
-  open, local-first, and built to be checked. We invite replication: run the canonical prompts, hash your outputs, and
-  append your evidence to the catalog.</p>
+  emission of a verdict, and pairs the analyzer with a verification-first community corpus that calibrates it, trains
+  it, and holds it to pre-registered account. The present numbers are deliberately unheroic: a corpus of 104 records,
+  hypotheses that do not clear multiplicity control, a neural architecture that ties its logistic baseline. That is what
+  early evidence looks like when it is reported honestly, and the machinery described here &mdash; hash-pinned runs,
+  signed artifacts, power gates, and a hypothesis registry &mdash; exists so that the numbers can only get more
+  meaningful from here. We invite replication: run the canonical prompts, hash your outputs, append your evidence to the
+  catalog, and move the marker on the power curve.</p>
 
   <h2>References</h2>
   <ol class="refs">
@@ -337,15 +630,75 @@
     <li>Aaronson, S., &amp; Kirchner, H. (2022). Watermarking GPT outputs. Manuscript, OpenAI.</li>
     <li>Coalition for Content Provenance and Authenticity (2022). C2PA technical specification.</li>
     <li>Todd, P. (2016). OpenTimestamps: Scalable, trust-minimized, distributed timestamping on the Bitcoin blockchain.</li>
+    <li>Mitchell, E., Lee, Y., Khazatsky, A., Manning, C. D., &amp; Finn, C. (2023). DetectGPT: Zero-shot
+    machine-generated text detection using probability curvature. <em>ICML</em>.</li>
+    <li>Bao, G., Zhao, Y., Teng, Z., Yang, L., &amp; Zhang, Y. (2024). Fast-DetectGPT: Efficient zero-shot detection of
+    machine-generated text via conditional probability curvature. <em>ICLR</em>.</li>
+    <li>Hans, A., Schwarzschild, A., Cherepanova, V., Kazemi, H., Saha, A., Goldblum, M., Geiping, J., &amp; Goldstein,
+    T. (2024). Spotting LLMs with Binoculars: Zero-shot detection of machine-generated text. <em>ICML</em>.</li>
+    <li>Guo, B., Zhang, X., Wang, Z., Jiang, M., Nie, J., Ding, Y., Yue, J., &amp; Wu, Y. (2023). How close is ChatGPT to
+    human experts? Comparison corpus, evaluation, and detection. <em>arXiv:2301.07597</em> (HC3).</li>
+    <li>Wang, Y., Mansurov, J., Ivanov, P., Su, J., Shelmanov, A., Tsvigun, A., Whitehouse, C., Afzal, O. M., Mahmoud,
+    T. H., Torrini, A., et&nbsp;al. (2024). M4: Multi-generator, multi-domain, multi-lingual machine-generated text
+    detection. <em>EACL</em>.</li>
+    <li>Dugan, L., Hwang, A., Trhlik, F., Ludan, J. M., Zhu, A., Xu, H., Ippolito, D., &amp; Callison-Burch, C. (2024).
+    RAID: A shared benchmark for robust evaluation of machine-generated text detectors. <em>ACL</em>.</li>
+    <li>Krishna, K., Song, Y., Karpinska, M., Wieting, J., &amp; Iyyer, M. (2023). Paraphrasing evades detectors of
+    AI-generated text, but retrieval is an effective defense. <em>NeurIPS</em> (DIPPER).</li>
+    <li>Sadasivan, V. S., Kumar, A., Balasubramanian, S., Wang, W., &amp; Feizi, S. (2023). Can AI-generated text be
+    reliably detected? <em>arXiv:2303.11156</em>.</li>
+    <li>Sensoy, M., Kaplan, L., &amp; Kandemir, M. (2018). Evidential deep learning to quantify classification
+    uncertainty. <em>NeurIPS</em>.</li>
+    <li>Amini, A., Schwarting, W., Soleimany, A., &amp; Rus, D. (2020). Deep evidential regression. <em>NeurIPS</em>.</li>
+    <li>Angelopoulos, A. N., &amp; Bates, S. (2021). A gentle introduction to conformal prediction and distribution-free
+    uncertainty quantification. <em>arXiv:2107.07511</em>.</li>
+    <li>Mitchell, M., Wu, S., Zaldivar, A., Barnes, P., Vasserman, L., Hutchinson, B., Spitzer, E., Raji, I. D., &amp;
+    Gebru, T. (2019). Model cards for model reporting. <em>FAT*</em>.</li>
+    <li>Gebru, T., Morgenstern, J., Vecchione, B., Vaughan, J. W., Wallach, H., Daum&eacute; III, H., &amp; Crawford, K.
+    (2021). Datasheets for datasets. <em>Communications of the ACM</em>, 64(12).</li>
+    <li>Bender, E. M., &amp; Friedman, B. (2018). Data statements for natural language processing: Toward mitigating
+    system bias and enabling better science. <em>TACL</em>, 6, 587&ndash;604.</li>
     <li>Benjamini, Y., &amp; Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach
     to multiple testing. <em>Journal of the Royal Statistical Society, Series B</em>, 57(1), 289&ndash;300.</li>
+    <li>Zadrozny, B., &amp; Elkan, C. (2002). Transforming classifier scores into accurate multiclass probability
+    estimates. <em>KDD</em>.</li>
+    <li>Marquardt, D. W. (1970). Generalized inverses, ridge regression, biased linear estimation, and nonlinear
+    estimation. <em>Technometrics</em>, 12(3), 591&ndash;612.</li>
+    <li>Tjur, T. (2009). Coefficients of determination in logistic regression models &mdash; a new proposal: The
+    coefficient of discrimination. <em>The American Statistician</em>, 63(4), 366&ndash;372.</li>
+    <li>Pregibon, D. (1980). Goodness of link tests for generalized linear models. <em>Applied Statistics</em>, 29(1),
+    15&ndash;24.</li>
+    <li>Hosmer, D. W., Lemeshow, S., &amp; Sturdivant, R. X. (2013). <em>Applied Logistic Regression</em> (3rd ed.).
+    Wiley.</li>
+    <li>Ramsey, J. B. (1969). Tests for specification errors in classical linear least-squares regression analysis.
+    <em>Journal of the Royal Statistical Society, Series B</em>, 31(2), 350&ndash;371.</li>
+    <li>Breusch, T. S., &amp; Pagan, A. R. (1979). A simple test for heteroscedasticity and random coefficient variation.
+    <em>Econometrica</em>, 47(5), 1287&ndash;1294.</li>
+    <li>Jarque, C. M., &amp; Bera, A. K. (1980). Efficient tests for normality, homoscedasticity and serial independence
+    of regression residuals. <em>Economics Letters</em>, 6(3), 255&ndash;259.</li>
+    <li>Cook, R. D. (1977). Detection of influential observation in linear regression. <em>Technometrics</em>, 19(1),
+    15&ndash;18.</li>
+    <li>Durbin, J., &amp; Watson, G. S. (1950). Testing for serial correlation in least squares regression. I.
+    <em>Biometrika</em>, 37(3/4), 409&ndash;428.</li>
+    <li>McNemar, Q. (1947). Note on the sampling error of the difference between correlated proportions or percentages.
+    <em>Psychometrika</em>, 12(2), 153&ndash;157.</li>
+    <li>DeLong, E. R., DeLong, D. M., &amp; Clarke-Pearson, D. L. (1988). Comparing the areas under two or more
+    correlated receiver operating characteristic curves: A nonparametric approach. <em>Biometrics</em>, 44(3),
+    837&ndash;845.</li>
+    <li>Gehrmann, S., Strobelt, H., &amp; Rush, A. M. (2019). GLTR: Statistical detection and visualization of generated
+    text. <em>ACL System Demonstrations</em>.</li>
+    <li>Hu, X., Chen, P.-Y., &amp; Ho, T.-Y. (2023). RADAR: Robust AI-text detection via adversarial learning.
+    <em>NeurIPS</em>.</li>
   </ol>
 
   <div class="footnote">
-    Panoptes working paper, v1.0 &middot; August 12, 2026. The canonical source of this paper, the baseline catalog, and
-    all schemas lives at <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>.
-    Catalog entries referenced in Table&nbsp;1 can be independently verified with
-    <span class="mono">python baselines/baseline.py verify-catalog</span>.
+    Panoptes working paper, v2.0 &middot; August 12, 2026. The canonical source of this paper, the baseline catalog, the
+    hypothesis registry, and all schemas lives at
+    <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>. Every figure is
+    generated from the signed artifacts in <span class="mono">backend/artifacts/</span> by
+    <span class="mono">research/make_figures.py</span>; catalog entries referenced in Table&nbsp;1 can be independently
+    verified with <span class="mono">python baselines/baseline.py verify-catalog</span>; every model number can be
+    reproduced with <span class="mono">python -m bench train</span>.
   </div>
 
 </div>

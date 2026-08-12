@@ -1,0 +1,62 @@
+{
+  "schema": "panoptes-hypotheses-v1",
+  "registered_utc": "2026-08-12T00:00:00Z",
+  "multiple_testing": "benjamini-hochberg",
+  "alpha": 0.05,
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Connector rate (however/therefore/moreover/additionally/overall/furthermore per token) is higher in AI-generated text than in human text.",
+      "null": "Mean connector rate is equal across AI and human documents.",
+      "test": "welch_t",
+      "variables": {"feature": "connectors", "grouping": "label"},
+      "direction": "ai_greater",
+      "alpha": 0.05
+    },
+    {
+      "id": "H2",
+      "statement": "Token entropy (Shannon entropy over word tokens) is lower in AI-generated text than in human text.",
+      "null": "The distributions of token entropy are equal across AI and human documents.",
+      "test": "mann_whitney",
+      "variables": {"feature": "token_entropy", "grouping": "label"},
+      "direction": "ai_lower",
+      "alpha": 0.05
+    },
+    {
+      "id": "H3",
+      "statement": "Unique-token ratio discriminates AI from human text beyond document length.",
+      "null": "Adding unique_ratio to a logistic model containing log_words does not improve fit (likelihood-ratio test, df=1).",
+      "test": "logistic_lr",
+      "variables": {"response": "label", "reduced": ["log_words"], "full": ["log_words", "unique_ratio"]},
+      "direction": "two_sided",
+      "alpha": 0.05
+    },
+    {
+      "id": "H4",
+      "statement": "Per-family feature centroids (connectors, unique_ratio, long_words, token_entropy) are separated across source families, including human.",
+      "null": "All family centroids are equal (one-way MANOVA, Wilks' lambda, permutation p-value).",
+      "test": "permutation_manova",
+      "variables": {"features": ["connectors", "unique_ratio", "long_words", "token_entropy"], "grouping": "family"},
+      "direction": "two_sided",
+      "alpha": 0.05
+    },
+    {
+      "id": "H5",
+      "statement": "Long-word rate (fraction of tokens with >= 7 characters) is higher in AI prose than in human prose.",
+      "null": "Mean long-word rate is equal across AI and human text documents.",
+      "test": "welch_t",
+      "variables": {"feature": "long_words", "grouping": "label", "kind": "text"},
+      "direction": "ai_greater",
+      "alpha": 0.05
+    },
+    {
+      "id": "H6",
+      "statement": "Segment-level detector residuals are uncorrelated within documents (the segment-independence assumption holds).",
+      "null": "Durbin-Watson statistic on document-ordered segment residuals is consistent with no positive autocorrelation.",
+      "test": "durbin_watson_permutation",
+      "variables": {"score": "heuristic_raw_score", "segments_per_document": 3},
+      "direction": "positive_autocorrelation_violates",
+      "alpha": 0.05
+    }
+  ]
+}

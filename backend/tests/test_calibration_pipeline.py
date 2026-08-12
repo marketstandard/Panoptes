@@ -22,8 +22,8 @@ def test_conformal_threshold_requires_scores() -> None:
         raise AssertionError("Expected ValueError")
 
 
-def test_calibration_main_writes_artifact() -> None:
-    main()
-    artifact = Path(__file__).resolve().parents[2] / "backend" / "artifacts" / "baseline-calibration.json"
-    assert artifact.exists()
-    assert "artifact_sha256" in artifact.read_text(encoding="utf-8")
+def test_calibration_main_writes_artifact(tmp_path) -> None:
+    out = tmp_path / "cal.json"
+    main(["--synthetic", "--out", str(out)])
+    assert out.exists()
+    assert "artifact_sha256" in out.read_text(encoding="utf-8")

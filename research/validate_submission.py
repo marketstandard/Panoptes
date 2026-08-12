@@ -17,6 +17,10 @@ FILES = {
     "panoptes-watermark-eval-card-v1": "watermark-eval-card.schema.json",
     "panoptes-baseline-prompts-v1": "baseline-prompts.schema.json",
     "panoptes-baseline-run-v1": "baseline-run.schema.json",
+    "panoptes-corpus-summary-v1": "corpus-summary.schema.json",
+    "panoptes-methodology-v1": "methodology-report.schema.json",
+    "panoptes-model-card-v1": "model-card.schema.json",
+    "panoptes-bench-dataset-v1": "bench-dataset.schema.json",
 }
 
 BASELINE_OUTPUT_KEYS = {"prompt_id", "file", "sha256", "bytes"}

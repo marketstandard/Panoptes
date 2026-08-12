@@ -37,7 +37,7 @@
     "input": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["content_hash", "content_type", "language", "token_count", "character_count", "segment_count", "user_overrode_type"],
+      "required": ["content_hash", "content_type", "language", "token_count", "character_count", "segment_count", "user_overrode_type", "feature_profile"],
       "properties": {
         "content_hash": {"type": "string"},
         "content_type": {"enum": ["prose", "code", "mixed", "file"]},
@@ -45,7 +45,8 @@
         "token_count": {"type": "integer", "minimum": 0},
         "character_count": {"type": "integer", "minimum": 0},
         "segment_count": {"type": "integer", "minimum": 0},
-        "user_overrode_type": {"type": "boolean"}
+        "user_overrode_type": {"type": "boolean"},
+        "feature_profile": {"type": "object", "additionalProperties": {"type": "number"}}
       }
     },
     "summary": {
@@ -72,10 +73,44 @@
         "cohort": {"type": "string"}
       }
     },
+    "calibration": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["bundle", "cohort", "n_records", "applies_to", "ece", "brier", "auroc", "tpr_at_1fpr", "tpr_at_5fpr", "reliability_bins", "conformal_alpha", "conformal_threshold", "artifact_sha256"],
+      "properties": {
+        "bundle": {"type": "string"},
+        "cohort": {"type": "string"},
+        "n_records": {"type": "integer", "minimum": 0},
+        "applies_to": {"type": "string"},
+        "ece": {"type": "number", "minimum": 0, "maximum": 1},
+        "brier": {"type": "number", "minimum": 0, "maximum": 1},
+        "auroc": {"type": "number", "minimum": 0, "maximum": 1},
+        "tpr_at_1fpr": {"type": "number", "minimum": 0, "maximum": 1},
+        "tpr_at_5fpr": {"type": "number", "minimum": 0, "maximum": 1},
+        "reliability_bins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["bin_lo", "bin_hi", "n", "mean_predicted", "observed"],
+            "properties": {
+              "bin_lo": {"type": "number", "minimum": 0, "maximum": 1},
+              "bin_hi": {"type": "number", "minimum": 0, "maximum": 1},
+              "n": {"type": "integer", "minimum": 0},
+              "mean_predicted": {"type": "number", "minimum": 0, "maximum": 1},
+              "observed": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "conformal_alpha": {"type": "number", "minimum": 0, "maximum": 1},
+        "conformal_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "artifact_sha256": {"type": "string"}
+      }
+    },
     "source_families": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["conditional_on_ai", "unknown_score", "interpretation"],
+      "required": ["conditional_on_ai", "unknown_score", "interpretation", "basis", "cohort_size"],
       "properties": {
         "conditional_on_ai": {
           "type": "array",
@@ -90,7 +125,9 @@
           }
         },
         "unknown_score": {"type": "number", "minimum": 0, "maximum": 1},
-        "interpretation": {"type": "string"}
+        "interpretation": {"type": "string"},
+        "basis": {"type": "string", "enum": ["heuristic", "corpus-fitted"]},
+        "cohort_size": {"type": ["integer", "null"], "minimum": 0}
       }
     },
     "watermarks": {

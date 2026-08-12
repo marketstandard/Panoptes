@@ -30,3 +30,6 @@ docs/screenshots/
 
 # Baseline runs (local-only working area; catalog holds hashes only)
 baselines/runs/
+
+# Trained model weights (local-only; cards and metrics are committed under backend/artifacts/)
+models/
