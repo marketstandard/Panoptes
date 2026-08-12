@@ -1,0 +1,7 @@
+# Baseline artifacts are hash-pinned: bytes must survive checkout on every
+# platform (Windows autocrlf would otherwise change LF to CRLF and break the
+# SHA-256 hashes recorded in run manifests).
+baselines/**/*.md -text
+baselines/**/*.json -text
+baselines/**/*.jsonl -text
+baselines/**/*.ots -text

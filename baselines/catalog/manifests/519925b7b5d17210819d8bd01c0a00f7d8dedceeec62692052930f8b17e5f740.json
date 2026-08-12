@@ -1,0 +1,73 @@
+{
+  "artifact_sha256": "519925b7b5d17210819d8bd01c0a00f7d8dedceeec62692052930f8b17e5f740",
+  "contributor": "encryptic1",
+  "created_utc": "2026-08-12T19:31:06Z",
+  "environment": {
+    "os": "windows",
+    "python": "3.12.10",
+    "tool": "baseline.py/1.0.0"
+  },
+  "merkle_root": "41394de13581508981a3ce3329bdd93cffbbe0ad7c77120062d19d82ba8d019e",
+  "model": {
+    "interface": "agent-chat",
+    "provider": "unspecified",
+    "reported_version": "gpt-5.6-sol-max",
+    "slug": "gpt-5.6-sol-max"
+  },
+  "outputs": [
+    {
+      "bytes": 352,
+      "file": "code-01.md",
+      "prompt_id": "code-01",
+      "sha256": "3c9242674879e5994277f64cd4e135dbfe4ebe379807da247d80a7b7ce0c2618"
+    },
+    {
+      "bytes": 860,
+      "file": "code-02.md",
+      "prompt_id": "code-02",
+      "sha256": "06456ee595f4d6c711f25ae289138991901adb6fe6e6078f6d70439e0fef5879"
+    },
+    {
+      "bytes": 933,
+      "file": "code-03.md",
+      "prompt_id": "code-03",
+      "sha256": "6af8f1f2a6353872f095d0fdf342fcaccc176c3f2a93d5dc01cf307d5645c351"
+    },
+    {
+      "bytes": 656,
+      "file": "code-04.md",
+      "prompt_id": "code-04",
+      "sha256": "cf20febae21954e478f724f2def03ff35d5440aada9740af9f76d89ffc4b89d0"
+    },
+    {
+      "bytes": 305,
+      "file": "code-05.md",
+      "prompt_id": "code-05",
+      "sha256": "276b3756561d4d367f34b003b98a158b3eec6fd938076316b8af83c316a232bc"
+    },
+    {
+      "bytes": 689,
+      "file": "code-06.md",
+      "prompt_id": "code-06",
+      "sha256": "b6f6727cb8914bef7ff172cb1fd7d2d2e3c06f0b72292ca0a12fec27125cff68"
+    },
+    {
+      "bytes": 204,
+      "file": "code-07.md",
+      "prompt_id": "code-07",
+      "sha256": "98345f14593837e123e705bda2dae26f2dd276fcf831513890d114805a7950bc"
+    },
+    {
+      "bytes": 825,
+      "file": "code-08.md",
+      "prompt_id": "code-08",
+      "sha256": "62e1e1266943e9928842bc9eaed9bfaaca01a0fea4dfbf88f899ffb4d8b5ba13"
+    }
+  ],
+  "prompts": {
+    "sha256": "2092321df751db3dc9dec61f4a122967e381ef61b1ed0607893882476bc8b06b",
+    "version": "1.0.0"
+  },
+  "run_id": "gpt-5.6-sol-max_code-20260812t193106z",
+  "schema": "panoptes-baseline-run-v1"
+}
