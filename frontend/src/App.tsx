@@ -147,7 +147,7 @@ export default function App() {
               selectedSegment={selected?.id ?? null}
               onSelectSegment={setSelectedSegment}
               tone="blue"
-              legendTip="Conditional stylometric similarity among supported source families, from hand-tuned surface features — not fitted from the reference baselines. The baseline catalog is calibration and verification infrastructure and is not an input to this analysis."
+              legendTip="Conditional stylometric similarity among supported source families. When the signed calibration artifact is present, distances use Mahalanobis geometry fitted on the verified reference corpus; otherwise a hand-tuned heuristic is used and the report says so."
             />
             <EvidenceMatrix
               title="Watermark evidence by segment"
