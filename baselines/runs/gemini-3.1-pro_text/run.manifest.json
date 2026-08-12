@@ -1,0 +1,72 @@
+{
+  "artifact_sha256": "3e88fb7790bf17d27178f42f839f618249cdb83fcba214cd1c1e0a2ee1ecf191",
+  "created_utc": "2026-08-12T19:43:31Z",
+  "environment": {
+    "os": "windows",
+    "python": "3.12.10",
+    "tool": "baseline.py/1.0.0"
+  },
+  "merkle_root": "e530b6039a9ba68480a4596140beae509014d78b0ff13b9f4e89c7da24638900",
+  "model": {
+    "interface": "agent-chat",
+    "provider": "unspecified",
+    "reported_version": "gemini-3.1-pro",
+    "slug": "gemini-3.1-pro"
+  },
+  "outputs": [
+    {
+      "bytes": 477,
+      "file": "text-01.md",
+      "prompt_id": "text-01",
+      "sha256": "7391feb1bc04e7a589f561f6bc3cde6e888c1fa93a34ba19cad23fdb1f879ab1"
+    },
+    {
+      "bytes": 1608,
+      "file": "text-02.md",
+      "prompt_id": "text-02",
+      "sha256": "ac3f1a8871cea2b4913044e8f4d3be2256ebd8e5941350e365873f0b8fde7fef"
+    },
+    {
+      "bytes": 4803,
+      "file": "text-03.md",
+      "prompt_id": "text-03",
+      "sha256": "2c264cf9b529f0e5285c8cfdecba70ea519b700e691593f3c6297f0fe6f0a680"
+    },
+    {
+      "bytes": 1623,
+      "file": "text-04.md",
+      "prompt_id": "text-04",
+      "sha256": "952f07a33a73462357ea4a9a1c2b2fc55226871152c8c4d555d4f8ed861b8281"
+    },
+    {
+      "bytes": 1034,
+      "file": "text-05.md",
+      "prompt_id": "text-05",
+      "sha256": "5c085fe4274386e1bf2265a64b83a796beaad994abd251eef776ccd25af563a8"
+    },
+    {
+      "bytes": 586,
+      "file": "text-06.md",
+      "prompt_id": "text-06",
+      "sha256": "d41548f8bbbffdb7adc84544d29ae96dd32f9d1d327d8d788d616baef773fd66"
+    },
+    {
+      "bytes": 2710,
+      "file": "text-07.md",
+      "prompt_id": "text-07",
+      "sha256": "69d073204601800594146aabf10d0f3f74397aa215d5eb7276552340780b3cf2"
+    },
+    {
+      "bytes": 1823,
+      "file": "text-08.md",
+      "prompt_id": "text-08",
+      "sha256": "72433392e7e5706fc8b25ca7571f2fb2b8bc0a950cd6089ed169bd1d6f6cc43e"
+    }
+  ],
+  "prompts": {
+    "sha256": "2092321df751db3dc9dec61f4a122967e381ef61b1ed0607893882476bc8b06b",
+    "version": "1.0.0"
+  },
+  "run_id": "gemini-3.1-pro_text-20260812t194331z",
+  "schema": "panoptes-baseline-run-v1"
+}
