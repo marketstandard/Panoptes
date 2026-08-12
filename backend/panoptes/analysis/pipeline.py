@@ -325,6 +325,7 @@ def _standard_limitations(
         "A negative watermark result is not evidence that content is human-written.",
         "Source-family values are conditional similarity, not proof of exact model identity.",
         "Provenance is not authorship.",
+        "Reference baselines and the community catalog are calibration and verification infrastructure; they are not inputs to this analysis.",
     ]
     if state == EvidenceState.INSUFFICIENT_DATA:
         limitations.append("The input is below the minimum evidence threshold.")

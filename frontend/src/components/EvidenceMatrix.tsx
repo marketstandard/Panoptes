@@ -1,17 +1,20 @@
 import type { Matrix } from '../types';
+import { InfoTip } from './InfoTip';
 
 export function EvidenceMatrix({
   title,
   matrix,
   selectedSegment,
   onSelectSegment,
-  tone = 'blue'
+  tone = 'blue',
+  legendTip
 }: {
   title: string;
   matrix: Matrix;
   selectedSegment: string | null;
   onSelectSegment: (id: string) => void;
   tone?: 'blue' | 'green';
+  legendTip?: string;
 }) {
   const numeric = matrix.values.flat().filter((value): value is number => value !== null);
   const max = Math.max(1, ...numeric.map(Math.abs));
@@ -77,7 +80,10 @@ export function EvidenceMatrix({
           ))}
         </div>
       </div>
-      <p className="matrix-legend">{matrix.legend}</p>
+      <p className="matrix-legend">
+        {matrix.legend}
+        {legendTip ? <InfoTip label={title} text={legendTip} /> : null}
+      </p>
     </article>
   );
 }

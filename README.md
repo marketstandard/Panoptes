@@ -182,6 +182,18 @@ See [`docs/contributing-markers.md`](docs/contributing-markers.md).
 
 Panoptes maintains a canonical prompt set (8 text + 8 code prompts) that anyone can run against any model to produce comparable, hash-verifiable baseline outputs — the raw material for calibration cohorts and source-family geometry.
 
+### Do the baselines feed the analyzer?
+
+**Not yet — and that is deliberate.** Nothing in `backend/` reads `baselines/` at request time. Today the live calculation uses:
+
+- **Detector models** (e.g. `desklib-ai-text-detector`) for per-segment AI-participation scores;
+- a **hand-tuned stylometric softmax** (`backend/panoptes/analysis/attribution.py`) for source-family similarity — fixed coefficients over surface features, *not* centroids fitted from baseline data;
+- a **request-supplied prior** (`prior_odds`, default 1.0) for the posterior decomposition.
+
+The baseline corpus is calibration and verification *infrastructure*: it fixes what specific models produced on a fixed prompt set at a declared time, so future work — fitting source-family centroids, measuring detector reliability across models, building human-control comparisons — can reference material that cannot quietly change. The UI states this on every report in the interpretation limits.
+
+### Running the prompt set
+
 ```bash
 # manual: paste prompts from baselines/prompts/text.md into any model UI
 python baselines/baseline.py scaffold --model gpt-5.6-sol --kind text
@@ -191,14 +203,22 @@ python baselines/baseline.py finalize --run baselines/runs/gpt-5.6-sol_text --in
 python baselines/baseline.py run --model gpt-5.6-sol --provider openai --kind code
 ```
 
-Every finalized run produces a schema-validated manifest (SHA-256 per output + a Merkle root) and can be shared to the community catalog **as hashes only** — raw outputs stay local and gitignored:
+### Hashing and timestamping protocol
 
-```bash
-python baselines/baseline.py submit --run baselines/runs/gpt-5.6-sol_text --contributor your-handle
-python baselines/baseline.py verify-catalog
-```
+1. **Per-output SHA-256** — each saved output file is hashed; the manifest records only `prompt_id`, `file`, `sha256`, `bytes`. Raw model text is never embedded (the validator rejects it).
+2. **Merkle root** — the sorted output hashes form a Merkle tree; its root commits to the entire output set in one value.
+3. **Canonical manifest hash** — the manifest itself is serialized as canonical JSON (sorted keys, UTF-8, no insignificant whitespace) and self-hashed as `artifact_sha256`.
+4. **Optional OpenTimestamps stamp** — `python baselines/baseline.py anchor --run <dir>` creates a Bitcoin-backed timestamp proof (`run.manifest.json.ots`); `ots upgrade <file>` completes it once the transaction confirms.
+5. **Catalog registration** — `submit` appends one JSON line to `baselines/catalog/registry.jsonl` and stores the manifest under `baselines/catalog/manifests/<artifact_sha256>.json`.
+6. **Verification** — `python baselines/baseline.py verify-catalog` re-checks every registry line against its manifest; CI enforces it on every PR.
 
-Optional OpenTimestamps anchoring adds a Bitcoin-backed timestamp to a manifest. The catalog is a ledger of contributor *claims*, not verified model provenance — confidence comes from independent replication. See [`baselines/README.md`](baselines/README.md).
+### Contributing baselines, fixtures, or external data
+
+- **Baseline runs** — finalize your run, then `python baselines/baseline.py submit --run <dir> --contributor your-handle` and open a PR containing *only* the registry line and manifest file. Raw outputs stay local (`baselines/runs/` is gitignored). See [`baselines/README.md`](baselines/README.md) and [`baselines/catalog/README.md`](baselines/catalog/README.md).
+- **Fixtures** — the deterministic demo fixtures (`human-prose`, `ai-prose`, `code`) live in `backend/panoptes/analysis/pipeline.py`. Propose new ones via PR with a short rationale; fixture text must be original or license-clear.
+- **External source data** — keep your corpus in your own repository or storage; do not commit third-party data here. Instead add a signed pointer manifest to `datasets/manifests/` describing `source.url`, `access` (`public` / `gated` / `manual-download`), `download_instructions`, and a SHA-256 `integrity` block (optionally `file_inventory_uri` for file-level hashes). Validate with `python research/validate_submission.py your-manifest.json`. See [`docs/contributing-markers.md`](docs/contributing-markers.md).
+
+The catalog is a ledger of contributor *claims*, not verified model provenance — confidence comes from independent replication.
 
 ## Testing and reproduction
 

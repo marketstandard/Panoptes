@@ -2,6 +2,18 @@ import { AlertTriangle, Database, GitBranch, Sigma } from 'lucide-react';
 import type { AnalysisResponse } from '../types';
 import { formatNumber, formatPercent, formatSigned } from '../format';
 import { Equation } from './Equation';
+import { InfoTip } from './InfoTip';
+
+const WATERFALL_TIPS: Record<string, string> = {
+  'Prior odds':
+    'Starting odds that the document is AI-generated, taken from the calibration cohort before any test evidence is applied.',
+  'Detector likelihood':
+    'Log likelihood ratio from the detector tests across all segments — how much the test evidence multiplies the odds. Positive pushes toward AI-generated, negative toward human.',
+  'Short/unsupported penalty':
+    'Penalty applied when the text is too short or lacks supported evidence for a reliable conclusion; it pushes the odds back down because the tests cannot be trusted at this length.',
+  'Posterior odds':
+    'Final odds after every contribution: prior odds multiplied by the likelihood ratio, with penalties. Converted to the headline probability by P = O / (1 + O).',
+};
 
 export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
   return (
@@ -19,13 +31,33 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
           <div className="card-heading">
             <Sigma size={17} />
             <h3>Posterior decomposition</h3>
+            <InfoTip
+              label="Posterior decomposition"
+              text="How the headline probability is built: prior odds from the calibration cohort are multiplied by the likelihood ratio from the tests, then converted to a probability with P = O / (1 + O)."
+            />
           </div>
           <Equation formula="O_1 = O_0 \times \mathrm{LR}, \qquad P=\frac{O_1}{1+O_1}" />
           <div className="stat-grid">
-            <Stat label="Prior odds" value={formatNumber(result.posterior.prior_odds)} />
-            <Stat label="Likelihood ratio" value={formatNumber(result.posterior.likelihood_ratio)} />
-            <Stat label="Posterior odds" value={formatNumber(result.posterior.posterior_odds)} />
-            <Stat label="Reliability error" value={formatNumber(result.posterior.reliability_error)} />
+            <Stat
+              label="Prior odds"
+              value={formatNumber(result.posterior.prior_odds)}
+              tip="Odds that a document is AI-generated before any test evidence is considered: p / (1 - p), set by the calibration cohort."
+            />
+            <Stat
+              label="Likelihood ratio"
+              value={formatNumber(result.posterior.likelihood_ratio)}
+              tip="How much the detector tests shift the odds. Above 1 supports AI-generated, below 1 supports human; combined across the document's segments."
+            />
+            <Stat
+              label="Posterior odds"
+              value={formatNumber(result.posterior.posterior_odds)}
+              tip="Prior odds x likelihood ratio — the odds after the test evidence. P = O / (1 + O) converts this to the headline probability."
+            />
+            <Stat
+              label="Reliability error"
+              value={formatNumber(result.posterior.reliability_error)}
+              tip="Expected calibration error of the detector on the calibration cohort: how far its confidence scores are from observed accuracy. Smaller means more trustworthy."
+            />
           </div>
           <p className="lab-note">Calibration cohort: {result.posterior.cohort}</p>
         </article>
@@ -34,6 +66,10 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
           <div className="card-heading">
             <Database size={17} />
             <h3>Known watermark statistics</h3>
+            <InfoTip
+              label="Known watermark statistics"
+              text="One-sided binomial tests for known AI watermark schemes. Each test checks whether eligible tokens land in the scheme's pseudorandom 'green' set more often than chance; the status shows whether the test ran or why it could not."
+            />
           </div>
           {result.watermarks.map((watermark) => (
             <div className="watermark-block" key={watermark.scheme}>
@@ -43,17 +79,61 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
               </div>
               <Equation formula="z=\frac{G-\gamma n}{\sqrt{n\gamma(1-\gamma)}}, \qquad p=1-\Phi(z)" />
               <div className="stat-grid">
-                <Stat label="Eligible n" value={String(watermark.eligible_tokens)} />
-                <Stat label="Green G" value={watermark.green_tokens === null ? 'n/a' : String(watermark.green_tokens)} />
-                <Stat label="Expected" value={formatNumber(watermark.expected_green)} />
-                <Stat label="Green rate" value={watermark.green_rate === null ? 'n/a' : formatPercent(watermark.green_rate)} />
-                <Stat label="95% interval" value={watermark.green_rate_interval ? `${formatPercent(watermark.green_rate_interval.lower)}–${formatPercent(watermark.green_rate_interval.upper)}` : 'n/a'} />
-                <Stat label="Effect" value={formatSigned(watermark.effect)} />
-                <Stat label="z" value={formatNumber(watermark.z)} />
-                <Stat label="p" value={formatNumber(watermark.p_value)} />
-                <Stat label="q" value={formatNumber(watermark.q_value)} />
-                <Stat label="Power" value={formatNumber(watermark.power)} />
-                <Stat label="Dilution" value={formatNumber(watermark.dilution_estimate)} />
+                <Stat
+                  label="Eligible n"
+                  value={String(watermark.eligible_tokens)}
+                  tip="Number of tokens eligible for this watermark test — the test's sample size. Very small n means the test can say little."
+                />
+                <Stat
+                  label="Green G"
+                  value={watermark.green_tokens === null ? 'n/a' : String(watermark.green_tokens)}
+                  tip="How many eligible tokens actually fell into the watermark's pseudorandom 'green' set."
+                />
+                <Stat
+                  label="Expected"
+                  value={formatNumber(watermark.expected_green)}
+                  tip="Green tokens expected by chance if there is no watermark: the green-list fraction gamma multiplied by n."
+                />
+                <Stat
+                  label="Green rate"
+                  value={watermark.green_rate === null ? 'n/a' : formatPercent(watermark.green_rate)}
+                  tip="Observed fraction of eligible tokens that are green (G / n), compared against the chance rate gamma."
+                />
+                <Stat
+                  label="95% interval"
+                  value={watermark.green_rate_interval ? `${formatPercent(watermark.green_rate_interval.lower)}–${formatPercent(watermark.green_rate_interval.upper)}` : 'n/a'}
+                  tip="95% confidence interval for the true green rate given this sample size. Wide intervals mean the estimate is imprecise."
+                />
+                <Stat
+                  label="Effect"
+                  value={formatSigned(watermark.effect)}
+                  tip="Observed green rate minus the chance rate gamma — the raw lift this test detected."
+                />
+                <Stat
+                  label="z"
+                  value={formatNumber(watermark.z)}
+                  tip="Standardized distance between the observed and expected green counts. Near 0 is consistent with chance; larger positive values indicate a watermark."
+                />
+                <Stat
+                  label="p"
+                  value={formatNumber(watermark.p_value)}
+                  tip="One-sided p-value: the probability of seeing a green count this high by chance alone. Small p is evidence of a watermark."
+                />
+                <Stat
+                  label="q"
+                  value={formatNumber(watermark.q_value)}
+                  tip="False-discovery-rate adjusted p-value (Benjamini-Hochberg) across all watermark tests run on this document — the number to quote when several tests were tried."
+                />
+                <Stat
+                  label="Power"
+                  value={formatNumber(watermark.power)}
+                  tip="The chance this test would detect a watermark of the configured strength at this sample size. Low power means a negative result is only weak evidence of absence."
+                />
+                <Stat
+                  label="Dilution"
+                  value={formatNumber(watermark.dilution_estimate)}
+                  tip="Estimated fraction of the text carrying the watermark needed to explain the observed lift — low values suggest the text was edited or mixed after generation."
+                />
               </div>
             </div>
           ))}
@@ -63,11 +143,21 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
           <div className="card-heading">
             <GitBranch size={17} />
             <h3>Evidence contribution waterfall</h3>
+            <InfoTip
+              label="Evidence contribution waterfall"
+              text="How each step moves the odds, in order: where they start (prior), how the detector evidence shifts them (log likelihood ratio), any penalty for short or unsupported text, and the final odds."
+            />
           </div>
           <div className="waterfall">
             {result.matrices.contribution_waterfall.map((item) => (
               <div className={`waterfall-row kind-${item.kind}`} key={item.label}>
-                <span>{item.label}</span>
+                <span>
+                  {item.label}
+                  <InfoTip
+                    label={item.label}
+                    text={WATERFALL_TIPS[item.label] ?? "This step's contribution to the final odds."}
+                  />
+                </span>
                 <div className="waterfall-track">
                   <div style={{ width: `${Math.min(Math.abs(item.value) * 18, 100)}%` }} />
                 </div>
@@ -75,6 +165,7 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
               </div>
             ))}
           </div>
+          <p className="lab-note">Bar length shows the size of each contribution. Detector evidence is a log likelihood ratio; the other rows are odds.</p>
         </article>
 
         {result.math.map((item) => (
@@ -97,6 +188,10 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
           <div className="card-heading">
             <AlertTriangle size={17} />
             <h3>Interpretation limits</h3>
+            <InfoTip
+              label="Interpretation limits"
+              text="Read these before acting on the result — the conditions under which this analysis is weak, inconclusive, or should not be relied on."
+            />
           </div>
           <ul>
             {result.limitations.map((limitation) => <li key={limitation}>{limitation}</li>)}
@@ -107,10 +202,13 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, tip }: { label: string; value: string; tip?: string }) {
   return (
     <div className="stat">
-      <span>{label}</span>
+      <span>
+        {label}
+        {tip ? <InfoTip label={label} text={tip} /> : null}
+      </span>
       <strong>{value}</strong>
     </div>
   );
