@@ -41,3 +41,18 @@ npm --prefix frontend test
 - Contributor: submit tested documentation, UI, API, detector, or calibration fixes.
 - Reviewer: review statistical interpretation, security, accessibility, and developer experience.
 - Maintainer: approve releases, schema changes, detector registry changes, and calibration bundles.
+
+## Marker and calibration data contributions
+
+Panoptes accepts marker/watermark evidence through signed pointer manifests and hashed artifacts, not raw third-party corpora.
+
+- Add a dataset pointer manifest under `datasets/manifests/` when introducing a new cohort.
+- Add contributor artifacts under `research/submissions/<contribution-id>/`.
+- Keep raw text out of git unless it is a tiny license-clear fixture under `fixtures/`.
+- Validate schemas and hashes with:
+
+```bash
+python research/validate_submission.py path/to/artifact.json
+```
+
+See `docs/contributing-markers.md` for the full workflow and acceptance checklist.

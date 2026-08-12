@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/benchmark-card.schema.json",
+  "title": "Panoptes Benchmark Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "dataset", "metrics", "limitations"],
+  "properties": {
+    "schema": {"const": "panoptes-benchmark-card-v1"},
+    "dataset": {"type": "string"},
+    "metrics": {"type": "object", "additionalProperties": {"type": "number"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

@@ -10,24 +10,26 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@types/katex": "^0.16.8",
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "katex": "^0.18.4",
+    "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest",
-    "recharts": "latest"
+    "recharts": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "vitest": "latest",
-    "jsdom": "latest",
-    "@testing-library/react": "latest",
+    "@eslint/js": "latest",
     "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",
-    "@eslint/js": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "jsdom": "latest",
+    "typescript": "latest",
     "typescript-eslint": "latest",
-    "eslint-plugin-react-hooks": "latest"
+    "vitest": "latest"
   }
 }

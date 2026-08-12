@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "d2de65ab5b89060ee5366ca77cb79faabfce1e37b2899e271761c19917a09cb2",
+  "artifact_sha256": "f5643cc01f4d44650c374531ea8fdf8b15fd272dccacd4ed82c51f73b8b009f1",
   "binary_calibrator": {
     "x_thresholds": [
       0.2784062453996437,
@@ -10,13 +10,29 @@
       1.0
     ]
   },
+  "bundle_id": "prose-en-baseline-v0",
   "cohort": "synthetic-development-cohort",
+  "conformal": {
+    "alpha": 0.1,
+    "threshold": 0.0
+  },
+  "created_utc": "2026-08-11T00:00:00Z",
+  "dataset_manifest_id": "synthetic-development-v1",
+  "detector_id": "heuristic-prose-detector",
+  "detector_version": "0.1.0",
+  "feature_schema": "panoptes-features-v1",
   "metrics": {
     "auroc": 1.0,
     "brier": 0.0,
     "ece": 0.0,
     "tpr_at_1fpr": 1.0,
     "tpr_at_5fpr": 1.0
+  },
+  "repro": {
+    "code_commit": "workspace",
+    "command": "python research/calibration.py",
+    "group_cv": "GroupKFold(n_splits=5)",
+    "seed": 13
   },
   "schema": "panoptes-calibration-v1",
   "source_geometry": {

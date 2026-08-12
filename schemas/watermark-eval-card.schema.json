@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/watermark-eval-card.schema.json",
+  "title": "Panoptes Watermark Evaluation Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "scheme",
+    "adapter_version",
+    "dataset_manifest_id",
+    "green_fraction",
+    "min_tokens",
+    "metrics",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-watermark-eval-card-v1"},
+    "scheme": {"type": "string"},
+    "adapter_version": {"type": "string"},
+    "dataset_manifest_id": {"type": "string"},
+    "tokenizer_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "hash": {"type": "string"}
+      }
+    },
+    "green_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+    "min_tokens": {"type": "integer", "minimum": 0},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["empirical_fpr_unwatermarked", "tpr_by_token_bucket", "retention_after_edit"],
+      "properties": {
+        "empirical_fpr_unwatermarked": {"type": "number", "minimum": 0, "maximum": 1},
+        "tpr_by_token_bucket": {"type": "object", "additionalProperties": {"type": "number"}},
+        "retention_after_edit": {"type": "object", "additionalProperties": {"type": "number"}},
+        "segment_localization_error": {"type": ["number", "null"]},
+        "q_value_calibration": {"enum": ["pass", "fail", "untested"]}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

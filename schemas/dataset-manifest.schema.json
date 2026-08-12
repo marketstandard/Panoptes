@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/dataset-manifest.schema.json",
+  "title": "Panoptes Dataset Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "kind",
+    "title",
+    "license",
+    "source",
+    "content_hash",
+    "splits",
+    "labels",
+    "privacy",
+    "limitations",
+    "notice_entry_required",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-dataset-manifest-v1"},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "kind": {"enum": ["prose", "code", "watermark", "mixed"]},
+    "title": {"type": "string"},
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx", "redistributable", "citation"],
+      "properties": {
+        "spdx": {"type": "string"},
+        "redistributable": {"type": "boolean"},
+        "citation": {"type": "string"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "version", "access", "download_instructions"],
+      "properties": {
+        "url": {"type": "string"},
+        "version": {"type": "string"},
+        "access": {"enum": ["manual-download", "gated", "public"]},
+        "download_instructions": {"type": "string"}
+      }
+    },
+    "content_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "file_inventory_uri": {"type": "string"}
+      }
+    },
+    "splits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "calibration", "test", "group_keys"],
+      "properties": {
+        "train": {"$ref": "#/$defs/split"},
+        "calibration": {"$ref": "#/$defs/split"},
+        "test": {"$ref": "#/$defs/split"},
+        "group_keys": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "values"],
+      "properties": {
+        "schema": {"enum": ["binary_ai", "ternary_code", "watermark_presence"]},
+        "values": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_pii_risk", "raw_text_in_repo", "sanitization"],
+      "properties": {
+        "contains_pii_risk": {"enum": ["low", "medium", "high"]},
+        "raw_text_in_repo": {"const": false},
+        "sanitization": {"enum": ["none", "hashes-only", "redacted-excerpts"]}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "notice_entry_required": {"type": "boolean"},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["groups", "n"],
+      "properties": {
+        "groups": {"type": "array", "items": {"type": "string"}},
+        "n": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

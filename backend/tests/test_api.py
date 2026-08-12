@@ -15,7 +15,7 @@ def test_analyze_fixture() -> None:
     response = client.post("/api/v1/analyze", json={"text": "AI-generated " * 80})
     assert response.status_code == 200
     payload = response.json()
-    assert payload["schema_version"] == "1.0.0"
+    assert payload["schema_version"] == "1.1.0"
     assert payload["runtime"]["profile"] == "fixture"
     assert 0 <= payload["summary"]["overall"]["ai_generated"] <= 1
     assert payload["limitations"]

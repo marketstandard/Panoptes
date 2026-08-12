@@ -12,3 +12,9 @@ Research datasets:
 - DroidCollection: cite and follow dataset terms; do not redistribute unless permitted.
 
 The current checked-in calibration artifact is synthetic and intended only to validate the pipeline.
+
+Contributor data policy:
+- Dataset manifests under `datasets/manifests/` are pointer records, not dataset redistribution.
+- Raw third-party corpora must not be committed unless their license explicitly permits redistribution and the samples are fixture-scale.
+- Every new model, dataset, watermark scheme, or substantial dependency requires an entry here.
+- Calibration artifacts must include a canonical SHA-256 artifact hash and reproducibility metadata.

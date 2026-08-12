@@ -17,6 +17,8 @@ Plugin rules:
 - Plugins must not fetch remote code at runtime.
 - Plugins must not store submitted text unless the user explicitly enables report retention.
 - Probability fields must use the shared response schema.
+- Watermark plugins should export token spans only as `{start, end, green}` offsets, never raw secret keys.
+- New marker schemes require a watermark evaluation card and a dataset pointer manifest before registry enablement.
 
 A minimal detector adapter:
 

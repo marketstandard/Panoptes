@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import shutil
 import sys
@@ -27,10 +28,12 @@ def up(
     port: int = typer.Option(8000, "--port"),
     open_browser: bool = typer.Option(True, "--open/--no-open"),
 ) -> None:
-    settings = Settings(profile=profile, host=host, port=port)
     console.print(f"Starting Panoptes at http://{host}:{port} with profile {profile.value}")
     if open_browser:
         webbrowser.open(f"http://{host}:{port}")
+    os.environ["PANOPTES_PROFILE"] = profile.value
+    os.environ["PANOPTES_HOST"] = host
+    os.environ["PANOPTES_PORT"] = str(port)
     uvicorn.run(
         "panoptes.main:app",
         host=host,

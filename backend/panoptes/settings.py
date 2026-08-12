@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from panoptes.schemas import RuntimeProfile
@@ -24,6 +22,5 @@ class Settings(BaseSettings):
         return self.profile in {RuntimeProfile.CLOUD_CPU, RuntimeProfile.CLOUD_GPU}
 
 
-@lru_cache
 def get_settings() -> Settings:
     return Settings()

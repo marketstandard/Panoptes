@@ -6,11 +6,17 @@ import re
 from dataclasses import dataclass
 from statistics import NormalDist
 
-from panoptes.schemas import ContentType, WatermarkResult
+from panoptes.schemas import (
+    ConfidenceInterval,
+    ContentType,
+    WatermarkResult,
+    WatermarkTokenSpan,
+)
 
 _TOKEN_RE = re.compile(r"\w+|[^\w\s]", re.UNICODE)
 _DEFAULT_GREEN_FRACTION = 0.5
 _MIN_TOKENS = 50
+_TOKEN_OVERLAY_LIMIT = 4_000
 
 
 @dataclass(frozen=True)
@@ -24,31 +30,46 @@ class WatermarkToken:
 class WatermarkAdapter:
     id = "watermark-base"
 
-    def detect(self, text: str, content_type: ContentType) -> tuple[WatermarkResult, list[WatermarkToken]]:
+    def detect(
+        self,
+        text: str,
+        content_type: ContentType,
+        include_tokens: bool = False,
+    ) -> tuple[WatermarkResult, list[WatermarkToken]]:
         raise NotImplementedError
+
+
+def _empty_result(scheme: str, status: str, eligible_tokens: int) -> WatermarkResult:
+    return WatermarkResult(
+        scheme=scheme,
+        status=status,  # type: ignore[arg-type]
+        eligible_tokens=eligible_tokens,
+        green_tokens=None,
+        expected_green=None,
+        green_rate=None,
+        green_rate_interval=None,
+        dilution_estimate=None,
+        z=None,
+        p_value=None,
+        q_value=None,
+        effect=None,
+        power=None,
+        tokens=None,
+    )
 
 
 class KGWReferenceAdapter(WatermarkAdapter):
     id = "kgw-v1"
 
-    def detect(self, text: str, content_type: ContentType) -> tuple[WatermarkResult, list[WatermarkToken]]:
+    def detect(
+        self,
+        text: str,
+        content_type: ContentType,
+        include_tokens: bool = False,
+    ) -> tuple[WatermarkResult, list[WatermarkToken]]:
         spans = list(_TOKEN_RE.finditer(text))
         if len(spans) < _MIN_TOKENS:
-            return (
-                WatermarkResult(
-                    scheme=self.id,
-                    status="insufficient_data",
-                    eligible_tokens=len(spans),
-                    green_tokens=None,
-                    expected_green=None,
-                    z=None,
-                    p_value=None,
-                    q_value=None,
-                    effect=None,
-                    power=None,
-                ),
-                [],
-            )
+            return _empty_result(self.id, "insufficient_data", len(spans)), []
 
         previous = ""
         tokens: list[WatermarkToken] = []
@@ -64,19 +85,31 @@ class KGWReferenceAdapter(WatermarkAdapter):
         variance = n * _DEFAULT_GREEN_FRACTION * (1 - _DEFAULT_GREEN_FRACTION)
         z = (green_count - expected) / math.sqrt(variance)
         p_value = 1 - NormalDist().cdf(z)
-        effect = (green_count / n) - _DEFAULT_GREEN_FRACTION
-        power = _power(n, alpha=0.01, observed_rate=green_count / n)
+        green_rate = green_count / n
+        effect = green_rate - _DEFAULT_GREEN_FRACTION
+        power = _power(n, alpha=0.01, observed_rate=green_rate)
+        interval = _wilson_interval(green_count, n)
+        dilution = _dilution_estimate(green_rate)
+        token_spans = (
+            [WatermarkTokenSpan(start=t.start, end=t.end, green=t.green) for t in tokens]
+            if include_tokens and n <= _TOKEN_OVERLAY_LIMIT
+            else None
+        )
         result = WatermarkResult(
             scheme=self.id,
             status="tested",
             eligible_tokens=n,
             green_tokens=green_count,
             expected_green=expected,
+            green_rate=green_rate,
+            green_rate_interval=interval,
+            dilution_estimate=dilution,
             z=z,
             p_value=max(min(p_value, 1.0), 1e-16),
             q_value=None,
             effect=effect,
             power=power,
+            tokens=token_spans,
         )
         return result, tokens
 
@@ -84,22 +117,13 @@ class KGWReferenceAdapter(WatermarkAdapter):
 class ClaudePendingAdapter(WatermarkAdapter):
     id = "claude-text-watermark"
 
-    def detect(self, text: str, content_type: ContentType) -> tuple[WatermarkResult, list[WatermarkToken]]:
-        return (
-            WatermarkResult(
-                scheme=self.id,
-                status="adapter_unavailable",
-                eligible_tokens=len(_TOKEN_RE.findall(text)),
-                green_tokens=None,
-                expected_green=None,
-                z=None,
-                p_value=None,
-                q_value=None,
-                effect=None,
-                power=None,
-            ),
-            [],
-        )
+    def detect(
+        self,
+        text: str,
+        content_type: ContentType,
+        include_tokens: bool = False,
+    ) -> tuple[WatermarkResult, list[WatermarkToken]]:
+        return _empty_result(self.id, "adapter_unavailable", len(_TOKEN_RE.findall(text))), []
 
 
 def watermark_adapters() -> list[WatermarkAdapter]:
@@ -156,3 +180,23 @@ def _power(n: int, alpha: float, observed_rate: float) -> float:
     if alt_sd == 0:
         return 0.0
     return max(min(1 - NormalDist().cdf((critical - observed_rate) / alt_sd), 1.0), 0.0)
+
+
+def _wilson_interval(successes: int, n: int, level: float = 0.95) -> ConfidenceInterval:
+    if n == 0:
+        return ConfidenceInterval(lower=0.0, upper=1.0, level=level)
+    z = NormalDist().inv_cdf(1 - (1 - level) / 2)
+    p_hat = successes / n
+    denominator = 1 + z * z / n
+    center = (p_hat + z * z / (2 * n)) / denominator
+    margin = z * math.sqrt((p_hat * (1 - p_hat) + z * z / (4 * n)) / n) / denominator
+    return ConfidenceInterval(
+        lower=max(0.0, center - margin),
+        upper=min(1.0, center + margin),
+        level=level,
+    )
+
+
+def _dilution_estimate(green_rate: float) -> float:
+    excess = green_rate - _DEFAULT_GREEN_FRACTION
+    return min(max(excess / (1 - _DEFAULT_GREEN_FRACTION), 0.0), 1.0)
