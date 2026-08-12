@@ -1,5 +1,9 @@
 # Panoptes Evidence Workbench
 
+<p align="center">
+  <img src="frontend/public/Panoptes_readme.png" alt="Panoptes — evidence, not verdicts" width="720">
+</p>
+
 Panoptes is an open-source scientific workbench for analyzing text and code for **calibrated evidence of AI participation**, **public watermark signals**, **source-family similarity**, and **signed file provenance**.
 
 It is designed to answer a narrow question carefully:
