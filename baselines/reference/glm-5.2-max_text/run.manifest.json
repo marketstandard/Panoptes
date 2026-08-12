@@ -1,0 +1,73 @@
+{
+  "artifact_sha256": "f28cf49828684e678caa506d4da13de0dbe2206b6de08b2d56cce7ff5a4627e0",
+  "contributor": "encryptic1",
+  "created_utc": "2026-08-12T19:40:01Z",
+  "environment": {
+    "os": "windows",
+    "python": "3.12.10",
+    "tool": "baseline.py/1.0.0"
+  },
+  "merkle_root": "e9bdcfb2a10d16ab99734cf538c64f24505ecfad956ccfbd9b7b349f25f661e7",
+  "model": {
+    "interface": "agent-chat",
+    "provider": "unspecified",
+    "reported_version": "glm-5.2-max",
+    "slug": "glm-5.2-max"
+  },
+  "outputs": [
+    {
+      "bytes": 534,
+      "file": "text-01.md",
+      "prompt_id": "text-01",
+      "sha256": "59442137d55b7333c11e2dea5c907b3920845606e3754c3d58c46db9238b57d1"
+    },
+    {
+      "bytes": 1656,
+      "file": "text-02.md",
+      "prompt_id": "text-02",
+      "sha256": "3f0515d10e27f801c65641b27502798f853588f0eb5dbbb1d3514c201f4e043f"
+    },
+    {
+      "bytes": 4050,
+      "file": "text-03.md",
+      "prompt_id": "text-03",
+      "sha256": "8f137fc074f88781ccbffa8da5d8cb27cbea2af10d36c8037bafa8ccb5575fd5"
+    },
+    {
+      "bytes": 1403,
+      "file": "text-04.md",
+      "prompt_id": "text-04",
+      "sha256": "8d6b20c9eabdbba5463a69b30930cdbfb23d25f518d340ea3cdc4d9cb94b9169"
+    },
+    {
+      "bytes": 955,
+      "file": "text-05.md",
+      "prompt_id": "text-05",
+      "sha256": "8a66de06ff01f7d29311c36710eca7da168fc479209c58bd2884a05be3a2dea9"
+    },
+    {
+      "bytes": 601,
+      "file": "text-06.md",
+      "prompt_id": "text-06",
+      "sha256": "e3dae249ad2ff532ba2460955840ff153d7dbf61e7170ea5fa74d0d779ab2e43"
+    },
+    {
+      "bytes": 2569,
+      "file": "text-07.md",
+      "prompt_id": "text-07",
+      "sha256": "5172c3b29b8b9365730fb55e944a33ad83051badf84b57e7ee68a8c4a2c76314"
+    },
+    {
+      "bytes": 1572,
+      "file": "text-08.md",
+      "prompt_id": "text-08",
+      "sha256": "e164550d3517f03b39c23472d405a60c948e9c20e2a1582432a30d9046d15cf0"
+    }
+  ],
+  "prompts": {
+    "sha256": "2092321df751db3dc9dec61f4a122967e381ef61b1ed0607893882476bc8b06b",
+    "version": "1.0.0"
+  },
+  "run_id": "glm-5.2-max_text-20260812t194001z",
+  "schema": "panoptes-baseline-run-v1"
+}

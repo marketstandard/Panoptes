@@ -1,9 +1,0 @@
-A hash map stores key–value pairs so you can retrieve a value from its key without scanning the whole collection. The usual picture is a coat-check: you hand over a coat (the value) and get a ticket (the key). The attendant does not search every hook. They run the ticket through a simple rule — a hash function — that turns it into a hook number, then hang the coat there. That hook number indexes an array slot called a bucket.
-
-A bucket is not always a single coat. Several tickets can hash to the same number. When that happens you have a hash collision. The map still works: the bucket holds a small list (or similar chain) of the colliding pairs, and a lookup compares the actual keys until it finds a match. A few collisions are normal. Trouble starts when many keys pile into the same buckets, because each lookup then walks a longer chain.
-
-That is why hash maps resize. Designers track the load factor: items divided by buckets. When it crosses a threshold — often around 0.75 — the map allocates a larger array, rehashes every key into the new buckets, and discards the old array. Resizing is expensive in that moment, but it spreads keys out again so typical operations stay fast.
-
-If the hash function scatters keys evenly, most buckets stay short. Then insert, lookup, and delete take roughly constant time on average: hash the key, jump to one bucket, and inspect a handful of entries. Worst case, everything collides into one bucket and you are back to scanning a list. Good hash functions and timely resizing make that rare.
-
-So the whole design is three ideas working together. Hashing picks a bucket in one jump. Collision handling keeps correctness when two keys share a bucket. Resizing keeps buckets small as the map grows. That is why a hash map feels instant even with thousands of keys, and why first-year courses treat it as the default “fast lookup” structure once arrays and linked lists are in place.
