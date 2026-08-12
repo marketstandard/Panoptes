@@ -4,7 +4,8 @@ import App from './App';
 import type { AnalysisResponse } from './types';
 
 vi.mock('./api', () => ({
-  analyze: vi.fn()
+  analyze: vi.fn(),
+  fetchArtifact: vi.fn().mockResolvedValue(null)
 }));
 
 test('renders observatory empty state and input controls', () => {
@@ -36,7 +37,8 @@ function mockResponse(): AnalysisResponse {
       token_count: 120,
       character_count: 700,
       segment_count: 1,
-      user_overrode_type: false
+      user_overrode_type: false,
+      feature_profile: { long_words: 0.18, connectors: 0.02, unique_ratio: 0.6, short_sentences: 0.4, structured: 0.3, digits: 0.01, balanced_lines: 0.7 }
     },
     summary: {
       evidence_state: 'supported',
@@ -52,10 +54,30 @@ function mockResponse(): AnalysisResponse {
       reliability_error: 0.04,
       cohort: 'fixture'
     },
+    calibration: {
+      bundle: 'panoptes-reference-corpus-v1',
+      cohort: 'panoptes-reference-corpus (6 model families + human controls)',
+      n_records: 104,
+      applies_to: 'prose',
+      ece: 0.127,
+      brier: 0.161,
+      auroc: 0.589,
+      tpr_at_1fpr: 0.44,
+      tpr_at_5fpr: 0.44,
+      reliability_bins: [
+        { bin_lo: 0.4, bin_hi: 0.5, n: 20, mean_predicted: 0.45, observed: 0.2 },
+        { bin_lo: 0.5, bin_hi: 0.6, n: 30, mean_predicted: 0.55, observed: 0.7 }
+      ],
+      conformal_alpha: 0.1,
+      conformal_threshold: 0.8,
+      artifact_sha256: 'deadbeef'
+    },
     source_families: {
       conditional_on_ai: [{ family: 'llama-like', probability: 0.6 }],
       unknown_score: 0.4,
-      interpretation: 'Conditional similarity among supported families.'
+      interpretation: 'Conditional similarity among supported families.',
+      basis: 'corpus-fitted',
+      cohort_size: 104
     },
     watermarks: [{
       scheme: 'kgw-v1',

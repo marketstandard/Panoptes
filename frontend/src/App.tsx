@@ -2,8 +2,15 @@ import { useMemo, useState } from 'react';
 import { Aperture, BookOpen, ExternalLink, Play, ScanEye, Upload } from 'lucide-react';
 import { analyze } from './api';
 import { AnswerObservatory } from './components/AnswerObservatory';
+import { CorpusPanel } from './components/CorpusPanel';
+import { CoverageCurve } from './components/CoverageCurve';
 import { EvidenceMatrix } from './components/EvidenceMatrix';
+import { InputProfile } from './components/InputProfile';
+import { ModelCardPanel } from './components/ModelCardPanel';
+import { PosteriorSensitivity } from './components/PosteriorSensitivity';
+import { PowerCurve } from './components/PowerCurve';
 import { ProvenancePanel } from './components/ProvenancePanel';
+import { ReliabilityDiagram } from './components/ReliabilityDiagram';
 import { SourceFamilyPanel } from './components/SourceFamilyPanel';
 import { TechnicalDrilldown } from './components/TechnicalDrilldown';
 import { TokenEvidenceOverlay } from './components/TokenEvidenceOverlay';
@@ -150,6 +157,13 @@ export default function App() {
               tone="green"
             />
           </section>
+          <section className="figures-grid" aria-label="Statistical figures">
+            <PosteriorSensitivity priorOdds={priorOdds} likelihoodRatio={result.posterior.likelihood_ratio} />
+            <ReliabilityDiagram calibration={result.calibration} />
+            <PowerCurve currentN={result.calibration?.n_records ?? 0} />
+            <CoverageCurve />
+            <InputProfile featureProfile={result.input.feature_profile} />
+          </section>
           <section className="technical-toggle-panel glass-panel">
             <div>
               <p className="panel-kicker">Equation lab</p>
@@ -171,6 +185,10 @@ export default function App() {
           </p>
         </section>
       )}
+      <section className="corpus-section" aria-label="Corpus and models">
+        <CorpusPanel />
+        <ModelCardPanel />
+      </section>
     </main>
   );
 }

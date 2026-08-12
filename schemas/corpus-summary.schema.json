@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/corpus-summary.schema.json",
+  "title": "Panoptes Corpus Summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "n_records", "n_runs", "n_human", "n_ai", "families", "kinds", "catalog_entries", "cohorts", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "panoptes-corpus-summary-v1"},
+    "n_records": {"type": "integer", "minimum": 0},
+    "n_runs": {"type": "integer", "minimum": 0},
+    "n_human": {"type": "integer", "minimum": 0},
+    "n_ai": {"type": "integer", "minimum": 0},
+    "families": {"type": "array", "items": {"type": "string"}},
+    "kinds": {"type": "array", "items": {"type": "string"}},
+    "catalog_entries": {"type": "integer", "minimum": 0},
+    "cohorts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["family", "kind", "label", "n", "runs", "length_buckets", "features"],
+        "properties": {
+          "family": {"type": "string"},
+          "kind": {"type": "string"},
+          "label": {"type": "integer", "enum": [0, 1]},
+          "n": {"type": "integer", "minimum": 1},
+          "runs": {"type": "array", "items": {"type": "string"}},
+          "length_buckets": {"type": "object", "additionalProperties": {"type": "integer"}},
+          "features": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["mean", "min", "max"],
+              "properties": {
+                "mean": {"type": "number"},
+                "min": {"type": "number"},
+                "max": {"type": "number"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

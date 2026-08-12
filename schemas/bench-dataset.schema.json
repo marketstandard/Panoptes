@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "panoptes-bench-dataset-v1",
+  "title": "Panoptes bench dataset row",
+  "description": "One row of a community-contributed evaluation dataset. A dataset is a CSV or JSONL file whose rows/records validate against this schema. Raw contributed data stays with the contributor; only a signed pointer manifest enters the repository.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["text", "label"],
+  "properties": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 200000},
+    "label": {
+      "description": "0/human = human-written, 1/ai = AI-generated",
+      "enum": [0, 1, "0", "1", "human", "ai"]
+    },
+    "family": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"},
+    "kind": {"enum": ["text", "code"]},
+    "group": {
+      "type": "string",
+      "description": "Leakage-control group (e.g. prompt or topic id). Rows sharing a group never straddle a train/test split.",
+      "maxLength": 128
+    }
+  }
+}

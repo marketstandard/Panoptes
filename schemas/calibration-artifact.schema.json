@@ -60,6 +60,36 @@
       }
     },
     "source_geometry": {"type": "object"},
+    "corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["families", "geometry_dropped_families", "geometry_min_family_n", "n_ai", "n_human", "n_records", "n_text_records"],
+      "properties": {
+        "families": {"type": "array", "items": {"type": "string"}},
+        "geometry_dropped_families": {"type": "array", "items": {"type": "string"}},
+        "geometry_min_family_n": {"type": "integer", "minimum": 1},
+        "n_ai": {"type": "integer", "minimum": 0},
+        "n_human": {"type": "integer", "minimum": 0},
+        "n_records": {"type": "integer", "minimum": 0},
+        "n_text_records": {"type": "integer", "minimum": 0}
+      }
+    },
+    "feature_names": {"type": "array", "items": {"type": "string"}},
+    "reliability_bins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["bin_lo", "bin_hi", "n", "mean_predicted", "observed"],
+        "properties": {
+          "bin_lo": {"type": "number"},
+          "bin_hi": {"type": "number"},
+          "n": {"type": "integer", "minimum": 0},
+          "mean_predicted": {"type": "number"},
+          "observed": {"type": "number"}
+        }
+      }
+    },
     "conformal": {
       "type": "object",
       "additionalProperties": false,

@@ -1,0 +1,337 @@
+{
+  "artifact_sha256": "cae67c43b8d94f323277060b7a44dadb2783cb4692ac55713d49c299d0da7de4",
+  "config": {
+    "data": "corpus",
+    "model": "logistic"
+  },
+  "created_utc": "2026-08-12T20:28:24Z",
+  "evaluation": {
+    "auroc_ci95": [
+      0.6642877813089425,
+      0.8914971403392027
+    ],
+    "conformal": {
+      "abstention_rate": 0.057692307692307696,
+      "alpha": 0.1,
+      "empirical_coverage": 0.9230769230769231,
+      "mean_set_size": 1.0576923076923077,
+      "singleton_rate": 0.9423076923076923,
+      "threshold": 0.5736941152402226
+    },
+    "coverage_curve": [
+      {
+        "accuracy": 0.8942307692307693,
+        "coverage": 1.0,
+        "min_confidence": 0.5,
+        "n_kept": 104
+      },
+      {
+        "accuracy": 0.9108910891089109,
+        "coverage": 0.9711538461538461,
+        "min_confidence": 0.5544444444444444,
+        "n_kept": 101
+      },
+      {
+        "accuracy": 0.9270833333333334,
+        "coverage": 0.9230769230769231,
+        "min_confidence": 0.6088888888888889,
+        "n_kept": 96
+      },
+      {
+        "accuracy": 0.9354838709677419,
+        "coverage": 0.8942307692307693,
+        "min_confidence": 0.6633333333333333,
+        "n_kept": 93
+      },
+      {
+        "accuracy": 0.9333333333333333,
+        "coverage": 0.8653846153846154,
+        "min_confidence": 0.7177777777777777,
+        "n_kept": 90
+      },
+      {
+        "accuracy": 0.9431818181818182,
+        "coverage": 0.8461538461538461,
+        "min_confidence": 0.7722222222222221,
+        "n_kept": 88
+      },
+      {
+        "accuracy": 0.9512195121951219,
+        "coverage": 0.7884615384615384,
+        "min_confidence": 0.8266666666666667,
+        "n_kept": 82
+      },
+      {
+        "accuracy": 0.9714285714285714,
+        "coverage": 0.6730769230769231,
+        "min_confidence": 0.8811111111111111,
+        "n_kept": 70
+      },
+      {
+        "accuracy": 0.967741935483871,
+        "coverage": 0.5961538461538461,
+        "min_confidence": 0.9355555555555555,
+        "n_kept": 62
+      },
+      {
+        "accuracy": 1.0,
+        "coverage": 0.3269230769230769,
+        "min_confidence": 0.99,
+        "n_kept": 34
+      }
+    ],
+    "fairness_slices": {
+      "family": [
+        {
+          "brier": 0.014946410064315876,
+          "mean_predicted": 0.9262870328503311,
+          "n": 16,
+          "value": "claude-opus-5-max"
+        },
+        {
+          "brier": 0.024790453394977593,
+          "mean_predicted": 0.9248882755807679,
+          "n": 16,
+          "value": "gemini-3.1-pro"
+        },
+        {
+          "brier": 0.031386942323736754,
+          "mean_predicted": 0.9006860244512949,
+          "n": 16,
+          "value": "glm-5.2-max"
+        },
+        {
+          "brier": 0.03885347603399798,
+          "mean_predicted": 0.8908704471944225,
+          "n": 16,
+          "value": "gpt-5.6-sol-max"
+        },
+        {
+          "brier": 0.04383114251554496,
+          "mean_predicted": 0.8813400829836313,
+          "n": 16,
+          "value": "grok-4.6-extra-high"
+        },
+        {
+          "brier": 0.636971479384931,
+          "mean_predicted": 0.779298928973418,
+          "n": 8,
+          "value": "human"
+        },
+        {
+          "brier": 0.0279149580838356,
+          "mean_predicted": 0.9098956261039914,
+          "n": 16,
+          "value": "kimi-k3-max"
+        }
+      ],
+      "kind": [
+        {
+          "brier": 0.00013029271969779255,
+          "mean_predicted": 0.9921476162156857,
+          "n": 48,
+          "value": "code"
+        },
+        {
+          "auroc": 0.5885416666666667,
+          "brier": 0.14280521255708026,
+          "mean_predicted": 0.8134783157154546,
+          "n": 56,
+          "value": "text"
+        }
+      ],
+      "length_bucket": [
+        {
+          "auroc": 0.705,
+          "brier": 0.09848482406798308,
+          "mean_predicted": 0.8676975954347685,
+          "n": 45,
+          "value": "150-499"
+        },
+        {
+          "auroc": 0.8108108108108109,
+          "brier": 0.07286997601361865,
+          "mean_predicted": 0.9105386835676083,
+          "n": 39,
+          "value": "50-149"
+        },
+        {
+          "auroc": 0.875,
+          "brier": 0.08099371858190291,
+          "mean_predicted": 0.8536891607803362,
+          "n": 9,
+          "value": "500plus"
+        },
+        {
+          "brier": 5.9667174045210606e-05,
+          "mean_predicted": 0.9942971234267312,
+          "n": 11,
+          "value": "lt50"
+        }
+      ]
+    },
+    "folds": [
+      {
+        "accuracy": 0.95,
+        "auroc": 0.8333333333333333,
+        "brier": 0.08576020863026276,
+        "ece": 0.1686368234635884,
+        "fold": 0,
+        "n_test": 20,
+        "tpr_at_1fpr": 0.6666666666666666,
+        "tpr_at_5fpr": 0.6666666666666666
+      },
+      {
+        "accuracy": 0.9,
+        "auroc": 0.8611111111111112,
+        "brier": 0.08214348628590493,
+        "ece": 0.07115563055609253,
+        "fold": 1,
+        "n_test": 20,
+        "tpr_at_1fpr": 0.7777777777777778,
+        "tpr_at_5fpr": 0.7777777777777778
+      },
+      {
+        "accuracy": 0.7,
+        "auroc": 0.6111111111111112,
+        "brier": 0.14207574975691098,
+        "ece": 0.21561735287172024,
+        "fold": 2,
+        "n_test": 20,
+        "tpr_at_1fpr": 0.5,
+        "tpr_at_5fpr": 0.5
+      },
+      {
+        "accuracy": 0.96,
+        "auroc": 1.0,
+        "brier": 0.03564108416397794,
+        "ece": 0.02970449092607852,
+        "fold": 3,
+        "n_test": 25,
+        "tpr_at_1fpr": 1.0,
+        "tpr_at_5fpr": 1.0
+      },
+      {
+        "accuracy": 0.9473684210526315,
+        "auroc": 0.8333333333333334,
+        "brier": 0.0480384187463667,
+        "ece": 0.05973959788062023,
+        "fold": 4,
+        "n_test": 19,
+        "tpr_at_1fpr": 0.8333333333333334,
+        "tpr_at_5fpr": 0.8333333333333334
+      }
+    ],
+    "metrics": {
+      "accuracy": 0.8942307692307693,
+      "auroc": 0.7877604166666666,
+      "brier": 0.07695524955521144,
+      "ece": 0.05611604977879078,
+      "tpr_at_1fpr": 0.5416666666666666,
+      "tpr_at_5fpr": 0.5416666666666666
+    },
+    "protocol": "GroupKFold(5) by prompt group; all metrics out-of-fold.",
+    "reliability_bins": [
+      {
+        "bin_hi": 0.5,
+        "bin_lo": 0.4,
+        "mean_predicted": 0.4399761644917877,
+        "n": 5,
+        "observed": 0.8
+      },
+      {
+        "bin_hi": 0.6000000000000001,
+        "bin_lo": 0.5,
+        "mean_predicted": 0.555575884314239,
+        "n": 3,
+        "observed": 1.0
+      },
+      {
+        "bin_hi": 0.7000000000000001,
+        "bin_lo": 0.6000000000000001,
+        "mean_predicted": 0.6525992701145028,
+        "n": 5,
+        "observed": 0.8
+      },
+      {
+        "bin_hi": 0.8,
+        "bin_lo": 0.7000000000000001,
+        "mean_predicted": 0.7568827024563158,
+        "n": 6,
+        "observed": 0.8333333333333334
+      },
+      {
+        "bin_hi": 0.9,
+        "bin_lo": 0.8,
+        "mean_predicted": 0.8552750129776984,
+        "n": 16,
+        "observed": 0.8125
+      },
+      {
+        "bin_hi": 1.0,
+        "bin_lo": 0.9,
+        "mean_predicted": 0.9829357972472917,
+        "n": 69,
+        "observed": 0.9710144927536232
+      }
+    ]
+  },
+  "intended_use": "Research-grade AI-text detection support with visible uncertainty. Not for high-stakes automated decisions about individuals.",
+  "limitations": [
+    "Small corpus: absolute performance estimates carry wide intervals.",
+    "Stylometric signals degrade under paraphrase and heavy editing.",
+    "Family labels are contributor-declared."
+  ],
+  "model": {
+    "name": "logistic-tier0",
+    "tier": 0
+  },
+  "power_gate": {
+    "alpha": 0.05,
+    "mde": 0.05,
+    "n": 104,
+    "passes": false,
+    "power": 0.8,
+    "rationale": "n=104 >= 3140 required (two-proportion worst case, mde=0.05, alpha=0.05, power=0.8): gate FAILS",
+    "required_n": 3140
+  },
+  "schema": "panoptes-model-card-v1",
+  "training_data": {
+    "datasheet": {
+      "collection": "Reference runs: single-turn responses to 8 pinned prompts per kind, product defaults. Human controls: original texts written by project authors. Community datasets: contributor-declared labels.",
+      "composition": {
+        "families": [
+          "claude-opus-5-max",
+          "gemini-3.1-pro",
+          "glm-5.2-max",
+          "gpt-5.6-sol-max",
+          "grok-4.6-extra-high",
+          "human",
+          "kimi-k3-max"
+        ],
+        "kinds": [
+          "code",
+          "text"
+        ],
+        "length_buckets": {
+          "150-499": 45,
+          "50-149": 39,
+          "500plus": 9,
+          "lt50": 11
+        },
+        "n": 104,
+        "n_ai": 96,
+        "n_human": 8,
+        "sha256": "a1d4c0c46d5bb57674932aef71e0185488fad172426d561d2c1077c5f6d03d9b"
+      },
+      "distribution": "Hash-pointer manifests only for community data; raw text stays with the contributor.",
+      "labeling": "Labels are declared at ingestion and verified structurally (manifest hashes); content labels are contributor claims.",
+      "maintenance": "Maintained by the Panoptes project; corrections via pull request.",
+      "motivation": "AI-text detection evaluation corpus. The project corpus is hash-verified from run manifests; community datasets are contributor-supplied.",
+      "recommended_uses": "Model evaluation and calibration research. Not for training generators."
+    },
+    "n": 104,
+    "provenance": "panoptes-verified-corpus",
+    "sha256": "a1d4c0c46d5bb57674932aef71e0185488fad172426d561d2c1077c5f6d03d9b"
+  }
+}

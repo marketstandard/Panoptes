@@ -52,4 +52,6 @@ Code robustness:
 
 ## Current status
 
-The checked-in research scripts generate a synthetic development artifact and benchmark card. These validate the pipeline and artifact formats, but they are not release-quality scientific results. A release must replace them with RAID-derived calibration and a documented code benchmark.
+The shipped calibration artifact (`backend/artifacts/baseline-calibration.json`) is fitted on the verified reference corpus — 104 hash-verified records (96 AI outputs across 6 model families, 8 human controls) — via isotonic regression with grouped cross-validation, corpus-fitted source-family geometry, and conformal thresholds. The methodology report (`backend/artifacts/methodology-report.json`) records the VIF feature screening, pre-registered hypothesis tests (H1–H6) with Benjamini–Hochberg q-values, and the econometric specification battery. The synthetic development artifact remains reproducible via `python research/calibration.py --synthetic` for pipeline testing.
+
+Honest statistical caveats: at n=104 the corpus supports calibration and tier-0/tier-1 modeling, but hypothesis tests are underpowered for small effects (≈23% power for a d=0.5 two-group difference), and the neural tier (Panoptes-v0) is gated accordingly. Growing the corpus through community baseline submissions directly increases what the methodology can conclude. A release-quality evaluation should additionally incorporate larger external corpora (e.g. RAID-derived) through the signed pointer-manifest mechanism.

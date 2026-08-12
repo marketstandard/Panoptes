@@ -5,6 +5,7 @@ import uuid
 from statistics import NormalDist
 
 from panoptes.analysis.attribution import source_family_distribution
+from panoptes.analysis.calibration_bundle import CalibrationBundle, load_bundle
 from panoptes.analysis.detectors import select_detector
 from panoptes.analysis.provenance import decode_upload, verify_provenance
 from panoptes.analysis.watermarks import apply_fdr, evidence_by_segment, watermark_adapters
@@ -18,6 +19,7 @@ from panoptes.analysis.windowing import (
 from panoptes.schemas import (
     AnalysisRequest,
     AnalysisResponse,
+    CalibrationInfo,
     Capabilities,
     ConfidenceLabel,
     ContentType,
@@ -28,6 +30,7 @@ from panoptes.schemas import (
     Matrix,
     OutcomeDistribution,
     PosteriorInfo,
+    ReliabilityBin,
     RuntimeInfo,
     RuntimeProfile,
     Segment,
@@ -48,10 +51,13 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     segments = make_segments(text, content_type)
     limitations: list[str] = []
 
+    bundle = load_bundle(settings.artifact_dir)
+
     detector = select_detector(settings.profile.value, content_type)
     document_score = detector.score(text, content_type, language)
     if document_score.abstain_reason:
         limitations.append(document_score.abstain_reason)
+    document_score = _apply_corpus_calibration(document_score, bundle, content_type, settings.profile)
 
     state = _evidence_state(len(spans), content_type, language, document_score.abstain_reason)
     calibrated = _calibrate_distribution(document_score.distribution, state, request.prior_odds)
@@ -67,7 +73,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
             tokens_by_scheme[adapter.id] = tokens
     watermark_results = apply_fdr(watermark_results)
 
-    attribution = source_family_distribution(text, content_type)
+    attribution = source_family_distribution(text, content_type, bundle=bundle)
     provenance = verify_provenance(upload)
     segment_scores = _score_segments(text, segments, detector, content_type, language)
     segment_ranges = [(segment.start, segment.end) for segment in segment_scores]
@@ -104,6 +110,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
             character_count=len(text),
             segment_count=len(segment_scores),
             user_overrode_type=request.content_type is not None,
+            feature_profile=_feature_profile(text, content_type),
         ),
         summary=Summary(
             evidence_state=state,
@@ -116,9 +123,18 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
             likelihood_ratio=_likelihood_ratio(document_score.distribution.ai_generated),
             posterior_odds=request.prior_odds * _likelihood_ratio(document_score.distribution.ai_generated),
             calibration_bundle=_calibration_bundle(content_type, language),
-            reliability_error=0.08 if settings.profile != RuntimeProfile.FIXTURE else None,
-            cohort="fixture" if settings.profile == RuntimeProfile.FIXTURE else "prose-en/code-baseline-v0",
+            reliability_error=(
+                bundle.metrics["ece"]
+                if bundle is not None
+                else (0.08 if settings.profile != RuntimeProfile.FIXTURE else None)
+            ),
+            cohort=(
+                "fixture"
+                if settings.profile == RuntimeProfile.FIXTURE
+                else (bundle.cohort if bundle is not None else "prose-en/code-baseline-v0")
+            ),
         ),
+        calibration=_calibration_info(bundle),
         source_families=attribution,
         watermarks=watermark_results,
         provenance=provenance,
@@ -137,6 +153,61 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     )
 
 
+def _apply_corpus_calibration(
+    document_score,
+    bundle: CalibrationBundle | None,
+    content_type: ContentType,
+    profile: RuntimeProfile,
+):
+    """Map the shipped heuristic's raw score through the corpus-fitted isotonic
+    calibrator. Prose only (the calibrator was fit on prose raw scores); never
+    in fixture mode; never after an abstention."""
+    if bundle is None or profile == RuntimeProfile.FIXTURE:
+        return document_score
+    if content_type == ContentType.CODE or document_score.abstain_reason:
+        return document_score
+    calibrated_raw = bundle.calibrate(document_score.raw_score)
+    refined = document_score.distribution.ai_refined_or_mixed
+    ai_generated = max(0.02, calibrated_raw - refined / 2)
+    human = max(0.02, 1 - calibrated_raw - refined / 2)
+    return document_score.model_copy(
+        update={
+            "distribution": OutcomeDistribution(
+                human=human, ai_generated=ai_generated, ai_refined_or_mixed=refined
+            ).normalized()
+        }
+    )
+
+
+def _feature_profile(text: str, content_type: ContentType) -> dict[str, float]:
+    if not text:
+        return {}
+    from panoptes.analysis.attribution import _features
+
+    return _features(text, content_type)
+
+
+def _calibration_info(bundle: CalibrationBundle | None) -> CalibrationInfo | None:
+    if bundle is None:
+        return None
+    metrics = bundle.metrics
+    return CalibrationInfo(
+        bundle=bundle.payload.get("bundle_id", "unknown"),
+        cohort=bundle.cohort,
+        n_records=bundle.n_records,
+        applies_to="prose",
+        ece=metrics["ece"],
+        brier=metrics["brier"],
+        auroc=metrics["auroc"],
+        tpr_at_1fpr=metrics["tpr_at_1fpr"],
+        tpr_at_5fpr=metrics["tpr_at_5fpr"],
+        reliability_bins=[ReliabilityBin(**row) for row in bundle.reliability_bins],
+        conformal_alpha=bundle.conformal.get("alpha", 0.1),
+        conformal_threshold=bundle.conformal.get("threshold", 0.0),
+        artifact_sha256=bundle.payload["artifact_sha256"],
+    )
+
+
 def _request_text(request: AnalysisRequest) -> str:
     if request.text is not None:
         return request.text
@@ -150,19 +221,32 @@ def _fixture_text(name: str) -> str:
         "human-prose": (
             "human-written I drafted this note after checking the roof myself. The shingles were "
             "uneven, and two nails had lifted near the vent. I called a local roofer and took "
-            "photos before the rain started again. The repair plan is practical, not dramatic."
+            "photos before the rain started again. The repair plan is practical, not dramatic. "
+            "He quoted me four hundred for the patch job, which stings, but the ceiling stain in "
+            "the spare room was getting bigger every storm. I still need to move the ladder back "
+            "to the garage before my neighbor notices it has been leaning on his fence all week."
         ),
         "ai-prose": (
             "AI-generated effective home maintenance requires a systematic approach to roof "
             "inspection. Furthermore, homeowners should document visible damage, evaluate drainage, "
             "and consult qualified professionals. Overall, timely intervention can reduce repair "
-            "costs and preserve structural integrity."
+            "costs and preserve structural integrity. Additionally, establishing a regular "
+            "maintenance schedule ensures that minor issues are identified before they escalate "
+            "into significant concerns. Moreover, proactive care enhances property value and "
+            "provides peace of mind for homeowners seeking long-term durability and reliability."
         ),
         "code": (
             "def calculate_repair_cost(area, rate):\n"
+            "    \"\"\"Return the estimated repair cost for a damaged roof section.\n\n"
+            "    Raises ValueError when the area is not positive.\n"
+            "    \"\"\"\n"
             "    if area <= 0:\n"
             "        raise ValueError('area must be positive')\n"
-            "    return round(area * rate, 2)\n"
+            "    return round(area * rate, 2)\n\n\n"
+            "def estimate_total(regions, rate, tax=0.0):\n"
+            "    \"\"\"Sum repair costs over roof regions and apply an optional tax rate.\"\"\"\n"
+            "    subtotal = sum(calculate_repair_cost(region, rate) for region in regions)\n"
+            "    return round(subtotal * (1 + tax), 2)\n"
         ),
     }
     return fixtures.get(name, fixtures["ai-prose"])
@@ -325,7 +409,7 @@ def _standard_limitations(
         "A negative watermark result is not evidence that content is human-written.",
         "Source-family values are conditional similarity, not proof of exact model identity.",
         "Provenance is not authorship.",
-        "Reference baselines and the community catalog are calibration and verification infrastructure; they are not inputs to this analysis.",
+        "Reference baselines calibrate this analysis through a signed, hash-verified artifact; community raw text is never a runtime input.",
     ]
     if state == EvidenceState.INSUFFICIENT_DATA:
         limitations.append("The input is below the minimum evidence threshold.")

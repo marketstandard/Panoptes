@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -61,6 +62,35 @@ def runtime(settings: Settings = Depends(get_settings)) -> RuntimeInfo:
         models_loaded=[],
         calibration_bundles=[],
     )
+
+
+# Signed research artifacts the UI may render. Allowlisted names only; the
+# files contain aggregate statistics and signatures, never raw corpus text.
+_ARTIFACT_ALLOWLIST = {
+    "baseline-calibration": "baseline-calibration.json",
+    "corpus-summary": "corpus-summary.json",
+    "methodology-report": "methodology-report.json",
+    "panoptes-v0-card": "panoptes-v0-card.json",
+    "logistic-tier0-card": "cards/logistic-tier0.json",
+    "gbm-tier1-card": "cards/gbm-tier1.json",
+}
+
+
+@app.get("/api/v1/artifacts/{name}")
+def artifact(name: str, settings: Settings = Depends(get_settings)) -> dict:
+    if name not in _ARTIFACT_ALLOWLIST:
+        raise HTTPException(status_code=404, detail="Unknown artifact.")
+    relative = _ARTIFACT_ALLOWLIST[name]
+    package_root = Path(__file__).resolve().parents[1]  # backend/
+    candidates = [
+        Path(settings.artifact_dir) / relative,
+        package_root / "artifacts" / relative,
+        package_root.parent / "artifacts" / relative,
+    ]
+    for path in candidates:
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    raise HTTPException(status_code=404, detail="Artifact not generated yet.")
 
 
 @app.get("/metrics")
