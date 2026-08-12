@@ -1,0 +1,72 @@
+{
+  "artifact_sha256": "7385ee79c44f9bacc432cc954ca93978c77c4dac0c20bc9624f4708b4460ed45",
+  "created_utc": "2026-08-12T19:37:01Z",
+  "environment": {
+    "os": "windows",
+    "python": "3.12.10",
+    "tool": "baseline.py/1.0.0"
+  },
+  "merkle_root": "b918b311bfcf242f1e544e85170f87d342f8e6825b657942faf579968c312f4c",
+  "model": {
+    "interface": "agent-chat",
+    "provider": "unspecified",
+    "reported_version": "claude-opus-5-max",
+    "slug": "claude-opus-5-max"
+  },
+  "outputs": [
+    {
+      "bytes": 618,
+      "file": "text-01.md",
+      "prompt_id": "text-01",
+      "sha256": "90d6e3c4d342988411ab5f9b8820e585994751f12f18df33631bf6e921a9eda8"
+    },
+    {
+      "bytes": 1920,
+      "file": "text-02.md",
+      "prompt_id": "text-02",
+      "sha256": "b8ea2614e6b4f42559aacc701ac38faa9a2c601d49ab9b356f7264147493cf4e"
+    },
+    {
+      "bytes": 5361,
+      "file": "text-03.md",
+      "prompt_id": "text-03",
+      "sha256": "b08f0272414fd60a30e9b7b2223c4a50338a51d966d5bd31bf5406c0974b5f17"
+    },
+    {
+      "bytes": 1617,
+      "file": "text-04.md",
+      "prompt_id": "text-04",
+      "sha256": "096af00a0a821b282e6f80ae60642956bc441f2dcefaa102556c9a16b4be6678"
+    },
+    {
+      "bytes": 1001,
+      "file": "text-05.md",
+      "prompt_id": "text-05",
+      "sha256": "c0de7388cced9298ec1e282a9e3fba6538cef9a69d6f144648e2439f1f74627a"
+    },
+    {
+      "bytes": 724,
+      "file": "text-06.md",
+      "prompt_id": "text-06",
+      "sha256": "3d52f9ebbf7326b7252894656de2e3741efa8bf9ff76f3ba8dfd88a5e13579a3"
+    },
+    {
+      "bytes": 2607,
+      "file": "text-07.md",
+      "prompt_id": "text-07",
+      "sha256": "eea4412a0410eff6d997c79a2a27c38759427ad06c4c17b23d12a7057d5cb18e"
+    },
+    {
+      "bytes": 2096,
+      "file": "text-08.md",
+      "prompt_id": "text-08",
+      "sha256": "d09e7102788c355f61bf59c1ddbeafb4237576b72ee2bab951cde2861618d568"
+    }
+  ],
+  "prompts": {
+    "sha256": "2092321df751db3dc9dec61f4a122967e381ef61b1ed0607893882476bc8b06b",
+    "version": "1.0.0"
+  },
+  "run_id": "claude-opus-5-max_text-20260812t193701z",
+  "schema": "panoptes-baseline-run-v1"
+}
