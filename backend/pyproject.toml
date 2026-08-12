@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "panoptes"
+version = "0.1.0"
+description = "Local-first evidence workbench for AI-text, watermark, source-family, and provenance analysis"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+dependencies = [
+  "fastapi>=0.115,<1.0",
+  "uvicorn[standard]>=0.30,<1.0",
+  "pydantic>=2.8,<3.0",
+  "pydantic-settings>=2.4,<3.0",
+  "numpy>=2.0,<3.0",
+  "scipy>=1.14,<2.0",
+  "scikit-learn>=1.5,<2.0",
+  "typer>=0.12,<1.0",
+  "rich>=13.7,<14.0"
+]
+
+[project.optional-dependencies]
+models = [
+  "torch>=2.4,<3.0",
+  "transformers>=4.46,<5.0"
+]
+provenance = [
+  "c2pa-python>=0.37,<1.0"
+]
+dev = [
+  "pytest>=8.0,<9.0",
+  "pytest-asyncio>=0.23,<1.0",
+  "httpx>=0.27,<1.0",
+  "jsonschema>=4.23,<5.0",
+  "ruff>=0.6,<1.0",
+  "mypy>=1.11,<2.0"
+]
+
+[project.scripts]
+panoptes = "panoptes.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["panoptes"]
+
+[tool.hatch.build.targets.sdist]
+include = ["panoptes", "../schemas", "../fixtures"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RET", "TID"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

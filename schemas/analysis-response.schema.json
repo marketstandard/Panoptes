@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/analysis-response.schema.json",
+  "title": "Panoptes Analysis Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_id",
+    "runtime",
+    "input",
+    "summary",
+    "posterior",
+    "source_families",
+    "watermarks",
+    "provenance",
+    "segments",
+    "matrices",
+    "math",
+    "limitations",
+    "capabilities"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "report_id": {"type": "string"},
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "device", "models_loaded", "calibration_bundles"],
+      "properties": {
+        "profile": {"enum": ["fixture", "local-cpu", "local-gpu", "cloud-cpu", "cloud-gpu"]},
+        "device": {"type": "string"},
+        "models_loaded": {"type": "array", "items": {"type": "string"}},
+        "calibration_bundles": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content_hash", "content_type", "language", "token_count", "character_count", "segment_count", "user_overrode_type"],
+      "properties": {
+        "content_hash": {"type": "string"},
+        "content_type": {"enum": ["prose", "code", "mixed", "file"]},
+        "language": {"type": "string"},
+        "token_count": {"type": "integer", "minimum": 0},
+        "character_count": {"type": "integer", "minimum": 0},
+        "segment_count": {"type": "integer", "minimum": 0},
+        "user_overrode_type": {"type": "boolean"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_state", "plain_language", "confidence_label", "overall"],
+      "properties": {
+        "evidence_state": {"$ref": "#/$defs/evidence_state"},
+        "plain_language": {"type": "string"},
+        "confidence_label": {"enum": ["none", "low", "medium", "high"]},
+        "overall": {"$ref": "#/$defs/outcome_distribution"}
+      }
+    },
+    "posterior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prior_odds", "likelihood_ratio", "posterior_odds", "calibration_bundle", "reliability_error", "cohort"],
+      "properties": {
+        "prior_odds": {"type": "number", "minimum": 0},
+        "likelihood_ratio": {"type": ["number", "null"], "minimum": 0},
+        "posterior_odds": {"type": ["number", "null"], "minimum": 0},
+        "calibration_bundle": {"type": "string"},
+        "reliability_error": {"type": ["number", "null"], "minimum": 0},
+        "cohort": {"type": "string"}
+      }
+    },
+    "source_families": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditional_on_ai", "unknown_score", "interpretation"],
+      "properties": {
+        "conditional_on_ai": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "probability"],
+            "properties": {
+              "family": {"type": "string"},
+              "probability": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "unknown_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "interpretation": {"type": "string"}
+      }
+    },
+    "watermarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scheme", "status", "eligible_tokens", "green_tokens", "expected_green", "z", "p_value", "q_value", "effect", "power"],
+        "properties": {
+          "scheme": {"type": "string"},
+          "status": {"enum": ["tested", "insufficient_data", "adapter_unavailable", "not_applicable"]},
+          "eligible_tokens": {"type": "integer", "minimum": 0},
+          "green_tokens": {"type": ["integer", "null"], "minimum": 0},
+          "expected_green": {"type": ["number", "null"], "minimum": 0},
+          "z": {"type": ["number", "null"]},
+          "p_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "q_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "effect": {"type": ["number", "null"]},
+          "power": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "summary"],
+      "properties": {
+        "status": {"enum": ["verified", "tampered", "not_present", "unsupported_file", "error", "not_applicable"]},
+        "summary": {"type": "string"},
+        "issuer": {"type": ["string", "null"]},
+        "timestamp": {"type": ["string", "null"]},
+        "actions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "start", "end", "token_count", "kind", "posterior", "watermark_evidence", "source_family", "anomaly_percentile"],
+        "properties": {
+          "id": {"type": "string"},
+          "start": {"type": "integer", "minimum": 0},
+          "end": {"type": "integer", "minimum": 0},
+          "token_count": {"type": "integer", "minimum": 0},
+          "kind": {"enum": ["prose", "code", "file"]},
+          "posterior": {"$ref": "#/$defs/outcome_distribution"},
+          "watermark_evidence": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
+          "source_family": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+          "anomaly_percentile": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "matrices": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_by_segment", "watermark_evidence_by_segment", "contribution_waterfall"],
+      "properties": {
+        "source_by_segment": {"$ref": "#/$defs/matrix"},
+        "watermark_evidence_by_segment": {"$ref": "#/$defs/matrix"},
+        "contribution_waterfall": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "value", "kind"],
+            "properties": {
+              "label": {"type": "string"},
+              "value": {"type": "number"},
+              "kind": {"enum": ["prior", "increase", "decrease", "penalty", "final"]}
+            }
+          }
+        }
+      }
+    },
+    "math": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "meaning", "formula", "units", "assumptions", "limitations", "kind"],
+        "properties": {
+          "name": {"type": "string"},
+          "meaning": {"type": "string"},
+          "formula": {"type": "string"},
+          "units": {"type": "string"},
+          "assumptions": {"type": "array", "items": {"type": "string"}},
+          "limitations": {"type": "array", "items": {"type": "string"}},
+          "kind": {"enum": ["calibrated_evidence", "hypothesis_test", "descriptive_context"]}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "submitted_text": {"type": ["string", "null"]},
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["languages", "model_families", "watermark_schemes", "content_types", "min_tokens"],
+      "properties": {
+        "languages": {"type": "array", "items": {"type": "string"}},
+        "model_families": {"type": "array", "items": {"type": "string"}},
+        "watermark_schemes": {"type": "array", "items": {"type": "string"}},
+        "content_types": {"type": "array", "items": {"type": "string"}},
+        "min_tokens": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "$defs": {
+    "evidence_state": {
+      "enum": ["supported", "insufficient_data", "unsupported_language", "unsupported_content", "out_of_distribution", "not_applicable", "adapter_unavailable"]
+    },
+    "outcome_distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human", "ai_generated", "ai_refined_or_mixed"],
+      "properties": {
+        "human": {"type": "number", "minimum": 0, "maximum": 1},
+        "ai_generated": {"type": "number", "minimum": 0, "maximum": 1},
+        "ai_refined_or_mixed": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "columns", "values", "scale", "legend"],
+      "properties": {
+        "rows": {"type": "array", "items": {"type": "string"}},
+        "columns": {"type": "array", "items": {"type": "string"}},
+        "values": {"type": "array", "items": {"type": "array", "items": {"type": ["number", "null"]}}},
+        "scale": {"type": "string"},
+        "legend": {"type": "string"}
+      }
+    }
+  }
+}
