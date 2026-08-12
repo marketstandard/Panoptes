@@ -19,6 +19,9 @@ coverage/
 Thumbs.db
 .cursor/
 
+# Local development utilities
+scripts/
+
 # Local runtime
 .env
 *.local
