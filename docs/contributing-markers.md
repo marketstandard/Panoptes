@@ -59,6 +59,18 @@ research/submissions/<contribution-id>/watermark-eval-card.json
 
 Validate against `schemas/watermark-eval-card.schema.json`.
 
+### Baseline run
+
+Use this when you have run the canonical baseline prompt set against a specific model and want to register the result for the community. Baseline runs are hash-only submissions: outputs stay local; the catalog receives a signed manifest and a registry line.
+
+Create with the tooling (never by hand-editing the registry):
+
+```bash
+python baselines/baseline.py submit --run baselines/runs/<model-slug>_<kind> --contributor <handle>
+```
+
+This appends to `baselines/catalog/registry.jsonl` and writes `baselines/catalog/manifests/<manifest_sha256>.json`. Validate against `schemas/baseline-run.schema.json` (the submit command does this for you). The full workflow and trust model are documented in `baselines/README.md`.
+
 ## 2. Dataset manifest requirements
 
 A dataset manifest must include:
