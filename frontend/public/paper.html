@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with Verifiable Community Baselines</title>
+<style>
+  :root {
+    --ink: #1a2332;
+    --muted: #5b6b7f;
+    --rule: #1a2332;
+    --accent: #1d4ed8;
+    --paper: #fdfdf9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: #e8e6e0;
+    color: var(--ink);
+    font-family: "Charter", "Bitstream Charter", "STIX Two Text", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.62;
+  }
+  .sheet {
+    max-width: 780px;
+    margin: 32px auto;
+    padding: 72px 84px;
+    background: var(--paper);
+    box-shadow: 0 2px 28px rgba(20, 25, 40, 0.18);
+  }
+  .titleblock { text-align: center; margin-bottom: 2.2em; }
+  .titleblock h1 {
+    font-size: 1.65rem;
+    line-height: 1.3;
+    margin: 0 0 0.55em;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .authors { font-size: 1.02rem; margin-bottom: 0.2em; }
+  .affil { color: var(--muted); font-size: 0.9rem; font-style: italic; }
+  .date { color: var(--muted); font-size: 0.9rem; margin-top: 0.35em; }
+  .abstract {
+    margin: 0 0 2em;
+    padding: 0 1.2em;
+    font-size: 0.94rem;
+  }
+  .abstract h2, .keywords h2 {
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 0.6em;
+  }
+  .abstract p { text-align: justify; hyphens: auto; margin: 0; }
+  .keywords { font-size: 0.9rem; margin-bottom: 2.4em; text-align: center; color: var(--muted); }
+  .keywords strong { color: var(--ink); font-variant: small-caps; letter-spacing: 0.06em; }
+  h2 {
+    font-size: 1.18rem;
+    margin: 1.9em 0 0.55em;
+    padding-top: 0.35em;
+    border-top: 1.5px solid var(--rule);
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+  }
+  h3 { font-size: 1.02rem; margin: 1.5em 0 0.4em; font-style: italic; font-weight: 700; }
+  p { margin: 0 0 0.9em; text-align: justify; hyphens: auto; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(29, 78, 216, 0.35); }
+  a:hover { border-bottom-color: var(--accent); }
+  .eq {
+    display: block;
+    text-align: center;
+    margin: 1.1em 0;
+    font-size: 1.06rem;
+    font-style: italic;
+  }
+  .eq .rm { font-style: normal; }
+  .eqnum { float: right; color: var(--muted); font-style: normal; font-size: 0.85rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2em 0 0.4em;
+    font-size: 0.8rem;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5em;
+    font-style: italic;
+  }
+  th, td { padding: 5px 8px; text-align: left; vertical-align: top; }
+  thead th { border-top: 1.5px solid var(--rule); border-bottom: 1px solid var(--rule); font-variant: small-caps; letter-spacing: 0.05em; }
+  tbody tr:last-child td { border-bottom: 1.5px solid var(--rule); }
+  td.mono, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.74rem; }
+  ol.refs { padding-left: 1.6em; font-size: 0.9rem; }
+  ol.refs li { margin-bottom: 0.5em; text-align: left; }
+  .footnote { font-size: 0.85rem; color: var(--muted); border-top: 1px solid #b9c0cc; margin-top: 2em; padding-top: 0.8em; }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 10px;
+    background: rgba(26, 35, 50, 0.92);
+    backdrop-filter: blur(6px);
+  }
+  .toolbar a, .toolbar button {
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #dbe4f0;
+    background: transparent;
+    border: 1px solid rgba(219, 228, 240, 0.4);
+    border-radius: 999px;
+    padding: 6px 16px;
+    cursor: pointer;
+  }
+  .toolbar a:hover, .toolbar button:hover { background: rgba(219, 228, 240, 0.12); }
+  .toolbar a { border-bottom: 1px solid rgba(219, 228, 240, 0.4); }
+  @media (max-width: 860px) {
+    .sheet { margin: 0; padding: 40px 22px; }
+  }
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+    a { color: var(--ink); border-bottom: none; }
+    h2 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a href="/">&larr; Back to the observatory</a>
+  <button type="button" onclick="window.print()">Print / Save as PDF</button>
+  <a href="https://github.com/marketstandard/Panoptes" target="_blank" rel="noreferrer">Source repository</a>
+</div>
+
+<div class="sheet">
+
+  <div class="titleblock">
+    <h1>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with Verifiable Community Baselines</h1>
+    <div class="authors">Encryptic1 and the Panoptes Contributors</div>
+    <div class="affil">Independent open research software project &mdash; github.com/marketstandard/Panoptes</div>
+    <div class="date">August 12, 2026 &middot; Working paper, v1.0</div>
+  </div>
+
+  <div class="abstract">
+    <h2>Abstract</h2>
+    <p>Automated judgments about whether a document was written or assisted by a large language model are increasingly
+    consequential, yet the dominant tooling presents a single opaque score with little account of calibration, sample size,
+    or the conditions under which the judgment fails. We present <em>Panoptes</em>, an open, local-first system that treats
+    AI-text attribution as an evidence problem rather than a classification problem. Panoptes combines a calibrated
+    Bayesian posterior over participation classes, one-sided binomial hypothesis tests for known public watermark schemes
+    with false-discovery-rate control and explicit power analysis, and signed provenance verification, surfacing every
+    quantity with its assumptions and limits. Complementing the analyzer, we introduce a verifiable community baseline
+    protocol: a canonical prompt set, hash-pinned run manifests with Merkle commitments, and an append-only public catalog
+    that records cryptographic evidence of a run without collecting raw model outputs, optionally anchored to the Bitcoin
+    blockchain via OpenTimestamps. We describe the architecture, the statistical contracts, the threat model, and twelve
+    reference runs across six frontier models, and we discuss the fundamental limits of text-only attribution.</p>
+  </div>
+
+  <div class="keywords">
+    <strong>Keywords</strong> &mdash; AI-text detection &middot; watermark hypothesis testing &middot; calibration &middot;
+    provenance &middot; reproducible baselines &middot; hash-chained evidence catalogs
+  </div>
+
+  <h2>1. Introduction</h2>
+  <p>The question &ldquo;was this text written by a machine?&rdquo; is now asked daily by educators, editors, reviewers,
+  and platforms. The tools typically answering it reduce a document to a single number, offered without a statement of
+  the evidence that produced it, the sample size behind it, or the regimes in which it should not be trusted. False
+  positives carry real costs for the accused; false negatives carry real costs for institutions. A defensible tool must
+  therefore do more than score: it must show its evidence, keep its uncertainty visible, and refuse to overstate.</p>
+  <p>Panoptes is built around three design commitments. First, <em>evidence before verdict</em>: the interface leads with
+  a plain-language summary and exposes the full statistical drilldown &mdash; formulas, units, assumptions, and
+  limitations &mdash; one layer down. Second, <em>calibrated combination</em>: heterogeneous signals are combined in the
+  odds domain with an explicit prior drawn from a declared calibration cohort, so that the strength of evidence is
+  separable from base rates. Third, <em>verifiable practice</em>: the project ships a canonical baseline prompt set and a
+  public, hash-chained catalog so that claims about model behavior can be checked, replicated, and extended by anyone
+  without trusting the project with raw outputs.</p>
+
+  <h2>2. Related work</h2>
+  <p><strong>Watermarking.</strong> Kirchenbauer et&nbsp;al. introduced the green-list watermark for large language models,
+  in which a pseudorandom partition of the vocabulary biases token selection and detection reduces to a binomial test
+  [1]. Aaronson and Kirchner developed a related cryptographic scheme [2]. These tests are powerful when the text is
+  unmodified and the scheme is known, and degrade gracefully under editing &mdash; behavior we quantify explicitly through
+  effect sizes, power estimates, and a dilution statistic rather than a bare p-value.</p>
+  <p><strong>Provenance.</strong> Content credentials and signed manifests (e.g., C2PA) attest the origin of a file
+  rather than the statistical character of its text [3]. Panoptes treats provenance as an independent evidence channel:
+  when present and verified it dominates statistical inference; when absent it says nothing, and the interface says so.</p>
+  <p><strong>Detection and calibration.</strong> Detector scores are known to be miscalibrated under domain shift,
+  short inputs, and paraphrase. Panoptes therefore reports an explicit reliability error for the detector on its
+  calibration cohort and penalizes conclusions on short or unsupported inputs instead of emitting an unhedged number.</p>
+  <p><strong>Verifiable artifacts.</strong> Our community catalog draws on the same principle as transparency logs and
+  timestamping services: commit to content with cryptographic hashes, anchor the commitment publicly, and let anyone
+  verify. OpenTimestamps provides a pragmatic anchor to the Bitcoin blockchain without any custom chain [4].</p>
+
+  <h2>3. System and methods</h2>
+
+  <h3>3.1 Segmentation and evidence state</h3>
+  <p>Input text (or an uploaded document) is segmented into analysis units, and each unit is scored independently before
+  combination. The pipeline maintains an explicit <em>evidence state</em>: when the usable token count falls below a
+  supported threshold (50 tokens), the system reports that evidence is insufficient rather than emitting a number that
+  would invite overconfidence. This refusal path is a first-class result, not an error.</p>
+
+  <h3>3.2 Calibrated posterior</h3>
+  <p>Detector evidence is combined in the odds domain. Given declared prior odds <em>O</em><sub>0</sub> &mdash; an
+  explicit analysis parameter, even odds by default, labeled with the calibration cohort it was drawn from &mdash;
+  and a likelihood ratio LR aggregated across segments, the posterior odds and probability are</p>
+  <span class="eq"><em>O</em><sub>1</sub> = <em>O</em><sub>0</sub> &times; LR,&emsp;&emsp; <em>P</em> = <em>O</em><sub>1</sub> / (1 + <em>O</em><sub>1</sub>) <span class="eqnum">(1)</span></span>
+  <p>Reporting the decomposition &mdash; prior odds, likelihood ratio, posterior odds &mdash; separates &ldquo;what the
+  tests say&rdquo; from &ldquo;what we believed before testing,&rdquo; and the interface presents exactly these
+  quantities. The detector&rsquo;s expected calibration error on the cohort is reported alongside as the
+  <em>reliability error</em>, so that a confident posterior from a poorly calibrated detector is visibly discounted.</p>
+
+  <h3>3.3 Watermark hypothesis tests</h3>
+  <p>For each configured public watermark scheme, eligible tokens are counted and the number falling in the scheme&rsquo;s
+  green set, <em>G</em>, is compared against the chance expectation under the null. With green-list fraction &gamma; and
+  <em>n</em> eligible tokens,</p>
+  <span class="eq"><em>z</em> = (<em>G</em> &minus; &gamma;<em>n</em>) / &radic;(<em>n&gamma;</em>(1 &minus; &gamma;)),&emsp;&emsp; <em>p</em> = 1 &minus; &Phi;(<em>z</em>) <span class="eqnum">(2)</span></span>
+  <p>Across the family of tests run on one document we control the false discovery rate with the Benjamini&ndash;Hochberg
+  procedure, reporting <em>q</em>-values rather than bare <em>p</em>-values [5]. Each test additionally reports the
+  observed green rate with a 95% confidence interval, an effect size (lift over &gamma;), the achieved <em>power</em> of
+  the test at the configured watermark strength and observed <em>n</em>, and a <em>dilution</em> estimate &mdash; the
+  fraction of text that would need to carry the watermark to explain the observed lift, which distinguishes
+  &ldquo;absent&rdquo; from &ldquo;edited away.&rdquo; Tests that cannot run (ineligible text, unknown scheme, insufficient
+  length) report a structured status rather than a silent null.</p>
+
+  <h3>3.4 Provenance verification</h3>
+  <p>When an upload carries a signed provenance manifest, Panoptes verifies the signature chain and reports the outcome
+  as a separate channel with its own status vocabulary (verified, invalid, not present). Statistical and cryptographic
+  evidence are never blended into a single score; the user sees both, labeled.</p>
+
+  <h3>3.5 Interface as methodology</h3>
+  <p>The web interface is part of the method. The first view is a plain-language answer with the outcome distribution;
+  the technical laboratory below exposes the posterior decomposition, per-scheme watermark statistics, an evidence
+  contribution waterfall, and the interpretation limits that apply to the specific input. Every statistic carries an
+  inline explanation of what it measures, so the report can be read by the people it affects.</p>
+
+  <h2>4. Verifiable community baselines</h2>
+  <p>Claims about model behavior should be checkable by anyone, not just by those with API budgets. Panoptes defines a
+  canonical baseline protocol with four properties:</p>
+  <p><strong>A canonical prompt set.</strong> Sixteen prompts &mdash; eight prose, eight code &mdash; spanning genres,
+  lengths, and task types, versioned as a machine-readable manifest whose own SHA-256 is embedded in the artifact
+  (<span class="mono">2092321d&hellip;8b06b</span> for v1.0.0). Every run pins this hash, so results are comparable by
+  construction.</p>
+  <p><strong>Three execution modes.</strong> Runs may be produced manually through a chat interface, programmatically
+  through provider APIs, or agent-assisted inside an editor; the interface used is declared in the manifest, because the
+  channel is part of the evidence.</p>
+  <p><strong>Hash-pinned manifests.</strong> A run manifest records the model identity (as reported by the runner), the
+  pinned prompt-set hash, and for each output only its filename, byte count, and SHA-256. Output hashes form a Merkle
+  tree whose root commits to the entire set; the manifest&rsquo;s own canonical hash identifies the run. Raw outputs
+  never enter the catalog &mdash; a validator rejects any manifest that embeds model text, so the public ledger carries
+  evidence, not content.</p>
+  <p><strong>An append-only public catalog.</strong> Submissions append one JSON line to a registry and one manifest file,
+  both validated in continuous integration against JSON Schemas. Optional OpenTimestamps anchoring binds the manifest
+  hash to a Bitcoin block, giving each claim a tamper-evident timestamp [4]. Verification is a single command
+  (<span class="mono">baseline.py verify-catalog</span>) and requires no trust in the submitter.</p>
+  <p><strong>Contribution protocol.</strong> A contributor (1)&nbsp;runs the canonical prompt set by any of the three
+  execution modes, (2)&nbsp;finalizes the run, which hashes each output with SHA-256, builds the Merkle root, and
+  self-hashes the canonical manifest, (3)&nbsp;optionally anchors the manifest hash with OpenTimestamps, and
+  (4)&nbsp;opens a pull request containing only the registry line and the manifest file. Raw outputs remain on the
+  contributor&rsquo;s machine, ignored by version control. External corpora participate by reference rather than by
+  inclusion: a signed pointer manifest records the source URL, access conditions, download instructions, and a SHA-256
+  integrity commitment, so third-party data is never copied into the repository.</p>
+  <p><strong>Relationship to the analyzer.</strong> The catalog is deliberately <em>not</em> a runtime input to the
+  analyzer. In the current release, source-family attribution is a hand-tuned stylometric softmax over surface features,
+  and the posterior&rsquo;s prior odds are supplied per request; no baseline output influences a live score. The
+  reference corpus exists so that future calibrated components &mdash; fitted family centroids, per-model detector
+  reliability estimates, human-control comparisons &mdash; can be trained and audited against material whose provenance
+  is publicly verifiable, and so that claims about model behavior can be replicated independently.</p>
+
+  <h2>5. Reference results</h2>
+  <p>Table&nbsp;1 lists the twelve reference runs seeded with this release: six frontier models, each run against the
+  full text and code prompt sets in agent-assisted mode on August&nbsp;12, 2026. Raw outputs are committed in the
+  repository under <span class="mono">baselines/reference/</span>; the catalog entries below commit to them. All twelve
+  manifests validate against schema <span class="mono">panoptes-baseline-run-v1</span> and pin prompt-set hash
+  <span class="mono">2092321d&hellip;8b06b</span>.</p>
+
+  <table>
+    <caption>Table 1 &mdash; Reference baseline runs registered in the public catalog. Hashes truncated to 16 hex digits;
+    full values in <span class="mono">baselines/catalog/registry.jsonl</span>.</caption>
+    <thead>
+      <tr><th>Model (as reported)</th><th>Kind</th><th>Run identifier</th><th>Merkle root</th><th>Manifest SHA-256</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>claude-opus-5-max</td><td>text</td><td class="mono">claude-opus-5-max_text-20260812t193701z</td><td class="mono">b918b311bfcf242f&hellip;</td><td class="mono">b1e76e0d530b3d6b&hellip;</td></tr>
+      <tr><td>claude-opus-5-max</td><td>code</td><td class="mono">claude-opus-5-max_code-20260812t193712z</td><td class="mono">ef4da16540dfcf58&hellip;</td><td class="mono">e3c58902e8537258&hellip;</td></tr>
+      <tr><td>gemini-3.1-pro</td><td>text</td><td class="mono">gemini-3.1-pro_text-20260812t194331z</td><td class="mono">e530b6039a9ba684&hellip;</td><td class="mono">3e7beba818c7cfd2&hellip;</td></tr>
+      <tr><td>gemini-3.1-pro</td><td>code</td><td class="mono">gemini-3.1-pro_code-20260812t194331z</td><td class="mono">65ff2ec8cd494187&hellip;</td><td class="mono">22356b6f478deefc&hellip;</td></tr>
+      <tr><td>glm-5.2-max</td><td>text</td><td class="mono">glm-5.2-max_text-20260812t194001z</td><td class="mono">e9bdcfb2a10d16ab&hellip;</td><td class="mono">f28cf49828684e67&hellip;</td></tr>
+      <tr><td>glm-5.2-max</td><td>code</td><td class="mono">glm-5.2-max_code-20260812t194011z</td><td class="mono">35811aeade2f1b5d&hellip;</td><td class="mono">fa81d4b8842a6cd2&hellip;</td></tr>
+      <tr><td>gpt-5.6-sol-max</td><td>text</td><td class="mono">gpt-5.6-sol-max_text-20260812t193039z</td><td class="mono">88571429d51bd5b0&hellip;</td><td class="mono">42987bd8942bd4a6&hellip;</td></tr>
+      <tr><td>gpt-5.6-sol-max</td><td>code</td><td class="mono">gpt-5.6-sol-max_code-20260812t193106z</td><td class="mono">41394de135815089&hellip;</td><td class="mono">519925b7b5d17210&hellip;</td></tr>
+      <tr><td>grok-4.6-extra-high</td><td>text</td><td class="mono">grok-4.6-extra-high_text-20260812t185911z</td><td class="mono">ef74161b4e9481cf&hellip;</td><td class="mono">a8d0696096199478&hellip;</td></tr>
+      <tr><td>grok-4.6-extra-high</td><td>code</td><td class="mono">grok-4.6-extra-high_code-20260812t185932z</td><td class="mono">69a77a793259e1d3&hellip;</td><td class="mono">b605ac384e30cfff&hellip;</td></tr>
+      <tr><td>kimi-k3-max</td><td>text</td><td class="mono">kimi-k3-max_text-20260812t185240z</td><td class="mono">85068a301bf15f3f&hellip;</td><td class="mono">942edc2dfe18cbd3&hellip;</td></tr>
+      <tr><td>kimi-k3-max</td><td>code</td><td class="mono">kimi-k3-max_code-20260812t185244z</td><td class="mono">e017bdc5ec3f87b9&hellip;</td><td class="mono">b2eb461859b65e2c&hellip;</td></tr>
+    </tbody>
+  </table>
+
+  <p>We make no leaderboard claims from these runs. The catalog&rsquo;s purpose is evidentiary: it fixes what a given
+  model produced on a fixed prompt set at a declared time, so that future analyses &mdash; including detector calibration
+  and human-control comparisons &mdash; can reference material that cannot quietly change.</p>
+
+  <h2>6. Limitations</h2>
+  <p>Text-only attribution is fundamentally bounded. Detector likelihood ratios inherit the calibration and bias of the
+  underlying models and degrade under paraphrase, translation, and heavy editing; the reliability error is reported
+  precisely so that this degradation is visible. Watermark tests cover only known, configured schemes and only text that
+  survived editing; a negative result under low power is weak evidence, and the interface says so. Provenance covers only
+  files that carry credentials. In agent-assisted baseline runs, the model identity is self-reported by the runner; the
+  catalog attests <em>what was claimed and what resulted</em>, not the ground truth of the serving stack. Finally, the
+  reference set is small and English-heavy; we treat it as calibration infrastructure, not as a benchmark of model
+  quality.</p>
+
+  <h2>7. Ethics and responsible use</h2>
+  <p>Panoptes is designed against the two failure modes that harm people: accusation on thin evidence, and false
+  reassurance from a negative test. The system surfaces evidence state, sample size, power, and interpretation limits on
+  every report, and its documentation prohibits using a single score as sole grounds for consequential action. Community
+  submissions carry hashes only, so contributing evidence never requires disclosing model outputs or personal text.</p>
+
+  <h2>8. Conclusion</h2>
+  <p>Panoptes reframes AI-text attribution as the presentation of calibrated, inspectable evidence rather than the
+  emission of a verdict, and pairs the analyzer with a verification-first community protocol for baseline data. Both are
+  open, local-first, and built to be checked. We invite replication: run the canonical prompts, hash your outputs, and
+  append your evidence to the catalog.</p>
+
+  <h2>References</h2>
+  <ol class="refs">
+    <li>Kirchenbauer, J., Geiping, J., Wen, Y., Katz, J., Miers, I., &amp; Goldstein, T. (2023). A watermark for large
+    language models. <em>Proceedings of the 40th International Conference on Machine Learning</em>.</li>
+    <li>Aaronson, S., &amp; Kirchner, H. (2022). Watermarking GPT outputs. Manuscript, OpenAI.</li>
+    <li>Coalition for Content Provenance and Authenticity (2022). C2PA technical specification.</li>
+    <li>Todd, P. (2016). OpenTimestamps: Scalable, trust-minimized, distributed timestamping on the Bitcoin blockchain.</li>
+    <li>Benjamini, Y., &amp; Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach
+    to multiple testing. <em>Journal of the Royal Statistical Society, Series B</em>, 57(1), 289&ndash;300.</li>
+  </ol>
+
+  <div class="footnote">
+    Panoptes working paper, v1.0 &middot; August 12, 2026. The canonical source of this paper, the baseline catalog, and
+    all schemas lives at <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>.
+    Catalog entries referenced in Table&nbsp;1 can be independently verified with
+    <span class="mono">python baselines/baseline.py verify-catalog</span>.
+  </div>
+
+</div>
+
+</body>
+</html>

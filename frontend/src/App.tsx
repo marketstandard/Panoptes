@@ -63,6 +63,7 @@ export default function App() {
         <div className="topbar-meta">
           <span>{result ? result.runtime.profile : 'local-first'}</span>
           <span>{result ? result.runtime.device : 'gpu-ready'}</span>
+          <a href="/paper.html" target="_blank" rel="noreferrer"><BookOpen size={16} /> Research paper</a>
           <a href="https://github.com/Encryptic1/Panoptes" target="_blank" rel="noreferrer"><ExternalLink size={16} /> Source</a>
         </div>
       </nav>
@@ -139,6 +140,7 @@ export default function App() {
               selectedSegment={selected?.id ?? null}
               onSelectSegment={setSelectedSegment}
               tone="blue"
+              legendTip="Conditional stylometric similarity among supported source families, from hand-tuned surface features — not fitted from the reference baselines. The baseline catalog is calibration and verification infrastructure and is not an input to this analysis."
             />
             <EvidenceMatrix
               title="Watermark evidence by segment"
