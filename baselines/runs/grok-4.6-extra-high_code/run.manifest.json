@@ -1,0 +1,72 @@
+{
+  "artifact_sha256": "452f63459baac522c9122f23a863d08ad240bb6797ba8787cb39f84306868966",
+  "created_utc": "2026-08-12T18:59:32Z",
+  "environment": {
+    "os": "windows",
+    "python": "3.12.10",
+    "tool": "baseline.py/1.0.0"
+  },
+  "merkle_root": "69a77a793259e1d302e53020a837e0b3043eaedd3242812ada05c1534fd83883",
+  "model": {
+    "interface": "agent-chat",
+    "provider": "unspecified",
+    "reported_version": "grok-4.6-extra-high",
+    "slug": "grok-4.6-extra-high"
+  },
+  "outputs": [
+    {
+      "bytes": 362,
+      "file": "code-01.md",
+      "prompt_id": "code-01",
+      "sha256": "0df329b5dd7006c683e593ede9ee9040f45d027094a5caf750c9f088c64fcc06"
+    },
+    {
+      "bytes": 938,
+      "file": "code-02.md",
+      "prompt_id": "code-02",
+      "sha256": "769957d75d48ecab4355a092e227bc0573e1a9549dd947029f2794d43e07c988"
+    },
+    {
+      "bytes": 883,
+      "file": "code-03.md",
+      "prompt_id": "code-03",
+      "sha256": "8186313fd503eab98532e24e216ecdc3b6c346730eb6a4aa66e0f490e6e85054"
+    },
+    {
+      "bytes": 941,
+      "file": "code-04.md",
+      "prompt_id": "code-04",
+      "sha256": "77e1d6c81203d49f2bf022968300905aa16f3ab4ebe9e71650f4aa46cde7ee4b"
+    },
+    {
+      "bytes": 387,
+      "file": "code-05.md",
+      "prompt_id": "code-05",
+      "sha256": "9642b5c70a6f2e7622101f3e6dd4d2aa23a20e42f0d58ab0bc10e35f5d3a5db8"
+    },
+    {
+      "bytes": 1017,
+      "file": "code-06.md",
+      "prompt_id": "code-06",
+      "sha256": "7aa8e96bd40560ca3a1ba5b3b0cee52e30fd930323b71e624bd7b79712dc5096"
+    },
+    {
+      "bytes": 206,
+      "file": "code-07.md",
+      "prompt_id": "code-07",
+      "sha256": "1d5b3b30edbb09a136dfff632252dfdc54a7b9d464b943c9809515d0ecb66964"
+    },
+    {
+      "bytes": 915,
+      "file": "code-08.md",
+      "prompt_id": "code-08",
+      "sha256": "78a7fba88d74b02a71a18182ac2ddd5fc6dc7c53d5fc97e99d69a14370b817f2"
+    }
+  ],
+  "prompts": {
+    "sha256": "2092321df751db3dc9dec61f4a122967e381ef61b1ed0607893882476bc8b06b",
+    "version": "1.0.0"
+  },
+  "run_id": "grok-4.6-extra-high_code-20260812t185932z",
+  "schema": "panoptes-baseline-run-v1"
+}
