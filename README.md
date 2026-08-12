@@ -17,10 +17,11 @@ Panoptes deliberately avoids authorship verdicts. It reports probabilities, hypo
 5. [Understanding the science](#understanding-the-science)
 6. [Capability matrix](#capability-matrix)
 7. [Contributing marker and calibration data](#contributing-marker-and-calibration-data)
-8. [Testing and reproduction](#testing-and-reproduction)
-9. [Deployment](#deployment)
-10. [Limitations and responsible use](#limitations-and-responsible-use)
-11. [References](#references)
+8. [Model baselines](#model-baselines)
+9. [Testing and reproduction](#testing-and-reproduction)
+10. [Deployment](#deployment)
+11. [Limitations and responsible use](#limitations-and-responsible-use)
+12. [References](#references)
 
 ## What Panoptes measures
 
@@ -176,6 +177,28 @@ A complete marker contribution includes:
 6. Tests for any detector or adapter changes
 
 See [`docs/contributing-markers.md`](docs/contributing-markers.md).
+
+## Model baselines
+
+Panoptes maintains a canonical prompt set (8 text + 8 code prompts) that anyone can run against any model to produce comparable, hash-verifiable baseline outputs — the raw material for calibration cohorts and source-family geometry.
+
+```bash
+# manual: paste prompts from baselines/prompts/text.md into any model UI
+python baselines/baseline.py scaffold --model gpt-5.6-sol --kind text
+python baselines/baseline.py finalize --run baselines/runs/gpt-5.6-sol_text --interface chat-ui
+
+# scripted: run the set against a provider API
+python baselines/baseline.py run --model gpt-5.6-sol --provider openai --kind code
+```
+
+Every finalized run produces a schema-validated manifest (SHA-256 per output + a Merkle root) and can be shared to the community catalog **as hashes only** — raw outputs stay local and gitignored:
+
+```bash
+python baselines/baseline.py submit --run baselines/runs/gpt-5.6-sol_text --contributor your-handle
+python baselines/baseline.py verify-catalog
+```
+
+Optional OpenTimestamps anchoring adds a Bitcoin-backed timestamp to a manifest. The catalog is a ledger of contributor *claims*, not verified model provenance — confidence comes from independent replication. See [`baselines/README.md`](baselines/README.md).
 
 ## Testing and reproduction
 

@@ -27,6 +27,7 @@ npm --prefix frontend test
 - [ ] I did not log raw submitted text.
 - [ ] I preserved abstention behavior for unsupported domains.
 - [ ] I updated `NOTICE` for any new dataset, model, or substantial dependency.
+- [ ] I did not commit raw baseline outputs outside `baselines/reference/` (catalog entries are hashes only).
 
 ## Coding standards
 
@@ -56,3 +57,13 @@ python research/validate_submission.py path/to/artifact.json
 ```
 
 See `docs/contributing-markers.md` for the full workflow and acceptance checklist.
+
+## Baseline run submissions
+
+You can also contribute known-model baseline outputs for the canonical prompt set:
+
+1. Run the prompts (manual, API, or agent-assisted) and `finalize` the run — see `baselines/README.md`.
+2. Optionally `anchor` the manifest with OpenTimestamps.
+3. `submit` the run and open a PR containing **only** the new `baselines/catalog/registry.jsonl` line and the manifest under `baselines/catalog/manifests/`.
+
+Raw model outputs live in `baselines/runs/`, which is gitignored: the catalog carries hashes only. The one exception is the maintainer-curated `baselines/reference/` set.

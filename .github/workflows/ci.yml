@@ -22,6 +22,12 @@ jobs:
       - name: Test backend
         working-directory: backend
         run: python -m pytest
+      - name: Validate baseline artifacts and catalog
+        run: |
+          python research/validate_submission.py baselines/prompts/prompts.manifest.json
+          python baselines/baseline.py verify-catalog
+      - name: Test baselines tooling
+        run: python -m pytest baselines/tests
 
   frontend:
     runs-on: ubuntu-latest

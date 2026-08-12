@@ -27,3 +27,6 @@ docs/screenshots/
 # Local runtime
 .env
 *.local
+
+# Baseline runs (local-only working area; catalog holds hashes only)
+baselines/runs/

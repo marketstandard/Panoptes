@@ -15,7 +15,11 @@ FILES = {
     "panoptes-calibration-v1": "calibration-artifact.schema.json",
     "panoptes-benchmark-card-v1": "benchmark-card.schema.json",
     "panoptes-watermark-eval-card-v1": "watermark-eval-card.schema.json",
+    "panoptes-baseline-prompts-v1": "baseline-prompts.schema.json",
+    "panoptes-baseline-run-v1": "baseline-run.schema.json",
 }
+
+BASELINE_OUTPUT_KEYS = {"prompt_id", "file", "sha256", "bytes"}
 
 
 def canonical_hash(payload: dict) -> str:
@@ -44,6 +48,14 @@ def validate_file(path: Path) -> list[str]:
             errors.append(f"{path}: artifact_sha256 mismatch ({actual})")
     if schema_name == "panoptes-dataset-manifest-v1" and payload["privacy"]["raw_text_in_repo"]:
         errors.append(f"{path}: raw_text_in_repo must be false")
+    if schema_name == "panoptes-baseline-run-v1":
+        for output in payload.get("outputs", []):
+            if set(output) - BASELINE_OUTPUT_KEYS:
+                errors.append(
+                    f"{path}: baseline outputs carry hash metadata only; "
+                    "raw model text must never be embedded in a manifest"
+                )
+                break
     return errors
 
 
