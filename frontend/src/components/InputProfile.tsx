@@ -61,7 +61,10 @@ export function InputProfile({ featureProfile }: Props) {
           return (
             <div className="profile-row" key={key}>
               <span className="profile-label">{label}</span>
-              <div className="profile-track">
+              <div
+                className="profile-track"
+                title={`${label}: input ${value.toFixed(3)}${human ? ` · human ${human.min.toFixed(3)}–${human.max.toFixed(3)}` : ''}${ai ? ` · AI ${ai.min.toFixed(3)}–${ai.max.toFixed(3)}` : ''}`}
+              >
                 {human ? (
                   <div
                     className="profile-band human"
@@ -80,6 +83,11 @@ export function InputProfile({ featureProfile }: Props) {
             </div>
           );
         })}
+      </div>
+      <div className="chart-legend">
+        <span><i className="legend-band legend-teal" /> Human corpus range</span>
+        <span><i className="legend-band legend-blue" /> AI corpus range</span>
+        <span><i className="legend-dot legend-amber" /> Your input</span>
       </div>
       {!data ? <p className="figure-empty">Corpus ranges unavailable; showing input values only.</p> : null}
     </article>

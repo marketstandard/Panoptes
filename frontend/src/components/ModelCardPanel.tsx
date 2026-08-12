@@ -110,34 +110,61 @@ export function ModelCardPanel() {
             </div>
           </div>
           {data.training_curve_seed13.length > 0 ? (
-            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training curve" className="training-svg">
-              {(() => {
-                const curve = data.training_curve_seed13;
-                const maxLoss = Math.max(...curve.map((row) => row.train_loss), 1e-6);
-                const maxEce = Math.max(...curve.map((row) => row.val_ece), 1e-6);
-                const x = (epoch: number) => PAD.left + (epoch / curve.length) * (W - PAD.left - PAD.right);
-                const yLoss = (loss: number) => H - PAD.bottom - (loss / maxLoss) * (H - PAD.top - PAD.bottom);
-                const yEce = (ece: number) => H - PAD.bottom - (ece / maxEce) * (H - PAD.top - PAD.bottom);
-                return (
-                  <>
-                    <path
-                      d={curve.map((row, i) => `${i === 0 ? 'M' : 'L'}${x(row.epoch).toFixed(1)},${yLoss(row.train_loss).toFixed(1)}`).join(' ')}
-                      className="sensitivity-curve"
-                    />
-                    <path
-                      d={curve.map((row, i) => `${i === 0 ? 'M' : 'L'}${x(row.epoch).toFixed(1)},${yEce(row.val_ece).toFixed(1)}`).join(' ')}
-                      className="training-ece"
-                    />
-                    <text x={PAD.left} y={H - 8} className="axis-label">
-                      epoch 1
-                    </text>
-                    <text x={W - PAD.right} y={H - 8} className="axis-label" textAnchor="end">
-                      epoch {curve.length} · blue: train loss · green: validation ECE
-                    </text>
-                  </>
-                );
-              })()}
-            </svg>
+            <>
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Training curve" className="training-svg">
+                {(() => {
+                  const curve = data.training_curve_seed13;
+                  const maxLoss = Math.max(...curve.map((row) => row.train_loss), 1e-6);
+                  const maxEce = Math.max(...curve.map((row) => row.val_ece), 1e-6);
+                  const x = (epoch: number) => PAD.left + (epoch / curve.length) * (W - PAD.left - PAD.right);
+                  const yLoss = (loss: number) => H - PAD.bottom - (loss / maxLoss) * (H - PAD.top - PAD.bottom);
+                  const yEce = (ece: number) => H - PAD.bottom - (ece / maxEce) * (H - PAD.top - PAD.bottom);
+                  const sampled = curve.filter((_, i) => i % Math.max(1, Math.floor(curve.length / 12)) === 0);
+                  return (
+                    <>
+                      <text x={PAD.left - 8} y={yLoss(maxLoss) + 10} className="axis-label" textAnchor="end">
+                        {maxLoss.toFixed(2)}
+                      </text>
+                      <text x={PAD.left - 8} y={H - PAD.bottom + 4} className="axis-label" textAnchor="end">
+                        0
+                      </text>
+                      <text x={W - PAD.right + 8} y={yEce(maxEce) + 10} className="axis-label">
+                        {maxEce.toFixed(2)}
+                      </text>
+                      <text x={W - PAD.right + 8} y={H - PAD.bottom + 4} className="axis-label">
+                        0
+                      </text>
+                      <path
+                        d={curve.map((row, i) => `${i === 0 ? 'M' : 'L'}${x(row.epoch).toFixed(1)},${yLoss(row.train_loss).toFixed(1)}`).join(' ')}
+                        className="sensitivity-curve"
+                      />
+                      <path
+                        d={curve.map((row, i) => `${i === 0 ? 'M' : 'L'}${x(row.epoch).toFixed(1)},${yEce(row.val_ece).toFixed(1)}`).join(' ')}
+                        className="training-ece"
+                      />
+                      {sampled.map((row) => (
+                        <circle key={row.epoch} cx={x(row.epoch)} cy={yLoss(row.train_loss)} r={8} className="hit-target">
+                          <title>{`epoch ${row.epoch}: train loss ${row.train_loss.toFixed(4)}, val ECE ${row.val_ece.toFixed(4)}`}</title>
+                        </circle>
+                      ))}
+                      <text x={PAD.left} y={H - 8} className="axis-label">
+                        epoch 1
+                      </text>
+                      <text x={W - PAD.right} y={H - 8} className="axis-label" textAnchor="end">
+                        epoch {curve.length}
+                      </text>
+                      <text x={(PAD.left + W - PAD.right) / 2} y={H - 8} className="axis-title" textAnchor="middle">
+                        training epoch (seed 13)
+                      </text>
+                    </>
+                  );
+                })()}
+              </svg>
+              <div className="chart-legend">
+                <span><i className="legend-line legend-blue" /> Train loss (left axis)</span>
+                <span><i className="legend-line legend-teal" /> Validation ECE (right axis)</span>
+              </div>
+            </>
           ) : null}
           <table className="corpus-table">
             <thead>

@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { InfoTip } from './InfoTip';
 
 interface Props {
@@ -5,8 +6,9 @@ interface Props {
 }
 
 const W = 520;
-const H = 260;
-const PAD = { left: 44, right: 16, top: 18, bottom: 34 };
+const H = 280;
+const PAD = { left: 52, right: 16, top: 18, bottom: 52 };
+const N_MIN = 20;
 const N_MAX = 5000;
 const MDE = 0.05;
 const Z_ALPHA = 1.959964;
@@ -23,18 +25,37 @@ export function powerAt(n: number): number {
   return normalCdf(MDE * Math.sqrt(n) - Z_ALPHA);
 }
 
+function xScale(n: number): number {
+  return PAD.left + ((n - N_MIN) / (N_MAX - N_MIN)) * (W - PAD.left - PAD.right);
+}
+
+function yScale(power: number): number {
+  return H - PAD.bottom - power * (H - PAD.top - PAD.bottom);
+}
+
 export function PowerCurve({ currentN }: Props) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [hover, setHover] = useState<{ n: number; x: number } | null>(null);
+
   const steps = 120;
   const path: string[] = [];
   for (let i = 0; i < steps; i += 1) {
-    const n = 20 + (i / (steps - 1)) * (N_MAX - 20);
-    const x = PAD.left + ((n - 20) / (N_MAX - 20)) * (W - PAD.left - PAD.right);
-    const y = H - PAD.bottom - powerAt(n) * (H - PAD.top - PAD.bottom);
-    path.push(`${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`);
+    const n = N_MIN + (i / (steps - 1)) * (N_MAX - N_MIN);
+    path.push(`${i === 0 ? 'M' : 'L'}${xScale(n).toFixed(1)},${yScale(powerAt(n)).toFixed(1)}`);
   }
-  const markerX = PAD.left + ((Math.min(currentN, N_MAX) - 20) / (N_MAX - 20)) * (W - PAD.left - PAD.right);
-  const markerY = H - PAD.bottom - powerAt(currentN) * (H - PAD.top - PAD.bottom);
-  const y80 = H - PAD.bottom - 0.8 * (H - PAD.top - PAD.bottom);
+  const markerX = xScale(Math.min(Math.max(currentN, N_MIN), N_MAX));
+  const markerY = yScale(powerAt(currentN));
+  const y80 = yScale(0.8);
+
+  const onMove = (event: React.MouseEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const svgX = ((event.clientX - rect.left) / rect.width) * W;
+    const clamped = Math.min(Math.max(svgX, PAD.left), W - PAD.right);
+    const n = N_MIN + ((clamped - PAD.left) / (W - PAD.left - PAD.right)) * (N_MAX - N_MIN);
+    setHover({ n, x: clamped });
+  };
 
   return (
     <article className="glass-panel figure-card">
@@ -42,38 +63,64 @@ export function PowerCurve({ currentN }: Props) {
         Statistical power vs corpus size
         <InfoTip
           label="Power curve"
-          text="Power to detect a 5-point accuracy difference between two models at alpha 0.05, worst-case variance. The bench admits neural models into the comparison zoo only at 80% power (n about 3,140). The marker is today's verified corpus."
+          text="Power to detect a 5-point accuracy difference between two models at alpha 0.05, worst-case variance. The bench admits neural models into the comparison zoo only at 80% power (n about 3,140). The marker is today's verified corpus. Hover the chart to interrogate any corpus size."
         />
       </h3>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Power versus corpus size">
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label="Power versus corpus size"
+        onMouseMove={onMove}
+        onMouseLeave={() => setHover(null)}
+        className="chart-interactive"
+      >
         {[500, 1000, 2000, 3140, 5000].map((tick) => (
-          <text
-            key={tick}
-            x={PAD.left + ((tick - 20) / (N_MAX - 20)) * (W - PAD.left - PAD.right)}
-            y={H - 14}
-            className="axis-label"
-            textAnchor="middle"
-          >
-            {tick}
-          </text>
+          <g key={tick}>
+            <line x1={xScale(tick)} y1={yScale(0)} x2={xScale(tick)} y2={yScale(1)} className="grid-line" />
+            <text x={xScale(tick)} y={H - 30} className="axis-label" textAnchor="middle">
+              {tick.toLocaleString()}
+            </text>
+          </g>
         ))}
         {[0, 0.5, 0.8, 1].map((tick) => (
-          <text
-            key={tick}
-            x={PAD.left - 8}
-            y={H - PAD.bottom - tick * (H - PAD.top - PAD.bottom) + 4}
-            className="axis-label"
-            textAnchor="end"
-          >
+          <text key={tick} x={PAD.left - 8} y={yScale(tick) + 4} className="axis-label" textAnchor="end">
             {tick.toFixed(1)}
           </text>
         ))}
+        <text x={(PAD.left + W - PAD.right) / 2} y={H - 8} className="axis-title" textAnchor="middle">
+          Verified corpus records (n)
+        </text>
+        <text x={14} y={(PAD.top + H - PAD.bottom) / 2} className="axis-title" textAnchor="middle" transform={`rotate(-90 14 ${(PAD.top + H - PAD.bottom) / 2})`}>
+          Power
+        </text>
         <line x1={PAD.left} y1={y80} x2={W - PAD.right} y2={y80} className="sensitivity-diagonal" />
+        <text x={W - PAD.right - 4} y={y80 - 5} className="axis-label" textAnchor="end">
+          80% target
+        </text>
         <path d={path.join(' ')} className="sensitivity-curve" />
-        <circle cx={markerX} cy={markerY} r={5} className="sensitivity-marker" />
+        {hover ? (
+          <g className="hover-layer">
+            <line x1={hover.x} y1={yScale(0)} x2={hover.x} y2={yScale(1)} className="hover-guide" />
+            <circle cx={hover.x} cy={yScale(powerAt(hover.n))} r={4.5} className="hover-dot" />
+          </g>
+        ) : null}
+        <circle cx={markerX} cy={markerY} r={5} className="sensitivity-marker">
+          <title>{`This corpus: n=${currentN}, power ${(powerAt(currentN) * 100).toFixed(1)}%`}</title>
+        </circle>
+        <text x={markerX} y={markerY - 10} className="axis-label marker-label" textAnchor="middle">
+          this corpus
+        </text>
       </svg>
-      <p className="figure-caption">
-        n = {currentN} · power {(powerAt(currentN) * 100).toFixed(1)}% · 80% power at n = 3,140
+      <div className="chart-legend">
+        <span><i className="legend-line legend-blue" /> Power to detect a 5-pt lift (α = 0.05)</span>
+        <span><i className="legend-line legend-dashed" /> 80% target</span>
+        <span><i className="legend-dot legend-amber" /> This corpus</span>
+      </div>
+      <p className="figure-caption hover-readout">
+        {hover
+          ? `n = ${Math.round(hover.n).toLocaleString()} → power ${(powerAt(hover.n) * 100).toFixed(1)}%`
+          : `n = ${currentN} · power ${(powerAt(currentN) * 100).toFixed(1)}% · 80% power at n = 3,140`}
       </p>
     </article>
   );
