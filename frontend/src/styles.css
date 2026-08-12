@@ -95,9 +95,9 @@ a { color: inherit; text-decoration: none; }
 
 h1, h2, h3 { margin: 0; line-height: 1.02; }
 h1 {
-  max-width: 940px;
-  font-size: clamp(3rem, 8vw, 7.5rem);
-  letter-spacing: -0.075em;
+  max-width: 780px;
+  font-size: clamp(2.1rem, 4.2vw, 3.9rem);
+  letter-spacing: -0.055em;
 }
 h2 { font-size: clamp(1.5rem, 3vw, 2.35rem); letter-spacing: -0.045em; }
 h3 { font-size: 1.02rem; letter-spacing: -0.02em; }
@@ -296,22 +296,43 @@ textarea:focus { border-color: #2dd4bf; box-shadow: 0 0 0 4px rgba(45, 212, 191,
 .definition-list dd { margin: 0; color: #e5edf7; }
 
 .matrix-grid-section { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
-.matrix-scroll { overflow: auto; }
-.matrix-grid { display: grid; gap: 6px; min-width: 620px; }
-.matrix-corner { min-height: 38px; }
+.matrix-panel { min-width: 0; }
+.matrix-scroll {
+  max-height: 340px;
+  overflow: auto;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 14px;
+  padding: 8px;
+}
+.matrix-grid { display: grid; gap: 5px; min-width: 560px; }
+.matrix-corner { min-height: 32px; }
 .matrix-col, .matrix-cell {
   border: 1px solid rgba(148, 163, 184, 0.13);
   color: #dbeafe;
   font-family: "IBM Plex Mono", monospace;
 }
 .matrix-col {
+  position: sticky;
+  top: -8px;
+  z-index: 2;
   border-radius: 9px;
-  background: rgba(15, 23, 42, 0.72);
-  padding: 8px 6px;
+  background: rgba(2, 6, 23, 0.95);
+  padding: 7px 6px;
 }
 .matrix-col.selected, .matrix-cell.selected { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16); }
-.matrix-grid strong { display: flex; align-items: center; color: #a8b3c5; font-size: 0.78rem; }
-.matrix-cell { min-height: 42px; border-radius: 9px; }
+.matrix-grid strong {
+  display: flex;
+  align-items: center;
+  position: sticky;
+  left: -8px;
+  z-index: 1;
+  background: rgba(2, 6, 23, 0.95);
+  border-radius: 8px;
+  padding: 0 8px;
+  color: #a8b3c5;
+  font-size: 0.78rem;
+}
+.matrix-cell { min-height: 34px; border-radius: 8px; font-size: 0.78rem; }
 .matrix-cell.null { background: rgba(148, 163, 184, 0.09); color: #64748b; }
 .matrix-legend { margin: 14px 0 0; color: #64748b; font-size: 0.8rem; }
 
