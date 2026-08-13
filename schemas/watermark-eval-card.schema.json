@@ -43,6 +43,7 @@
       }
     },
     "limitations": {"type": "array", "items": {"type": "string"}},
+    "conditions": {"type": "array"},
     "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
   }
 }

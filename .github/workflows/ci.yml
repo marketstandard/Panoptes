@@ -28,8 +28,9 @@ jobs:
           python -m pytest bench/tests research/tests
       - name: Validate baseline artifacts and catalog
         run: |
-          python research/validate_submission.py baselines/prompts/prompts.manifest.json research/protocol.json
+          python research/validate_submission.py baselines/prompts/prompts.manifest.json research/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
           python baselines/baseline.py verify-catalog
+          python research/reproduce.py
       - name: Test baselines tooling
         run: python -m pytest baselines/tests
 

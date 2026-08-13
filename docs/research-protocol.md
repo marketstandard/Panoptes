@@ -124,5 +124,10 @@ The scientifically stronger question is: **under what conditions is AI participa
 
 ```bash
 python -m bench measure --data corpus
-python research/validate_submission.py research/protocol.json backend/artifacts/cards/measurement-protocol.json
+python research/run_v1_experiments.py
+python research/reproduce.py
+python research/make_figures.py
+python research/validate_submission.py research/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
 ```
+
+Paper v1.0 authors: Carrington Junior (Encryptic1) and Trey Huffine. Work this environment cannot complete is listed in [`docs/v2-updates/`](v2-updates/README.md).

@@ -73,8 +73,8 @@ export default function App() {
         <div className="topbar-meta">
           <span>{result ? result.runtime.profile : 'local-first'}</span>
           <span>{result ? result.runtime.device : 'gpu-ready'}</span>
-          <a href="/paper.html" target="_blank" rel="noreferrer"><BookOpen size={16} /> Research paper</a>
-          <a href="https://github.com/Encryptic1/Panoptes" target="_blank" rel="noreferrer"><ExternalLink size={16} /> Source</a>
+          <a href="/paper.html" target="_blank" rel="noreferrer"><BookOpen size={16} /> Research paper v1.0</a>
+          <a href="https://github.com/marketstandard/Panoptes" target="_blank" rel="noreferrer"><ExternalLink size={16} /> Source</a>
         </div>
       </nav>
 
