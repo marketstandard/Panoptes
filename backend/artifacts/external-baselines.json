@@ -1,0 +1,33 @@
+{
+  "artifact_sha256": "efc97f740d79d3cbc72d3afd17aecae701343ffa94dc1d5b888b1b5f0c05a09a",
+  "created_utc": "2026-08-13T18:10:12Z",
+  "dataset": "panoptes-verified-corpus",
+  "detectors": {
+    "binoculars": {
+      "citation": "Hans et al. 2024, ICML",
+      "name": "Binoculars",
+      "requires": "transformers + two observer/performer LMs",
+      "status": "unavailable"
+    },
+    "detectgpt": {
+      "citation": "Mitchell et al. 2023, ICML",
+      "name": "DetectGPT",
+      "requires": "source LM + perturbation model",
+      "status": "unavailable"
+    },
+    "fast_detectgpt": {
+      "citation": "Bao et al. 2024, ICLR",
+      "name": "Fast-DetectGPT",
+      "requires": "source/reference LM pair",
+      "status": "unavailable"
+    },
+    "transformer_classifier": {
+      "citation": "standard fine-tuned detector",
+      "name": "Transformer classifier (RoBERTa-style)",
+      "requires": "fine-tuned classifier weights + GPU",
+      "status": "unavailable"
+    }
+  },
+  "note": "External zero-shot and neural detectors are registered here so that a later run can score them on the frozen protocol splits. This environment does not ship their weights. Do not substitute the Panoptes heuristic for an unavailable external detector.",
+  "schema": "panoptes-external-baselines-v1"
+}

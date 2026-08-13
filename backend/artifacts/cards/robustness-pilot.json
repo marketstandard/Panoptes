@@ -1,0 +1,149 @@
+{
+  "artifact_sha256": "03430e9723cba312fac7c43a29ed061ce349a4d98eeb1333162fe6756659427d",
+  "created_utc": "2026-08-13T18:10:12Z",
+  "dataset": "panoptes-verified-corpus",
+  "dataset_sha256": "a1d4c0c46d5bb57674932aef71e0185488fad172426d561d2c1077c5f6d03d9b",
+  "detectors": [
+    "heuristic"
+  ],
+  "limitations": [
+    "Proxy edits only (truncate, drop, lowercase, strip punctuation, shuffle sentences).",
+    "Not RAID, DIPPER, translation, or human adversarial rewriting."
+  ],
+  "metrics": {
+    "detector": "panoptes-heuristic",
+    "n": 104,
+    "note": "Proxy edits on the project corpus. Not RAID adversarial paraphrase, DIPPER, or human rewriting. Truncation below the detector token floor forces abstention (raw_score=0.5).",
+    "transforms": [
+      {
+        "accuracy": 0.8846153846153846,
+        "auprc": 0.9663925021514341,
+        "auroc": 0.6731770833333334,
+        "brier": 0.17650064117260605,
+        "calibration_intercept": 1.7807863580427745,
+        "calibration_slope": 2.168208793921536,
+        "delta_auroc": 0.0,
+        "ece": 0.3258229184020832,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.4375,
+        "tpr_at_1fpr": 0.4375,
+        "tpr_at_5fpr": 0.4375,
+        "transform": "identity"
+      },
+      {
+        "accuracy": 0.7788461538461539,
+        "auprc": 0.9099867600488247,
+        "auroc": 0.3125,
+        "brier": 0.18896572712474524,
+        "calibration_intercept": 3.161179722679514,
+        "calibration_slope": -1.0771196089359112,
+        "delta_auroc": -0.36067708333333337,
+        "ece": 0.30742918080640996,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.14583333333333334,
+        "tpr_at_1fpr": 0.14583333333333334,
+        "tpr_at_5fpr": 0.14583333333333334,
+        "transform": "truncate_75"
+      },
+      {
+        "accuracy": 0.7788461538461539,
+        "auprc": 0.9104157524149455,
+        "auroc": 0.3046875,
+        "brier": 0.19396348831608856,
+        "calibration_intercept": 3.1740390989186857,
+        "calibration_slope": -1.208850558739758,
+        "delta_auroc": -0.36848958333333337,
+        "ece": 0.3183731501615394,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.16666666666666666,
+        "tpr_at_1fpr": 0.16666666666666666,
+        "tpr_at_5fpr": 0.16666666666666666,
+        "transform": "truncate_50"
+      },
+      {
+        "accuracy": 0.7211538461538461,
+        "auprc": 0.9066303477528888,
+        "auroc": 0.30598958333333337,
+        "brier": 0.22317281496911162,
+        "calibration_intercept": 2.9094057407732703,
+        "calibration_slope": -1.1769763603042016,
+        "delta_auroc": -0.3671875,
+        "ece": 0.36373927993804134,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.11458333333333333,
+        "tpr_at_1fpr": 0.11458333333333333,
+        "tpr_at_5fpr": 0.11458333333333333,
+        "transform": "truncate_25"
+      },
+      {
+        "accuracy": 0.7403846153846154,
+        "auprc": 0.9081640616698516,
+        "auroc": 0.3151041666666667,
+        "brier": 0.1886119990819333,
+        "calibration_intercept": 3.213877303601241,
+        "calibration_slope": -1.1254737423567378,
+        "delta_auroc": -0.3580729166666667,
+        "ece": 0.30513829728116676,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.13541666666666666,
+        "tpr_at_1fpr": 0.13541666666666666,
+        "tpr_at_5fpr": 0.13541666666666666,
+        "transform": "drop_20"
+      },
+      {
+        "accuracy": 0.8846153846153846,
+        "auprc": 0.9670410515867249,
+        "auroc": 0.6783854166666666,
+        "brier": 0.1755319715089504,
+        "calibration_intercept": 1.752055083108472,
+        "calibration_slope": 2.237971478689486,
+        "delta_auroc": 0.005208333333333259,
+        "ece": 0.3246551197989759,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.4479166666666667,
+        "tpr_at_1fpr": 0.4479166666666667,
+        "tpr_at_5fpr": 0.4479166666666667,
+        "transform": "lowercase"
+      },
+      {
+        "accuracy": 0.8461538461538461,
+        "auprc": 0.9115219188220617,
+        "auroc": 0.3268229166666667,
+        "brier": 0.16486149749519807,
+        "calibration_intercept": 3.207210968778253,
+        "calibration_slope": -0.9900642304333308,
+        "delta_auroc": -0.3463541666666667,
+        "ece": 0.2761680557817758,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.14583333333333334,
+        "tpr_at_1fpr": 0.14583333333333334,
+        "tpr_at_5fpr": 0.14583333333333334,
+        "transform": "strip_punctuation"
+      },
+      {
+        "accuracy": 0.8846153846153846,
+        "auprc": 0.9663073351829662,
+        "auroc": 0.6718749999999999,
+        "brier": 0.1750990229900465,
+        "calibration_intercept": 1.7133008009078563,
+        "calibration_slope": 2.318562470423848,
+        "delta_auroc": -0.0013020833333334814,
+        "ece": 0.32386728411887217,
+        "n": 104,
+        "tpr_at_0.1fpr": 0.4375,
+        "tpr_at_1fpr": 0.4375,
+        "tpr_at_5fpr": 0.4375,
+        "transform": "shuffle_sentences"
+      }
+    ]
+  },
+  "n": 104,
+  "protocol_id": "robustness-pilot",
+  "protocol_registered_utc": "2026-08-13T00:00:00Z",
+  "schema": "panoptes-measurement-card-v1",
+  "split": {
+    "method": "full-corpus-proxy",
+    "n_groups": 16,
+    "n_splits": 1
+  }
+}

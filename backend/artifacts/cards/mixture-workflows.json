@@ -1,0 +1,184 @@
+{
+  "artifact_sha256": "afd526d3058f7be93e02cd02005f3f672f2812da69ae09115dd1aa23c11894e6",
+  "created_utc": "2026-08-13T18:10:12Z",
+  "dataset": "panoptes-verified-corpus",
+  "dataset_sha256": "a1d4c0c46d5bb57674932aef71e0185488fad172426d561d2c1077c5f6d03d9b",
+  "detectors": [
+    "heuristic"
+  ],
+  "limitations": [
+    "Token splices are proxies for coauthoring, not recorded human\u2013AI editing sessions.",
+    "Human controls are few; correlations are a pilot."
+  ],
+  "metrics": {},
+  "mixtures": {
+    "note": "Token-splice proxies for coauthoring: AI prefix (AI draft \u2192 human rewrite), AI suffix (human draft \u2192 AI rewrite), and interleaved sections. Not a substitute for real human\u2013AI editing sessions.",
+    "workflows": {
+      "ai_prefix": {
+        "correlation": 0.9909182449339234,
+        "detector": "panoptes-heuristic",
+        "mae": 0.34961860153164764,
+        "n_pairs": 48,
+        "rates": [
+          {
+            "actual_ai_rate": 0.0,
+            "mean_estimated": 0.6999738975619204,
+            "n": 48,
+            "std_estimated": 0.046955743944127694
+          },
+          {
+            "actual_ai_rate": 0.1,
+            "mean_estimated": 0.7036880813253116,
+            "n": 48,
+            "std_estimated": 0.04963204693414182
+          },
+          {
+            "actual_ai_rate": 0.25,
+            "mean_estimated": 0.7059402885002916,
+            "n": 48,
+            "std_estimated": 0.05077423369465785
+          },
+          {
+            "actual_ai_rate": 0.5,
+            "mean_estimated": 0.7169032665012076,
+            "n": 48,
+            "std_estimated": 0.05092014369065028
+          },
+          {
+            "actual_ai_rate": 0.75,
+            "mean_estimated": 0.7247256061419506,
+            "n": 48,
+            "std_estimated": 0.05472031766565546
+          },
+          {
+            "actual_ai_rate": 0.9,
+            "mean_estimated": 0.7263205531346673,
+            "n": 48,
+            "std_estimated": 0.057650739726470966
+          },
+          {
+            "actual_ai_rate": 1.0,
+            "mean_estimated": 0.7281291638905797,
+            "n": 48,
+            "std_estimated": 0.059925124734630374
+          }
+        ],
+        "slope": 0.0294465093105677,
+        "workflow": "ai_prefix"
+      },
+      "ai_suffix": {
+        "correlation": 0.8608121945874047,
+        "detector": "panoptes-heuristic",
+        "mae": 0.3518120522698259,
+        "n_pairs": 48,
+        "rates": [
+          {
+            "actual_ai_rate": 0.0,
+            "mean_estimated": 0.6999738975619204,
+            "n": 48,
+            "std_estimated": 0.046955743944127694
+          },
+          {
+            "actual_ai_rate": 0.1,
+            "mean_estimated": 0.7082996279754071,
+            "n": 48,
+            "std_estimated": 0.044398043953444474
+          },
+          {
+            "actual_ai_rate": 0.25,
+            "mean_estimated": 0.7143058576496127,
+            "n": 48,
+            "std_estimated": 0.048113468663276523
+          },
+          {
+            "actual_ai_rate": 0.5,
+            "mean_estimated": 0.7329170945047961,
+            "n": 48,
+            "std_estimated": 0.0509532905594128
+          },
+          {
+            "actual_ai_rate": 0.75,
+            "mean_estimated": 0.7350087285071859,
+            "n": 48,
+            "std_estimated": 0.05334159495125645
+          },
+          {
+            "actual_ai_rate": 0.9,
+            "mean_estimated": 0.7287681804883134,
+            "n": 48,
+            "std_estimated": 0.05576312603963224
+          },
+          {
+            "actual_ai_rate": 1.0,
+            "mean_estimated": 0.7290352028074558,
+            "n": 48,
+            "std_estimated": 0.060787834058545015
+          }
+        ],
+        "slope": 0.02951723951568611,
+        "workflow": "ai_suffix"
+      },
+      "interleave": {
+        "correlation": 0.8608121945874047,
+        "detector": "panoptes-heuristic",
+        "mae": 0.3518120522698259,
+        "n_pairs": 48,
+        "rates": [
+          {
+            "actual_ai_rate": 0.0,
+            "mean_estimated": 0.6999738975619204,
+            "n": 48,
+            "std_estimated": 0.046955743944127694
+          },
+          {
+            "actual_ai_rate": 0.1,
+            "mean_estimated": 0.7082996279754071,
+            "n": 48,
+            "std_estimated": 0.044398043953444474
+          },
+          {
+            "actual_ai_rate": 0.25,
+            "mean_estimated": 0.7143058576496127,
+            "n": 48,
+            "std_estimated": 0.048113468663276523
+          },
+          {
+            "actual_ai_rate": 0.5,
+            "mean_estimated": 0.7329170945047961,
+            "n": 48,
+            "std_estimated": 0.0509532905594128
+          },
+          {
+            "actual_ai_rate": 0.75,
+            "mean_estimated": 0.7350087285071859,
+            "n": 48,
+            "std_estimated": 0.05334159495125645
+          },
+          {
+            "actual_ai_rate": 0.9,
+            "mean_estimated": 0.7287681804883134,
+            "n": 48,
+            "std_estimated": 0.05576312603963224
+          },
+          {
+            "actual_ai_rate": 1.0,
+            "mean_estimated": 0.7290352028074558,
+            "n": 48,
+            "std_estimated": 0.060787834058545015
+          }
+        ],
+        "slope": 0.02951723951568611,
+        "workflow": "interleave"
+      }
+    }
+  },
+  "n": 104,
+  "protocol_id": "mixture-workflows-pilot",
+  "protocol_registered_utc": "2026-08-13T00:00:00Z",
+  "schema": "panoptes-measurement-card-v1",
+  "split": {
+    "method": "paired-prompt",
+    "n_groups": 16,
+    "n_splits": 1
+  }
+}

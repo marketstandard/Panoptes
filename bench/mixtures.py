@@ -18,7 +18,10 @@ from research.protocol import MIXTURE_RATES
 
 
 def mix_tokens(human: str, ai: str, rate: float) -> str:
-    """Replace the first `rate` fraction of human tokens with AI tokens."""
+    """Replace the first `rate` fraction of human tokens with AI tokens.
+
+    Workflow analogue: AI draft → human rewrite of the remainder.
+    """
     human_tokens = word_tokens(human)
     ai_tokens = word_tokens(ai)
     if not human_tokens:
@@ -27,6 +30,50 @@ def mix_tokens(human: str, ai: str, rate: float) -> str:
     n_ai = min(n_ai, len(ai_tokens), len(human_tokens))
     mixed = list(ai_tokens[:n_ai]) + list(human_tokens[n_ai:])
     return " ".join(mixed) if mixed else human
+
+
+def mix_suffix(human: str, ai: str, rate: float) -> str:
+    """Keep the first human tokens and append AI tokens.
+
+    Workflow analogue: human draft → AI rewrite of the tail.
+    """
+    human_tokens = word_tokens(human)
+    ai_tokens = word_tokens(ai)
+    if not human_tokens:
+        return ai if rate >= 1 else human
+    n_ai = int(round(len(human_tokens) * min(max(rate, 0.0), 1.0)))
+    n_ai = min(n_ai, len(ai_tokens), len(human_tokens))
+    mixed = list(human_tokens[: len(human_tokens) - n_ai]) + list(ai_tokens[:n_ai])
+    return " ".join(mixed) if mixed else human
+
+
+def mix_interleave(human: str, ai: str, rate: float) -> str:
+    """Alternate human and AI tokens in blocks, targeting `rate` AI tokens.
+
+    Workflow analogue: human and AI alternate sections.
+    """
+    human_tokens = word_tokens(human)
+    ai_tokens = word_tokens(ai)
+    if not human_tokens:
+        return ai if rate >= 1 else human
+    n = len(human_tokens)
+    n_ai = int(round(n * min(max(rate, 0.0), 1.0)))
+    n_ai = min(n_ai, len(ai_tokens), n)
+    mixed: list[str] = []
+    ai_used = 0
+    human_used = 0
+    block = max(1, n // 8)
+    while len(mixed) < n:
+        take_ai = ai_used < n_ai
+        chunk = min(block, n - len(mixed), n_ai - ai_used if take_ai else n)
+        if take_ai and chunk:
+            mixed.extend(ai_tokens[ai_used : ai_used + chunk])
+            ai_used += chunk
+        else:
+            remain = min(block, n - len(mixed))
+            mixed.extend(human_tokens[human_used : human_used + remain])
+            human_used += remain
+    return " ".join(mixed[:n])
 
 
 def prompt_pairs(dataset: Dataset) -> list[tuple[int, int]]:
@@ -47,19 +94,26 @@ def mixture_curve(
     dataset: Dataset,
     detector: Detector | None = None,
     rates: tuple[float, ...] = MIXTURE_RATES,
+    mixer=mix_tokens,
+    workflow: str = "ai_prefix",
 ) -> dict:
     """Score mixed documents and summarize tracking of controlled participation."""
     detector = detector or HeuristicDetector()
     pairs = prompt_pairs(dataset)
     if not pairs:
-        return {"n_pairs": 0, "rates": [], "skipped": "no human/AI pairs share a group"}
+        return {
+            "n_pairs": 0,
+            "rates": [],
+            "skipped": "no human/AI pairs share a group",
+            "workflow": workflow,
+        }
 
     train_idx = np.arange(len(dataset))
     detector.fit(dataset, train_idx)
 
     rows = []
     for rate in rates:
-        texts = [mix_tokens(dataset.texts[h], dataset.texts[a], rate) for h, a in pairs]
+        texts = [mixer(dataset.texts[h], dataset.texts[a], rate) for h, a in pairs]
         kinds = [dataset.kinds[h] for h, _ in pairs]
         scores = np.array(
             [
@@ -86,11 +140,35 @@ def mixture_curve(
     mae = float(np.mean(np.abs(actual - estimated)))
     return {
         "n_pairs": len(pairs),
+        "workflow": workflow,
         "rates": rows,
         "correlation": corr,
         "slope": slope,
         "mae": mae,
         "detector": detector.name,
+    }
+
+
+WORKFLOWS = {
+    "ai_prefix": mix_tokens,
+    "ai_suffix": mix_suffix,
+    "interleave": mix_interleave,
+}
+
+
+def mixture_workflows(dataset: Dataset, detector: Detector | None = None) -> dict:
+    detector = detector or HeuristicDetector()
+    curves = {
+        name: mixture_curve(dataset, detector=detector, mixer=mixer, workflow=name)
+        for name, mixer in WORKFLOWS.items()
+    }
+    return {
+        "workflows": curves,
+        "note": (
+            "Token-splice proxies for coauthoring: AI prefix (AI draft → human rewrite), "
+            "AI suffix (human draft → AI rewrite), and interleaved sections. "
+            "Not a substitute for real human–AI editing sessions."
+        ),
     }
 
 
