@@ -1,0 +1,168 @@
+{
+  "artifact_sha256": "4136ebc5e91ba126bcc95a22e79ecba8cde430331b08840822003be11b412750",
+  "artifacts": [
+    {
+      "match": true,
+      "original_sha256": "2d3d5df5b4d156b2f9047ee41892c4fd6974da6a83cc5caa0d26fa2eceaba855",
+      "path": "research/protocol.json",
+      "recomputed_sha256": "2d3d5df5b4d156b2f9047ee41892c4fd6974da6a83cc5caa0d26fa2eceaba855",
+      "schema": "panoptes-research-protocol-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "b4eed12bef4148075105ace29de5d427aeea0b77a16d2cdfae9f5191cc0be63d",
+      "path": "research/hypotheses.json",
+      "recomputed_sha256": "b4eed12bef4148075105ace29de5d427aeea0b77a16d2cdfae9f5191cc0be63d",
+      "schema": "panoptes-hypotheses-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "6829a43fbbdf4b77f9b34cb0d5f586bfa775dd0f2c7d7d3424f20f53d809d529",
+      "path": "backend/artifacts/corpus-summary.json",
+      "recomputed_sha256": "6829a43fbbdf4b77f9b34cb0d5f586bfa775dd0f2c7d7d3424f20f53d809d529",
+      "schema": "panoptes-corpus-summary-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "512d6d779f47964ac31221d616eb300f9a1de19208ec8e4e4560d75d5c61d465",
+      "path": "backend/artifacts/methodology-report.json",
+      "recomputed_sha256": "512d6d779f47964ac31221d616eb300f9a1de19208ec8e4e4560d75d5c61d465",
+      "schema": "panoptes-methodology-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "aa337e01357ad761890804502251b1c666f47c150d4877793df43730cdfe93c3",
+      "path": "backend/artifacts/baseline-calibration.json",
+      "recomputed_sha256": "aa337e01357ad761890804502251b1c666f47c150d4877793df43730cdfe93c3",
+      "schema": "panoptes-calibration-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "a232e1f0cf3e763ad81dd0a46f184bc7ca896e1ebc58f91c9cd3ff5caeaab803",
+      "path": "backend/artifacts/defactify-summary.json",
+      "recomputed_sha256": "a232e1f0cf3e763ad81dd0a46f184bc7ca896e1ebc58f91c9cd3ff5caeaab803",
+      "schema": "panoptes-defactify-summary-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "4ff35c7ca357a0b8905c4be984a413c6a04a06d43c2af0a350887dba1a49aea4",
+      "path": "backend/artifacts/defactify-calibration.json",
+      "recomputed_sha256": "4ff35c7ca357a0b8905c4be984a413c6a04a06d43c2af0a350887dba1a49aea4",
+      "schema": "panoptes-calibration-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "d8e14f78b655407a86dca1c4077b290fc4d6b0cb6a39aa68dfdf25e6d0af7055",
+      "path": "backend/artifacts/panoptes-v0-card.json",
+      "recomputed_sha256": "d8e14f78b655407a86dca1c4077b290fc4d6b0cb6a39aa68dfdf25e6d0af7055",
+      "schema": "panoptes-model-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "cae67c43b8d94f323277060b7a44dadb2783cb4692ac55713d49c299d0da7de4",
+      "path": "backend/artifacts/cards/logistic-tier0.json",
+      "recomputed_sha256": "cae67c43b8d94f323277060b7a44dadb2783cb4692ac55713d49c299d0da7de4",
+      "schema": "panoptes-model-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "9c2a1f893c9b5a4bffd288b64fdc793df3fad54fdd6b0944bb36b91ffdd252d6",
+      "path": "backend/artifacts/cards/logistic-tier0-defactify.json",
+      "recomputed_sha256": "9c2a1f893c9b5a4bffd288b64fdc793df3fad54fdd6b0944bb36b91ffdd252d6",
+      "schema": "panoptes-model-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "0bfd14fea9d73c24b4a48ed79fef44b465cfd65a0fb6e223d3f19ccd0f1b1a83",
+      "path": "backend/artifacts/cards/gbm-tier1-defactify.json",
+      "recomputed_sha256": "0bfd14fea9d73c24b4a48ed79fef44b465cfd65a0fb6e223d3f19ccd0f1b1a83",
+      "schema": "panoptes-model-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "7c2589a6643a759f9b7603a20fe2da456931671c9f8fef95532412a0822a2c54",
+      "path": "backend/artifacts/cards/defactify-external-validation.json",
+      "recomputed_sha256": "7c2589a6643a759f9b7603a20fe2da456931671c9f8fef95532412a0822a2c54",
+      "schema": "panoptes-benchmark-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "3e38d4cd52314c499f47d83d4ff6c5effbd831d4ec34d10f9ab79588ae504d75",
+      "path": "backend/artifacts/cards/attribution-defactify.json",
+      "recomputed_sha256": "3e38d4cd52314c499f47d83d4ff6c5effbd831d4ec34d10f9ab79588ae504d75",
+      "schema": "panoptes-model-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "906f7ae1cc40e07bea8370dcb37d732deab09d8a97a2a4128c39372858499d96",
+      "path": "backend/artifacts/cards/measurement-protocol.json",
+      "recomputed_sha256": "906f7ae1cc40e07bea8370dcb37d732deab09d8a97a2a4128c39372858499d96",
+      "schema": "panoptes-measurement-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "afd526d3058f7be93e02cd02005f3f672f2812da69ae09115dd1aa23c11894e6",
+      "path": "backend/artifacts/cards/mixture-workflows.json",
+      "recomputed_sha256": "afd526d3058f7be93e02cd02005f3f672f2812da69ae09115dd1aa23c11894e6",
+      "schema": "panoptes-measurement-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "03430e9723cba312fac7c43a29ed061ce349a4d98eeb1333162fe6756659427d",
+      "path": "backend/artifacts/cards/robustness-pilot.json",
+      "recomputed_sha256": "03430e9723cba312fac7c43a29ed061ce349a4d98eeb1333162fe6756659427d",
+      "schema": "panoptes-measurement-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "36d8c0c717d114e36547354a035d4dbe3e2fd470000806aa8941c7f4d9dec18e",
+      "path": "backend/artifacts/cards/watermark-degradation.json",
+      "recomputed_sha256": "36d8c0c717d114e36547354a035d4dbe3e2fd470000806aa8941c7f4d9dec18e",
+      "schema": "panoptes-watermark-eval-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "efc97f740d79d3cbc72d3afd17aecae701343ffa94dc1d5b888b1b5f0c05a09a",
+      "path": "backend/artifacts/external-baselines.json",
+      "recomputed_sha256": "efc97f740d79d3cbc72d3afd17aecae701343ffa94dc1d5b888b1b5f0c05a09a",
+      "schema": "panoptes-external-baselines-v1",
+      "schema_errors": []
+    }
+  ],
+  "catalog_verified": true,
+  "commands": [
+    "python research/reproduce.py",
+    "python baselines/baseline.py verify-catalog",
+    "python research/validate_submission.py research/protocol.json",
+    "python -m pytest backend research bench baselines"
+  ],
+  "created_utc": "2026-08-13T18:16:54Z",
+  "errors": [],
+  "independent": false,
+  "kind": "author_selfcheck",
+  "limitations": [
+    "This is a first-party self-check, not an independent reproduction.",
+    "Headline metric deltas versus an outside researcher are not yet available."
+  ],
+  "n_artifacts": 18,
+  "n_hash_matches": 18,
+  "n_unsigned": 0,
+  "schema": "panoptes-reproduction-selfcheck-v1"
+}

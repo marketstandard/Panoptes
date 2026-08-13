@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/reproduction-selfcheck.schema.json",
+  "title": "Panoptes First-party Reproduction Self-check",
+  "description": "Author-run hash verification. independent must be false; an outside lab fills docs/v2-updates/independent-reproduction.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "created_utc",
+    "kind",
+    "independent",
+    "catalog_verified",
+    "n_artifacts",
+    "n_hash_matches",
+    "artifacts",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-reproduction-selfcheck-v1"},
+    "created_utc": {"type": "string"},
+    "kind": {"const": "author_selfcheck"},
+    "independent": {"const": false},
+    "catalog_verified": {"type": "boolean"},
+    "n_artifacts": {"type": "integer", "minimum": 0},
+    "n_hash_matches": {"type": "integer", "minimum": 0},
+    "n_unsigned": {"type": "integer", "minimum": 0},
+    "artifacts": {"type": "array"},
+    "errors": {"type": "array", "items": {"type": "string"}},
+    "commands": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

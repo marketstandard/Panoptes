@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution"
+message: If you use this software or the v1 paper, please cite it.
+type: article
+version: "1.0"
+date-released: "2026-08-13"
+url: "https://github.com/marketstandard/Panoptes"
+repository-code: "https://github.com/marketstandard/Panoptes"
+authors:
+  - family-names: Junior
+    given-names: Carrington
+    alias: Encryptic1
+    website: "https://github.com/Encryptic1"
+  - family-names: Huffine
+    given-names: Trey
+    alias: treyhuffine
+    website: "https://github.com/treyhuffine"
+keywords:
+  - AI-text attribution
+  - calibration
+  - likelihood ratios
+  - distribution shift
+  - evidence transportability
+  - conformal prediction
+  - reproducible baselines
+license: MIT

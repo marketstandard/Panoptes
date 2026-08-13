@@ -1,0 +1,400 @@
+{
+  "artifact_sha256": "906f7ae1cc40e07bea8370dcb37d732deab09d8a97a2a4128c39372858499d96",
+  "created_utc": "2026-08-13T18:10:12Z",
+  "dataset": "panoptes-verified-corpus",
+  "dataset_sha256": "a1d4c0c46d5bb57674932aef71e0185488fad172426d561d2c1077c5f6d03d9b",
+  "dependence": {
+    "mean_correlated_llr": -6.776898691570227,
+    "mean_document_llr": -2.0483212638453976,
+    "mean_naive_llr": -6.776898691570227,
+    "mean_rho": 0.0,
+    "n_documents": 24,
+    "naive_vs_document_mae": 4.728577427724829,
+    "note": "Naive accumulation inflates evidence when segments are correlated. A non-rejected Durbin-Watson test is not treated as proof of independence."
+  },
+  "detectors": [
+    "heuristic",
+    "logistic"
+  ],
+  "limitations": [
+    "Train, calibration, and test groups are disjoint; calibration is never fit on test.",
+    "Human controls in the project corpus are few; mixture and calibration estimates are a pilot.",
+    "Transport cells are omitted when a domain lacks both classes.",
+    "Watermark evaluation is a separate subsystem and is not included in this card."
+  ],
+  "metrics": {
+    "heuristic": {
+      "conformal": {
+        "abstention_rate": 0.0,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9230769230769231,
+        "mean_set_size": 1.0,
+        "singleton_rate": 1.0,
+        "threshold": 0.25
+      },
+      "mean_likelihood_ratio": 43269.403313498326,
+      "method": "nested_grouped_cv",
+      "metrics": {
+        "accuracy": 0.9230769230769231,
+        "auprc": 0.947772918225753,
+        "auroc": 0.6243489583333334,
+        "brier": 0.07742880447000623,
+        "calibration_intercept": 1.8570990991898058,
+        "calibration_slope": 0.09924084022424275,
+        "ece": 0.08237300103093165,
+        "tpr_at_0.1fpr": 0.5416666666666666,
+        "tpr_at_1fpr": 0.5416666666666666,
+        "tpr_at_5fpr": 0.5416666666666666
+      },
+      "n_groups": 16,
+      "n_splits": 5,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.9774331142479814,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.9954219620498873,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.9977172320759804,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.9995610833723203,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.9997920440840942,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.9999306717498849,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.9999768895151553,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.9999922963863622,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.9230769230769231,
+          "brier": 0.07742880447000623,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 104,
+          "selective_risk": 0.07692307692307693
+        },
+        {
+          "accuracy": 0.9292929292929293,
+          "brier": 0.07313227944323887,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9519230769230769,
+          "n_kept": 99,
+          "selective_risk": 0.0707070707070707
+        },
+        {
+          "accuracy": 0.925531914893617,
+          "brier": 0.07369782622213455,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9038461538461539,
+          "n_kept": 94,
+          "selective_risk": 0.07446808510638298
+        },
+        {
+          "accuracy": 0.9285714285714286,
+          "brier": 0.06907851982000772,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8076923076923077,
+          "n_kept": 84,
+          "selective_risk": 0.07142857142857142
+        },
+        {
+          "accuracy": 0.9178082191780822,
+          "brier": 0.07006980362850203,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7019230769230769,
+          "n_kept": 73,
+          "selective_risk": 0.0821917808219178
+        },
+        {
+          "accuracy": 0.9615384615384616,
+          "brier": 0.03846146153946154,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 52,
+          "selective_risk": 0.038461538461538464
+        }
+      ]
+    },
+    "logistic": {
+      "conformal": {
+        "abstention_rate": 0.0,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9230769230769231,
+        "mean_set_size": 1.0,
+        "singleton_rate": 1.0,
+        "threshold": 0.4
+      },
+      "mean_likelihood_ratio": 48878.31169731238,
+      "method": "nested_grouped_cv",
+      "metrics": {
+        "accuracy": 0.9230769230769231,
+        "auprc": 0.9552929640941936,
+        "auroc": 0.685546875,
+        "brier": 0.07827941577088326,
+        "calibration_intercept": 1.6637449342880066,
+        "calibration_slope": 0.12408460891758914,
+        "ece": 0.05937059783272294,
+        "tpr_at_0.1fpr": 0.6145833333333334,
+        "tpr_at_1fpr": 0.6145833333333334,
+        "tpr_at_5fpr": 0.6145833333333334
+      },
+      "n_groups": 16,
+      "n_splits": 5,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.9799708531593969,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.9959451731743714,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.9979786559006784,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.9996114305809364,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.9998159031518091,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.9999386268515342,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.9999795414467741,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.9999931803892451,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.9230769230769231,
+          "brier": 0.07827941577088326,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 104,
+          "selective_risk": 0.07692307692307693
+        },
+        {
+          "accuracy": 0.9191919191919192,
+          "brier": 0.07415211353708949,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9519230769230769,
+          "n_kept": 99,
+          "selective_risk": 0.08080808080808081
+        },
+        {
+          "accuracy": 0.9148936170212766,
+          "brier": 0.06958573659757297,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9038461538461539,
+          "n_kept": 94,
+          "selective_risk": 0.0851063829787234
+        },
+        {
+          "accuracy": 0.9404761904761905,
+          "brier": 0.055347707003809615,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8076923076923077,
+          "n_kept": 84,
+          "selective_risk": 0.05952380952380952
+        },
+        {
+          "accuracy": 0.9452054794520548,
+          "brier": 0.050735612380338406,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7019230769230769,
+          "n_kept": 73,
+          "selective_risk": 0.0547945205479452
+        },
+        {
+          "accuracy": 0.9615384615384616,
+          "brier": 0.03846146153946154,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 52,
+          "selective_risk": 0.038461538461538464
+        }
+      ]
+    }
+  },
+  "mixtures": {
+    "correlation": 0.9909182449339234,
+    "detector": "panoptes-heuristic",
+    "mae": 0.34961860153164764,
+    "n_pairs": 48,
+    "rates": [
+      {
+        "actual_ai_rate": 0.0,
+        "mean_estimated": 0.6999738975619204,
+        "n": 48,
+        "std_estimated": 0.046955743944127694
+      },
+      {
+        "actual_ai_rate": 0.1,
+        "mean_estimated": 0.7036880813253116,
+        "n": 48,
+        "std_estimated": 0.04963204693414182
+      },
+      {
+        "actual_ai_rate": 0.25,
+        "mean_estimated": 0.7059402885002916,
+        "n": 48,
+        "std_estimated": 0.05077423369465785
+      },
+      {
+        "actual_ai_rate": 0.5,
+        "mean_estimated": 0.7169032665012076,
+        "n": 48,
+        "std_estimated": 0.05092014369065028
+      },
+      {
+        "actual_ai_rate": 0.75,
+        "mean_estimated": 0.7247256061419506,
+        "n": 48,
+        "std_estimated": 0.05472031766565546
+      },
+      {
+        "actual_ai_rate": 0.9,
+        "mean_estimated": 0.7263205531346673,
+        "n": 48,
+        "std_estimated": 0.057650739726470966
+      },
+      {
+        "actual_ai_rate": 1.0,
+        "mean_estimated": 0.7281291638905797,
+        "n": 48,
+        "std_estimated": 0.059925124734630374
+      }
+    ],
+    "slope": 0.0294465093105677,
+    "workflow": "ai_prefix"
+  },
+  "n": 104,
+  "open_set": {
+    "families": [
+      {
+        "held_out_family": "claude-opus-5-max",
+        "mean_distance_seen": 2.048230078139448,
+        "mean_distance_unseen": 2.584454738901269,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.5078125
+      },
+      {
+        "held_out_family": "gemini-3.1-pro",
+        "mean_distance_seen": 1.9378279764505344,
+        "mean_distance_unseen": 2.026381218407599,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.5210937499999999
+      },
+      {
+        "held_out_family": "glm-5.2-max",
+        "mean_distance_seen": 1.854684010402512,
+        "mean_distance_unseen": 1.9909321407654859,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.523828125
+      },
+      {
+        "held_out_family": "gpt-5.6-sol-max",
+        "mean_distance_seen": 2.0001228132513353,
+        "mean_distance_unseen": 1.3452155297295936,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.49296874999999996
+      },
+      {
+        "held_out_family": "grok-4.6-extra-high",
+        "mean_distance_seen": 2.0758019400665924,
+        "mean_distance_unseen": 2.7387264865424887,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.52265625
+      },
+      {
+        "held_out_family": "kimi-k3-max",
+        "mean_distance_seen": 1.9020449178463212,
+        "mean_distance_unseen": 1.9833550843900505,
+        "n_seen": 80,
+        "n_unseen": 16,
+        "unknown_rejection_auroc": 0.522265625
+      }
+    ],
+    "mean_unknown_rejection_auroc": 0.5151041666666667
+  },
+  "protocol_id": "Panoptes measurement protocol v1",
+  "protocol_registered_utc": "2026-08-13T00:00:00Z",
+  "schema": "panoptes-measurement-card-v1",
+  "split": {
+    "method": "nested_grouped_cv",
+    "n_groups": 16,
+    "n_splits": 5,
+    "rule": "Train, calibration, and test are separate. Never fit or tune the calibration layer on the final test set."
+  },
+  "transport": {
+    "axis": "domains",
+    "cells": [
+      {
+        "accuracy": 0.7857142857142857,
+        "auprc": 0.9366481359526634,
+        "auroc": 0.6640625,
+        "brier": 0.1902678967336186,
+        "calibration_intercept": 1.2540853994767194,
+        "calibration_slope": 1.694952962112815,
+        "ece": 0.26669288810609604,
+        "in_domain": true,
+        "n_test": 56,
+        "n_train": 56,
+        "test": "text",
+        "tpr_at_0.1fpr": 0.4583333333333333,
+        "tpr_at_1fpr": 0.4583333333333333,
+        "tpr_at_5fpr": 0.4583333333333333,
+        "train": "text"
+      }
+    ]
+  }
+}

@@ -4,6 +4,8 @@
   <img src="frontend/public/Panoptes_readme.png" alt="Panoptes — evidence, not verdicts" width="720">
 </p>
 
+**Research paper v1.0** (13 August 2026): [Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff).
+
 Panoptes is an open-source scientific workbench for analyzing text and code for **calibrated evidence of AI participation**, **public watermark signals**, **source-family similarity**, and **signed file provenance**.
 
 It is designed to answer a narrow question carefully:
@@ -26,8 +28,9 @@ Panoptes deliberately avoids authorship verdicts. It reports probabilities, hypo
 8. [Model baselines](#model-baselines)
 9. [Testing and reproduction](#testing-and-reproduction)
 10. [Deployment](#deployment)
-11. [Limitations and responsible use](#limitations-and-responsible-use)
-12. [References](#references)
+11. [Version 2 to-dos](#version-2-to-dos)
+12. [Limitations and responsible use](#limitations-and-responsible-use)
+13. [References](#references)
 
 ## What Panoptes measures
 
@@ -101,7 +104,7 @@ flowchart LR
 ### Local run
 
 ```bash
-git clone https://github.com/Encryptic1/Panoptes.git
+git clone https://github.com/marketstandard/Panoptes.git
 cd Panoptes
 python -m venv .venv
 .venv\Scripts\activate       # Windows
@@ -313,8 +316,10 @@ python research/baseline_corpus.py        # verify hashes, rebuild corpus-summar
 python research/methodology.py            # rebuild methodology-report.json (both cohorts)
 python research/calibration.py            # rebuild baseline-calibration.json from the corpus
 python research/calibration.py --dataset defactify   # rebuild defactify-calibration.json
+python research/run_v1_experiments.py     # protocol card, mixtures, robustness, watermarks, self-check
+python research/reproduce.py              # re-hash signed artifacts (first-party, not independent)
 python research/make_figures.py           # regenerate paper SVG figures
-python research/validate_submission.py backend/artifacts/baseline-calibration.json backend/artifacts/defactify-calibration.json backend/artifacts/corpus-summary.json backend/artifacts/defactify-summary.json backend/artifacts/methodology-report.json backend/artifacts/cards/logistic-tier0.json backend/artifacts/panoptes-v0-card.json research/protocol.json
+python research/validate_submission.py backend/artifacts/baseline-calibration.json backend/artifacts/defactify-calibration.json backend/artifacts/corpus-summary.json backend/artifacts/defactify-summary.json backend/artifacts/methodology-report.json backend/artifacts/cards/logistic-tier0.json backend/artifacts/panoptes-v0-card.json backend/artifacts/cards/measurement-protocol.json research/protocol.json
 python baselines/baseline.py verify-catalog
 ```
 
@@ -334,6 +339,20 @@ Panoptes includes `render.yaml` for a single-container Render deployment. Config
 - `PANOPTES_PROFILE=cloud-cpu` for standard deployment;
 - `PANOPTES_PROFILE=cloud-gpu` only if the selected infrastructure supports GPU workers;
 - `PANOPTES_ALLOW_SUBMITTED_TEXT_STORAGE=false` unless report persistence is explicitly enabled.
+
+## Version 2 to-dos
+
+This environment completed every protocol experiment the hash-verified corpus supports. The remaining publication work needs data, weights, or an outside lab. Tracked in [`docs/v2-updates/`](docs/v2-updates/README.md):
+
+- [ ] Human corpus of 500–2,000 independent authors (today: 8 controls)
+- [ ] RAID, M4GT-Bench, and EvoBench pointer manifests + grouped evaluation
+- [ ] Score Binoculars, DetectGPT / Fast-DetectGPT, and a transformer classifier on the frozen splits (`bench/external_baselines.py` is the registry; weights are not shipped)
+- [ ] Real human–AI coauthoring sessions (today: token-splice pilots)
+- [ ] DIPPER / RAID adversarial paraphrase (today: truncate/drop/punctuation proxies)
+- [ ] Independent reproduction by an outside researcher ([template](docs/v2-updates/independent-reproduction.md))
+- [ ] Hugging Face open-weights release after a powered comparison battery
+
+Do not spend the next cycle making Panoptes-v1 a larger neural net.
 
 ## Limitations and responsible use
 

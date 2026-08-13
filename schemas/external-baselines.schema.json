@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/external-baselines.schema.json",
+  "title": "Panoptes External Detector Baseline Registry",
+  "description": "Availability of published detectors on the frozen protocol splits. Unavailable rows must not be replaced by the heuristic.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "detectors", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "panoptes-external-baselines-v1"},
+    "created_utc": {"type": "string"},
+    "dataset": {"type": "string"},
+    "note": {"type": "string"},
+    "detectors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "citation": {"type": "string"},
+          "requires": {"type": "string"},
+          "status": {"enum": ["unavailable", "scored", "failed"]}
+        }
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

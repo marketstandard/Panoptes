@@ -24,6 +24,9 @@ FILES = {
     "panoptes-defactify-summary-v1": "defactify-summary.schema.json",
     "panoptes-research-protocol-v1": "research-protocol.schema.json",
     "panoptes-measurement-card-v1": "measurement-card.schema.json",
+    "panoptes-hypotheses-v1": "hypotheses.schema.json",
+    "panoptes-external-baselines-v1": "external-baselines.schema.json",
+    "panoptes-reproduction-selfcheck-v1": "reproduction-selfcheck.schema.json",
 }
 
 BASELINE_OUTPUT_KEYS = {"prompt_id", "file", "sha256", "bytes"}

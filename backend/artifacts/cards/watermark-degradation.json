@@ -1,0 +1,131 @@
+{
+  "adapter_version": "kgw-v1",
+  "artifact_sha256": "36d8c0c717d114e36547354a035d4dbe3e2fd470000806aa8941c7f4d9dec18e",
+  "conditions": [
+    {
+      "ai": {
+        "empirical_reject_0.05": 0.10869565217391304,
+        "mean_green_rate": 0.501960267090406,
+        "mean_power": 0.08030945241852634,
+        "mean_z": 0.020429599968326745,
+        "n": 96,
+        "n_tested": 92
+      },
+      "condition": "untouched",
+      "human": {
+        "empirical_reject_0.05": 0.375,
+        "mean_green_rate": 0.5244906331363799,
+        "mean_power": 0.19681439753766816,
+        "mean_z": 0.9126994680365215,
+        "n": 8,
+        "n_tested": 8
+      }
+    },
+    {
+      "ai": {
+        "empirical_reject_0.05": 0.0375,
+        "mean_green_rate": 0.5036082028201548,
+        "mean_power": 0.05388134369911296,
+        "mean_z": 0.004216316337025604,
+        "n": 96,
+        "n_tested": 80
+      },
+      "condition": "truncate_75",
+      "human": {
+        "empirical_reject_0.05": 0.25,
+        "mean_green_rate": 0.5095541581569952,
+        "mean_power": 0.13748839251448008,
+        "mean_z": 0.2938458870928594,
+        "n": 8,
+        "n_tested": 8
+      }
+    },
+    {
+      "ai": {
+        "empirical_reject_0.05": 0.07042253521126761,
+        "mean_green_rate": 0.5090045749300375,
+        "mean_power": 0.05398683645022571,
+        "mean_z": 0.13128457003183983,
+        "n": 96,
+        "n_tested": 71
+      },
+      "condition": "truncate_50",
+      "human": {
+        "empirical_reject_0.05": 0.375,
+        "mean_green_rate": 0.5224207348914971,
+        "mean_power": 0.18283586093366833,
+        "mean_z": 0.46029628331111205,
+        "n": 8,
+        "n_tested": 8
+      }
+    },
+    {
+      "ai": {
+        "empirical_reject_0.05": 0.04878048780487805,
+        "mean_green_rate": 0.4936741135813674,
+        "mean_power": 0.04401742145576725,
+        "mean_z": -0.1608659354589133,
+        "n": 96,
+        "n_tested": 82
+      },
+      "condition": "drop_20",
+      "human": {
+        "empirical_reject_0.05": 0.25,
+        "mean_green_rate": 0.5019512907756223,
+        "mean_power": 0.1322683611306243,
+        "mean_z": 0.1902442154057263,
+        "n": 8,
+        "n_tested": 8
+      }
+    },
+    {
+      "ai": {
+        "empirical_reject_0.05": 0.09782608695652174,
+        "mean_green_rate": 0.5012460411020431,
+        "mean_power": 0.07744852109523662,
+        "mean_z": 0.011912816166714201,
+        "n": 96,
+        "n_tested": 92
+      },
+      "condition": "shuffle_sentences",
+      "human": {
+        "empirical_reject_0.05": 0.375,
+        "mean_green_rate": 0.5204810086297099,
+        "mean_power": 0.18174939108931143,
+        "mean_z": 0.8084971380013402,
+        "n": 8,
+        "n_tested": 8
+      }
+    }
+  ],
+  "dataset_manifest_id": "panoptes-verified-corpus",
+  "green_fraction": 0.5,
+  "limitations": [
+    "The project corpus is not a watermarked generation set; AI documents are ordinary model outputs.",
+    "Empirical reject rates therefore measure Type I behavior of the public detector, not TPR of a known watermark.",
+    "Truncation, token drop, and sentence shuffle are proxy edits, not paraphrase, translation, or adversarial rewriting.",
+    "Watermark results must not be blended into the passive AI-attribution claim."
+  ],
+  "metrics": {
+    "empirical_fpr_unwatermarked": 0.375,
+    "q_value_calibration": "untested",
+    "retention_after_edit": {
+      "drop_20": -0.1608659354589133,
+      "shuffle_sentences": 0.011912816166714201,
+      "truncate_50": 0.13128457003183983,
+      "truncate_75": 0.004216316337025604,
+      "untouched": 0.020429599968326745
+    },
+    "segment_localization_error": null,
+    "tpr_by_token_bucket": {
+      "drop_20": 0.04878048780487805,
+      "shuffle_sentences": 0.09782608695652174,
+      "truncate_50": 0.07042253521126761,
+      "truncate_75": 0.0375,
+      "untouched": 0.10869565217391304
+    }
+  },
+  "min_tokens": 50,
+  "schema": "panoptes-watermark-eval-card-v1",
+  "scheme": "kgw-v1"
+}

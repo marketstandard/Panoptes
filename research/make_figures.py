@@ -315,6 +315,94 @@ def fig_attribution() -> str:
     return _svg(w, h, "".join(body))
 
 
+def fig_pipeline() -> str:
+    """Static evidence pipeline: score → calibrate → LR → prior → posterior → decide."""
+    w, h = 460, 132
+    stages = [
+        (18, "raw score"),
+        (92, "calibrate"),
+        (166, "LR"),
+        (230, "prior"),
+        (294, "posterior"),
+        (372, "uncertain / abstain"),
+    ]
+    parts = []
+    for i, (x, label) in enumerate(stages):
+        parts.append(
+            f'<rect x="{x}" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="{BLUE}" stroke-width="1.4"/>'
+            f'<text x="{x + 35}" y="62" text-anchor="middle" font-size="10" fill="{INK}">{label}</text>'
+        )
+        if i < len(stages) - 1:
+            nx = stages[i + 1][0]
+            parts.append(
+                f'<line x1="{x + 70}" y1="58" x2="{nx}" y2="58" stroke="{MUTED}" stroke-width="1.2" marker-end="url(#arr)"/>'
+            )
+    body = (
+        f'<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">'
+        f'<path d="M0,0 L8,4 L0,8 z" fill="{MUTED}"/></marker></defs>'
+        f'<text x="230" y="22" text-anchor="middle" font-size="11" fill="{INK}">evidence pipeline (ECE is a diagnostic, not a step)</text>'
+        + "".join(parts)
+        + f'<text x="230" y="108" text-anchor="middle" font-size="10" fill="{MUTED}">train → calibration → untouched test; never fit calibration on test</text>'
+        + f'<text x="230" y="124" text-anchor="middle" font-size="10" fill="{MUTED}">LR = (p/(1−p)) · ((1−π)/π)</text>'
+    )
+    return _svg(w, h, body)
+
+
+def fig_mixture() -> str:
+    card = _load("cards/measurement-protocol.json")
+    rows = card["mixtures"]["rates"]
+    w, h, pad = 460, 300, {"l": 52, "r": 18, "t": 16, "b": 44}
+    x = lambda v: pad["l"] + v * (w - pad["l"] - pad["r"])
+    y = lambda v: h - pad["b"] - v * (h - pad["t"] - pad["b"])
+    body = [_axes(w, h, pad, [(x(t), f"{t:.1f}") for t in (0, .25, .5, .75, 1)], [(y(t), f"{t:.1f}") for t in (0, .2, .4, .6, .8, 1)], "controlled AI token rate", "mean estimated P(participation)")]
+    body.append(f'<line x1="{x(0)}" y1="{y(0)}" x2="{x(1)}" y2="{y(1)}" stroke="{MUTED}" stroke-width="1" stroke-dasharray="4 4"/>')
+    path = " ".join(f"{'M' if i == 0 else 'L'}{x(r['actual_ai_rate']):.1f},{y(r['mean_estimated']):.1f}" for i, r in enumerate(rows))
+    body.append(f'<path d="{path}" stroke="{BLUE}" stroke-width="2" fill="none"/>')
+    for r in rows:
+        body.append(f'<circle cx="{x(r["actual_ai_rate"]):.1f}" cy="{y(r["mean_estimated"]):.1f}" r="3.5" fill="{BLUE}"/>')
+    body.append(_legend(pad["l"] + 8, pad["t"] + 4, [
+        ("dash", MUTED, "perfect tracking"),
+        ("line", BLUE, f'heuristic (corr {card["mixtures"]["correlation"]:.2f}, slope {card["mixtures"]["slope"]:.3f})'),
+    ]))
+    return _svg(w, h, "".join(body))
+
+
+def fig_selective() -> str:
+    card = _load("cards/measurement-protocol.json")
+    rows = card["metrics"]["logistic"]["selective_risk"]
+    w, h, pad = 460, 300, {"l": 52, "r": 18, "t": 16, "b": 44}
+    ymax = 0.12
+    x = lambda v: pad["l"] + v * (w - pad["l"] - pad["r"])
+    y = lambda v: h - pad["b"] - (v / ymax) * (h - pad["t"] - pad["b"])
+    body = [_axes(w, h, pad, [(x(t), f"{t:.1f}") for t in (0.5, .7, .8, .9, 1)], [(y(t), f"{t:.2f}") for t in (0, .04, .08, .12)], "coverage", "selective risk")]
+    path = " ".join(f"{'M' if i == 0 else 'L'}{x(r['coverage']):.1f},{y(r['selective_risk']):.1f}" for i, r in enumerate(rows))
+    body.append(f'<path d="{path}" stroke="{TEAL}" stroke-width="2" fill="none"/>')
+    for r in rows:
+        body.append(f'<circle cx="{x(r["coverage"]):.1f}" cy="{y(r["selective_risk"]):.1f}" r="3.5" fill="{TEAL}"/>')
+    body.append(_legend(pad["l"] + 8, pad["t"] + 4, [
+        ("line", TEAL, "logistic, nested grouped CV"),
+    ]))
+    return _svg(w, h, "".join(body))
+
+
+def fig_unknown() -> str:
+    card = _load("cards/measurement-protocol.json")
+    families = card["open_set"]["families"]
+    w, h, pad = 460, 300, {"l": 110, "r": 18, "t": 24, "b": 44}
+    n = len(families)
+    row_h = (h - pad["t"] - pad["b"]) / n
+    x = lambda v: pad["l"] + (v - 0.4) / 0.3 * (w - pad["l"] - pad["r"])
+    body = [_axes(w, h, pad, [(x(t), f"{t:.2f}") for t in (0.40, 0.50, 0.55, 0.70)], [], "unknown-rejection AUROC", "")]
+    body.append(f'<line x1="{x(0.5):.1f}" y1="{pad["t"]}" x2="{x(0.5):.1f}" y2="{h - pad["b"]}" stroke="{RED}" stroke-width="1.2" stroke-dasharray="5 4"/>')
+    for i, row in enumerate(families):
+        cy = pad["t"] + row_h * (i + 0.5)
+        label = row["held_out_family"].replace("-extra-high", "").replace("-max", "")
+        body.append(f'<text x="{pad["l"] - 8}" y="{cy + 3:.1f}" text-anchor="end" font-size="10" fill="{INK}">{label}</text>')
+        body.append(f'<rect x="{x(0.4):.1f}" y="{cy - row_h * 0.26:.1f}" width="{x(row["unknown_rejection_auroc"]) - x(0.4):.1f}" height="{row_h * 0.52:.1f}" fill="{BLUE}" fill-opacity="0.75"/>')
+    body.append(f'<text x="{x(0.5) + 6:.1f}" y="{pad["t"] + 12}" font-size="10" fill="{RED}">chance</text>')
+    return _svg(w, h, "".join(body))
+
+
 FIGS = {
     "reliability": fig_reliability,
     "power": fig_power,
@@ -324,6 +412,10 @@ FIGS = {
     "posterior": fig_posterior,
     "defactify": fig_defactify,
     "attribution": fig_attribution,
+    "pipeline": fig_pipeline,
+    "mixture": fig_mixture,
+    "selective": fig_selective,
+    "unknown": fig_unknown,
 }
 
 
