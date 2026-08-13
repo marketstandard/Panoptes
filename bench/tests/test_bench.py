@@ -20,18 +20,29 @@ from bench import cards, datasets, evaluate, features, models  # noqa: E402
 
 def tiny_dataset(n: int = 48) -> datasets.Dataset:
     texts, labels, groups = [], [], []
+    # HeuristicProseDetector abstains below 40 tokens (raw_score=0.5).
+    ai_pad = (
+        " Furthermore, the overall process additionally remains systematic, comprehensive, "
+        "and consistent across verification steps that moreover reinforce reliability."
+    )
+    human_pad = (
+        " the neighbor asked about the ladder and i said i would move it after dinner "
+        "once the rain stopped. extra words keep the detector from abstaining on short notes."
+    )
     for i in range(n):
         if i % 2 == 0:
             texts.append(
                 "Furthermore, the systematic approach improves overall reliability. "
                 f"Moreover, iteration {i} additionally reinforces consistent verification. "
                 "Therefore the process is robust and comprehensive."
+                + ai_pad
             )
             labels.append(1)
         else:
             texts.append(
                 f"i fixed the thing on my machine after a few tries. note {i}: the logs "
                 "were messy but the fix worked. ask me if it breaks again."
+                + human_pad
             )
             labels.append(0)
         groups.append(f"prompt-{i % 6}")

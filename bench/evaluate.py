@@ -1,7 +1,7 @@
 """Evaluation: grouped cross-validation, calibration metrics, reliability
 bins, coverage-vs-abstention curves, conformal prediction sets, and
-fairness slices. All evaluation is out-of-fold; nothing is scored on
-its own training data."""
+fairness slices. Protocol-compliant runs also separate train, calibration,
+and untouched test groups. Nothing is scored on its own training data."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ import math
 from typing import Any
 
 import numpy as np
-from sklearn.metrics import brier_score_loss, roc_auc_score
+from sklearn.isotonic import IsotonicRegression
+from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 
 from bench.datasets import Dataset, grouped_splits
+from research.protocol import COVERAGE_LEVELS
 
 SEED = 13
 
@@ -36,15 +38,95 @@ def tpr_at_fpr(labels: np.ndarray, probabilities: np.ndarray, target_fpr: float)
     return float(np.mean(probabilities[positives] >= threshold)) if np.any(positives) else 0.0
 
 
+def auprc(labels: np.ndarray, probabilities: np.ndarray) -> float:
+    if len(set(labels)) < 2:
+        return float("nan")
+    return float(average_precision_score(labels, probabilities))
+
+
+def calibration_slope_intercept(labels: np.ndarray, probabilities: np.ndarray) -> dict[str, float]:
+    """Logistic calibration slope and intercept: logit(y) ~ a + b logit(p).
+
+    Perfect calibration has slope 1 and intercept 0. Slope < 1 is
+    overconfidence; intercept ≠ 0 is a systematic shift.
+    """
+    from research.methodology import logistic_irls
+
+    p = np.clip(np.asarray(probabilities, dtype=float), 1e-6, 1 - 1e-6)
+    y = np.asarray(labels, dtype=float)
+    if len(set(y.astype(int))) < 2:
+        return {"calibration_slope": float("nan"), "calibration_intercept": float("nan")}
+    logit = np.log(p / (1 - p)).reshape(-1, 1)
+    fit = logistic_irls(logit, y)
+    return {
+        "calibration_slope": float(fit["beta"][1]),
+        "calibration_intercept": float(fit["beta"][0]),
+    }
+
+
+def selective_risk_curve(
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+    coverages: tuple[float, ...] = COVERAGE_LEVELS,
+) -> list[dict]:
+    """Error on the highest-confidence subset at each protocol coverage level."""
+    confidence = np.maximum(probabilities, 1 - probabilities)
+    n = len(labels)
+    rows = []
+    order = np.argsort(-confidence)
+    for coverage in coverages:
+        k = max(1, int(math.ceil(coverage * n))) if coverage < 1 else n
+        kept = order[:k]
+        pred = probabilities[kept] >= 0.5
+        risk = float(np.mean(pred != labels[kept]))
+        rows.append(
+            {
+                "coverage": float(coverage),
+                "n_kept": int(len(kept)),
+                "empirical_coverage": float(len(kept) / n),
+                "selective_risk": risk,
+                "accuracy": 1.0 - risk,
+                "brier": float(brier_score_loss(labels[kept], probabilities[kept])),
+            }
+        )
+    return rows
+
+
+def worst_group_metrics(
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+    groups: list[str],
+    min_n: int = 4,
+) -> dict[str, Any]:
+    rows = []
+    for value in sorted(set(groups)):
+        mask = np.array([g == value for g in groups])
+        if int(mask.sum()) < min_n or len(set(labels[mask])) < 2:
+            continue
+        metrics = binary_metrics(labels[mask], probabilities[mask])
+        rows.append({"group": value, "n": int(mask.sum()), **metrics})
+    if not rows:
+        return {"groups": [], "worst_auroc": float("nan"), "worst_brier": float("nan")}
+    return {
+        "groups": rows,
+        "worst_auroc": float(min(row["auroc"] for row in rows)),
+        "worst_brier": float(max(row["brier"] for row in rows)),
+        "worst_ece": float(max(row["ece"] for row in rows)),
+    }
+
+
 def binary_metrics(labels: np.ndarray, probabilities: np.ndarray) -> dict[str, float]:
     result = {
         "auroc": float(roc_auc_score(labels, probabilities)) if len(set(labels)) > 1 else float("nan"),
+        "auprc": auprc(labels, probabilities),
         "brier": float(brier_score_loss(labels, probabilities)),
         "ece": expected_calibration_error(labels, probabilities),
         "accuracy": float(np.mean((probabilities >= 0.5) == labels)),
     }
-    for fpr in (0.01, 0.05):
-        result[f"tpr_at_{int(fpr * 100)}fpr"] = tpr_at_fpr(labels, probabilities, fpr)
+    result.update(calibration_slope_intercept(labels, probabilities))
+    result["tpr_at_0.1fpr"] = tpr_at_fpr(labels, probabilities, 0.001)
+    result["tpr_at_1fpr"] = tpr_at_fpr(labels, probabilities, 0.01)
+    result["tpr_at_5fpr"] = tpr_at_fpr(labels, probabilities, 0.05)
     return result
 
 
@@ -162,8 +244,198 @@ def cross_validate(model_factory, dataset: Dataset, n_splits: int = 5) -> dict:
         "auroc_ci95": auroc_ci(y, oof),
         "reliability_bins": reliability_bins(y, oof),
         "coverage_curve": coverage_curve(y, oof),
+        "selective_risk": selective_risk_curve(y, oof),
         "conformal": conformal_sets(y, oof),
         "fairness_slices": fairness_slices(dataset, oof),
+        "worst_group": worst_group_metrics(y, oof, dataset.families),
         "folds": fold_metrics,
         "n_splits": len(fold_metrics),
+    }
+
+
+def fit_isotonic(raw: np.ndarray, labels: np.ndarray) -> IsotonicRegression | None:
+    """Fit isotonic regression, or return None when calibration is unidentified.
+
+    A single-class calibration fold cannot identify a monotone map. Constant
+    raw scores are likewise unidentified. Callers must then pass raw scores
+    through rather than collapsing every test probability to the class mean.
+    """
+    x = np.asarray(raw, dtype=float)
+    y = np.asarray(labels, dtype=float)
+    if len(x) < 2 or len(set(y.astype(int).tolist())) < 2 or len(np.unique(x)) < 2:
+        return None
+    model = IsotonicRegression(out_of_bounds="clip")
+    model.fit(x, y)
+    return model
+
+
+def evaluate_protocol_split(detector, dataset: Dataset, split) -> dict:
+    """Fit on train, calibrate on calibration, score untouched test."""
+    from bench.evidence import likelihood_ratio, prior_sensitivity
+
+    detector.fit(dataset, split.train)
+    raw_cal = detector.predict_proba(dataset, split.calibration)
+    calibrator = fit_isotonic(raw_cal, dataset.labels[split.calibration])
+    raw_test = detector.predict_proba(dataset, split.test)
+    if calibrator is None:
+        calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibration_applied = False
+    else:
+        calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibration_applied = True
+    labels = dataset.labels[split.test]
+    prevalence = float(dataset.labels[split.calibration].mean())
+    metrics = binary_metrics(labels, calibrated)
+    mean_lr = float(np.mean(likelihood_ratio(calibrated, prevalence)))
+    return {
+        "method": split.method,
+        "n_train": int(len(split.train)),
+        "n_calibration": int(len(split.calibration)),
+        "n_test": int(len(split.test)),
+        "cohort_prevalence": prevalence,
+        "calibration_applied": calibration_applied,
+        "metrics": metrics,
+        "selective_risk": selective_risk_curve(labels, calibrated),
+        "reliability_bins": reliability_bins(labels, calibrated),
+        "conformal": conformal_sets(labels, calibrated),
+        "worst_group": worst_group_metrics(
+            labels, calibrated, [dataset.families[int(i)] for i in split.test]
+        ),
+        "mean_likelihood_ratio": mean_lr,
+        "prior_sensitivity": prior_sensitivity(mean_lr),
+        "raw_metrics": binary_metrics(labels, np.clip(raw_test, 1e-6, 1 - 1e-6)),
+        "probabilities": calibrated,
+        "labels": labels,
+        "test_idx": split.test,
+    }
+
+
+def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> dict:
+    """Run the frozen protocol: nested grouped CV or holdout, then pool test scores."""
+    from bench.splits import protocol_splits
+
+    splits = protocol_splits(dataset, seed=seed)
+    fold_rows = []
+    pooled_p: list[np.ndarray] = []
+    pooled_y: list[np.ndarray] = []
+    for split in splits:
+        detector = detector_factory()
+        row = evaluate_protocol_split(detector, dataset, split)
+        pooled_p.append(row["probabilities"])
+        pooled_y.append(row["labels"])
+        fold_rows.append({k: v for k, v in row.items() if k not in {"probabilities", "labels", "test_idx"}})
+    y = np.concatenate(pooled_y)
+    p = np.concatenate(pooled_p)
+    from bench.evidence import likelihood_ratio, prior_sensitivity
+
+    prevalence = float(dataset.labels.mean())
+    mean_lr = float(np.mean(likelihood_ratio(p, prevalence)))
+    return {
+        "n_splits": len(splits),
+        "method": splits[0].method.split(":")[0],
+        "n_groups": splits[0].n_groups,
+        "metrics": binary_metrics(y, p),
+        "selective_risk": selective_risk_curve(y, p),
+        "reliability_bins": reliability_bins(y, p),
+        "conformal": conformal_sets(y, p),
+        "mean_likelihood_ratio": mean_lr,
+        "prior_sensitivity": prior_sensitivity(mean_lr),
+        "folds": fold_rows,
+    }
+
+
+def transport_matrix(detector_factory, dataset: Dataset, axis: str = "domains") -> dict:
+    """Train-domain × test-domain metrics for evidence transportability."""
+    values = dataset.domains if axis == "domains" else dataset.families
+    unique = sorted(set(values))
+    X = dataset.features()
+    y = dataset.labels
+    matrix = []
+    for train_value in unique:
+        train_mask = np.array([v == train_value for v in values])
+        if int(train_mask.sum()) < 8 or len(set(y[train_mask])) < 2:
+            continue
+        model = detector_factory()
+        train_idx = np.where(train_mask)[0]
+        try:
+            model.fit(dataset, train_idx)
+
+            def predict(idx: np.ndarray, _model=model) -> np.ndarray:
+                return _model.predict_proba(dataset, idx)
+
+        except TypeError:
+            model.fit(X[train_mask], y[train_mask])
+
+            def predict(idx: np.ndarray, _model=model) -> np.ndarray:
+                return _model.predict_proba(X[idx])
+
+        for test_value in unique:
+            test_mask = np.array([v == test_value for v in values])
+            if int(test_mask.sum()) < 4 or len(set(y[test_mask])) < 2:
+                continue
+            idx = np.where(test_mask)[0]
+            probabilities = np.clip(predict(idx), 1e-6, 1 - 1e-6)
+            metrics = binary_metrics(y[test_mask], probabilities)
+            matrix.append(
+                {
+                    "train": train_value,
+                    "test": test_value,
+                    "n_train": int(train_mask.sum()),
+                    "n_test": int(test_mask.sum()),
+                    "in_domain": train_value == test_value,
+                    **metrics,
+                }
+            )
+    return {"axis": axis, "cells": matrix}
+
+
+def leave_one_family_out(dataset: Dataset) -> dict:
+    """Train source-family geometry on known families; test unseen families.
+
+    Unknown-source rejection uses Mahalanobis distance to the nearest known
+    centroid. A held-out family should look more unknown than a seen family.
+    """
+    from sklearn.covariance import LedoitWolf
+
+    X = dataset.features()
+    families = np.array(dataset.families)
+    unique = [f for f in sorted(set(dataset.families)) if f != "human"]
+    rows = []
+    for held in unique:
+        known = [f for f in unique if f != held]
+        known_mask = np.isin(families, known)
+        if int(known_mask.sum()) < 8:
+            continue
+        centroids = {}
+        cov = LedoitWolf().fit(X[known_mask])
+        precision = cov.precision_
+        for family in known:
+            mask = families == family
+            centroids[family] = X[mask].mean(axis=0)
+
+        def min_mahal(row: np.ndarray, _centroids=centroids, _precision=precision) -> float:
+            return min(float((row - mu) @ _precision @ (row - mu)) for mu in _centroids.values())
+
+        seen_scores = np.array([min_mahal(X[i]) for i in np.where(known_mask)[0]])
+        unseen_scores = np.array([min_mahal(X[i]) for i in np.where(families == held)[0]])
+        labels = np.concatenate([np.zeros(len(seen_scores)), np.ones(len(unseen_scores))])
+        scores = np.concatenate([seen_scores, unseen_scores])
+        auroc = float(roc_auc_score(labels, scores)) if len(set(labels)) > 1 else float("nan")
+        rows.append(
+            {
+                "held_out_family": held,
+                "n_seen": int(len(seen_scores)),
+                "n_unseen": int(len(unseen_scores)),
+                "mean_distance_seen": float(seen_scores.mean()),
+                "mean_distance_unseen": float(unseen_scores.mean()),
+                "unknown_rejection_auroc": auroc,
+            }
+        )
+    if not rows:
+        return {"families": [], "mean_unknown_rejection_auroc": float("nan")}
+    return {
+        "families": rows,
+        "mean_unknown_rejection_auroc": float(
+            np.nanmean([r["unknown_rejection_auroc"] for r in rows])
+        ),
     }

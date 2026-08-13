@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class RuntimeProfile(StrEnum):
@@ -87,6 +87,8 @@ class Summary(BaseModel):
     plain_language: str
     confidence_label: ConfidenceLabel
     overall: OutcomeDistribution
+    ai_participation: float = Field(ge=0, le=1)
+    ai_generation: float = Field(ge=0, le=1)
 
 
 class PosteriorInfo(BaseModel):
@@ -98,6 +100,7 @@ class PosteriorInfo(BaseModel):
     calibration_bundle: str
     reliability_error: float | None = Field(default=None, ge=0)
     cohort: str
+    cohort_prevalence: float | None = Field(default=None, ge=0, le=1)
 
 
 class SourceFamilyProbability(BaseModel):
@@ -189,6 +192,13 @@ class ProvenanceResult(BaseModel):
     issuer: str | None = None
     timestamp: str | None = None
     actions: list[str] = Field(default_factory=list)
+    level: Literal["P0", "P1", "P2", "P3", "P4"] = "P0"
+
+    @model_validator(mode="after")
+    def assign_default_level(self) -> "ProvenanceResult":
+        if self.status == "verified" and self.level == "P0":
+            return self.model_copy(update={"level": "P3"})
+        return self
 
 
 class Segment(BaseModel):
@@ -269,7 +279,7 @@ class AnalysisRequest(BaseModel):
 class AnalysisResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = "1.1.0"
+    schema_version: str = "1.2.0"
     report_id: str
     runtime: RuntimeInfo
     input: InputDiagnostics

@@ -6,7 +6,7 @@ The system is intentionally conservative. It does not decide guilt, authorship, 
 
 ## Scientific contract
 
-Panoptes separates four evidence types:
+Panoptes separates four evidence types. Statistical AI participation, source-family attribution, watermark tests, and cryptographic provenance are never blended into one score. Provenance is reported at levels P0–P4 (none, self-declared, authenticated metadata, signed receipt, independently verifiable execution).
 
 | Evidence type | Question | What it can support | What it cannot support |
 |---|---|---|---|

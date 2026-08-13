@@ -315,6 +315,27 @@ def cmd_attribute(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_measure(args: argparse.Namespace) -> int:
+    from bench.measure import run_measurement
+
+    dataset = _load_dataset(args.data)
+    card = run_measurement(dataset)
+    card["created_utc"] = _corpus_created_utc(args.data) or _utc_now()
+    cards.sign(card)
+    out = Path(args.out) if args.out else CARDS_DIR / "measurement-protocol.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(card, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Measurement protocol on {dataset.provenance} (n={len(dataset)})")
+    for name, block in card["metrics"].items():
+        metrics = block["metrics"]
+        print(
+            f"  {name}: AUROC {metrics['auroc']:.3f}  Brier {metrics['brier']:.3f}  "
+            f"ECE {metrics['ece']:.3f}  slope {metrics['calibration_slope']}"
+        )
+    print(f"Card: {out} (sha256 {card['artifact_sha256'][:16]}…)")
+    return 0
+
+
 def cmd_predict(args: argparse.Namespace) -> int:
     if args.model == "panoptes-v0":
         from bench.panoptes_v0 import predict_text
@@ -365,6 +386,11 @@ def build_parser() -> argparse.ArgumentParser:
     attribute.add_argument("--data", default="defactify", help="'defactify' (the only 7-family dataset) or a CSV/JSONL path")
     attribute.add_argument("--skip-dirichlet", action="store_true", help="run only the multinomial logistic contender")
     attribute.set_defaults(func=cmd_attribute)
+
+    measure = sub.add_parser("measure", help="run the frozen measurement protocol (train/cal/test)")
+    measure.add_argument("--data", default="corpus", help="'corpus', 'defactify', or a CSV/JSONL path")
+    measure.add_argument("--out", default=None, help="output card path")
+    measure.set_defaults(func=cmd_measure)
 
     predict = sub.add_parser("predict", help="score one text with a saved model")
     predict.add_argument("--model", required=True)

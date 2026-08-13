@@ -21,7 +21,7 @@ pip install torch             # CUDA build recommended; CPU works
 ## Commands
 
 ```bash
-python -m bench train --model logistic --data corpus      # tier-0 baseline
+python -m bench measure --data corpus                 # frozen train/cal/test protocol
 python -m bench train --model gbm --data corpus           # tier-1 (needs n>=300)
 python -m bench train --model panoptes-v0 --data corpus   # tier-2 (needs torch)
 python -m bench train --model logistic --data defactify   # any tier on the Defactify bench
