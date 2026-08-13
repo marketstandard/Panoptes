@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with a Verifiable, Trainable Community Corpus</title>
+<title>Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution</title>
 <style>
   :root {
     --ink: #1a2332;
@@ -146,43 +146,40 @@
 <div class="sheet">
 
   <div class="titleblock">
-    <h1>Panoptes: An Evidence Observatory for Calibrated AI-Text Attribution with a Verifiable, Trainable Community Corpus</h1>
+    <h1>Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution</h1>
     <div class="authors">Encryptic1 and the Panoptes Contributors</div>
     <div class="affil">Independent open research software project &mdash; github.com/marketstandard/Panoptes</div>
-    <div class="date">August 12, 2026 &middot; Working paper, v2.0</div>
+    <div class="date">August 13, 2026 &middot; Working paper, v2.1 &middot; Measurement protocol registered 2026-08-13</div>
   </div>
 
   <div class="abstract">
     <h2>Abstract</h2>
     <p>Automated judgments about whether a document was written or assisted by a large language model are increasingly
     consequential, yet the dominant tooling presents a single opaque score with little account of calibration, sample size,
-    or the conditions under which the judgment fails. We present <em>Panoptes</em>, an open, local-first system that treats
-    AI-text attribution as an evidence problem rather than a classification problem. Panoptes combines a calibrated
-    Bayesian posterior over participation classes, one-sided binomial hypothesis tests for known public watermark schemes
-    with false-discovery-rate control and explicit power analysis, corpus-fitted source-family geometry, and signed
-    provenance verification, surfacing every quantity with its assumptions and limits. The system is built around a
-    verifiable community corpus: a canonical prompt set, hash-pinned run manifests with Merkle commitments, human control
-    responses, and an append-only public catalog that records cryptographic evidence of a run without collecting raw model
-    outputs, optionally anchored to the Bitcoin blockchain via OpenTimestamps. The corpus is not decorative: a signed
-    calibration artifact fitted on it is consumed by the live analyzer, and a training bench with a statistical power gate
-    trains tiered models &mdash; penalized logistic regression, gradient boosting, and a custom evidential neural
-    architecture (Panoptes-v0) &mdash; under grouped cross-validation with a pre-registered hypothesis
-    battery and econometric specification testing. We report honest null results at the project corpus size
-    (n&nbsp;=&nbsp;104, 8 human controls, &asymp;7% power to detect a five-point accuracy difference), a byte-identical
-    cross-model output in the reference runs, and a full comparison battery in which no model significantly beats any
-    other. We then validate externally on the Defactify_Text_Dataset (Roy et&nbsp;al. 2026; 71,666 hygiene-filtered
-    records: New York Times human articles against six LLM families), where the power gate passes and the same
-    pre-registered hypotheses are re-run unchanged: five of six nulls are rejected, the tier-0 logistic model attains
-    AUROC 0.989 out-of-fold under reconstructed story groups, the tier-1 gradient booster attains 0.999, and the
-    shipped runtime heuristic &mdash; which never saw the dataset &mdash; attains AUROC 0.648, an honest
-    domain-shift measurement. An exploratory seven-class attribution experiment (human plus six LLM families) is
-    reported against the dataset authors&rsquo; 5&ndash;9% baseline. We describe the architecture, the statistical
-    contracts, the threat model, and what the community verifiably gains by contributing.</p>
+    or the conditions under which the judgment fails. We argue that AI-text attribution should be treated as a
+    <em>measurement problem</em>: the evidential meaning of a detector score depends on the generating population,
+    prevalence, domain, manipulation history, provenance, and calibration cohort. We present <em>Panoptes</em>, an open,
+    local-first system that reports calibrated evidence rather than a verdict. Detector scores are mapped through an
+    independent calibration set to probabilities, converted to prevalence-corrected likelihood ratios, combined with a
+    declared prior, and wrapped in uncertainty and abstention; expected calibration error is reported as a diagnostic and
+    is not used to rescale the posterior. Three outputs are kept distinct &mdash; probability of AI participation,
+    probability of AI generation, and source-family attribution with an explicit unknown state &mdash; and watermark tests
+    are a separate subsystem. A frozen protocol (registered 2026-08-13) enforces author/prompt/source-disjoint
+    train&nbsp;&rarr;&nbsp;calibration&nbsp;&rarr;&nbsp;test splits, primary metrics centered on Brier score, ECE,
+    calibration slope, low-FPR operating points, and selective risk, and a train-domain&nbsp;&times;&nbsp;test-domain
+    transport matrix. We report honest null results at the project corpus size (n&nbsp;=&nbsp;104, 8 human controls) and
+    a full comparison battery in which no model significantly beats any other. External validation on the
+    Defactify_Text_Dataset (Roy et&nbsp;al. 2026; 71,666 hygiene-filtered records) is the central scientific result:
+    in-domain Panoptes-v0 AUROC is approximately 0.998, the shipped detector on that domain is 0.648, and the
+    Defactify-trained model transported back to the Panoptes corpus is 0.471. Performance and calibration are cohort
+    properties, not model properties. The scientifically stronger question is not whether AI text is universally
+    identifiable, but under what conditions AI participation is statistically identifiable and how the evidence degrades
+    when those conditions change.</p>
   </div>
 
   <div class="keywords">
-    <strong>Keywords</strong> &mdash; AI-text detection &middot; watermark hypothesis testing &middot; calibration &middot;
-    evidential deep learning &middot; conformal prediction &middot; reproducible baselines &middot; hash-chained evidence catalogs
+    <strong>Keywords</strong> &mdash; AI-text attribution &middot; calibration &middot; likelihood ratios &middot;
+    distribution shift &middot; evidence transportability &middot; conformal prediction &middot; reproducible baselines
   </div>
 
   <h2>1. Introduction</h2>
@@ -191,18 +188,42 @@
   the evidence that produced it, the sample size behind it, or the regimes in which it should not be trusted. False
   positives carry real costs for the accused; false negatives carry real costs for institutions. A defensible tool must
   therefore do more than score: it must show its evidence, keep its uncertainty visible, and refuse to overstate.</p>
+  <p>We take a stricter position than &ldquo;show the uncertainty.&rdquo; AI-text attribution is a measurement problem.
+  The evidential meaning of a detector score depends on the generating population, prevalence, domain, manipulation
+  history, provenance, and calibration cohort. The same likelihood ratio yields different posterior probabilities under
+  a 1% classroom prior and a 50% lab prior; the same calibrated map can be well calibrated on New York Times rewrites
+  and anti-correlated on a mixed prompt corpus. Panoptes is built to measure that evidential strength and its failure
+  modes, not to win a detector leaderboard.</p>
+  <p>Four research questions are frozen in the measurement protocol (registered 2026-08-13,
+  <span class="mono">research/protocol.json</span>) before further outcome tuning:</p>
+  <p><strong>RQ1 &mdash; Calibration.</strong> When Panoptes reports a probability of AI participation, does that
+  probability correspond to empirical frequency under a declared population?</p>
+  <p><strong>RQ2 &mdash; Distribution shift.</strong> How much does attribution degrade when the domain, generator,
+  prompt, time period, or editing process changes?</p>
+  <p><strong>RQ3 &mdash; Evidence aggregation.</strong> Do explicit calibration, Bayesian aggregation, uncertainty
+  estimation, and abstention improve trustworthiness over conventional classifier scores?</p>
+  <p><strong>RQ4 &mdash; Reproducibility.</strong> Can the full experimental claim be independently verified from
+  cryptographically committed datasets, model artifacts, manifests, and results?</p>
+  <p>The tasks these questions address are not interchangeable. <em>Human-only</em> means no AI generation or
+  substantive rewriting; <em>AI-generated</em> means the majority or entirety of the content was generated by an AI
+  system; <em>AI-assisted</em> means a human authored the content but AI substantially generated or modified portions;
+  <em>unknown</em> means the available evidence is insufficient for a supported attribution. The system therefore keeps
+  three outputs conceptually distinct: probability of AI participation, probability of AI generation, and source-family
+  attribution with an explicit unknown state. Watermark detection is a separate subsystem and is not allowed to inflate
+  the passive-attribution claim.</p>
   <p>Panoptes is built around four design commitments. First, <em>evidence before verdict</em>: the interface leads with
   a plain-language summary and exposes the full statistical drilldown &mdash; formulas, units, assumptions, and
   limitations &mdash; one layer down. Second, <em>calibrated combination</em>: heterogeneous signals are combined in the
-  odds domain with an explicit prior drawn from a declared calibration cohort, so that the strength of evidence is
-  separable from base rates. Third, <em>verifiable practice</em>: the project ships a canonical baseline prompt set, human
-  control responses, and a public, hash-chained catalog so that claims about model behavior can be checked, replicated,
-  and extended by anyone without trusting the project with raw outputs. Fourth, <em>the corpus is load-bearing</em>: the
+  odds domain with an explicit prior, so that the strength of evidence is separable from base rates. Third,
+  <em>verifiable practice</em>: the project ships a canonical baseline prompt set, human control responses, and a public,
+  hash-chained catalog so that claims about model behavior can be checked, replicated, and extended by anyone without
+  trusting the project with raw outputs. Fourth, <em>the corpus is load-bearing</em>: the
     reference material is not a gallery but an input &mdash; it calibrates the live analyzer through a signed artifact,
     trains the model zoo under a statistical power gate, and grounds a pre-registered hypothesis battery whose null results
     we report as faithfully as any positive finding. A companion external validation on the 71,666-record
     Defactify_Text_Dataset [32] runs the identical protocol where the power gate passes, so the reader can see which
-    conclusions were science and which were sample size (&sect;10).</p>
+    conclusions were science and which were sample size (&sect;10). The strongest number in that section is not the
+    near-perfect in-domain score; it is the collapse under transport.</p>
 
   <h2>2. Related work</h2>
   <p><strong>Watermarking.</strong> Kirchenbauer et&nbsp;al. introduced the green-list watermark for large language models,
@@ -244,16 +265,20 @@
   would invite overconfidence. This refusal path is a first-class result, not an error.</p>
 
   <h3>3.2 Calibrated posterior</h3>
-  <p>Detector evidence is combined in the odds domain. Given declared prior odds <em>O</em><sub>0</sub> &mdash; an
-  explicit analysis parameter, even odds by default, labeled with the calibration cohort it was drawn from &mdash;
-  and a likelihood ratio LR aggregated across segments, the posterior odds and probability are</p>
-  <span class="eq"><em>O</em><sub>1</sub> = <em>O</em><sub>0</sub> &times; LR,&emsp;&emsp; <em>P</em> = <em>O</em><sub>1</sub> / (1 + <em>O</em><sub>1</sub>) <span class="eqnum">(1)</span></span>
-  <p>Reporting the decomposition &mdash; prior odds, likelihood ratio, posterior odds &mdash; separates &ldquo;what the
-  tests say&rdquo; from &ldquo;what we believed before testing,&rdquo; and the interface presents exactly these
-  quantities. The detector&rsquo;s expected calibration error on the cohort is reported alongside as the
-  <em>reliability error</em>, so that a confident posterior from a poorly calibrated detector is visibly discounted.
-  Figure&nbsp;1 shows the posterior as a function of the declared prior for several likelihood ratios; the interface
-  renders the same curve live with the user&rsquo;s prior marked.</p>
+  <p>The evidence pipeline is frozen as: raw detector score &rarr; probability calibration on an independent
+  calibration set &rarr; likelihood-ratio calibration using the declared cohort prevalence &pi; &rarr; evidence model
+  &rarr; declared prior &rarr; posterior &rarr; uncertainty &rarr; decide or abstain. Given a calibrated
+  cohort-conditional probability <em>p</em> and declared prior odds <em>O</em><sub>0</sub>,</p>
+  <span class="eq">LR = (<em>p</em> / (1 &minus; <em>p</em>)) &times; ((1 &minus; &pi;) / &pi;),&emsp;&emsp; <em>O</em><sub>1</sub> = <em>O</em><sub>0</sub> &times; LR,&emsp;&emsp; <em>P</em> = <em>O</em><sub>1</sub> / (1 + <em>O</em><sub>1</sub>) <span class="eqnum">(1)</span></span>
+  <p>Reporting the decomposition &mdash; prior odds, likelihood ratio, posterior odds, cohort prevalence &mdash; separates
+  &ldquo;what the tests say&rdquo; from &ldquo;what we believed before testing.&rdquo; Expected calibration error (ECE)
+  on the held-out calibration set is reported alongside as a <em>reliability diagnostic</em>. It is not subtracted from
+  the posterior and does not mathematically discount it; a poorly calibrated map should be replaced or abstained from,
+  not silently shrunk. Figure&nbsp;1 shows the posterior as a function of the declared prior for several likelihood
+  ratios; the interface renders the same curve live with the user&rsquo;s prior marked. The protocol also compares three
+  evidence-aggregation models &mdash; naive summation of segment log-likelihood ratios, correlation-aware shrinkage, and
+  a document-level estimate &mdash; because a non-rejected Durbin&ndash;Watson test is not treated as proof that
+  segments are independent.</p>
 
   <figure>
     <!-- FIG:posterior -->
@@ -292,8 +317,11 @@
 
   <h3>3.5 Provenance verification</h3>
   <p>When an upload carries a signed provenance manifest, Panoptes verifies the signature chain and reports the outcome
-  as a separate channel with its own status vocabulary (verified, invalid, not present). Statistical and cryptographic
-  evidence are never blended into a single score; the user sees both, labeled.</p>
+  as a separate channel with its own status vocabulary (verified, invalid, not present) and a provenance level: P0 no
+  provenance; P1 self-declared model identity; P2 authenticated provider metadata; P3 cryptographically signed generation
+  receipt (verified C2PA); P4 independently verifiable execution (hash-pinned run, Merkle commitment, optional
+  OpenTimestamps). A model&rsquo;s self-reported identity is P1, not independently verified provenance. Statistical and
+  cryptographic evidence are never blended into a single score; the user sees both, labeled.</p>
 
   <h3>3.6 Interface as methodology</h3>
   <p>The web interface is part of the method. The first view is a plain-language answer with the outcome distribution;
@@ -471,10 +499,13 @@
   reject five of six nulls. The two results that were merely suggestive at n&nbsp;=&nbsp;104 &mdash; token entropy (H2)
   and long-word rate (H5) &mdash; are confirmed with the same sign, as are connector rate (H1), the
   length-discrimination increment (H3), and per-family centroid separation (H4). H6 again finds no evidence that
-  segment-level residuals are autocorrelated (DW&nbsp;=&nbsp;2.68, q&nbsp;=&nbsp;1.0), supporting the
-  segment-independence assumption the analyzer makes in both cohorts. The registry exists precisely so that these
-  numbers cannot be silently re-litigated: the tests, directions, and &alpha; were fixed before either cohort was
-  scored.</p>
+  segment-level residuals are autocorrelated (DW&nbsp;=&nbsp;2.68, q&nbsp;=&nbsp;1.0). That non-rejection is
+  <em>not</em> treated as proof of segment independence: the measurement protocol compares naive accumulation,
+  correlation-aware shrinkage, and document-level evidence explicitly (&sect;3.2), because residual diagnostics can
+  look acceptable while summed log-likelihood ratios still overstate document-level evidence. The registry exists
+  precisely so that these numbers cannot be silently re-litigated: the tests, directions, and &alpha; were fixed before
+  either cohort was scored. H1&ndash;H6 remain supporting stylometry diagnostics; the primary scientific claims of this
+  revision are RQ1&ndash;RQ4.</p>
 
   <h2>8. The training bench</h2>
   <p>The <span class="mono">bench/</span> package turns the verified corpus &mdash; and any schema-valid community dataset
@@ -602,9 +633,11 @@
   <p><strong>Cross-domain honesty.</strong> The same Defactify-trained ensemble, scored back against the 104-record
   project corpus, attains AUROC 0.471 (95% CI 0.282&ndash;0.708) &mdash; below chance. NYT news prose and the
   project&rsquo;s mixed prompt corpus are different worlds, and a detector fitted on one can anti-correlate with the
-  other. This is recorded on the card as the <span class="mono">cross_domain</span> block, and it is the strongest
-  argument this paper makes: <em>calibration is cohort property, not model property</em>, which is why the runtime
-  ships per-cohort calibration bundles with an explicit switch (&sect;10) rather than a global score.</p>
+  other. Together with the shipped runtime&rsquo;s 0.648 AUROC on Defactify, this is the paper&rsquo;s central result,
+  not a footnote: <em>calibration is a cohort property, not a model property</em>, which is why the runtime ships
+  per-cohort calibration bundles with an explicit switch (&sect;10) and why the measurement protocol reports a
+  train-domain&nbsp;&times;&nbsp;test-domain transport matrix rather than a single leaderboard number. The scientific
+  question is how portable detection evidence is.</p>
 
   <p><strong>Verdict.</strong> At n&nbsp;=&nbsp;104 the honest statement was architectural, not empirical. At
   n&nbsp;=&nbsp;71,666 the empirical statement is licensed and it is two-sided: Panoptes-v0 decisively beats the
@@ -770,18 +803,20 @@
   structurally difficult for the project &mdash; or anyone building on it &mdash; to claim more than the data supports.</p>
 
   <h2>14. Conclusion</h2>
-  <p>Panoptes reframes AI-text attribution as the presentation of calibrated, inspectable evidence rather than the
-  emission of a verdict, and pairs the analyzer with a verification-first community corpus that calibrates it, trains
-  it, and holds it to pre-registered account. The project-corpus numbers remain deliberately unheroic: 104 records,
-  hypotheses that do not clear multiplicity control, a neural architecture that ties its logistic baseline. The
-  Defactify external validation shows what the same machinery concludes when the power gate passes: five of six
-  pre-registered nulls rejected at n&nbsp;=&nbsp;71,666, a tier-1 model at AUROC 0.999 under leakage-safe grouped
-  evaluation, and &mdash; just as important &mdash; a shipped runtime whose 0.648 out-of-domain AUROC is measured,
-  signed, and displayed rather than discovered by a user. That is what evidence looks like when both the weak and the
-  strong results are reported under the same protocol, and the machinery described here &mdash; hash-pinned runs,
-  signed artifacts, power gates, and a hypothesis registry &mdash; exists so that the numbers can only get more
-  meaningful from here. We invite replication: run the canonical prompts, hash your outputs, append your evidence to
-  the catalog, and move the marker on the power curve.</p>
+  <p>Panoptes reframes AI-text attribution as a measurement and calibration problem rather than a detector leaderboard.
+  The system reports prevalence-corrected likelihood ratios, declared priors, uncertainty, and abstention; it keeps
+  participation, generation, and source-family attribution distinct; and it treats watermark tests and cryptographic
+  provenance as separate subsystems. The project-corpus numbers remain deliberately unheroic: 104 records, hypotheses
+  that do not clear multiplicity control, a neural architecture that ties its logistic baseline. The Defactify external
+  validation shows what the same machinery concludes when the power gate passes &mdash; and, more importantly, what
+  happens when the evidence distribution changes: in-domain AUROC near 0.998 collapses to 0.648 for the shipped detector
+  on that domain and to 0.471 when the Defactify-trained model is transported back to the Panoptes corpus. That
+  transportability gap, not the in-domain score, is the result this paper is built around. The scientifically stronger
+  question is: under what conditions is AI participation statistically identifiable, and how does the evidence degrade
+  when those conditions change? The machinery described here &mdash; a frozen protocol, group-disjoint
+  train/calibration/test splits, signed artifacts, power gates, and a hypothesis registry &mdash; exists so that the
+  numbers can only get more meaningful from here. We invite replication: run the canonical prompts, hash your outputs,
+  append your evidence to the catalog, and move the marker on the power curve.</p>
 
   <h2>References</h2>
   <ol class="refs">
@@ -860,13 +895,14 @@
   </ol>
 
   <div class="footnote">
-    Panoptes working paper, v2.0 &middot; August 12, 2026. The canonical source of this paper, the baseline catalog, the
+    Panoptes working paper, v2.1 &middot; August 13, 2026. Measurement protocol registered 2026-08-13 in
+    <span class="mono">research/protocol.json</span>. The canonical source of this paper, the baseline catalog, the
     hypothesis registry, and all schemas lives at
     <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>. Every figure is
     generated from the signed artifacts in <span class="mono">backend/artifacts/</span> by
     <span class="mono">research/make_figures.py</span>; catalog entries referenced in Table&nbsp;1 can be independently
-    verified with <span class="mono">python baselines/baseline.py verify-catalog</span>; every model number can be
-    reproduced with <span class="mono">python -m bench train</span>.
+    verified with <span class="mono">python baselines/baseline.py verify-catalog</span>; protocol measurement cards
+    are produced with <span class="mono">python -m bench measure</span>.
   </div>
 
 </div>

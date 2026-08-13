@@ -85,6 +85,8 @@ export interface AnalysisResponse {
     plain_language: string;
     confidence_label: 'none' | 'low' | 'medium' | 'high';
     overall: OutcomeDistribution;
+    ai_participation?: number;
+    ai_generation?: number;
   };
   posterior: {
     prior_odds: number;
@@ -93,6 +95,7 @@ export interface AnalysisResponse {
     calibration_bundle: string;
     reliability_error: number | null;
     cohort: string;
+    cohort_prevalence?: number | null;
   };
   calibration: {
     bundle: string;
@@ -129,6 +132,7 @@ export interface AnalysisResponse {
     issuer?: string | null;
     timestamp?: string | null;
     actions: string[];
+    level?: 'P0' | 'P1' | 'P2' | 'P3' | 'P4';
   };
   segments: Segment[];
   matrices: {

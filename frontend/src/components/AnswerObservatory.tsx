@@ -17,6 +17,10 @@ export function AnswerObservatory({ result }: { result: AnalysisResponse }) {
         : best,
     testedWatermarks[0] ?? null
   );
+  const participation =
+    result.summary.ai_participation ??
+    result.summary.overall.ai_generated + result.summary.overall.ai_refined_or_mixed;
+  const generation = result.summary.ai_generation ?? result.summary.overall.ai_generated;
 
   return (
     <section className="observatory-answer" aria-labelledby="answer-heading">
@@ -48,6 +52,11 @@ export function AnswerObservatory({ result }: { result: AnalysisResponse }) {
             </div>
           ))}
         </div>
+        <p className="panel-note">
+          P(AI participation) {formatPercent(participation)} is generated plus
+          assisted; P(AI generation) {formatPercent(generation)} is the majority-generated
+          class. Source-family similarity is a separate output.
+        </p>
       </div>
 
       <div className="answer-side">

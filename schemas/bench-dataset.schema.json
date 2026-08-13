@@ -16,7 +16,22 @@
     "kind": {"enum": ["text", "code"]},
     "group": {
       "type": "string",
-      "description": "Leakage-control group (e.g. prompt or topic id). Rows sharing a group never straddle a train/test split.",
+      "description": "Leakage-control group (e.g. prompt or topic id). Rows sharing a group never straddle a train/calibration/test split.",
+      "maxLength": 128
+    },
+    "author": {
+      "type": "string",
+      "description": "Independent author identifier. Rows sharing an author never straddle a train/calibration/test split.",
+      "maxLength": 128
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain or genre label used for transportability slices (journalism, academic, code, ...).",
+      "maxLength": 64
+    },
+    "source": {
+      "type": "string",
+      "description": "Source or story identifier for source-disjoint splits.",
       "maxLength": 128
     }
   }

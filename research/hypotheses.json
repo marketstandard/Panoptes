@@ -1,6 +1,7 @@
 {
   "schema": "panoptes-hypotheses-v1",
   "registered_utc": "2026-08-12T00:00:00Z",
+  "note": "H1-H6 are the stylometry battery. Primary scientific claims RQ1-RQ4 live in research/protocol.json (registered 2026-08-13) and must not be retuned against test outcomes.",
   "multiple_testing": "benjamini-hochberg",
   "alpha": 0.05,
   "hypotheses": [

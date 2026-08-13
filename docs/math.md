@@ -55,19 +55,23 @@ Summary views use corrected evidence. Technical mode can show both p-values and 
 
 ## Calibrated posterior
 
-A detector score \(s\) is mapped through a calibration function \(g\) estimated on held-out examples:
+A detector score \(s\) is mapped through a calibration function \(g\) estimated on an **independent calibration set**:
 
 \[
-P(Y=1\mid s,x)=g(s;\theta_{\text{cohort}}).
+p = P(Y=1\mid s,x)=g(s;\theta_{\text{cohort}}).
 \]
 
-Prior odds \(O_0=P(Y=1)/P(Y=0)\) can be adjusted explicitly. When evidence is represented as a calibrated likelihood ratio \(LR\), posterior odds are:
+Calibration happens before the posterior is reported. Expected calibration error is a diagnostic of \(g\); it does not discount or rescale the posterior.
+
+The likelihood ratio that can be combined with a user-declared prior uses the calibration-cohort prevalence \(\pi\):
 
 \[
-O_1 = O_0 \times LR.
+\mathrm{LR}=\frac{p}{1-p}\cdot\frac{1-\pi}{\pi},\qquad O_1 = O_0 \times \mathrm{LR}.
 \]
 
-When detector outputs are correlated, Panoptes uses a held-out meta-logistic model rather than multiplying raw scores.
+When \(\pi=1/2\), this reduces to \(p/(1-p)\). Detector evidence (LR) and posterior probability are not the same quantity.
+
+When detector outputs are correlated, Panoptes compares three evidence models rather than assuming segment independence: naive summation of segment log-likelihood ratios, correlation-aware shrinkage by effective sample size, and a document-level estimate.
 
 ## Source-family geometry
 
@@ -104,9 +108,11 @@ Change-point detection looks for large changes in \(S_k\) or the underlying segm
 Panoptes reports:
 
 - Brier score: mean squared probability error;
-- expected calibration error: average gap between predicted confidence and empirical frequency;
+- expected calibration error: average gap between predicted confidence and empirical frequency (a diagnostic, not a posterior discount);
+- calibration slope and intercept: systematic probability distortion;
 - reliability-bin range: observed frequency interval around the reported probability;
 - conformal coverage: empirical fraction of true labels included on held-out data;
-- TPR at fixed FPR: true-positive rate at a selected false-positive operating point.
+- selective risk at declared coverage levels;
+- TPR at 0.1%, 1%, and 5% FPR.
 
 Metrics are reported separately for prose and code, and by language/domain where sample size permits.

@@ -26,6 +26,13 @@ REFERENCE = ROOT / "baselines" / "reference"
 CONTROLS = ROOT / "baselines" / "controls"
 
 
+def _first_run_dir(root: Path) -> Path:
+    for path in sorted(root.iterdir()):
+        if path.is_dir():
+            return path
+    raise AssertionError(f"no run directories in {root}")
+
+
 def test_real_corpus_verifies_end_to_end():
     records = load_corpus()
     run_dirs = [d for root in (REFERENCE, CONTROLS) for d in root.iterdir() if d.is_dir()]
@@ -55,7 +62,7 @@ def test_kinds_and_buckets_are_well_formed():
 
 
 def test_tampered_output_file_is_rejected(tmp_path):
-    source = sorted(REFERENCE.iterdir())[0]
+    source = _first_run_dir(REFERENCE)
     forged = tmp_path / source.name
     shutil.copytree(source, forged)
     manifest = json.loads((forged / "run.manifest.json").read_text(encoding="utf-8"))
@@ -66,7 +73,7 @@ def test_tampered_output_file_is_rejected(tmp_path):
 
 
 def test_tampered_manifest_is_rejected(tmp_path):
-    source = sorted(REFERENCE.iterdir())[0]
+    source = _first_run_dir(REFERENCE)
     forged = tmp_path / source.name
     shutil.copytree(source, forged)
     manifest_path = forged / "run.manifest.json"
@@ -78,7 +85,7 @@ def test_tampered_manifest_is_rejected(tmp_path):
 
 
 def test_missing_output_is_rejected(tmp_path):
-    source = sorted(REFERENCE.iterdir())[0]
+    source = _first_run_dir(REFERENCE)
     forged = tmp_path / source.name
     shutil.copytree(source, forged)
     manifest = json.loads((forged / "run.manifest.json").read_text(encoding="utf-8"))

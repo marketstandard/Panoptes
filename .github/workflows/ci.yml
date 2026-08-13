@@ -22,9 +22,13 @@ jobs:
       - name: Test backend
         working-directory: backend
         run: python -m pytest
+      - name: Test bench and research protocol
+        run: |
+          python -m pip install pandas pyarrow
+          python -m pytest bench/tests research/tests
       - name: Validate baseline artifacts and catalog
         run: |
-          python research/validate_submission.py baselines/prompts/prompts.manifest.json
+          python research/validate_submission.py baselines/prompts/prompts.manifest.json research/protocol.json
           python baselines/baseline.py verify-catalog
       - name: Test baselines tooling
         run: python -m pytest baselines/tests
