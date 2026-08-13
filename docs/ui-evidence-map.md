@@ -35,6 +35,8 @@ This document maps every user-visible surface to the versioned analysis response
 | `summary.overall.human` | probability bar | Calibrated probability assigned to human-written outcome |
 | `summary.overall.ai_generated` | probability bar | Calibrated probability assigned to AI-generated outcome |
 | `summary.overall.ai_refined_or_mixed` | probability bar | Calibrated probability assigned to mixed/refined participation |
+| `summary.ai_participation` | answer note | P(generated) + P(assisted); not interchangeable with P(generation) |
+| `summary.ai_generation` | answer note | P(majority or entirety AI-generated) |
 
 ## Posterior decomposition
 
@@ -44,8 +46,9 @@ This document maps every user-visible surface to the versioned analysis response
 | `posterior.likelihood_ratio` | statistic | Detector evidence multiplier |
 | `posterior.posterior_odds` | statistic | \(O_0 \times \mathrm{LR}\) |
 | `posterior.calibration_bundle` | statistic detail | Bundle used to map scores to probabilities |
-| `posterior.reliability_error` | statistic | Expected calibration error for the cohort when known |
+| `posterior.reliability_error` | statistic | ECE for the cohort; diagnostic only, not a posterior discount |
 | `posterior.cohort` | lab note | Population/domain represented by calibration |
+| `posterior.cohort_prevalence` | statistic | \(\pi\) used to convert calibrated \(p\) into an LR |
 
 ## Watermark evidence
 
@@ -80,6 +83,7 @@ This document maps every user-visible surface to the versioned analysis response
 | Field | UI surface | Interpretation |
 | --- | --- | --- |
 | `provenance.status` | status tone | `verified`, `tampered`, `not_present`, `unsupported_file`, `error`, or `not_applicable` |
+| `provenance.level` | definition list | P0 none, P1 self-declared, P2 authenticated metadata, P3 signed receipt, P4 verifiable execution |
 | `provenance.summary` | paragraph | Plain-language file provenance result |
 | `provenance.issuer` | definition list | Signing identity when available |
 | `provenance.timestamp` | definition list | Signed timestamp when available |

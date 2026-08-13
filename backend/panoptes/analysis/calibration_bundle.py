@@ -50,6 +50,15 @@ class CalibrationBundle:
         return int(self.payload.get("corpus", {}).get("n_records", 0))
 
     @property
+    def cohort_prevalence(self) -> float:
+        corpus = self.payload.get("corpus", {})
+        n = int(corpus.get("n_records") or 0)
+        n_ai = int(corpus.get("n_ai") or 0)
+        if n <= 0:
+            return 0.5
+        return n_ai / n
+
+    @property
     def reliability_bins(self) -> list[dict]:
         return self.payload.get("reliability_bins", [])
 

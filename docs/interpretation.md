@@ -51,7 +51,7 @@ The generic detector output is recalibrated on held-out data. The displayed prob
 - selected prior odds;
 - calibration bundle.
 
-The default prior is neutral. Technical users can inspect and adjust prior odds to see how assumptions affect posterior probability.
+The default prior is neutral. Technical users can inspect and adjust prior odds to see how assumptions affect posterior probability. ECE is shown as a calibration diagnostic; it is not mixed into the posterior.
 
 ## Source-family similarity
 

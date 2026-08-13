@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/measurement-card.schema.json",
+  "title": "Panoptes Measurement Protocol Card",
+  "description": "Signed results from a protocol-compliant train/calibration/test measurement run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol_id",
+    "protocol_registered_utc",
+    "created_utc",
+    "dataset",
+    "n",
+    "split",
+    "detectors",
+    "metrics",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-measurement-card-v1"},
+    "protocol_id": {"type": "string"},
+    "protocol_registered_utc": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "dataset": {"type": "string"},
+    "dataset_sha256": {"type": "string"},
+    "n": {"type": "integer", "minimum": 0},
+    "split": {"type": "object"},
+    "detectors": {"type": "array", "items": {"type": "string"}},
+    "metrics": {"type": "object"},
+    "transport": {"type": "object"},
+    "mixtures": {"type": "object"},
+    "open_set": {"type": "object"},
+    "dependence": {"type": "object"},
+    "prior_sensitivity": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

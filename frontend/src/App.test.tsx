@@ -27,7 +27,7 @@ test('technical drilldown renders equations and watermark statistics', async () 
 
 function mockResponse(): AnalysisResponse {
   return {
-    schema_version: '1.1.0',
+    schema_version: '1.2.0',
     report_id: 'fixture-report',
     runtime: { profile: 'fixture', device: 'cpu', models_loaded: ['fixture-detector'], calibration_bundles: ['prose-en'] },
     input: {
@@ -44,7 +44,9 @@ function mockResponse(): AnalysisResponse {
       evidence_state: 'supported',
       plain_language: 'Strong calibrated evidence suggests AI participation.',
       confidence_label: 'medium',
-      overall: { human: 0.2, ai_generated: 0.75, ai_refined_or_mixed: 0.05 }
+      overall: { human: 0.2, ai_generated: 0.75, ai_refined_or_mixed: 0.05 },
+      ai_participation: 0.8,
+      ai_generation: 0.75
     },
     posterior: {
       prior_odds: 1,
@@ -52,7 +54,8 @@ function mockResponse(): AnalysisResponse {
       posterior_odds: 3,
       calibration_bundle: 'prose-en',
       reliability_error: 0.04,
-      cohort: 'fixture'
+      cohort: 'fixture',
+      cohort_prevalence: 0.5
     },
     calibration: {
       bundle: 'panoptes-reference-corpus-v1',
@@ -95,7 +98,7 @@ function mockResponse(): AnalysisResponse {
       power: 0.7,
       tokens: [{ start: 0, end: 2, green: true }]
     }],
-    provenance: { status: 'not_present', summary: 'No signed provenance manifest was found.', actions: [] },
+    provenance: { status: 'not_present', summary: 'No signed provenance manifest was found.', actions: [], level: 'P0' },
     segments: [{
       id: 'segment-1',
       start: 0,
