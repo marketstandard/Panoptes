@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/research-protocol.schema.json",
+  "title": "Panoptes Research Protocol",
+  "description": "Frozen scientific protocol for Panoptes measurement experiments. Commit before outcome analysis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "registered_utc",
+    "title",
+    "thesis",
+    "research_questions",
+    "tasks",
+    "outputs",
+    "split_rules",
+    "evidence_pipeline",
+    "primary_metrics",
+    "power",
+    "priors",
+    "provenance_levels",
+    "what_not_to_claim"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-research-protocol-v1"},
+    "registered_utc": {"type": "string"},
+    "title": {"type": "string"},
+    "thesis": {"type": "string"},
+    "research_questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "question"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "question": {"type": "string"},
+          "primary_metrics": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "tasks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human_only", "ai_generated", "ai_assisted", "unknown"],
+      "properties": {
+        "human_only": {"type": "string"},
+        "ai_generated": {"type": "string"},
+        "ai_assisted": {"type": "string"},
+        "unknown": {"type": "string"}
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ai_participation", "ai_generation", "source_family"],
+      "properties": {
+        "ai_participation": {"type": "string"},
+        "ai_generation": {"type": "string"},
+        "source_family": {"type": "string"}
+      }
+    },
+    "split_rules": {"type": "object"},
+    "evidence_pipeline": {"type": "array", "items": {"type": "string"}},
+    "primary_metrics": {"type": "object"},
+    "power": {"type": "object"},
+    "priors": {"type": "object"},
+    "coverage_levels": {"type": "array", "items": {"type": "number"}},
+    "mixture_rates": {"type": "array", "items": {"type": "number"}},
+    "dependence_models": {"type": "array", "items": {"type": "string"}},
+    "provenance_levels": {"type": "object"},
+    "stylometry_hypotheses": {"type": "string"},
+    "what_not_to_claim": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

@@ -33,10 +33,10 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
             <h3>Posterior decomposition</h3>
             <InfoTip
               label="Posterior decomposition"
-              text="How the headline probability is built: prior odds from the calibration cohort are multiplied by the likelihood ratio from the tests, then converted to a probability with P = O / (1 + O)."
+              text="How the headline probability is built: a calibrated detector probability is converted to a prevalence-corrected likelihood ratio, then multiplied by the declared prior odds. ECE is reported alongside and is not mixed into this product."
             />
           </div>
-          <Equation formula="O_1 = O_0 \times \mathrm{LR}, \qquad P=\frac{O_1}{1+O_1}" />
+          <Equation formula="O_1 = O_0 \times \mathrm{LR},\quad \mathrm{LR}=\frac{p}{1-p}\cdot\frac{1-\pi}{\pi}" />
           <div className="stat-grid">
             <Stat
               label="Prior odds"
@@ -54,9 +54,14 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
               tip="Prior odds x likelihood ratio — the odds after the test evidence. P = O / (1 + O) converts this to the headline probability."
             />
             <Stat
-              label="Reliability error"
+              label="Reliability error (ECE)"
               value={formatNumber(result.posterior.reliability_error)}
-              tip="Expected calibration error of the detector on the calibration cohort: how far its confidence scores are from observed accuracy. Smaller means more trustworthy."
+              tip="Expected calibration error of the detector on the held-out calibration cohort: how far predicted probabilities are from observed frequencies. This is a quality diagnostic. It is not subtracted from or used to rescale the posterior."
+            />
+            <Stat
+              label="Cohort prevalence"
+              value={formatNumber(result.posterior.cohort_prevalence)}
+              tip="Share of AI-labeled documents in the calibration cohort (π). The likelihood ratio divides out this base rate so the same evidence can be combined with a different real-world prior."
             />
           </div>
           <p className="lab-note">Calibration cohort: {result.posterior.cohort}</p>

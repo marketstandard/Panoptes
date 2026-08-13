@@ -61,7 +61,16 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     document_score = _apply_corpus_calibration(document_score, bundle, content_type, settings.profile)
 
     state = _evidence_state(len(spans), content_type, language, document_score.abstain_reason)
-    calibrated = _calibrate_distribution(document_score.distribution, state, request.prior_odds)
+    prevalence = 0.5
+    if bundle is not None and settings.profile != RuntimeProfile.FIXTURE:
+        prevalence = bundle.cohort_prevalence
+    participation_p = (
+        document_score.distribution.ai_generated + document_score.distribution.ai_refined_or_mixed
+    )
+    lr = _likelihood_ratio(participation_p, prevalence)
+    calibrated = _calibrate_distribution(
+        document_score.distribution, state, request.prior_odds, prevalence
+    )
     confidence = _confidence(len(spans), state, calibrated, document_score.abstain_reason)
 
     watermark_results = []
@@ -118,11 +127,15 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
             plain_language=plain_language,
             confidence_label=confidence,
             overall=calibrated,
+            ai_participation=calibrated.ai_generated + calibrated.ai_refined_or_mixed,
+            ai_generation=calibrated.ai_generated,
         ),
         posterior=PosteriorInfo(
             prior_odds=request.prior_odds,
-            likelihood_ratio=_likelihood_ratio(document_score.distribution.ai_generated),
-            posterior_odds=request.prior_odds * _likelihood_ratio(document_score.distribution.ai_generated),
+            likelihood_ratio=lr if state == EvidenceState.SUPPORTED else None,
+            posterior_odds=(
+                request.prior_odds * lr if state == EvidenceState.SUPPORTED else None
+            ),
             calibration_bundle=_calibration_bundle(content_type, language),
             reliability_error=(
                 bundle.metrics["ece"]
@@ -134,6 +147,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
                 if settings.profile == RuntimeProfile.FIXTURE
                 else (bundle.cohort if bundle is not None else "prose-en/code-baseline-v0")
             ),
+            cohort_prevalence=prevalence,
         ),
         calibration=_calibration_info(bundle),
         source_families=attribution,
@@ -273,20 +287,27 @@ def _calibrate_distribution(
     distribution: OutcomeDistribution,
     state: EvidenceState,
     prior_odds: float,
+    cohort_prevalence: float = 0.5,
 ) -> OutcomeDistribution:
+    """Apply Bayes to a calibrated participation probability.
+
+    Calibration has already happened. ECE is not mixed into this step.
+    """
     if state != EvidenceState.SUPPORTED:
         return OutcomeDistribution(
             human=1 / 3,
             ai_generated=1 / 3,
             ai_refined_or_mixed=1 / 3,
         )
-    prior_ai = prior_odds / (1 + prior_odds)
-    detector_ai = distribution.ai_generated + distribution.ai_refined_or_mixed * 0.45
-    blended_ai = (0.72 * detector_ai) + (0.28 * prior_ai)
-    refined = distribution.ai_refined_or_mixed * blended_ai
-    generated = max(0.0, blended_ai - refined)
+    participation = distribution.ai_generated + distribution.ai_refined_or_mixed
+    mixed_share = 0.0 if participation <= 1e-12 else distribution.ai_refined_or_mixed / participation
+    lr = _likelihood_ratio(participation, cohort_prevalence)
+    posterior_odds = prior_odds * lr
+    p_participation = posterior_odds / (1.0 + posterior_odds)
+    refined = p_participation * mixed_share
+    generated = max(0.0, p_participation - refined)
     return OutcomeDistribution(
-        human=1 - blended_ai,
+        human=1.0 - p_participation,
         ai_generated=generated,
         ai_refined_or_mixed=refined,
     ).normalized()
@@ -343,7 +364,9 @@ def _matrices(
     for row in watermark_rows:
         watermark_values.append([segment.watermark_evidence.get(row) for segment in segments])
 
-    ai_score = sum(segment.posterior.ai_generated for segment in segments) / max(len(segments), 1)
+    ai_score = sum(
+        segment.posterior.ai_generated + segment.posterior.ai_refined_or_mixed for segment in segments
+    ) / max(len(segments), 1)
     lr = _likelihood_ratio(ai_score)
     waterfall = [
         WaterfallItem(label="Prior odds", value=prior_odds, kind="prior"),
@@ -455,11 +478,11 @@ def _math_definitions() -> list[MathDefinition]:
         ),
         MathDefinition(
             name="Calibrated posterior",
-            meaning="Detector evidence mapped to a probability using held-out calibration data.",
-            formula=r"O_1=O_0 \times \mathrm{LR}",
+            meaning="User-declared prior odds multiplied by a prevalence-corrected likelihood ratio from the calibrated detector probability.",
+            formula=r"O_1=O_0 \times \mathrm{LR},\quad \mathrm{LR}=\frac{p}{1-p}\cdot\frac{1-\pi}{\pi}",
             units="odds",
-            assumptions=["The input belongs to the calibration cohort."],
-            limitations=["Domain shift, paraphrase, and mixed authorship can invalidate calibration."],
+            assumptions=["The input belongs to the calibration cohort.", "p is calibrated before the prior is applied."],
+            limitations=["Domain shift, paraphrase, and mixed authorship can invalidate calibration.", "ECE is a diagnostic of p, not a factor applied to O_1."],
             kind="calibrated_evidence",
         ),
         MathDefinition(
@@ -492,9 +515,14 @@ def _math_definitions() -> list[MathDefinition]:
     ]
 
 
-def _likelihood_ratio(ai_probability: float) -> float:
+def _likelihood_ratio(ai_probability: float, cohort_prevalence: float = 0.5) -> float:
+    """LR from a calibrated probability and the calibration-cohort prevalence.
+
+    When prevalence is 1/2 this reduces to p / (1-p). ECE is not applied.
+    """
     p = min(max(ai_probability, 1e-6), 1 - 1e-6)
-    return p / (1 - p)
+    pi = min(max(cohort_prevalence, 1e-6), 1 - 1e-6)
+    return (p / (1 - p)) * ((1 - pi) / pi)
 
 
 def _anomaly_percentile(ai_probability: float) -> float:

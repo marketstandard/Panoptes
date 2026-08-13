@@ -55,6 +55,26 @@ class Dataset:
     provenance: str
     sha256: str
     meta: dict = field(default_factory=dict)
+    authors: list[str] | None = None
+    domains: list[str] | None = None
+    enforce_author_disjoint: bool = False
+
+    def __post_init__(self) -> None:
+        n = len(self.texts)
+        if self.authors is None:
+            self.authors = [
+                "human" if int(label) == 0 else f"generator:{family}"
+                for label, family in zip(self.labels, self.families, strict=True)
+            ]
+            self.enforce_author_disjoint = False
+        else:
+            self.enforce_author_disjoint = any(str(a).strip() for a in self.authors)
+        if not self.domains:
+            self.domains = list(self.kinds)
+        if self.authors is None or self.domains is None:
+            raise DatasetError("authors and domains must be populated")
+        if len(self.authors) != n or len(self.domains) != n:
+            raise DatasetError("authors and domains must align with texts")
 
     def __len__(self) -> int:
         return len(self.texts)
@@ -67,6 +87,26 @@ class Dataset:
     @property
     def feature_names(self) -> list[str]:
         return list(FEATURE_NAMES)
+
+    def subset(self, indices: np.ndarray | list[int]) -> "Dataset":
+        idx = [int(i) for i in indices]
+        return Dataset(
+            texts=[self.texts[i] for i in idx],
+            labels=np.asarray(self.labels)[idx],
+            families=[self.families[i] for i in idx],
+            kinds=[self.kinds[i] for i in idx],
+            groups=[self.groups[i] for i in idx],
+            buckets=[self.buckets[i] for i in idx],
+            provenance=self.provenance,
+            sha256=self.sha256,
+            meta=dict(self.meta),
+            authors=(
+                [self.authors[i] for i in idx]
+                if self.enforce_author_disjoint and self.authors is not None
+                else None
+            ),
+            domains=[self.domains[i] for i in idx] if self.domains is not None else None,
+        )
 
 
 def _dataset_hash(texts: list[str], labels: np.ndarray) -> str:
@@ -145,7 +185,9 @@ def load_user_dataset(path: Path) -> Dataset:
     labels = np.array([_LABELS[row["label"]] for row in rows])
     families = [row.get("family", "unknown") for row in rows]
     kinds = [row.get("kind", "text") for row in rows]
-    groups = [row.get("group", f"row-{index}") for index, row in enumerate(rows)]
+    groups = [row.get("group") or row.get("source") or f"row-{index}" for index, row in enumerate(rows)]
+    authors = [row.get("author", "") for row in rows]
+    domains = [row.get("domain", "") for row in rows]
     return Dataset(
         texts=texts,
         labels=labels,
@@ -155,6 +197,8 @@ def load_user_dataset(path: Path) -> Dataset:
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
         provenance=str(path),
         sha256=_dataset_hash(texts, labels),
+        authors=authors if any(authors) else None,
+        domains=domains if any(domains) else None,
     )
 
 
@@ -332,4 +376,5 @@ def load_defactify(
         provenance="defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)",
         sha256=dataset_hash,
         meta=meta,
+        domains=["journalism-nyt"] * len(texts),
     )

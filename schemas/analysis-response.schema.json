@@ -52,25 +52,28 @@
     "summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["evidence_state", "plain_language", "confidence_label", "overall"],
+      "required": ["evidence_state", "plain_language", "confidence_label", "overall", "ai_participation", "ai_generation"],
       "properties": {
         "evidence_state": {"$ref": "#/$defs/evidence_state"},
         "plain_language": {"type": "string"},
         "confidence_label": {"enum": ["none", "low", "medium", "high"]},
-        "overall": {"$ref": "#/$defs/outcome_distribution"}
+        "overall": {"$ref": "#/$defs/outcome_distribution"},
+        "ai_participation": {"type": "number", "minimum": 0, "maximum": 1},
+        "ai_generation": {"type": "number", "minimum": 0, "maximum": 1}
       }
     },
     "posterior": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["prior_odds", "likelihood_ratio", "posterior_odds", "calibration_bundle", "reliability_error", "cohort"],
+      "required": ["prior_odds", "likelihood_ratio", "posterior_odds", "calibration_bundle", "reliability_error", "cohort", "cohort_prevalence"],
       "properties": {
         "prior_odds": {"type": "number", "minimum": 0},
         "likelihood_ratio": {"type": ["number", "null"], "minimum": 0},
         "posterior_odds": {"type": ["number", "null"], "minimum": 0},
         "calibration_bundle": {"type": "string"},
         "reliability_error": {"type": ["number", "null"], "minimum": 0},
-        "cohort": {"type": "string"}
+        "cohort": {"type": "string"},
+        "cohort_prevalence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
       }
     },
     "calibration": {
@@ -169,13 +172,14 @@
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "summary"],
+      "required": ["status", "summary", "level"],
       "properties": {
         "status": {"enum": ["verified", "tampered", "not_present", "unsupported_file", "error", "not_applicable"]},
         "summary": {"type": "string"},
         "issuer": {"type": ["string", "null"]},
         "timestamp": {"type": ["string", "null"]},
-        "actions": {"type": "array", "items": {"type": "string"}}
+        "actions": {"type": "array", "items": {"type": "string"}},
+        "level": {"enum": ["P0", "P1", "P2", "P3", "P4"]}
       }
     },
     "segments": {
