@@ -12,10 +12,17 @@ import numpy as np
 
 from bench.datasets import Dataset
 from bench.detectors import HeuristicDetector, make_detector
-from bench.evaluate import evaluate_protocol, leave_one_family_out, transport_matrix
+from bench.evaluate import (
+    cross_dataset_transport,
+    evaluate_protocol,
+    leave_one_family_out,
+    sliced_conformal_coverage,
+    transport_matrix,
+)
 from bench.evidence import compare_dependence
 from bench.features import heuristic_raw_score
 from bench.mixtures import mixture_curve
+from bench.power import calibration_power
 from bench.splits import protocol_splits
 from research.protocol import load_protocol
 
@@ -89,12 +96,29 @@ def _dependence_pilot(dataset: Dataset, n_segments: int = 3, limit: int = 24) ->
     }
 
 
-def run_measurement(dataset: Dataset, detectors: tuple[str, ...] = ("heuristic", "logistic")) -> dict:
+def run_measurement(
+    dataset: Dataset,
+    detectors: tuple[str, ...] = ("heuristic", "logistic"),
+    cross_datasets: dict[str, Dataset] | None = None,
+) -> dict:
     protocol = load_protocol()
     splits = protocol_splits(dataset)
     detector_metrics = {}
+    power_blocks = {}
     for name in detectors:
         result = evaluate_protocol(lambda n=name: make_detector(n), dataset)
+        pooled_idx = result["pooled_test_idx"]
+        pooled_labels = result["pooled_labels"]
+        pooled_p = result["pooled_probabilities"]
+        coverage_slices = sliced_conformal_coverage(
+            pooled_labels,
+            pooled_p,
+            {
+                "length_bucket": [dataset.buckets[int(i)] for i in pooled_idx],
+                "family": [dataset.families[int(i)] for i in pooled_idx],
+                "class": ["ai" if int(v) == 1 else "human" for v in pooled_labels],
+            },
+        )
         detector_metrics[name] = {
             "method": result["method"],
             "n_splits": result["n_splits"],
@@ -102,9 +126,19 @@ def run_measurement(dataset: Dataset, detectors: tuple[str, ...] = ("heuristic",
             "metrics": result["metrics"],
             "selective_risk": result["selective_risk"],
             "conformal": result["conformal"],
+            "conformal_coverage_slices": coverage_slices,
             "prior_sensitivity": result["prior_sensitivity"],
             "mean_likelihood_ratio": result["mean_likelihood_ratio"],
         }
+        power_blocks[name] = calibration_power(pooled_labels, pooled_p)
+    cross_transport = {}
+    for label, other in (cross_datasets or {}).items():
+        cross_transport[f"{label}_to_here"] = cross_dataset_transport(
+            other, dataset, lambda: make_detector("logistic")
+        )
+        cross_transport[f"here_to_{label}"] = cross_dataset_transport(
+            dataset, other, lambda: make_detector("logistic")
+        )
     return _jsonable(
         {
             "schema": "panoptes-measurement-card-v1",
@@ -122,6 +156,8 @@ def run_measurement(dataset: Dataset, detectors: tuple[str, ...] = ("heuristic",
             "detectors": list(detectors),
             "metrics": detector_metrics,
             "transport": transport_matrix(HeuristicDetector, dataset, axis="domains"),
+            "cross_dataset_transport": cross_transport,
+            "power": power_blocks,
             "mixtures": mixture_curve(dataset, HeuristicDetector()),
             "open_set": leave_one_family_out(dataset),
             "dependence": _dependence_pilot(dataset),
@@ -130,6 +166,8 @@ def run_measurement(dataset: Dataset, detectors: tuple[str, ...] = ("heuristic",
                 "Human controls in the project corpus are few; mixture and calibration estimates are a pilot.",
                 "Transport cells are omitted when a domain lacks both classes.",
                 "Watermark evaluation is a separate subsystem and is not included in this card.",
+                "Conformal coverage is guaranteed marginally; per-slice coverage is reported diagnostically.",
+                "Calibration-metric power uses a normal approximation; ECE variance is a fixed-bin proxy.",
             ],
         }
     )

@@ -8,12 +8,33 @@ Planned detector artifacts:
 - C2PA tooling: verify package and specification terms before enabling non-development provenance verification.
 
 Research datasets:
-- RAID: cite and follow dataset terms; do not redistribute unless permitted.
 - DroidCollection: cite and follow dataset terms; do not redistribute unless permitted.
 - Defactify_Text_Dataset (Rajarshi-Roy-research, Hugging Face; Roy et al. 2026, arXiv:2510.22874):
   paper CC BY 4.0; dataset repository declares no separate license. Panoptes uses it as a
   local-only bench dataset: raw text is never committed or redistributed — only SHA-256
   hashes, row counts, and fitted model parameters (datasets/manifests/defactify-text.json).
+- RAID (liamdugan/raid, Hugging Face; Dugan et al. 2024, ACL, doi:10.18653/v1/2024.acl-long.674):
+  MIT-licensed benchmark. Panoptes fetches the labeled train split locally only: raw text is
+  never committed or redistributed — only SHA-256 hashes, row counts, and fitted parameters
+  (datasets/manifests/raid.json).
+- M4GT-Bench (mbzuai-nlp/M4GT-Bench, GitHub + Google Drive; Wang et al. 2024, ACL,
+  doi:10.18653/v1/2024.acl-long.218): repository declares no license for the data files.
+  Panoptes fetches the Subtask A JSONL files locally only: raw text is never committed or
+  redistributed — only SHA-256 hashes, row counts, and fitted parameters
+  (datasets/manifests/m4gt.json).
+- EvoBench (happy-Moer/EvoBench, GitHub; ACL 2025 Findings, doi:10.18653/v1/2025.findings-acl.754):
+  repository declares no license. Panoptes fetches the repository tarball at a pinned commit
+  locally only: raw text is never committed or redistributed — only SHA-256 hashes, row counts,
+  and fitted parameters (datasets/manifests/evobench.json).
+
+External detector baseline weights (scored locally on frozen protocol splits; never redistributed):
+- Falcon-7B and Falcon-7B-Instruct (tiiuae, Hugging Face; Almazrouei et al. 2023): Apache 2.0.
+  Used as the Binoculars observer/performer pair (Hans et al. 2024, ICML). Weights are downloaded
+  to the local Hugging Face cache only; only the resulting detection scores enter the signed
+  artifact (backend/artifacts/external-baselines.json).
+- GPT-J-6B (EleutherAI, Hugging Face; Wang & Komatsuzaki 2021): Apache 2.0. Used as the
+  Fast-DetectGPT scoring model (Bao et al. 2024, ICLR). Weights stay in the local cache only;
+  only detection scores enter the signed artifact.
 
 The current checked-in calibration artifact is synthetic and intended only to validate the pipeline.
 

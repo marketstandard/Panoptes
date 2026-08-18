@@ -96,6 +96,8 @@ def mixture_curve(
     rates: tuple[float, ...] = MIXTURE_RATES,
     mixer=mix_tokens,
     workflow: str = "ai_prefix",
+    max_pairs: int = 2000,
+    seed: int = 13,
 ) -> dict:
     """Score mixed documents and summarize tracking of controlled participation."""
     detector = detector or HeuristicDetector()
@@ -107,6 +109,12 @@ def mixture_curve(
             "skipped": "no human/AI pairs share a group",
             "workflow": workflow,
         }
+    subsampled = False
+    if len(pairs) > max_pairs:
+        rng = np.random.default_rng(seed)
+        chosen = rng.choice(len(pairs), size=max_pairs, replace=False)
+        pairs = [pairs[int(i)] for i in sorted(chosen.tolist())]
+        subsampled = True
 
     train_idx = np.arange(len(dataset))
     detector.fit(dataset, train_idx)
@@ -140,6 +148,7 @@ def mixture_curve(
     mae = float(np.mean(np.abs(actual - estimated)))
     return {
         "n_pairs": len(pairs),
+        "subsampled": subsampled,
         "workflow": workflow,
         "rates": rows,
         "correlation": corr,

@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": "d605370ae49bdc2cecbac5877ef537f9834302b322fcf62dc3d1cc7d3bf12d05",
+  "content_hash": {
+    "algorithm": "sha256",
+    "value": "6548cca937fb55c3d85dfacb494715e7c7586f3804f019798b70abd957ed4f45"
+  },
+  "id": "raid",
+  "kind": "prose",
+  "labels": {
+    "schema": "binary_ai",
+    "values": [
+      "human (model=human)",
+      "ai (model in 11 generator names)"
+    ]
+  },
+  "license": {
+    "citation": "@inproceedings{dugan-etal-2024-raid, title={RAID: A Shared Benchmark for Robust Evaluation of Machine-Generated Text Detectors}, author={Dugan, Liam and Hwang, Alyssa and Trhlik, Filip and Zhu, Andrew and Ludan, Josh Magnus and Xu, Hainiu and Ippolito, Daphne and Callison-Burch, Chris}, booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages={12463--12492}, year={2024}, address={Bangkok, Thailand}, publisher={Association for Computational Linguistics}, url={https://aclanthology.org/2024.acl-long.674}, doi={10.18653/v1/2024.acl-long.674}}",
+    "redistributable": false,
+    "spdx": "MIT"
+  },
+  "limitations": [
+    "Only the labeled train split is fetched; the leaderboard test split ships without labels.",
+    "Adversarial-attack rows are retained and flagged via the attack column; clean evaluation uses attack=none unless stated.",
+    "RAID covers English prose domains plus code/Czech/German in extra.csv, which is not fetched here."
+  ],
+  "notice_entry_required": true,
+  "privacy": {
+    "contains_pii_risk": "low",
+    "raw_text_in_repo": false,
+    "sanitization": "hashes-only"
+  },
+  "schema": "panoptes-dataset-manifest-v1",
+  "source": {
+    "access": "public",
+    "download_instructions": "Run `python research/fetch_raid.py`. The script downloads the labeled train.csv from Hugging Face, verifies it against the pinned SHA-256 hash, applies documented hygiene filters, and stores a clean parquet under datasets/local/raid/ (gitignored). Raw text is never committed to this repository.",
+    "url": "https://huggingface.co/datasets/liamdugan/raid",
+    "version": "pinned-sha256 train:52f04ceebc12"
+  },
+  "splits": {
+    "calibration": {
+      "groups": [
+        "source_id (AI generation shares the human source prompt id)"
+      ],
+      "n": 4902597
+    },
+    "group_keys": [
+      "source_id"
+    ],
+    "test": {
+      "groups": [
+        "source_id (AI generation shares the human source prompt id)"
+      ],
+      "n": 4902597
+    },
+    "train": {
+      "groups": [
+        "source_id (AI generation shares the human source prompt id)"
+      ],
+      "n": 4902597
+    }
+  },
+  "title": "RAID \u2014 shared benchmark for robust evaluation of MGT detectors (Dugan et al. 2024)"
+}

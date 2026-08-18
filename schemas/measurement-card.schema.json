@@ -29,6 +29,8 @@
     "detectors": {"type": "array", "items": {"type": "string"}},
     "metrics": {"type": "object"},
     "transport": {"type": "object"},
+    "cross_dataset_transport": {"type": "object"},
+    "power": {"type": "object"},
     "mixtures": {"type": "object"},
     "open_set": {"type": "object"},
     "dependence": {"type": "object"},

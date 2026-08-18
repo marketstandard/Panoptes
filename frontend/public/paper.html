@@ -186,10 +186,15 @@
     train&nbsp;&rarr;&nbsp;calibration&nbsp;&rarr;&nbsp;test splits, primary metrics centered on Brier score, ECE,
     calibration slope, low-FPR operating points, and selective risk, and a train-domain&nbsp;&times;&nbsp;test-domain
     transport matrix. We report honest null results at the project corpus size (n&nbsp;=&nbsp;104, 8 human controls) and
-    a full comparison battery in which no model significantly beats any other. External validation on the
+    a full comparison battery in which no model significantly beats any other.     External validation on the
     Defactify_Text_Dataset (Roy et&nbsp;al. 2026; 71,666 hygiene-filtered records) is the central scientific result:
     in-domain Panoptes-v0 AUROC is approximately 0.998, the shipped detector on that domain is 0.648, and the
-    Defactify-trained model transported back to the Panoptes corpus is 0.471. Performance and calibration are cohort
+    Defactify-trained model transported back to the Panoptes corpus is 0.471. The frozen protocol then runs at
+    benchmark scale on RAID, M4GT-Bench (English and multilingual), and EvoBench (29,574&ndash;205,233 records each),
+    yielding a full train-cohort&nbsp;&times;&nbsp;test-cohort transport matrix, real adversarial-attack cells
+    (paraphrase reduces a strong tier to chance; zero-width-space insertion inverts it), and sliced conformal coverage
+    that exposes a systematic human-class coverage deficit hidden by pooled coverage. Zero-shot external baselines
+    (Binoculars, Fast-DetectGPT) are scored on the same frozen splits. Performance and calibration are cohort
     properties, not model properties. The scientifically stronger question is not whether AI text is universally
     identifiable, but under what conditions AI participation is statistically identifiable and how the evidence degrades
     when those conditions change.</p>
@@ -232,7 +237,7 @@
     reference material is not a gallery but an input &mdash; it calibrates the live analyzer through a signed artifact,
     trains the model zoo under a statistical power gate, and grounds a pre-registered hypothesis battery whose null results
     we report as faithfully as any positive finding. A companion external validation on the 71,666-record
-    Defactify_Text_Dataset [32] runs the identical protocol where the power gate passes, so the reader can see which
+    Defactify_Text_Dataset [34] runs the identical protocol where the power gate passes, so the reader can see which
     conclusions were science and which were sample size (&sect;11). The strongest number in that section is not the
     near-perfect in-domain score; it is the collapse under transport.</p>
 
@@ -264,9 +269,10 @@
   unmodified and the scheme is known, and degrade gracefully under editing &mdash; behavior we quantify explicitly through
   effect sizes, power estimates, and a dilution statistic rather than a bare p-value.</p>
   <p><strong>Detection and its limits.</strong> Post-hoc AI-text detectors divide into zero-shot statistics over the
-  generating model &mdash; DetectGPT&rsquo;s probability-curvature test [5], the Fast-DetectGPT conditional-probability
-  speedup [6], Binoculars&rsquo; cross-model perplexity ratio [7] &mdash; and trained classifiers over surface or learned
-  features, evaluated on corpora such as HC3 [8], M4 [9], and RAID [10], and hardened against paraphrase attacks such as
+  generating model &mdash; GLTR&rsquo;s token-rank visualization [32], DetectGPT&rsquo;s probability-curvature test [5],
+  the Fast-DetectGPT conditional-probability speedup [6], Binoculars&rsquo; cross-model perplexity ratio [7] &mdash; and
+  trained classifiers over surface or learned features, evaluated on corpora such as HC3 [8], M4 [9], and RAID [10],
+  adversarially hardened variants such as RADAR [33], and hardened against paraphrase attacks such as
   DIPPER [11] and adaptive attacks generally [12]. Two consistent findings motivate our design: detectors are
   miscalibrated under domain shift, short inputs, and paraphrase [10, 12]; and small, interpretable feature models are
   competitive with large neural ones in-distribution while degrading more gracefully under distribution shift. Panoptes
@@ -552,8 +558,9 @@
   <p>The <span class="mono">bench/</span> package turns the verified corpus &mdash; and any schema-valid community dataset
   &mdash; into models under a protocol that refuses to overreach its sample size. Its components: a single-source feature
   extractor shared with the research layer; a dataset loader that re-verifies every record against its manifest hash;
-  grouped cross-validation by prompt so that no evaluation fold sees a sibling of a training record; a tiered model zoo;
-  and signed model cards [16] and datasheets [17] for everything it trains.</p>
+  grouped cross-validation by prompt so that no evaluation fold sees a sibling of a training record; a tiered model zoo
+  (scikit-learn [35] logistic and gradient-boosting implementations); and signed model cards [16] and datasheets [17]
+  for everything it trains.</p>
   <p><strong>The tier gate.</strong> Model complexity is admitted by statistical power, not enthusiasm. Tier&nbsp;0
   (penalized logistic regression) is always admissible. Tier&nbsp;1 (gradient boosting) requires n&nbsp;&ge;&nbsp;300.
   Tier&nbsp;2 (neural) requires passing a two-proportion worst-case power calculation: to detect a five-point accuracy
@@ -689,7 +696,7 @@
   <h2>11. External benchmark comparison</h2>
   <p>Every number above this section comes from the project&rsquo;s own 104-record corpus, and every null result is
   bounded by that choice. To find out which conclusions survive contact with a large external dataset &mdash; and which
-  were only small-sample artifacts &mdash; we evaluate on the <em>Defactify_Text_Dataset</em> of Roy et&nbsp;al. [32]:
+  were only small-sample artifacts &mdash; we evaluate on the <em>Defactify_Text_Dataset</em> of Roy et&nbsp;al. [34]:
   73,193 rows pairing New York Times human articles with single-prompt rewrites by six LLM families (Gemma-2-9B,
   GPT-4o, Llama-8B, Mistral-7B, Qwen-2-72B, Yi-Large). The dataset is deliberately hard: its authors report
   53&ndash;58% detection accuracy and 5&ndash;9% attribution accuracy for their own baselines. It is fetched by
@@ -730,7 +737,7 @@
 <!-- /FIG:defactify -->
     <figcaption>Figure 8 &mdash; Out-of-fold AUROC on the Defactify grouped holdout for the bench tiers and the shipped
     runtime (95% CI whiskers; ECE annotated). The dashed line is chance; the dataset authors&rsquo; detection baselines
-    score 53&ndash;58% accuracy [32]. The gap between the bench-trained tiers and the shipped heuristic is the value of
+    score 53&ndash;58% accuracy [34]. The gap between the bench-trained tiers and the shipped heuristic is the value of
     fitting on-domain; the gap between the heuristic and chance is what domain shift leaves behind.</figcaption>
   </figure>
 
@@ -770,7 +777,7 @@
 <!-- /FIG:attribution -->
     <figcaption>Figure 9 &mdash; Per-family F1 for the exploratory seven-class attribution model (out-of-fold,
     story-grouped). The shaded band is the 5&ndash;9% attribution-accuracy range reported for the dataset
-    authors&rsquo; baselines [32]. Signed card:
+    authors&rsquo; baselines [34]. Signed card:
     <span class="mono">cards/attribution-defactify.json</span>.</figcaption>
   </figure>
 
@@ -789,6 +796,83 @@
   in <span class="mono">calibration.bundle</span> and <span class="mono">source_families.basis</span>. The default
   stays corpus-fitted: the Defactify bundle is opt-in, because a NYT-prose calibrator is the wrong prior for the
   mixed-content traffic the analyzer actually sees.</p>
+
+  <p><strong>The benchmark suite.</strong> Three further external benchmarks now follow the same fetch-and-pin pattern
+  (raw text stays local; signed pointer manifests record hashes and counts only):
+  <em>RAID</em> (Dugan et&nbsp;al. 2024 [10]; 5,615,820 raw rows streamed from an 11.8&nbsp;GB CSV, hygiene-filtered to
+  4,902,597, group-subsampled to n&nbsp;=&nbsp;149,977 for the protocol run) contributes unseen generators, domains,
+  decoding strategies, and eleven adversarial attack families; <em>M4GT-Bench</em> (Wang et&nbsp;al. 2024 [9];
+  n&nbsp;=&nbsp;151,005 English and n&nbsp;=&nbsp;205,233 multilingual after hygiene) contributes multi-domain,
+  multilingual, multi-generator text; and <em>EvoBench</em> (Yu et&nbsp;al. 2025 [36]; n&nbsp;=&nbsp;29,574) contributes
+  generator-generation shift across model versions, with pair groups keyed by a content hash of the human original so
+  no fold ever trains on a text whose rewrite it scores. Table&nbsp;9 reports the frozen-protocol headline numbers for
+  the shipped heuristic and the logistic tier on every cohort. Two regularities matter more than any single number:
+  the in-cohort logistic tier is strong everywhere (AUROC 0.78&ndash;0.99) while the shipped corpus-calibrated heuristic
+  is much weaker everywhere it is off-domain (0.63&ndash;0.69 on RAID and M4GT), and the human-class conformal coverage
+  deficit of &sect;12 recurs on every cohort.</p>
+
+  <table>
+    <caption>Table 9 &mdash; Frozen-protocol headline metrics on every bench cohort (group-disjoint; isotonic fitted
+    on the calibration partition only). Signed cards:
+    <span class="mono">cards/measurement-protocol-{corpus,defactify,raid,m4gt,m4gtml,evobench}.json</span>.</caption>
+    <thead>
+      <tr><th>Cohort</th><th>n</th><th>Detector</th><th>AUROC</th><th>Brier</th><th>ECE</th><th>Slope</th><th>Conformal (pooled / human slice)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td rowspan="2">Defactify</td><td rowspan="2">71,666</td><td>heuristic</td><td>0.885</td><td>0.064</td><td>0.029</td><td>1.19</td><td>0.904 / 0.21</td></tr>
+      <tr><td>logistic</td><td>0.988</td><td>0.018</td><td>0.004</td><td>0.95</td><td>0.923 / 0.62</td></tr>
+      <tr><td rowspan="2">RAID (attack=none)</td><td rowspan="2">149,977</td><td>heuristic</td><td>0.634</td><td>0.178</td><td>0.015</td><td>0.92</td><td>0.901 / 0.60</td></tr>
+      <tr><td>logistic</td><td>0.783</td><td>0.142</td><td>0.010</td><td>0.92</td><td>0.901 / 0.62</td></tr>
+      <tr><td rowspan="2">M4GT (English)</td><td rowspan="2">151,005</td><td>heuristic</td><td>0.645</td><td>0.224</td><td>0.005</td><td>0.96</td><td>0.909 / 0.79</td></tr>
+      <tr><td>logistic</td><td>0.870</td><td>0.142</td><td>0.008</td><td>1.01</td><td>0.902 / 0.88</td></tr>
+      <tr><td rowspan="2">M4GT (multilingual)</td><td rowspan="2">205,233</td><td>heuristic</td><td>0.689</td><td>0.216</td><td>0.005</td><td>0.98</td><td>0.951 / 0.90</td></tr>
+      <tr><td>logistic</td><td>0.808</td><td>0.178</td><td>0.004</td><td>1.01</td><td>0.907 / 0.89</td></tr>
+      <tr><td rowspan="2">EvoBench</td><td rowspan="2">29,574</td><td>heuristic</td><td>0.771</td><td>0.169</td><td>0.020</td><td>0.87</td><td>0.915 / 0.76</td></tr>
+      <tr><td>logistic</td><td>0.970</td><td>0.054</td><td>0.007</td><td>0.99</td><td>0.905 / 0.86</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Real adversarial attacks.</strong> RAID&rsquo;s attack families replace the proxy edits of &sect;12 with
+  published adversarial transforms, evaluated as transport cells in both directions (train clean &rarr; score attacked,
+  and train attacked &rarr; score clean; all cells in
+  <span class="mono">cards/measurement-protocol-raid.json</span>). Two attacks break the logistic tier outright:
+  <em>paraphrase</em> collapses clean-trained detection to AUROC 0.495 &mdash; exactly chance &mdash; and
+  <em>zero-width-space</em> insertion <em>inverts</em> the ranking (AUROC 0.157, calibration slope &minus;0.48), because
+  the surface statistics the tier trusts are destroyed while the text remains human-readable. The remaining nine
+  families (synonym, homoglyph, whitespace, article deletion, alternative spelling, number, upper/lower,
+  perplexity-guided misspelling, paragraph insertion) leave AUROC between 0.75 and 0.88. Detectors that look strong on
+  clean benchmarks can be fragile or even anti-correlated under cheap attacks; the robustness claim a deployment
+  actually needs must name the attack family.</p>
+
+  <p><strong>The transport matrix, systematic.</strong> The two-point corpus&nbsp;&harr;&nbsp;Defactify result above
+  generalizes to the full train-cohort&nbsp;&times;&nbsp;test-cohort grid over all six cohorts (logistic tier, source
+  calibration partition only, target untouched; diagonal cells are within-cohort group-disjoint holdouts; large cohorts
+  group-subsampled to 60,000 rows). Table&nbsp;10 reports AUROC; the signed artifact
+  (<span class="mono">backend/artifacts/transport-matrix-external.json</span>) carries Brier, ECE, calibration slope,
+  and selective risk per cell. The diagonal is strong (0.78&ndash;0.99); the off-diagonal is where calibration goes to
+  die &mdash; cross-cohort AUROC spans 0.23&ndash;0.84 with calibration slopes from &minus;0.61 to 1.37 (negative slope
+  means the transported score is anti-correlated with the truth), and the corpus row, fitted on n&nbsp;=&nbsp;104,
+  transports nowhere (0.41&ndash;0.74 off-diagonal). The single worst cell, EvoBench&nbsp;&rarr;&nbsp;M4GT, inverts
+  (AUROC 0.23): a detector fitted on model-version shift actively misranks M4GT&rsquo;s multilingual generations.
+  Transportability is a property of the (train, test) pair, not of the detector.</p>
+
+  <table>
+    <caption>Table 10 &mdash; Cross-cohort transport matrix, AUROC (logistic tier-0; train cohort &rarr; test cohort).
+    Diagonal cells are within-cohort group-disjoint holdouts; off-diagonal cells never touch the target during fitting
+    or calibration. Signed artifact: <span class="mono">backend/artifacts/transport-matrix-external.json</span>
+    (AUROC / Brier / ECE / calibration slope / selective risk per cell).</caption>
+    <thead>
+      <tr><th>train &darr; &middot; test &rarr;</th><th>corpus</th><th>Defactify</th><th>EvoBench</th><th>M4GT</th><th>M4GT-ml</th><th>RAID</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>corpus</td><td><strong>0.67</strong></td><td>0.54</td><td>0.74</td><td>0.40</td><td>0.46</td><td>0.50</td></tr>
+      <tr><td>Defactify</td><td>0.83</td><td><strong>0.99</strong></td><td>0.69</td><td>0.69</td><td>0.71</td><td>0.62</td></tr>
+      <tr><td>EvoBench</td><td>0.56</td><td>0.61</td><td><strong>0.97</strong></td><td>0.23</td><td>0.42</td><td>0.57</td></tr>
+      <tr><td>M4GT</td><td>0.57</td><td>0.67</td><td>0.38</td><td><strong>0.87</strong></td><td>0.75</td><td>0.50</td></tr>
+      <tr><td>M4GT-ml</td><td>0.70</td><td>0.81</td><td>0.63</td><td>0.83</td><td><strong>0.81</strong></td><td>0.58</td></tr>
+      <tr><td>RAID</td><td>0.74</td><td>0.58</td><td>0.84</td><td>0.42</td><td>0.57</td><td><strong>0.78</strong></td></tr>
+    </tbody>
+  </table>
 
   <h2>12. Protocol measurement on the project corpus</h2>
   <p>The measurement protocol of &sect;2&ndash;4 is now executable. On the 104-record verified corpus,
@@ -885,17 +969,66 @@
   the passive-attribution claim. Signed card:
   <span class="mono">cards/watermark-degradation.json</span>.</p>
 
-  <p><strong>External detector baselines.</strong> Binoculars, DetectGPT / Fast-DetectGPT, and a transformer
-  classifier are registered as protocol adapters and marked <em>unavailable</em> in this environment (no shipped
-  weights). They will be scored on the same frozen splits when the extras are installed; they are not silently
-  replaced by the Panoptes heuristic. Card:
+  <p><strong>The protocol at scale.</strong> Every measurement above was then re-run at external-benchmark scale under
+  the same frozen protocol (signed cards <span class="mono">cards/measurement-protocol-{defactify,raid,m4gt,m4gtml,evobench}.json</span>;
+  cohort details in &sect;11). Three findings survive the move from n&nbsp;=&nbsp;104 to n&nbsp;=&nbsp;29,574&ndash;205,233.
+  <em>First, the unseen-generator null is not a small-n artifact.</em> Leave-one-family-out on Defactify&rsquo;s six LLM
+  families yields unknown-rejection AUROC 0.39&ndash;0.68 (mean 0.53) &mdash; the corpus pilot&rsquo;s 0.515 replicated at
+  700&times; the sample size, with the same conclusion on RAID (0.32&ndash;0.76 over eleven families) and M4GT
+  (0.35&ndash;0.76). Source-family geometry cannot reject a generator it has not seen, at any scale we can measure.
+  <em>Second, pooled conformal coverage hides a class-conditional failure.</em> Every cohort&rsquo;s pooled 90% conformal
+  coverage lands on target (0.90&ndash;0.95), but slicing by class exposes a systematic deficit: the <em>human</em> slice
+  is under-covered everywhere &mdash; 0.62 versus 0.96 for AI text under the Defactify logistic tier, 0.62 versus 0.99 on
+  RAID, 0.86&ndash;0.90 versus 0.92 on EvoBench and M4GT &mdash; while length-bucket and generator-family slices stay near
+  nominal. Marginal coverage is achieved by over-covering the majority (AI) class at the expense of the class whose
+  false accusation matters most. Sliced coverage is now a first-class protocol output for exactly this reason.
+  <em>Third, calibration contrasts are now powered analytically.</em> Each card carries a <span class="mono">power</span>
+  block with normal-approximation required-n for Brier and ECE contrasts alongside the accuracy gate: detecting a 0.01
+  Brier difference at 80% power needs n&nbsp;=&nbsp;848 under the Defactify logistic tier (n&nbsp;=&nbsp;3,598 on M4GT),
+  and the same ECE contrast needs roughly 4&ndash;8&times; more &mdash; the n&nbsp;=&nbsp;104 corpus was underpowered for
+  calibration by two orders of magnitude, which is now quantified in the card rather than asserted in prose.</p>
+
+  <p><strong>External detector baselines, scored.</strong> Binoculars (Falcon-7B observer/performer pair) and
+  Fast-DetectGPT (GPT-J-6B) were run on the frozen protocol splits as zero-shot adapters &mdash; never trained on the
+  bench data, isotonic calibration fitted on the calibration partition only, test groups untouched
+  (<span class="mono">research/run_external_baselines.py</span>). DetectGPT classic is recorded
+  <span class="mono">failed</span> with reason (its ~20 T5 perturbation passes per text are prohibitive at Defactify
+  scale); Fast-DetectGPT, the same curvature family without a perturbation model, is scored in its place. The
+  transformer classifier remains registered-<em>unavailable</em> (no fine-tuned weights) and is not replaced by the
+  Panoptes heuristic. Table&nbsp;11 reports the comparison. Two honest findings emerge. <em>First, at corpus scale the
+  zero-shot detectors win.</em> With only n&nbsp;=&nbsp;104 there is too little data to train a competitive supervised
+  tier, so Binoculars (AUROC 0.835) and Fast-DetectGPT (0.734) sit well above the logistic tier (0.686). <em>Second, at
+  Defactify scale the relationship inverts.</em> The logistic tier reaches AUROC 0.988 against Binoculars 0.877 and
+  Fast-DetectGPT 0.930, with the best calibration of the four (ECE 0.004, slope 0.95). Neither result is a
+  transportability claim: &sect;11&rsquo;s matrix shows every one of these detectors collapses off-diagonal, so
+  in-domain superiority &mdash; at either scale &mdash; says nothing about cross-cohort generalization. Signed card:
   <span class="mono">backend/artifacts/external-baselines.json</span>.</p>
+
+  <table>
+    <caption>Table 11 &mdash; External zero-shot detectors versus the Panoptes tiers on the frozen protocol splits
+    (nested grouped CV; isotonic on the calibration partition only). Corpus n&nbsp;=&nbsp;104; Defactify protocol
+    splits n&nbsp;=&nbsp;27,039 scored. Signed card:
+    <span class="mono">backend/artifacts/external-baselines.json</span>.</caption>
+    <thead>
+      <tr><th>Cohort</th><th>Detector</th><th>AUROC</th><th>AUPRC</th><th>Brier</th><th>ECE</th><th>Cal. slope</th></tr>
+    </thead>
+    <tbody>
+      <tr><td rowspan="4">corpus (n&nbsp;=&nbsp;104)</td><td>Panoptes heuristic</td><td>0.624</td><td>0.948</td><td>0.077</td><td>0.082</td><td>0.099</td></tr>
+      <tr><td>Panoptes logistic</td><td>0.686</td><td>0.955</td><td>0.078</td><td>0.059</td><td>0.124</td></tr>
+      <tr><td>Binoculars (zero-shot)</td><td><strong>0.835</strong></td><td>0.985</td><td>0.066</td><td>0.047</td><td>0.356</td></tr>
+      <tr><td>Fast-DetectGPT (zero-shot)</td><td>0.734</td><td>0.974</td><td>0.071</td><td>0.033</td><td>0.321</td></tr>
+      <tr><td rowspan="4">Defactify (protocol splits)</td><td>Panoptes heuristic</td><td>0.885</td><td>0.981</td><td>0.064</td><td>0.029</td><td>1.185</td></tr>
+      <tr><td>Panoptes logistic</td><td><strong>0.988</strong></td><td>0.998</td><td>0.018</td><td>0.004</td><td>0.952</td></tr>
+      <tr><td>Binoculars (zero-shot)</td><td>0.877</td><td>0.978</td><td>0.070</td><td>0.017</td><td>0.910</td></tr>
+      <tr><td>Fast-DetectGPT (zero-shot)</td><td>0.930</td><td>0.990</td><td>0.058</td><td>0.014</td><td>0.868</td></tr>
+    </tbody>
+  </table>
 
   <h2>13. Independent reproduction</h2>
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
   self-check, not an outside reproduction. <span class="mono">python research/reproduce.py</span> re-hashes every
   signed artifact, re-verifies the baseline catalog, and writes
-  <span class="mono">backend/artifacts/reproduction-selfcheck.json</span>. On this checkout, 18 of 18 signed
+  <span class="mono">backend/artifacts/reproduction-selfcheck.json</span>. On this checkout, 24 of 24 signed
   hashes match and the catalog verifies 12 registered runs. The self-check is labeled
   <span class="mono">independent: false</span> because the authors ran it. An outside researcher should follow
   <span class="mono">docs/v2-updates/independent-reproduction.md</span>, record original versus recomputed
@@ -969,22 +1102,32 @@
   validation shows what the same machinery concludes when the power gate passes &mdash; and, more importantly, what
   happens when the evidence distribution changes: in-domain AUROC near 0.998 collapses to 0.648 for the shipped detector
   on that domain and to 0.471 when the Defactify-trained model is transported back to the Panoptes corpus. That
-  transportability gap, not the in-domain score, is the result this paper is built around. The scientifically stronger
-  question is: under what conditions is AI participation statistically identifiable, and how does the evidence degrade
-  when those conditions change? The machinery described here &mdash; a frozen protocol, group-disjoint
-  train/calibration/test splits, signed artifacts, power gates, and a hypothesis registry &mdash; exists so that the
-  numbers can only get more meaningful from here. We invite replication: run the canonical prompts, hash your outputs,
-  append your evidence to the catalog, and move the marker on the power curve.</p>
+  transportability gap, not the in-domain score, is the result this paper is built around, and the six-cohort transport
+  matrix now makes it systematic: off-diagonal AUROC spans 0.23&ndash;0.84 with calibration slopes from &minus;0.61 to
+  1.37, so a detector&rsquo;s reputation is a property of the (train, test) pair. The same protocol-at-scale runs surface
+  two further findings that pooled leaderboards hide: conformal coverage that is marginally correct can be
+  class-conditionally wrong (the human slice is under-covered on every cohort), and published adversarial attacks do not
+  merely degrade a strong tier &mdash; paraphrase reduces it to chance and zero-width-space insertion inverts it. The
+  unseen-generator result is a replicated null: leave-one-family-out rejection stays near chance from n&nbsp;=&nbsp;104
+  to n&nbsp;=&nbsp;205,233. The scientifically stronger question is: under what conditions is AI participation
+  statistically identifiable, and how does the evidence degrade when those conditions change? The machinery described
+  here &mdash; a frozen protocol, group-disjoint train/calibration/test splits, signed artifacts, power gates, and a
+  hypothesis registry &mdash; exists so that the numbers can only get more meaningful from here. We invite replication:
+  run the canonical prompts, hash your outputs, append your evidence to the catalog, and move the marker on the power
+  curve.</p>
 
   <h2>References</h2>
   <ol class="refs">
     <li>Kirchenbauer, J., Geiping, J., Wen, Y., Katz, J., Miers, I., &amp; Goldstein, T. (2023). A watermark for large
     language models. <em>Proceedings of the 40th International Conference on Machine Learning</em>.</li>
-    <li>Aaronson, S., &amp; Kirchner, H. (2022). Watermarking GPT outputs. Manuscript, OpenAI.</li>
-    <li>Coalition for Content Provenance and Authenticity (2022). C2PA technical specification.</li>
-    <li>Todd, P. (2016). OpenTimestamps: Scalable, trust-minimized, distributed timestamping on the Bitcoin blockchain.</li>
+    <li>Aaronson, S., &amp; Kirchner, H. (2022). Watermarking GPT outputs. Manuscript, OpenAI.
+    https://www.scottaaronson.com/talks/watermark.ppt</li>
+    <li>Coalition for Content Provenance and Authenticity (2022). C2PA technical specification.
+    https://c2pa.org/specifications/specifications/1.0/index.html</li>
+    <li>Todd, P. (2016). OpenTimestamps: Scalable, trust-minimized, distributed timestamping on the Bitcoin blockchain.
+    https://opentimestamps.org/</li>
     <li>Mitchell, E., Lee, Y., Khazatsky, A., Manning, C. D., &amp; Finn, C. (2023). DetectGPT: Zero-shot
-    machine-generated text detection using probability curvature. <em>ICML</em>.</li>
+    machine-generated text detection using probability curvature. <em>ICML</em>. arXiv:2301.11305.</li>
     <li>Bao, G., Zhao, Y., Teng, Z., Yang, L., &amp; Zhang, Y. (2024). Fast-DetectGPT: Efficient zero-shot detection of
     machine-generated text via conditional probability curvature. <em>ICLR</em>.</li>
     <li>Hans, A., Schwarzschild, A., Cherepanova, V., Kazemi, H., Saha, A., Goldblum, M., Geiping, J., &amp; Goldstein,
@@ -1022,7 +1165,7 @@
     <li>Pregibon, D. (1980). Goodness of link tests for generalized linear models. <em>Applied Statistics</em>, 29(1),
     15&ndash;24.</li>
     <li>Hosmer, D. W., Lemeshow, S., &amp; Sturdivant, R. X. (2013). <em>Applied Logistic Regression</em> (3rd ed.).
-    Wiley.</li>
+    Wiley. doi:10.1002/9781118548387.</li>
     <li>Ramsey, J. B. (1969). Tests for specification errors in classical linear least-squares regression analysis.
     <em>Journal of the Royal Statistical Society, Series B</em>, 31(2), 350&ndash;371.</li>
     <li>Breusch, T. S., &amp; Pagan, A. R. (1979). A simple test for heteroscedasticity and random coefficient variation.
@@ -1050,6 +1193,9 @@
     P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., &amp; Duchesnay,
     &Eacute;. (2011). Scikit-learn: Machine learning in Python. <em>Journal of Machine Learning Research</em>, 12,
     2825&ndash;2830.</li>
+    <li>Yu, X., Yu, Y., Liu, D., Chen, K., Zhang, W., Yu, N., &amp; Shao, J. (2025). EvoBench: Towards real-world
+    LLM-generated text detection benchmarking for evolving large language models. <em>Findings of the Association for
+    Computational Linguistics: ACL 2025</em>, 14605&ndash;14620. doi:10.18653/v1/2025.findings-acl.754</li>
   </ol>
 
   <div class="footnote">

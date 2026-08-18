@@ -1,0 +1,3530 @@
+{
+  "artifact_sha256": "1d4a89f7d6827dd7900a14f824cb19ef992a88bff759506773893fff957dedd2",
+  "created_utc": "2026-08-17T17:07:34Z",
+  "cross_dataset_transport": {
+    "here_to_raid-attack-alternative_spelling": {
+      "accuracy": 0.7518503700740148,
+      "auprc": 0.8467218345923591,
+      "auroc": 0.7827805369809584,
+      "brier": 0.17164101454162878,
+      "calibration_applied": true,
+      "calibration_intercept": -0.3397857609812813,
+      "calibration_slope": 0.9329350426173738,
+      "conformal": {
+        "abstention_rate": 0.4095819163832767,
+        "alpha": 0.1,
+        "empirical_coverage": 0.908381676335267,
+        "mean_set_size": 1.4095819163832766,
+        "singleton_rate": 0.5904180836167233,
+        "threshold": 0.7770193401592719
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.06399025547400625,
+      "n_calibration": 29966,
+      "n_test": 19996,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.7518503700740148,
+          "brier": 0.1716410145416288,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19996,
+          "selective_risk": 0.2481496299259852
+        },
+        {
+          "accuracy": 0.7690688003368953,
+          "brier": 0.16717460459366398,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500400080016003,
+          "n_kept": 18997,
+          "selective_risk": 0.2309311996631047
+        },
+        {
+          "accuracy": 0.7829638273045507,
+          "brier": 0.16230665476867062,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000300060012002,
+          "n_kept": 17997,
+          "selective_risk": 0.21703617269544925
+        },
+        {
+          "accuracy": 0.8034006376195537,
+          "brier": 0.15293870792535386,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000100020004001,
+          "n_kept": 15997,
+          "selective_risk": 0.19659936238044634
+        },
+        {
+          "accuracy": 0.8231175882268895,
+          "brier": 0.14306176870703305,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000400080016003,
+          "n_kept": 13998,
+          "selective_risk": 0.17688241177311045
+        },
+        {
+          "accuracy": 0.8574714942988597,
+          "brier": 0.1223256202495601,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 9998,
+          "selective_risk": 0.14252850570114023
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=alternative_spelling, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.012447193723596862,
+      "tpr_at_1fpr": 0.07347616173808087,
+      "tpr_at_5fpr": 0.22925467712733857,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-article_deletion": {
+      "accuracy": 0.7978084659261483,
+      "auprc": 0.8840804489906401,
+      "auroc": 0.7836217002420293,
+      "brier": 0.14728804372779064,
+      "calibration_applied": true,
+      "calibration_intercept": -0.00156981645406631,
+      "calibration_slope": 0.943997837226832,
+      "conformal": {
+        "abstention_rate": 0.2787951566096267,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9008806164315021,
+        "mean_set_size": 1.2787951566096267,
+        "singleton_rate": 0.7212048433903733,
+        "threshold": 0.7037861915367484
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.014242602035296393,
+      "n_calibration": 29966,
+      "n_test": 19986,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.7978084659261483,
+          "brier": 0.14728804372779067,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19986,
+          "selective_risk": 0.2021915340738517
+        },
+        {
+          "accuracy": 0.8126612945699689,
+          "brier": 0.14195290323292503,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500150105073552,
+          "n_kept": 18987,
+          "selective_risk": 0.18733870543003106
+        },
+        {
+          "accuracy": 0.8232710696019568,
+          "brier": 0.13674985302681253,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000300210147103,
+          "n_kept": 17988,
+          "selective_risk": 0.17672893039804313
+        },
+        {
+          "accuracy": 0.8437675902182751,
+          "brier": 0.12566725090292555,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000100070049034,
+          "n_kept": 15989,
+          "selective_risk": 0.15623240978172492
+        },
+        {
+          "accuracy": 0.8669859195196912,
+          "brier": 0.11266964942223806,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000400280196137,
+          "n_kept": 13991,
+          "selective_risk": 0.13301408048030877
+        },
+        {
+          "accuracy": 0.8927249074352046,
+          "brier": 0.09479466836510693,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 9993,
+          "selective_risk": 0.10727509256479535
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=article_deletion, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.011945392491467578,
+      "tpr_at_1fpr": 0.07310580204778157,
+      "tpr_at_5fpr": 0.22887372013651877,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-homoglyph": {
+      "accuracy": 0.8,
+      "auprc": 0.8798996233973801,
+      "auroc": 0.7543016629363452,
+      "brier": 0.14953518908433377,
+      "calibration_applied": true,
+      "calibration_intercept": 0.3042295543592833,
+      "calibration_slope": 0.818759635882146,
+      "conformal": {
+        "abstention_rate": 0.29151439299123905,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9011764705882352,
+        "mean_set_size": 1.2915143929912392,
+        "singleton_rate": 0.708485607008761,
+        "threshold": 0.7023809523809524
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.03166799633944733,
+      "n_calibration": 29966,
+      "n_test": 19975,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.8,
+          "brier": 0.1495351890843338,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19975,
+          "selective_risk": 0.2
+        },
+        {
+          "accuracy": 0.811245191547663,
+          "brier": 0.144653507483788,
+          "coverage": 0.95,
+          "empirical_coverage": 0.950037546933667,
+          "n_kept": 18977,
+          "selective_risk": 0.18875480845233705
+        },
+        {
+          "accuracy": 0.8220046723773501,
+          "brier": 0.1394504253064413,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000250312891114,
+          "n_kept": 17978,
+          "selective_risk": 0.1779953276226499
+        },
+        {
+          "accuracy": 0.8421151439299124,
+          "brier": 0.12884694237219055,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8,
+          "n_kept": 15980,
+          "selective_risk": 0.15788485607008762
+        },
+        {
+          "accuracy": 0.86218980190231,
+          "brier": 0.11717232497277573,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000250312891114,
+          "n_kept": 13983,
+          "selective_risk": 0.13781019809769005
+        },
+        {
+          "accuracy": 0.8867641169403284,
+          "brier": 0.10001280302529986,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250312891114,
+          "n_kept": 9988,
+          "selective_risk": 0.11323588305967161
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=homoglyph, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.013373253493013972,
+      "tpr_at_1fpr": 0.07498336660013306,
+      "tpr_at_5fpr": 0.19487691284098468,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-insert_paragraphs": {
+      "accuracy": 0.8289447336804165,
+      "auprc": 0.9365499860883628,
+      "auroc": 0.8760846723104387,
+      "brier": 0.1190961949609392,
+      "calibration_applied": true,
+      "calibration_intercept": -1.1432017900259879,
+      "calibration_slope": 1.558530865770827,
+      "conformal": {
+        "abstention_rate": 0.1551862234681618,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9037845414497397,
+        "mean_set_size": 1.1551862234681618,
+        "singleton_rate": 0.8448137765318382,
+        "threshold": 0.7011494252873564
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.06374748293944657,
+      "n_calibration": 29966,
+      "n_test": 19976,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.8289447336804165,
+          "brier": 0.1190961949609392,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19976,
+          "selective_risk": 0.1710552663195835
+        },
+        {
+          "accuracy": 0.8546211402676783,
+          "brier": 0.11137281568775882,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500400480576692,
+          "n_kept": 18978,
+          "selective_risk": 0.14537885973232165
+        },
+        {
+          "accuracy": 0.8671227543244897,
+          "brier": 0.1044054798017345,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000300360432519,
+          "n_kept": 17979,
+          "selective_risk": 0.13287724567551032
+        },
+        {
+          "accuracy": 0.8950003128715349,
+          "brier": 0.08907732303370128,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000100120144173,
+          "n_kept": 15981,
+          "selective_risk": 0.10499968712846505
+        },
+        {
+          "accuracy": 0.9174771167048055,
+          "brier": 0.07392497343369289,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000400480576692,
+          "n_kept": 13984,
+          "selective_risk": 0.08252288329519451
+        },
+        {
+          "accuracy": 0.9411293552262715,
+          "brier": 0.05489704839443274,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 9988,
+          "selective_risk": 0.05887064477372848
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=insert_paragraphs, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.02989405492948242,
+      "tpr_at_1fpr": 0.16424859977056483,
+      "tpr_at_5fpr": 0.4184492880761185,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-number": {
+      "accuracy": 0.7018378486654314,
+      "auprc": 0.7814664933643477,
+      "auroc": 0.7596938435843775,
+      "brier": 0.2022114524594569,
+      "calibration_applied": true,
+      "calibration_intercept": -0.46028547840921324,
+      "calibration_slope": 0.8051079018898404,
+      "conformal": {
+        "abstention_rate": 0.5055836546647303,
+        "alpha": 0.1,
+        "empirical_coverage": 0.90104662226451,
+        "mean_set_size": 1.5055836546647303,
+        "singleton_rate": 0.4944163453352697,
+        "threshold": 0.8102678571428571
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.11102407090880516,
+      "n_calibration": 29966,
+      "n_test": 19969,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.7018378486654314,
+          "brier": 0.2022114524594569,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19969,
+          "selective_risk": 0.2981621513345686
+        },
+        {
+          "accuracy": 0.719308418111855,
+          "brier": 0.1991530117504506,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500225349291401,
+          "n_kept": 18971,
+          "selective_risk": 0.2806915818881451
+        },
+        {
+          "accuracy": 0.732487620319368,
+          "brier": 0.1957816970617089,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000450698582804,
+          "n_kept": 17973,
+          "selective_risk": 0.2675123796806321
+        },
+        {
+          "accuracy": 0.7446795192789184,
+          "brier": 0.1909613295833286,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000400620962492,
+          "n_kept": 15976,
+          "selective_risk": 0.2553204807210816
+        },
+        {
+          "accuracy": 0.7630731812003719,
+          "brier": 0.18436650767369545,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000350543342181,
+          "n_kept": 13979,
+          "selective_risk": 0.23692681879962801
+        },
+        {
+          "accuracy": 0.7985978968452679,
+          "brier": 0.16720587919333976,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250388101557,
+          "n_kept": 9985,
+          "selective_risk": 0.2014021031547321
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=number, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.01469583048530417,
+      "tpr_at_1fpr": 0.07031784005468215,
+      "tpr_at_5fpr": 0.20668147641831852,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-paraphrase": {
+      "accuracy": 0.5570133707246232,
+      "auprc": 0.7426055731235267,
+      "auroc": 0.49472459463111884,
+      "brier": 0.272654198752267,
+      "calibration_applied": true,
+      "calibration_intercept": 1.0702497399158784,
+      "calibration_slope": 0.14360546784363445,
+      "conformal": {
+        "abstention_rate": 0.7037407982372678,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9062046171565927,
+        "mean_set_size": 1.7037407982372679,
+        "singleton_rate": 0.29625920176273224,
+        "threshold": 0.7770193401592719
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.2591594974792603,
+      "n_calibration": 29966,
+      "n_test": 19969,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.5570133707246232,
+          "brier": 0.272654198752267,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19969,
+          "selective_risk": 0.44298662927537685
+        },
+        {
+          "accuracy": 0.5441463286068209,
+          "brier": 0.27417491628538637,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500225349291401,
+          "n_kept": 18971,
+          "selective_risk": 0.45585367139317906
+        },
+        {
+          "accuracy": 0.5297946920380571,
+          "brier": 0.2775007216124275,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000450698582804,
+          "n_kept": 17973,
+          "selective_risk": 0.47020530796194293
+        },
+        {
+          "accuracy": 0.5308587881822734,
+          "brier": 0.27971068311704267,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000400620962492,
+          "n_kept": 15976,
+          "selective_risk": 0.4691412118177266
+        },
+        {
+          "accuracy": 0.5724300736819514,
+          "brier": 0.27485922481370356,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000350543342181,
+          "n_kept": 13979,
+          "selective_risk": 0.4275699263180485
+        },
+        {
+          "accuracy": 0.5854782173259889,
+          "brier": 0.2793848484954786,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250388101557,
+          "n_kept": 9985,
+          "selective_risk": 0.414521782674011
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=paraphrase, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.0024739235089596147,
+      "tpr_at_1fpr": 0.01410805028082375,
+      "tpr_at_5fpr": 0.05596416154051886,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-perplexity_misspelling": {
+      "accuracy": 0.768642160540135,
+      "auprc": 0.8534642711745004,
+      "auroc": 0.7701645719902325,
+      "brier": 0.16439057568120272,
+      "calibration_applied": true,
+      "calibration_intercept": -0.10026619790320976,
+      "calibration_slope": 0.8811751581809258,
+      "conformal": {
+        "abstention_rate": 0.3609402350587647,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9015753938484621,
+        "mean_set_size": 1.3609402350587647,
+        "singleton_rate": 0.6390597649412353,
+        "threshold": 0.7664233576642336
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.033398327806730584,
+      "n_calibration": 29966,
+      "n_test": 19995,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.768642160540135,
+          "brier": 0.16439057568120274,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19995,
+          "selective_risk": 0.23135783945986496
+        },
+        {
+          "accuracy": 0.7849547273110129,
+          "brier": 0.1596598109829104,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500375093773443,
+          "n_kept": 18996,
+          "selective_risk": 0.21504527268898715
+        },
+        {
+          "accuracy": 0.7933429651033563,
+          "brier": 0.15561745006773955,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000250062515629,
+          "n_kept": 17996,
+          "selective_risk": 0.2066570348966437
+        },
+        {
+          "accuracy": 0.8160165041260314,
+          "brier": 0.14542825292982883,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8,
+          "n_kept": 15996,
+          "selective_risk": 0.1839834958739685
+        },
+        {
+          "accuracy": 0.8351075230406515,
+          "brier": 0.13522828232384018,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000250062515629,
+          "n_kept": 13997,
+          "selective_risk": 0.16489247695934844
+        },
+        {
+          "accuracy": 0.8634726945389077,
+          "brier": 0.1177508798000475,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250062515629,
+          "n_kept": 9998,
+          "selective_risk": 0.1365273054610922
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=perplexity_misspelling, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.009454387990762125,
+      "tpr_at_1fpr": 0.06300519630484988,
+      "tpr_at_5fpr": 0.20482101616628176,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-synonym": {
+      "accuracy": 0.804032419451671,
+      "auprc": 0.8949530838115668,
+      "auroc": 0.7844013032738861,
+      "brier": 0.1422009155931621,
+      "calibration_applied": true,
+      "calibration_intercept": 0.11629858995551806,
+      "calibration_slope": 0.9150226740034483,
+      "conformal": {
+        "abstention_rate": 0.2646087652591555,
+        "alpha": 0.1,
+        "empirical_coverage": 0.904342605563338,
+        "mean_set_size": 1.2646087652591556,
+        "singleton_rate": 0.7353912347408446,
+        "threshold": 0.7037861915367484
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.011038469998923477,
+      "n_calibration": 29966,
+      "n_test": 19988,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.804032419451671,
+          "brier": 0.1422009155931621,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19988,
+          "selective_risk": 0.195967580548329
+        },
+        {
+          "accuracy": 0.8184211912159671,
+          "brier": 0.13666458268282075,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500200120072043,
+          "n_kept": 18989,
+          "selective_risk": 0.18157880878403287
+        },
+        {
+          "accuracy": 0.8307948860478043,
+          "brier": 0.13087638190602155,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000400240144086,
+          "n_kept": 17990,
+          "selective_risk": 0.16920511395219567
+        },
+        {
+          "accuracy": 0.8557938840597836,
+          "brier": 0.11819134699908312,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000300180108065,
+          "n_kept": 15991,
+          "selective_risk": 0.14420611594021637
+        },
+        {
+          "accuracy": 0.8779302458547742,
+          "brier": 0.10493580890677003,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000200120072043,
+          "n_kept": 13992,
+          "selective_risk": 0.12206975414522585
+        },
+        {
+          "accuracy": 0.896337802681609,
+          "brier": 0.09151869289333936,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 9994,
+          "selective_risk": 0.10366219731839103
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=synonym, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.016432705741467633,
+      "tpr_at_1fpr": 0.08096600359257534,
+      "tpr_at_5fpr": 0.23005788038054686,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-upper_lower": {
+      "accuracy": 0.8103465544871795,
+      "auprc": 0.900529664483062,
+      "auroc": 0.7928668525584666,
+      "brier": 0.1389863758485465,
+      "calibration_applied": true,
+      "calibration_intercept": 0.04197213336914385,
+      "calibration_slope": 0.963568329269034,
+      "conformal": {
+        "abstention_rate": 0.24684495192307693,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9020933493589743,
+        "mean_set_size": 1.2468449519230769,
+        "singleton_rate": 0.7531550480769231,
+        "threshold": 0.7023809523809524
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.006815082960789602,
+      "n_calibration": 29966,
+      "n_test": 19968,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.8103465544871795,
+          "brier": 0.1389863758485465,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19968,
+          "selective_risk": 0.1896534455128205
+        },
+        {
+          "accuracy": 0.8247759620453348,
+          "brier": 0.13336191610522863,
+          "coverage": 0.95,
+          "empirical_coverage": 0.950020032051282,
+          "n_kept": 18970,
+          "selective_risk": 0.17522403795466526
+        },
+        {
+          "accuracy": 0.8359670598709104,
+          "brier": 0.12770509292434076,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000400641025641,
+          "n_kept": 17972,
+          "selective_risk": 0.1640329401290897
+        },
+        {
+          "accuracy": 0.8602190923317684,
+          "brier": 0.11498956228411555,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000300480769231,
+          "n_kept": 15975,
+          "selective_risk": 0.13978090766823162
+        },
+        {
+          "accuracy": 0.8812419516382888,
+          "brier": 0.10215841969936744,
+          "coverage": 0.7,
+          "empirical_coverage": 0.700020032051282,
+          "n_kept": 13978,
+          "selective_risk": 0.11875804836171126
+        },
+        {
+          "accuracy": 0.90625,
+          "brier": 0.08395265746633686,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 9984,
+          "selective_risk": 0.09375
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=upper_lower, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.01797244225520868,
+      "tpr_at_1fpr": 0.09518737935166079,
+      "tpr_at_5fpr": 0.25474272781734675,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-whitespace": {
+      "accuracy": 0.8081910579282031,
+      "auprc": 0.8984636319972634,
+      "auroc": 0.7882029715747322,
+      "brier": 0.14066709174630648,
+      "calibration_applied": true,
+      "calibration_intercept": 0.0926597076204955,
+      "calibration_slope": 0.9307881706784119,
+      "conformal": {
+        "abstention_rate": 0.2525409302558454,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9014169128323236,
+        "mean_set_size": 1.2525409302558455,
+        "singleton_rate": 0.7474590697441547,
+        "threshold": 0.7023809523809524
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.007265724263945133,
+      "n_calibration": 29966,
+      "n_test": 19973,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.808191057928203,
+          "brier": 0.14066709174630648,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19973,
+          "selective_risk": 0.19180894207179694
+        },
+        {
+          "accuracy": 0.8220816864295125,
+          "brier": 0.13516348391137362,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500325439343114,
+          "n_kept": 18975,
+          "selective_risk": 0.17791831357048749
+        },
+        {
+          "accuracy": 0.8351691143747219,
+          "brier": 0.12917999782511147,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000150202773745,
+          "n_kept": 17976,
+          "selective_risk": 0.16483088562527815
+        },
+        {
+          "accuracy": 0.8569372301145253,
+          "brier": 0.11717180770456012,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000300405547489,
+          "n_kept": 15979,
+          "selective_risk": 0.14306276988547467
+        },
+        {
+          "accuracy": 0.8785581461879559,
+          "brier": 0.10422171466940171,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000450608321234,
+          "n_kept": 13982,
+          "selective_risk": 0.12144185381204406
+        },
+        {
+          "accuracy": 0.9041754280564734,
+          "brier": 0.08567647511030678,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250337956241,
+          "n_kept": 9987,
+          "selective_risk": 0.09582457194352659
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=whitespace, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.01803300505722651,
+      "tpr_at_1fpr": 0.09329252062816076,
+      "tpr_at_5fpr": 0.2498669150918286,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "here_to_raid-attack-zero_width_space": {
+      "accuracy": 0.10180599329631297,
+      "auprc": 0.6096912194533535,
+      "auroc": 0.15743790576963454,
+      "brier": 0.570510135354592,
+      "calibration_applied": true,
+      "calibration_intercept": 0.6209327499178433,
+      "calibration_slope": -0.48169621151789815,
+      "conformal": {
+        "abstention_rate": 1.0,
+        "alpha": 0.1,
+        "empirical_coverage": 1.0,
+        "mean_set_size": 2.0,
+        "singleton_rate": 0.0,
+        "threshold": 0.999999
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.6709925692510662,
+      "n_calibration": 29966,
+      "n_test": 19989,
+      "n_train": 90011,
+      "selective_risk": [
+        {
+          "accuracy": 0.10180599329631301,
+          "brier": 0.570510135354592,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 19989,
+          "selective_risk": 0.898194006703687
+        },
+        {
+          "accuracy": 0.09620853080568725,
+          "brier": 0.5847892822187292,
+          "coverage": 0.95,
+          "empirical_coverage": 0.95002251238181,
+          "n_kept": 18990,
+          "selective_risk": 0.9037914691943127
+        },
+        {
+          "accuracy": 0.09304652326163076,
+          "brier": 0.5988400401631434,
+          "coverage": 0.9,
+          "empirical_coverage": 0.90004502476362,
+          "n_kept": 17991,
+          "selective_risk": 0.9069534767383692
+        },
+        {
+          "accuracy": 0.07553776888444219,
+          "brier": 0.6326368337717636,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000400220121067,
+          "n_kept": 15992,
+          "selective_risk": 0.9244622311155578
+        },
+        {
+          "accuracy": 0.0765382691345673,
+          "brier": 0.6650093791743633,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000350192605933,
+          "n_kept": 13993,
+          "selective_risk": 0.9234617308654327
+        },
+        {
+          "accuracy": 0.0822411205602801,
+          "brier": 0.7426109686961866,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000250137575667,
+          "n_kept": 9995,
+          "selective_risk": 0.9177588794397199
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=zero_width_space, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.0,
+      "tpr_at_1fpr": 0.0,
+      "tpr_at_5fpr": 6.647168306301516e-05,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-alternative_spelling_to_here": {
+      "accuracy": 0.7921547970688839,
+      "auprc": 0.8867420437118232,
+      "auroc": 0.7706667128548508,
+      "brier": 0.15232300609656274,
+      "calibration_applied": true,
+      "calibration_intercept": 0.5642457650271926,
+      "calibration_slope": 0.8028678941977943,
+      "conformal": {
+        "abstention_rate": 0.28618388152850105,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9028651059829174,
+        "mean_set_size": 1.286183881528501,
+        "singleton_rate": 0.713816118471499,
+        "threshold": 0.6274509803921569
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.07290808300449611,
+      "n_calibration": 3988,
+      "n_test": 149977,
+      "n_train": 12021,
+      "selective_risk": [
+        {
+          "accuracy": 0.7921547970688839,
+          "brier": 0.15232300609656274,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.2078452029311161
+        },
+        {
+          "accuracy": 0.796243656959973,
+          "brier": 0.14764198796819242,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.20375634304002696
+        },
+        {
+          "accuracy": 0.8122610757149207,
+          "brier": 0.14190532633775843,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.18773892428507927
+        },
+        {
+          "accuracy": 0.8292327182410695,
+          "brier": 0.13048981234740653,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.1707672817589305
+        },
+        {
+          "accuracy": 0.8654652137468567,
+          "brier": 0.11481935999990601,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.13453478625314333
+        },
+        {
+          "accuracy": 0.8851031484617744,
+          "brier": 0.10079823229833035,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.11489685153822561
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.04622414281666194,
+      "tpr_at_1fpr": 0.15279647208841032,
+      "tpr_at_5fpr": 0.3448657551714367,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=alternative_spelling, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-article_deletion_to_here": {
+      "accuracy": 0.8002293685031705,
+      "auprc": 0.8826715215123662,
+      "auroc": 0.7666824964227756,
+      "brier": 0.1487858842965082,
+      "calibration_applied": true,
+      "calibration_intercept": 0.6014702971090023,
+      "calibration_slope": 0.5144140561399307,
+      "conformal": {
+        "abstention_rate": 0.30880068277135825,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9002713749441581,
+        "mean_set_size": 1.3088006827713583,
+        "singleton_rate": 0.6911993172286417,
+        "threshold": 0.7935222672064778
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.03177736761728595,
+      "n_calibration": 3938,
+      "n_test": 149977,
+      "n_train": 12024,
+      "selective_risk": [
+        {
+          "accuracy": 0.8002293685031705,
+          "brier": 0.1487858842965082,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.19977063149682953
+        },
+        {
+          "accuracy": 0.8133128390850581,
+          "brier": 0.14362333804340624,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.18668716091494186
+        },
+        {
+          "accuracy": 0.8259297673729441,
+          "brier": 0.13811789856203738,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.17407023262705587
+        },
+        {
+          "accuracy": 0.840209364738044,
+          "brier": 0.12984945126340514,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.15979063526195597
+        },
+        {
+          "accuracy": 0.8532062028499581,
+          "brier": 0.12186516547481555,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.1467937971500419
+        },
+        {
+          "accuracy": 0.8937044099801305,
+          "brier": 0.09557522391762197,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.10629559001986959
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.04110583734769056,
+      "tpr_at_1fpr": 0.059462666477755735,
+      "tpr_at_5fpr": 0.4692724567866251,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=article_deletion, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-homoglyph_to_here": {
+      "accuracy": 0.6477326523400254,
+      "auprc": 0.8463574525170074,
+      "auroc": 0.6256168128612212,
+      "brier": 0.3075466473557408,
+      "calibration_applied": true,
+      "calibration_intercept": 1.1012635712701015,
+      "calibration_slope": -0.0070350602908909364,
+      "conformal": {
+        "abstention_rate": 1.0,
+        "alpha": 0.1,
+        "empirical_coverage": 1.0,
+        "mean_set_size": 2.0,
+        "singleton_rate": 0.0,
+        "threshold": 0.999999
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.21332467225498586,
+      "n_calibration": 3971,
+      "n_test": 149977,
+      "n_train": 12009,
+      "selective_risk": [
+        {
+          "accuracy": 0.6477326523400255,
+          "brier": 0.3075466473557408,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.35226734765997453
+        },
+        {
+          "accuracy": 0.6531418665206803,
+          "brier": 0.3105731701815664,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.34685813347931976
+        },
+        {
+          "accuracy": 0.6537635205215587,
+          "brier": 0.31509751425065957,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.3462364794784413
+        },
+        {
+          "accuracy": 0.6528479271890784,
+          "brier": 0.32713096162347954,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.34715207281092164
+        },
+        {
+          "accuracy": 0.6422407223957937,
+          "brier": 0.34511369609801545,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.35775927760420634
+        },
+        {
+          "accuracy": 0.5600021336462682,
+          "brier": 0.43154882088022195,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.4399978663537319
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.031205724001133466,
+      "tpr_at_1fpr": 0.07711993482572967,
+      "tpr_at_5fpr": 0.2330245820345707,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=homoglyph, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-insert_paragraphs_to_here": {
+      "accuracy": 0.6433786513932136,
+      "auprc": 0.8573780357887527,
+      "auroc": 0.7121850681387605,
+      "brier": 0.25644260496064314,
+      "calibration_applied": true,
+      "calibration_intercept": 1.2318367700986819,
+      "calibration_slope": 0.23149135362741458,
+      "conformal": {
+        "abstention_rate": 0.6241757069417311,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9070257439474053,
+        "mean_set_size": 1.624175706941731,
+        "singleton_rate": 0.3758242930582689,
+        "threshold": 0.9333333333333333
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.2568400770002055,
+      "n_calibration": 4032,
+      "n_test": 149977,
+      "n_train": 11977,
+      "selective_risk": [
+        {
+          "accuracy": 0.6433786513932136,
+          "brier": 0.25644260496064314,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.35662134860678635
+        },
+        {
+          "accuracy": 0.6327879898090245,
+          "brier": 0.25713238739043254,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.3672120101909755
+        },
+        {
+          "accuracy": 0.6380945325233368,
+          "brier": 0.25726429859808986,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.3619054674766632
+        },
+        {
+          "accuracy": 0.6889616775849711,
+          "brier": 0.2559762823603238,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.31103832241502893
+        },
+        {
+          "accuracy": 0.6892478853920597,
+          "brier": 0.2634162526324861,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.3107521146079403
+        },
+        {
+          "accuracy": 0.6548427102641721,
+          "brier": 0.2985960457839875,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.34515728973582793
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.04579023802776991,
+      "tpr_at_1fpr": 0.07529576367242845,
+      "tpr_at_5fpr": 0.24044523944460186,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=insert_paragraphs, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-number_to_here": {
+      "accuracy": 0.7016275828960441,
+      "auprc": 0.8598748208673452,
+      "auroc": 0.6964326160268892,
+      "brier": 0.2185905328056105,
+      "calibration_applied": true,
+      "calibration_intercept": 1.1287089739646787,
+      "calibration_slope": 0.5137544459883793,
+      "conformal": {
+        "abstention_rate": 0.6164545230268641,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9197276915793755,
+        "mean_set_size": 1.616454523026864,
+        "singleton_rate": 0.3835454769731359,
+        "threshold": 0.6811594202898551
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.2012612296949301,
+      "n_calibration": 3822,
+      "n_test": 149977,
+      "n_train": 12159,
+      "selective_risk": [
+        {
+          "accuracy": 0.7016275828960441,
+          "brier": 0.2185905328056105,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.29837241710395596
+        },
+        {
+          "accuracy": 0.6958709704588044,
+          "brier": 0.21777252329377028,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.30412902954119553
+        },
+        {
+          "accuracy": 0.6958141946955104,
+          "brier": 0.21656692929577348,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.3041858053044896
+        },
+        {
+          "accuracy": 0.68246903702222,
+          "brier": 0.21458010375284392,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.31753096297778
+        },
+        {
+          "accuracy": 0.6846852853768193,
+          "brier": 0.2120792114698812,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.31531471462318067
+        },
+        {
+          "accuracy": 0.7136113296616837,
+          "brier": 0.20595863230194222,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.2863886703383163
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.0686720742419949,
+      "tpr_at_1fpr": 0.19628435817512044,
+      "tpr_at_5fpr": 0.26922463870784924,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=number, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-paraphrase_to_here": {
+      "accuracy": 0.3153883595484641,
+      "auprc": 0.7595613942417911,
+      "auroc": 0.43222704546648927,
+      "brier": 0.6557610257731978,
+      "calibration_applied": true,
+      "calibration_intercept": 0.7305031458488856,
+      "calibration_slope": -0.04326405791136759,
+      "conformal": {
+        "abstention_rate": 1.0,
+        "alpha": 0.1,
+        "empirical_coverage": 1.0,
+        "mean_set_size": 2.0,
+        "singleton_rate": 0.0,
+        "threshold": 0.999999
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.647728556491268,
+      "n_calibration": 4029,
+      "n_test": 149977,
+      "n_train": 11952,
+      "selective_risk": [
+        {
+          "accuracy": 0.3153883595484641,
+          "brier": 0.6557610257731978,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.6846116404515359
+        },
+        {
+          "accuracy": 0.30593280413253887,
+          "brier": 0.6750021012136503,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.6940671958674611
+        },
+        {
+          "accuracy": 0.3019484368054527,
+          "brier": 0.6883243706372061,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.6980515631945473
+        },
+        {
+          "accuracy": 0.27016552482872436,
+          "brier": 0.7286962113995559,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.7298344751712756
+        },
+        {
+          "accuracy": 0.21160367294063853,
+          "brier": 0.7883947502677072,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.7883963270593615
+        },
+        {
+          "accuracy": 0.2198589126405206,
+          "brier": 0.7801395270783047,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.7801410873594794
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.029824312836497592,
+      "tpr_at_1fpr": 0.09686703032020402,
+      "tpr_at_5fpr": 0.12737319353924625,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=paraphrase, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-perplexity_misspelling_to_here": {
+      "accuracy": 0.8027230842062449,
+      "auprc": 0.8872896666980798,
+      "auroc": 0.7717344414324023,
+      "brier": 0.14633293712758444,
+      "calibration_applied": true,
+      "calibration_intercept": 0.38272583050268516,
+      "calibration_slope": 0.7843836127566349,
+      "conformal": {
+        "abstention_rate": 0.30005267474346065,
+        "alpha": 0.1,
+        "empirical_coverage": 0.905992252145329,
+        "mean_set_size": 1.3000526747434606,
+        "singleton_rate": 0.6999473252565394,
+        "threshold": 0.7
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.03159563349270629,
+      "n_calibration": 3985,
+      "n_test": 149977,
+      "n_train": 12006,
+      "selective_risk": [
+        {
+          "accuracy": 0.8027230842062449,
+          "brier": 0.14633293712758444,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.19727691579375503
+        },
+        {
+          "accuracy": 0.8085191501905544,
+          "brier": 0.14257571636011754,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.1914808498094456
+        },
+        {
+          "accuracy": 0.8216772855237813,
+          "brier": 0.13678425488099202,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.1783227144762187
+        },
+        {
+          "accuracy": 0.84887733159974,
+          "brier": 0.12388683823237627,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.15112266840026004
+        },
+        {
+          "accuracy": 0.8656366684447154,
+          "brier": 0.11276950079984245,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.13436333155528463
+        },
+        {
+          "accuracy": 0.8985051140833988,
+          "brier": 0.09087864216507416,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.10149488591660111
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.04674659960328705,
+      "tpr_at_1fpr": 0.3383660385378294,
+      "tpr_at_5fpr": 0.3383660385378294,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=perplexity_misspelling, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-synonym_to_here": {
+      "accuracy": 0.79838908632657,
+      "auprc": 0.8955032152784592,
+      "auroc": 0.778708175482966,
+      "brier": 0.14496956274495196,
+      "calibration_applied": true,
+      "calibration_intercept": 0.03636751297217498,
+      "calibration_slope": 0.9420230475640863,
+      "conformal": {
+        "abstention_rate": 0.3162818298805817,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9110130219967062,
+        "mean_set_size": 1.3162818298805816,
+        "singleton_rate": 0.6837181701194183,
+        "threshold": 0.7718120805369127
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.01884257657164525,
+      "n_calibration": 4033,
+      "n_test": 149977,
+      "n_train": 11931,
+      "selective_risk": [
+        {
+          "accuracy": 0.7983890863265701,
+          "brier": 0.14496956274495196,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.20161091367342993
+        },
+        {
+          "accuracy": 0.8151587251454601,
+          "brier": 0.13909774570739938,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.18484127485453997
+        },
+        {
+          "accuracy": 0.829100607497407,
+          "brier": 0.1331557977896772,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.17089939250259298
+        },
+        {
+          "accuracy": 0.8522194995916054,
+          "brier": 0.12120684706079814,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.1477805004083946
+        },
+        {
+          "accuracy": 0.8652270822220529,
+          "brier": 0.11242109022146392,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.13477291777794712
+        },
+        {
+          "accuracy": 0.8978783554921388,
+          "brier": 0.08959996395350801,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.10212164450786115
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.18720777840748087,
+      "tpr_at_1fpr": 0.18720777840748087,
+      "tpr_at_5fpr": 0.27561809294417683,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=synonym, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-upper_lower_to_here": {
+      "accuracy": 0.8048167385665802,
+      "auprc": 0.8953379314451888,
+      "auroc": 0.7833582324769046,
+      "brier": 0.1428044994146812,
+      "calibration_applied": true,
+      "calibration_intercept": 0.1639318243176651,
+      "calibration_slope": 0.894481241333594,
+      "conformal": {
+        "abstention_rate": 0.3380518346146409,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9207478480033605,
+        "mean_set_size": 1.3380518346146408,
+        "singleton_rate": 0.661948165385359,
+        "threshold": 0.7807308970099668
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.015190735076186708,
+      "n_calibration": 3969,
+      "n_test": 149977,
+      "n_train": 12006,
+      "selective_risk": [
+        {
+          "accuracy": 0.8048167385665802,
+          "brier": 0.1428044994146812,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.1951832614334198
+        },
+        {
+          "accuracy": 0.8176643575544467,
+          "brier": 0.1373960269299337,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.1823356424455534
+        },
+        {
+          "accuracy": 0.8318565713439028,
+          "brier": 0.1311614182554879,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.1681434286560972
+        },
+        {
+          "accuracy": 0.8491357036888867,
+          "brier": 0.12072455446549751,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.15086429631111334
+        },
+        {
+          "accuracy": 0.8782766897813,
+          "brier": 0.10466230261621591,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.12172331021869999
+        },
+        {
+          "accuracy": 0.8982117377215325,
+          "brier": 0.08944802779612807,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.1017882622784675
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.02917788325304619,
+      "tpr_at_1fpr": 0.17719254746387078,
+      "tpr_at_5fpr": 0.390726834797393,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=upper_lower, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-whitespace_to_here": {
+      "accuracy": 0.804570034071891,
+      "auprc": 0.8951855219057288,
+      "auroc": 0.7810766079989219,
+      "brier": 0.1431388341296927,
+      "calibration_applied": true,
+      "calibration_intercept": 0.1119235792688917,
+      "calibration_slope": 0.942601782676591,
+      "conformal": {
+        "abstention_rate": 0.2580662368229795,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9001913626756103,
+        "mean_set_size": 1.2580662368229796,
+        "singleton_rate": 0.7419337631770204,
+        "threshold": 0.7142857142857143
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.010035164448262069,
+      "n_calibration": 3971,
+      "n_test": 149977,
+      "n_train": 12008,
+      "selective_risk": [
+        {
+          "accuracy": 0.804570034071891,
+          "brier": 0.1431388341296927,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.195429965928109
+        },
+        {
+          "accuracy": 0.8187382000154408,
+          "brier": 0.13736107638674006,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.18126179998455913
+        },
+        {
+          "accuracy": 0.8314861460957179,
+          "brier": 0.1314486959421065,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.1685138539042821
+        },
+        {
+          "accuracy": 0.850202530379557,
+          "brier": 0.12092785859990096,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.14979746962044307
+        },
+        {
+          "accuracy": 0.8729996951916482,
+          "brier": 0.10786068184485588,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.12700030480835175
+        },
+        {
+          "accuracy": 0.8985584552401019,
+          "brier": 0.08936011262876221,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.10144154475989813
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.0307363984131482,
+      "tpr_at_1fpr": 0.1134262538962879,
+      "tpr_at_5fpr": 0.39337453952961177,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=whitespace, hygiene-filtered, hash-pinned)"
+    },
+    "raid-attack-zero_width_space_to_here": {
+      "accuracy": 0.25584589637077687,
+      "auprc": 0.7509465389827784,
+      "auroc": 0.47954014290529956,
+      "brier": 0.7383476296626013,
+      "calibration_applied": true,
+      "calibration_intercept": 0.7550862292918012,
+      "calibration_slope": -0.02842541537044134,
+      "conformal": {
+        "abstention_rate": 1.0,
+        "alpha": 0.1,
+        "empirical_coverage": 1.0,
+        "mean_set_size": 2.0,
+        "singleton_rate": 0.0,
+        "threshold": 0.999999
+      },
+      "detector": "logistic-tier0",
+      "ece": 0.739697341193827,
+      "n_calibration": 3992,
+      "n_test": 149977,
+      "n_train": 12026,
+      "selective_risk": [
+        {
+          "accuracy": 0.2558458963707768,
+          "brier": 0.7383476296626013,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 149977,
+          "selective_risk": 0.7441541036292232
+        },
+        {
+          "accuracy": 0.2460643322875652,
+          "brier": 0.7539316509912574,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500056675356888,
+          "n_kept": 142479,
+          "selective_risk": 0.7539356677124348
+        },
+        {
+          "accuracy": 0.2568676841013483,
+          "brier": 0.7431308296350198,
+          "coverage": 0.9,
+          "empirical_coverage": 0.900004667382332,
+          "n_kept": 134980,
+          "selective_risk": 0.7431323158986517
+        },
+        {
+          "accuracy": 0.25192945608507944,
+          "brier": 0.7480690477748327,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000026670756183,
+          "n_kept": 119982,
+          "selective_risk": 0.7480705439149206
+        },
+        {
+          "accuracy": 0.2637830526556427,
+          "brier": 0.7362154749114626,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000006667689046,
+          "n_kept": 104984,
+          "selective_risk": 0.7362169473443573
+        },
+        {
+          "accuracy": 0.23926175839123076,
+          "brier": 0.760736720133286,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000033338445228,
+          "n_kept": 74989,
+          "selective_risk": 0.7607382416087692
+        }
+      ],
+      "test_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+      "tpr_at_0.1fpr": 0.011476338906205724,
+      "tpr_at_1fpr": 0.02368765939359592,
+      "tpr_at_5fpr": 0.0266187305185605,
+      "train_dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=zero_width_space, hygiene-filtered, hash-pinned)"
+    }
+  },
+  "dataset": "raid (Dugan et al. 2024, arXiv:2405.07940; attack=none, hygiene-filtered, hash-pinned)",
+  "dataset_sha256": "f6f6ad7c60f9172127fae3b2f0aa5ca287e38f363b131988c29411a711e346bd",
+  "dependence": {
+    "mean_correlated_llr": -1.3818955044280272,
+    "mean_document_llr": -0.24161109194894337,
+    "mean_naive_llr": -1.3818955044280272,
+    "mean_rho": 0.0,
+    "n_documents": 24,
+    "naive_vs_document_mae": 1.1402844124790839,
+    "note": "Naive accumulation inflates evidence when segments are correlated. A non-rejected Durbin-Watson test is not treated as proof of independence."
+  },
+  "detectors": [
+    "heuristic",
+    "logistic"
+  ],
+  "limitations": [
+    "Train, calibration, and test groups are disjoint; calibration is never fit on test.",
+    "Human controls in the project corpus are few; mixture and calibration estimates are a pilot.",
+    "Transport cells are omitted when a domain lacks both classes.",
+    "Watermark evaluation is a separate subsystem and is not included in this card.",
+    "Conformal coverage is guaranteed marginally; per-slice coverage is reported diagnostically.",
+    "Calibration-metric power uses a normal approximation; ECE variance is a fixed-bin proxy."
+  ],
+  "metrics": {
+    "heuristic": {
+      "conformal": {
+        "abstention_rate": 0.45963333333333334,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9005333333333333,
+        "mean_set_size": 1.4596333333333333,
+        "singleton_rate": 0.5403666666666667,
+        "threshold": 0.733238231098431
+      },
+      "conformal_coverage_slices": {
+        "class": [
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 22609,
+            "nominal_coverage": 0.9,
+            "value": "ai"
+          },
+          {
+            "coverage_gap": -0.3037342714111758,
+            "empirical_coverage": 0.5962657285888242,
+            "n": 7391,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "family": [
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1352,
+            "nominal_coverage": 0.9,
+            "value": "chatgpt"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1345,
+            "nominal_coverage": 0.9,
+            "value": "cohere"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1339,
+            "nominal_coverage": 0.9,
+            "value": "cohere-chat"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2679,
+            "nominal_coverage": 0.9,
+            "value": "gpt2"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1256,
+            "nominal_coverage": 0.9,
+            "value": "gpt3"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1356,
+            "nominal_coverage": 0.9,
+            "value": "gpt4"
+          },
+          {
+            "coverage_gap": -0.3037342714111758,
+            "empirical_coverage": 0.5962657285888242,
+            "n": 7391,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2712,
+            "nominal_coverage": 0.9,
+            "value": "llama-chat"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2707,
+            "nominal_coverage": 0.9,
+            "value": "mistral"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2684,
+            "nominal_coverage": 0.9,
+            "value": "mistral-chat"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2576,
+            "nominal_coverage": 0.9,
+            "value": "mpt"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2603,
+            "nominal_coverage": 0.9,
+            "value": "mpt-chat"
+          }
+        ],
+        "length_bucket": [
+          {
+            "coverage_gap": -0.007957065554865639,
+            "empirical_coverage": 0.8920429344451344,
+            "n": 22546,
+            "nominal_coverage": 0.9,
+            "value": "150-499"
+          },
+          {
+            "coverage_gap": 0.06706298200514138,
+            "empirical_coverage": 0.9670629820051414,
+            "n": 6224,
+            "nominal_coverage": 0.9,
+            "value": "50-149"
+          },
+          {
+            "coverage_gap": -0.18301886792452837,
+            "empirical_coverage": 0.7169811320754716,
+            "n": 1219,
+            "nominal_coverage": 0.9,
+            "value": "500plus"
+          }
+        ],
+        "pooled": {
+          "alpha": 0.1,
+          "empirical_coverage": 0.9005333333333333,
+          "n": 30000,
+          "threshold": 0.733238231098431
+        }
+      },
+      "mean_likelihood_ratio": 395.55869971228924,
+      "method": "holdout",
+      "metrics": {
+        "accuracy": 0.7536333333333334,
+        "auprc": 0.8394825924452757,
+        "auroc": 0.6342589811264983,
+        "brier": 0.17765501618382726,
+        "calibration_intercept": 0.05341319815606569,
+        "calibration_slope": 0.9245396599194514,
+        "ece": 0.014577735864005136,
+        "tpr_at_0.1fpr": 0.030872661329559025,
+        "tpr_at_1fpr": 0.1507364323941793,
+        "tpr_at_5fpr": 0.21739130434782608
+      },
+      "n_groups": 3394,
+      "n_splits": 1,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.28364435272168664,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.6652979763036058,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.799821537751548,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.9541681310434775,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.9777535373571238,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.9924728778918497,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.9974783052276358,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.9991580195974923,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.7536333333333334,
+          "brier": 0.17765501618382726,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 30000,
+          "selective_risk": 0.24636666666666668
+        },
+        {
+          "accuracy": 0.758561403508772,
+          "brier": 0.17512258787845175,
+          "coverage": 0.95,
+          "empirical_coverage": 0.95,
+          "n_kept": 28500,
+          "selective_risk": 0.24143859649122806
+        },
+        {
+          "accuracy": 0.767962962962963,
+          "brier": 0.17134322933371202,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9,
+          "n_kept": 27000,
+          "selective_risk": 0.23203703703703704
+        },
+        {
+          "accuracy": 0.779625,
+          "brier": 0.1653910043032347,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8,
+          "n_kept": 24000,
+          "selective_risk": 0.220375
+        },
+        {
+          "accuracy": 0.796,
+          "brier": 0.1571290975364101,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7,
+          "n_kept": 21000,
+          "selective_risk": 0.204
+        },
+        {
+          "accuracy": 0.8234666666666667,
+          "brier": 0.1401237953556169,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 15000,
+          "selective_risk": 0.17653333333333332
+        }
+      ]
+    },
+    "logistic": {
+      "conformal": {
+        "abstention_rate": 0.252,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9011,
+        "mean_set_size": 1.252,
+        "singleton_rate": 0.748,
+        "threshold": 0.7037861915367484
+      },
+      "conformal_coverage_slices": {
+        "class": [
+          {
+            "coverage_gap": 0.09287894201424207,
+            "empirical_coverage": 0.9928789420142421,
+            "n": 22609,
+            "nominal_coverage": 0.9,
+            "value": "ai"
+          },
+          {
+            "coverage_gap": -0.2796509268028684,
+            "empirical_coverage": 0.6203490731971316,
+            "n": 7391,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "family": [
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1352,
+            "nominal_coverage": 0.9,
+            "value": "chatgpt"
+          },
+          {
+            "coverage_gap": 0.09628252788104086,
+            "empirical_coverage": 0.9962825278810409,
+            "n": 1345,
+            "nominal_coverage": 0.9,
+            "value": "cohere"
+          },
+          {
+            "coverage_gap": 0.09327856609410001,
+            "empirical_coverage": 0.9932785660941,
+            "n": 1339,
+            "nominal_coverage": 0.9,
+            "value": "cohere-chat"
+          },
+          {
+            "coverage_gap": 0.07051138484509145,
+            "empirical_coverage": 0.9705113848450915,
+            "n": 2679,
+            "nominal_coverage": 0.9,
+            "value": "gpt2"
+          },
+          {
+            "coverage_gap": 0.08805732484076434,
+            "empirical_coverage": 0.9880573248407644,
+            "n": 1256,
+            "nominal_coverage": 0.9,
+            "value": "gpt3"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 1356,
+            "nominal_coverage": 0.9,
+            "value": "gpt4"
+          },
+          {
+            "coverage_gap": -0.2796509268028684,
+            "empirical_coverage": 0.6203490731971316,
+            "n": 7391,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2712,
+            "nominal_coverage": 0.9,
+            "value": "llama-chat"
+          },
+          {
+            "coverage_gap": 0.09408939785740666,
+            "empirical_coverage": 0.9940893978574067,
+            "n": 2707,
+            "nominal_coverage": 0.9,
+            "value": "mistral"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2684,
+            "nominal_coverage": 0.9,
+            "value": "mistral-chat"
+          },
+          {
+            "coverage_gap": 0.0856366459627329,
+            "empirical_coverage": 0.9856366459627329,
+            "n": 2576,
+            "nominal_coverage": 0.9,
+            "value": "mpt"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2603,
+            "nominal_coverage": 0.9,
+            "value": "mpt-chat"
+          }
+        ],
+        "length_bucket": [
+          {
+            "coverage_gap": -0.014077885212454566,
+            "empirical_coverage": 0.8859221147875455,
+            "n": 22546,
+            "nominal_coverage": 0.9,
+            "value": "150-499"
+          },
+          {
+            "coverage_gap": 0.047140102827763486,
+            "empirical_coverage": 0.9471401028277635,
+            "n": 6224,
+            "nominal_coverage": 0.9,
+            "value": "50-149"
+          },
+          {
+            "coverage_gap": 0.04585726004922064,
+            "empirical_coverage": 0.9458572600492207,
+            "n": 1219,
+            "nominal_coverage": 0.9,
+            "value": "500plus"
+          }
+        ],
+        "pooled": {
+          "alpha": 0.1,
+          "empirical_coverage": 0.9011,
+          "n": 30000,
+          "threshold": 0.7037861915367484
+        }
+      },
+      "mean_likelihood_ratio": 4387.597877139434,
+      "method": "holdout",
+      "metrics": {
+        "accuracy": 0.8045666666666667,
+        "auprc": 0.8953763331790522,
+        "auroc": 0.7829556610490318,
+        "brier": 0.14181058593005613,
+        "calibration_intercept": 0.05249261461369007,
+        "calibration_slope": 0.9231786153197961,
+        "ece": 0.01006132600736437,
+        "tpr_at_0.1fpr": 0.017293997965412006,
+        "tpr_at_1fpr": 0.09593524702552081,
+        "tpr_at_5fpr": 0.26745986111725417
+      },
+      "n_groups": 3394,
+      "n_splits": 1,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.8145397108182648,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.9566127213829104,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.9779342827882047,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.9956882836760377,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.9979529626653381,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.9993167217577315,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.999772136789928,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.9999240340567469,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.8045666666666667,
+          "brier": 0.14181058593005616,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 30000,
+          "selective_risk": 0.19543333333333332
+        },
+        {
+          "accuracy": 0.8193684210526315,
+          "brier": 0.13610475386244048,
+          "coverage": 0.95,
+          "empirical_coverage": 0.95,
+          "n_kept": 28500,
+          "selective_risk": 0.18063157894736842
+        },
+        {
+          "accuracy": 0.8328148148148148,
+          "brier": 0.1300795573593975,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9,
+          "n_kept": 27000,
+          "selective_risk": 0.1671851851851852
+        },
+        {
+          "accuracy": 0.8560833333333333,
+          "brier": 0.11773427704533977,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8,
+          "n_kept": 24000,
+          "selective_risk": 0.14391666666666666
+        },
+        {
+          "accuracy": 0.878095238095238,
+          "brier": 0.10467854365687061,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7,
+          "n_kept": 21000,
+          "selective_risk": 0.1219047619047619
+        },
+        {
+          "accuracy": 0.9054666666666666,
+          "brier": 0.08508637885361232,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5,
+          "n_kept": 15000,
+          "selective_risk": 0.09453333333333333
+        }
+      ]
+    }
+  },
+  "mixtures": {
+    "correlation": 0.8734189894153047,
+    "detector": "panoptes-heuristic",
+    "mae": 0.3607095478374976,
+    "n_pairs": 2000,
+    "rates": [
+      {
+        "actual_ai_rate": 0.0,
+        "mean_estimated": 0.7428393748595643,
+        "n": 2000,
+        "std_estimated": 0.05787774639713819
+      },
+      {
+        "actual_ai_rate": 0.1,
+        "mean_estimated": 0.7412725406870067,
+        "n": 2000,
+        "std_estimated": 0.056907115057189435
+      },
+      {
+        "actual_ai_rate": 0.25,
+        "mean_estimated": 0.7404661413856811,
+        "n": 2000,
+        "std_estimated": 0.05532668543953952
+      },
+      {
+        "actual_ai_rate": 0.5,
+        "mean_estimated": 0.7422538730958409,
+        "n": 2000,
+        "std_estimated": 0.05633793179240463
+      },
+      {
+        "actual_ai_rate": 0.75,
+        "mean_estimated": 0.7451221498731214,
+        "n": 2000,
+        "std_estimated": 0.0580084221048388
+      },
+      {
+        "actual_ai_rate": 0.9,
+        "mean_estimated": 0.7475222672601557,
+        "n": 2000,
+        "std_estimated": 0.05874386917881534
+      },
+      {
+        "actual_ai_rate": 1.0,
+        "mean_estimated": 0.7492206780323327,
+        "n": 2000,
+        "std_estimated": 0.05926379348060526
+      }
+    ],
+    "slope": 0.00725348607143221,
+    "subsampled": true,
+    "workflow": "ai_prefix"
+  },
+  "n": 149977,
+  "open_set": {
+    "families": [
+      {
+        "held_out_family": "chatgpt",
+        "mean_distance_seen": 4.348837767120253,
+        "mean_distance_unseen": 0.7824319015145916,
+        "n_seen": 106156,
+        "n_unseen": 6772,
+        "unknown_rejection_auroc": 0.41626243611609537
+      },
+      {
+        "held_out_family": "cohere",
+        "mean_distance_seen": 4.324065511199935,
+        "mean_distance_unseen": 1.3968173977414504,
+        "n_seen": 106208,
+        "n_unseen": 6720,
+        "unknown_rejection_auroc": 0.4889805488376806
+      },
+      {
+        "held_out_family": "cohere-chat",
+        "mean_distance_seen": 4.329373471632254,
+        "mean_distance_unseen": 0.870156204231702,
+        "n_seen": 106229,
+        "n_unseen": 6699,
+        "unknown_rejection_auroc": 0.42077290540159146
+      },
+      {
+        "held_out_family": "gpt2",
+        "mean_distance_seen": 4.280795568305944,
+        "mean_distance_unseen": 12.145708154022806,
+        "n_seen": 99574,
+        "n_unseen": 13354,
+        "unknown_rejection_auroc": 0.7088125976792934
+      },
+      {
+        "held_out_family": "gpt3",
+        "mean_distance_seen": 4.352248735173529,
+        "mean_distance_unseen": 0.8694380247412121,
+        "n_seen": 106678,
+        "n_unseen": 6250,
+        "unknown_rejection_auroc": 0.44586601623577493
+      },
+      {
+        "held_out_family": "gpt4",
+        "mean_distance_seen": 4.331060584476023,
+        "mean_distance_unseen": 0.3422657095660972,
+        "n_seen": 106152,
+        "n_unseen": 6776,
+        "unknown_rejection_auroc": 0.3276638078981974
+      },
+      {
+        "held_out_family": "llama-chat",
+        "mean_distance_seen": 4.333439358509033,
+        "mean_distance_unseen": 1.138052599712935,
+        "n_seen": 99404,
+        "n_unseen": 13524,
+        "unknown_rejection_auroc": 0.32084929075842744
+      },
+      {
+        "held_out_family": "mistral",
+        "mean_distance_seen": 4.293093230820251,
+        "mean_distance_unseen": 4.540893618499676,
+        "n_seen": 99430,
+        "n_unseen": 13498,
+        "unknown_rejection_auroc": 0.6500025225277638
+      },
+      {
+        "held_out_family": "mistral-chat",
+        "mean_distance_seen": 4.326272903247378,
+        "mean_distance_unseen": 0.7162459896946608,
+        "n_seen": 99567,
+        "n_unseen": 13361,
+        "unknown_rejection_auroc": 0.35058512136835485
+      },
+      {
+        "held_out_family": "mpt",
+        "mean_distance_seen": 4.815840148576869,
+        "mean_distance_unseen": 79.3650918669263,
+        "n_seen": 99994,
+        "n_unseen": 12934,
+        "unknown_rejection_auroc": 0.7605508476016524
+      },
+      {
+        "held_out_family": "mpt-chat",
+        "mean_distance_seen": 4.305790524073913,
+        "mean_distance_unseen": 3.352200522938807,
+        "n_seen": 99888,
+        "n_unseen": 13040,
+        "unknown_rejection_auroc": 0.5102590092621528
+      }
+    ],
+    "mean_unknown_rejection_auroc": 0.49096410033518045
+  },
+  "power": {
+    "heuristic": {
+      "alpha": 0.05,
+      "brier": {
+        "observed": 0.17765501618382726,
+        "per_observation_variance": 0.04510208343268662,
+        "required_n": {
+          "0.005": 14161,
+          "0.01": 3541,
+          "0.02": 886,
+          "0.05": 142
+        }
+      },
+      "ece": {
+        "approximation": "Fixed-bin ECE variance propagated from per-bin binomial variances with the half-normal factor; ignores bin-boundary estimation and cross-bin covariance.",
+        "per_observation_variance_proxy": 0.12831263106382515,
+        "required_n": {
+          "0.005": 40285,
+          "0.01": 10072,
+          "0.02": 2518,
+          "0.05": 403
+        }
+      },
+      "method": "Normal approximation n = (z_{1-alpha/2} + z_{power})^2 v / delta^2 with v estimated from the scored cohort; complements the protocol's accuracy gate (required n = 3140 at MDE 0.05).",
+      "n_evaluated": 30000,
+      "target_power": 0.8
+    },
+    "logistic": {
+      "alpha": 0.05,
+      "brier": {
+        "observed": 0.14181058593005613,
+        "per_observation_variance": 0.04970243341211256,
+        "required_n": {
+          "0.005": 15605,
+          "0.01": 3902,
+          "0.02": 976,
+          "0.05": 157
+        }
+      },
+      "ece": {
+        "approximation": "Fixed-bin ECE variance propagated from per-bin binomial variances with the half-normal factor; ignores bin-boundary estimation and cross-bin covariance.",
+        "per_observation_variance_proxy": 0.10209180172782693,
+        "required_n": {
+          "0.005": 32053,
+          "0.01": 8014,
+          "0.02": 2004,
+          "0.05": 321
+        }
+      },
+      "method": "Normal approximation n = (z_{1-alpha/2} + z_{power})^2 v / delta^2 with v estimated from the scored cohort; complements the protocol's accuracy gate (required n = 3140 at MDE 0.05).",
+      "n_evaluated": 30000,
+      "target_power": 0.8
+    }
+  },
+  "protocol_id": "Panoptes measurement protocol v1",
+  "protocol_registered_utc": "2026-08-13T00:00:00Z",
+  "schema": "panoptes-measurement-card-v1",
+  "split": {
+    "method": "holdout",
+    "n_groups": 3394,
+    "n_splits": 1,
+    "rule": "Train, calibration, and test are separate. Never fit or tune the calibration layer on the final test set."
+  },
+  "transport": {
+    "axis": "domains",
+    "cells": [
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": true,
+        "n_test": 19814,
+        "n_train": 19814,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 19814,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 19814,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 19814,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 19814,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 19814,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 19814,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 19814,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "abstracts"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 18954,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": true,
+        "n_test": 18954,
+        "n_train": 18954,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 18954,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 18954,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 18954,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 18954,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 18954,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 18954,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "books"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 20442,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 20442,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": true,
+        "n_test": 20442,
+        "n_train": 20442,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 20442,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 20442,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 20442,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 20442,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 20442,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "news"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 18098,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 18098,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 18098,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": true,
+        "n_test": 18098,
+        "n_train": 18098,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 18098,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 18098,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 18098,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 18098,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "poetry"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 20143,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 20143,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 20143,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 20143,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": true,
+        "n_test": 20143,
+        "n_train": 20143,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 20143,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 20143,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 20143,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "recipes"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 20624,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 20624,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 20624,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 20624,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 20624,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": true,
+        "n_test": 20624,
+        "n_train": 20624,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 20624,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 20624,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 11180,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 11180,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 11180,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 11180,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 11180,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 11180,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": true,
+        "n_test": 11180,
+        "n_train": 11180,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": false,
+        "n_test": 20722,
+        "n_train": 11180,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "reviews"
+      },
+      {
+        "accuracy": 0.7547693550015141,
+        "auprc": 0.883150052347233,
+        "auroc": 0.6878360273472812,
+        "brier": 0.17288714342152037,
+        "calibration_intercept": -0.6076475888283793,
+        "calibration_slope": 1.864888868031813,
+        "ece": 0.04185857313979279,
+        "in_domain": false,
+        "n_test": 19814,
+        "n_train": 20722,
+        "test": "abstracts",
+        "tpr_at_0.1fpr": 0.06363818290974585,
+        "tpr_at_1fpr": 0.1308118204255887,
+        "tpr_at_5fpr": 0.28116870122073245,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.7471246174949878,
+        "auprc": 0.8629831465865476,
+        "auroc": 0.6439344605738432,
+        "brier": 0.19069676533963983,
+        "calibration_intercept": 0.10019989519569056,
+        "calibration_slope": 1.8185062079997645,
+        "ece": 0.11276119172702048,
+        "in_domain": false,
+        "n_test": 18954,
+        "n_train": 20722,
+        "test": "books",
+        "tpr_at_0.1fpr": 0.0029315278844140435,
+        "tpr_at_1fpr": 0.08996998673832624,
+        "tpr_at_5fpr": 0.24059468137083828,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.7424909500048918,
+        "auprc": 0.8612542772449667,
+        "auroc": 0.636051596428604,
+        "brier": 0.18943239559451933,
+        "calibration_intercept": -0.02672819584435973,
+        "calibration_slope": 1.7776812846591274,
+        "ece": 0.09016719302421873,
+        "in_domain": false,
+        "n_test": 20442,
+        "n_train": 20722,
+        "test": "news",
+        "tpr_at_0.1fpr": 0.12748821372446306,
+        "tpr_at_1fpr": 0.18897328444211628,
+        "tpr_at_5fpr": 0.2772393923520168,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.71090728257266,
+        "auprc": 0.8812908248085951,
+        "auroc": 0.7096776552346391,
+        "brier": 0.18892731952100625,
+        "calibration_intercept": 0.2498718623429347,
+        "calibration_slope": 2.163476056958019,
+        "ece": 0.1535634249844095,
+        "in_domain": false,
+        "n_test": 18098,
+        "n_train": 20722,
+        "test": "poetry",
+        "tpr_at_0.1fpr": 0.000579584148373542,
+        "tpr_at_1fpr": 0.037890313699920304,
+        "tpr_at_5fpr": 0.16373252191552562,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.729831703321253,
+        "auprc": 0.8088741235800763,
+        "auroc": 0.5578485485533624,
+        "brier": 0.20990737680148244,
+        "calibration_intercept": 0.5533363375125083,
+        "calibration_slope": 1.3984280485364213,
+        "ece": 0.15004505712928784,
+        "in_domain": false,
+        "n_test": 20143,
+        "n_train": 20722,
+        "test": "recipes",
+        "tpr_at_0.1fpr": 0.05278592375366569,
+        "tpr_at_1fpr": 0.09037589976006398,
+        "tpr_at_5fpr": 0.14336177019461477,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.702434057408844,
+        "auprc": 0.8755095563498041,
+        "auroc": 0.685622255974787,
+        "brier": 0.20691766065323197,
+        "calibration_intercept": 0.32954135031461124,
+        "calibration_slope": 2.764946164704271,
+        "ece": 0.1712106996955683,
+        "in_domain": false,
+        "n_test": 20624,
+        "n_train": 20722,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.03346901854364541,
+        "tpr_at_1fpr": 0.06952251728371131,
+        "tpr_at_5fpr": 0.26342314402015893,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.7486583184257602,
+        "auprc": 0.919239468802679,
+        "auroc": 0.7519583606872776,
+        "brier": 0.18460500761494628,
+        "calibration_intercept": -0.4631058338079251,
+        "calibration_slope": 3.6839629474273727,
+        "ece": 0.1375684610314574,
+        "in_domain": false,
+        "n_test": 11180,
+        "n_train": 20722,
+        "test": "reviews",
+        "tpr_at_0.1fpr": 0.13320009405125793,
+        "tpr_at_1fpr": 0.3298847872090289,
+        "tpr_at_5fpr": 0.4974135904067717,
+        "train": "wiki"
+      },
+      {
+        "accuracy": 0.7476112344368304,
+        "auprc": 0.86480568123395,
+        "auroc": 0.6723249032461192,
+        "brier": 0.18357882797293146,
+        "calibration_intercept": -0.30461635346223637,
+        "calibration_slope": 2.1296186566606914,
+        "ece": 0.08317629326365153,
+        "in_domain": true,
+        "n_test": 20722,
+        "n_train": 20722,
+        "test": "wiki",
+        "tpr_at_0.1fpr": 0.004695137638281451,
+        "tpr_at_1fpr": 0.04527913558013893,
+        "tpr_at_5fpr": 0.2718034473887317,
+        "train": "wiki"
+      }
+    ]
+  }
+}

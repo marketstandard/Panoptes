@@ -53,6 +53,14 @@ def _load_dataset(spec: str) -> datasets.Dataset:
         return datasets.load_verified_corpus()
     if spec == "defactify":
         return datasets.load_defactify()
+    if spec == "raid":
+        return datasets.load_raid()
+    if spec == "m4gt":
+        return datasets.load_m4gt()
+    if spec == "m4gtml":
+        return datasets.load_m4gtml()
+    if spec == "evobench":
+        return datasets.load_evobench()
     return datasets.load_user_dataset(Path(spec))
 
 
@@ -106,14 +114,21 @@ def _load_model(path: Path):
 
 def _corpus_created_utc(data_arg: str) -> str | None:
     """Deterministic timestamp for pinned datasets: the newest run manifest's
-    declared time for the corpus, the fetch manifest's time for Defactify.
-    User datasets keep the wall clock."""
+    declared time for the corpus, the fetch manifest's time for fetched
+    benchmarks. User datasets keep the wall clock."""
     if data_arg == "corpus":
         from research.baseline_corpus import run_manifests
 
         return max(manifest["created_utc"] for manifest in run_manifests())
-    if data_arg == "defactify":
-        return datasets.defactify_created_utc()
+    fetch_dirs = {
+        "defactify": datasets.DEFACTIFY_DIR,
+        "raid": datasets.RAID_DIR,
+        "m4gt": datasets.M4GT_DIR,
+        "m4gtml": datasets.M4GT_DIR,
+        "evobench": datasets.EVOBENCH_DIR,
+    }
+    if data_arg in fetch_dirs:
+        return datasets._fetch_created_utc(fetch_dirs[data_arg])
     return None
 
 
@@ -319,10 +334,20 @@ def cmd_measure(args: argparse.Namespace) -> int:
     from bench.measure import run_measurement
 
     dataset = _load_dataset(args.data)
-    card = run_measurement(dataset)
+    cross = {}
+    if args.data == "defactify":
+        cross["corpus"] = datasets.load_verified_corpus()
+    if args.data == "raid":
+        # Adversarial robustness cells: train on the clean cohort, score each
+        # attack slice untouched. Cells are row-capped; the clean cohort's
+        # features are already cached on the main dataset instance.
+        for attack in datasets.raid_attacks():
+            cross[f"raid-attack-{attack}"] = datasets.load_raid(attack=attack, max_rows=20_000)
+    card = run_measurement(dataset, cross_datasets=cross)
     card["created_utc"] = _corpus_created_utc(args.data) or _utc_now()
     cards.sign(card)
-    out = Path(args.out) if args.out else CARDS_DIR / "measurement-protocol.json"
+    default_name = "measurement-protocol.json" if args.data == "corpus" else f"measurement-protocol-{args.data}.json"
+    out = Path(args.out) if args.out else CARDS_DIR / default_name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(card, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"Measurement protocol on {dataset.provenance} (n={len(dataset)})")
@@ -388,7 +413,11 @@ def build_parser() -> argparse.ArgumentParser:
     attribute.set_defaults(func=cmd_attribute)
 
     measure = sub.add_parser("measure", help="run the frozen measurement protocol (train/cal/test)")
-    measure.add_argument("--data", default="corpus", help="'corpus', 'defactify', or a CSV/JSONL path")
+    measure.add_argument(
+        "--data",
+        default="corpus",
+        help="'corpus', 'defactify', 'raid', 'm4gt', 'm4gtml', 'evobench', or a CSV/JSONL path",
+    )
     measure.add_argument("--out", default=None, help="output card path")
     measure.set_defaults(func=cmd_measure)
 

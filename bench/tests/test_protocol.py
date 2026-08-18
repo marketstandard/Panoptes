@@ -176,6 +176,59 @@ def test_leave_one_family_out_runs():
     assert "mean_unknown_rejection_auroc" in result
 
 
+def test_sliced_conformal_coverage_math():
+    # Perfectly calibrated scores: coverage should be near nominal overall,
+    # and the pooled threshold must be applied unchanged within slices.
+    rng = np.random.default_rng(7)
+    n = 400
+    labels = rng.integers(0, 2, n)
+    probabilities = np.clip(labels * 0.7 + (1 - labels) * 0.3 + rng.normal(0, 0.1, n), 1e-4, 1 - 1e-4)
+    slices = {
+        "length_bucket": ["150-499" if i % 2 == 0 else "500plus" for i in range(n)],
+        "family": ["human" if int(v) == 0 else "ai-x" for v in labels],
+        "class": ["ai" if int(v) == 1 else "human" for v in labels],
+    }
+    out = evaluate.sliced_conformal_coverage(labels, probabilities, slices, alpha=0.1)
+    assert out["pooled"]["empirical_coverage"] >= 0.9
+    for dimension in ("length_bucket", "family", "class"):
+        assert len(out[dimension]) == 2
+        for row in out[dimension]:
+            assert 0.0 <= row["empirical_coverage"] <= 1.0
+            assert row["nominal_coverage"] == pytest.approx(0.9)
+            assert row["coverage_gap"] == pytest.approx(row["empirical_coverage"] - 0.9)
+    # Tiny slices are skipped rather than reported on noise.
+    slices["family"] = ["rare"] * 5 + ["human" if int(v) == 0 else "ai-x" for v in labels[5:]]
+    out = evaluate.sliced_conformal_coverage(labels, probabilities, slices, alpha=0.1)
+    assert "rare" not in [row["value"] for row in out["family"]]
+
+
+def test_cross_dataset_transport_never_fits_on_target():
+    source = tiny_dataset(48)
+    target = tiny_dataset(36)
+    row = evaluate.cross_dataset_transport(source, target, detectors.HeuristicDetector)
+    assert row["n_test"] == len(target)
+    assert row["n_train"] + row["n_calibration"] <= len(source)
+    assert 0.0 <= row["brier"] <= 1.0
+    assert row["selective_risk"] and row["conformal"]["empirical_coverage"] >= 0.0
+
+
+def test_calibration_power_required_n_scales_inverse_square():
+    from bench.power import calibration_power, required_n
+
+    labels = np.array([0, 1] * 200)
+    rng = np.random.default_rng(3)
+    probabilities = np.clip(labels * 0.65 + (1 - labels) * 0.35 + rng.normal(0, 0.12, 400), 1e-4, 1 - 1e-4)
+    block = calibration_power(labels, probabilities)
+    assert block["n_evaluated"] == 400
+    for metric in ("brier", "ece"):
+        grid = block[metric]["required_n"]
+        # Halving the MDE quadruples the required n.
+        assert grid["0.01"] == pytest.approx(4 * grid["0.02"], rel=0.02)
+        assert grid["0.02"] > 0
+    assert required_n(0.0, 0.01) == 0
+    assert required_n(0.25, 0.05) == int(np.ceil((1.959964 + 0.841621) ** 2 * 0.25 / 0.05**2))
+
+
 def test_explicit_authors_are_kept_disjoint():
     texts = [f"hello world words {i} " * 20 for i in range(12)]
     dataset = Dataset(

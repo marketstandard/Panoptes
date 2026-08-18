@@ -1,0 +1,1015 @@
+{
+  "artifact_sha256": "f6c8255a229822e20bc69e72a185527408c0b3815c0ebbd6cafcb9fa7a9bfa59",
+  "created_utc": "2026-08-17T16:49:29Z",
+  "cross_dataset_transport": {},
+  "dataset": "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)",
+  "dataset_sha256": "0411328440803c02ee3a9bcd844e1094a8ee42fb66f7214484cf9bbc1164744e",
+  "dependence": {
+    "mean_correlated_llr": 1.0593567922377853,
+    "mean_document_llr": 0.7659240547151281,
+    "mean_naive_llr": 1.0593567922377853,
+    "mean_rho": 0.0,
+    "n_documents": 24,
+    "naive_vs_document_mae": 0.4639328479472538,
+    "note": "Naive accumulation inflates evidence when segments are correlated. A non-rejected Durbin-Watson test is not treated as proof of independence."
+  },
+  "detectors": [
+    "heuristic",
+    "logistic"
+  ],
+  "limitations": [
+    "Train, calibration, and test groups are disjoint; calibration is never fit on test.",
+    "Human controls in the project corpus are few; mixture and calibration estimates are a pilot.",
+    "Transport cells are omitted when a domain lacks both classes.",
+    "Watermark evaluation is a separate subsystem and is not included in this card.",
+    "Conformal coverage is guaranteed marginally; per-slice coverage is reported diagnostically.",
+    "Calibration-metric power uses a normal approximation; ECE variance is a fixed-bin proxy."
+  ],
+  "metrics": {
+    "heuristic": {
+      "conformal": {
+        "abstention_rate": 0.6527929538756995,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9092414158471573,
+        "mean_set_size": 1.6527929538756996,
+        "singleton_rate": 0.34720704612430053,
+        "threshold": 0.5387647831800264
+      },
+      "conformal_coverage_slices": {
+        "class": [
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 17191,
+            "nominal_coverage": 0.9,
+            "value": "ai"
+          },
+          {
+            "coverage_gap": -0.11068408916218297,
+            "empirical_coverage": 0.789315910837817,
+            "n": 13010,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "family": [
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2644,
+            "nominal_coverage": 0.9,
+            "value": "bloomz"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 3322,
+            "nominal_coverage": 0.9,
+            "value": "chatGPT"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2676,
+            "nominal_coverage": 0.9,
+            "value": "cohere"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2891,
+            "nominal_coverage": 0.9,
+            "value": "davinci"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2830,
+            "nominal_coverage": 0.9,
+            "value": "dolly"
+          },
+          {
+            "coverage_gap": 0.09999999999999998,
+            "empirical_coverage": 1.0,
+            "n": 2828,
+            "nominal_coverage": 0.9,
+            "value": "gpt4"
+          },
+          {
+            "coverage_gap": -0.11068408916218297,
+            "empirical_coverage": 0.789315910837817,
+            "n": 13010,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "length_bucket": [
+          {
+            "coverage_gap": 0.013940355626079204,
+            "empirical_coverage": 0.9139403556260792,
+            "n": 21427,
+            "nominal_coverage": 0.9,
+            "value": "150-499"
+          },
+          {
+            "coverage_gap": 0.05082568807339449,
+            "empirical_coverage": 0.9508256880733945,
+            "n": 2725,
+            "nominal_coverage": 0.9,
+            "value": "50-149"
+          },
+          {
+            "coverage_gap": -0.026178270216636323,
+            "empirical_coverage": 0.8738217297833637,
+            "n": 6047,
+            "nominal_coverage": 0.9,
+            "value": "500plus"
+          }
+        ],
+        "pooled": {
+          "alpha": 0.1,
+          "empirical_coverage": 0.9092414158471573,
+          "n": 30201,
+          "threshold": 0.5387647831800264
+        }
+      },
+      "mean_likelihood_ratio": 1.6792369480348373,
+      "method": "holdout",
+      "metrics": {
+        "accuracy": 0.6035561736366345,
+        "auprc": 0.7116549133214475,
+        "auroc": 0.6450506899222557,
+        "brier": 0.22440962468124426,
+        "calibration_intercept": -0.005954807111688361,
+        "calibration_slope": 0.9638213925003015,
+        "ece": 0.005166475783668945,
+        "tpr_at_0.1fpr": 0.030888255482519923,
+        "tpr_at_1fpr": 0.10912686871037171,
+        "tpr_at_5fpr": 0.26060147751730556
+      },
+      "n_groups": 151005,
+      "n_splits": 1,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.0016780971224668666,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.008367766260092314,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.016679079013099476,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.08120400923180178,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.15724315849587414,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.3588698257180746,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.626759402249406,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.8343743140702996,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.6035561736366346,
+          "brier": 0.22440962468124426,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 30201,
+          "selective_risk": 0.39644382636336545
+        },
+        {
+          "accuracy": 0.6137813251542296,
+          "brier": 0.2229883086669587,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500016555743187,
+          "n_kept": 28691,
+          "selective_risk": 0.38621867484577044
+        },
+        {
+          "accuracy": 0.608917994187116,
+          "brier": 0.22183137414163942,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000033111486374,
+          "n_kept": 27181,
+          "selective_risk": 0.391082005812884
+        },
+        {
+          "accuracy": 0.5813501096808906,
+          "brier": 0.22071656760595626,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000066222972749,
+          "n_kept": 24161,
+          "selective_risk": 0.4186498903191093
+        },
+        {
+          "accuracy": 0.5273165886192706,
+          "brier": 0.22042234065021313,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000099334459123,
+          "n_kept": 21141,
+          "selective_risk": 0.4726834113807294
+        },
+        {
+          "accuracy": 0.6266472419045097,
+          "brier": 0.20279956339395666,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000165557431873,
+          "n_kept": 15101,
+          "selective_risk": 0.37335275809549034
+        }
+      ]
+    },
+    "logistic": {
+      "conformal": {
+        "abstention_rate": 0.2615476308731499,
+        "alpha": 0.1,
+        "empirical_coverage": 0.9019900003311149,
+        "mean_set_size": 1.26154763087315,
+        "singleton_rate": 0.7384523691268501,
+        "threshold": 0.7007125890736342
+      },
+      "conformal_coverage_slices": {
+        "class": [
+          {
+            "coverage_gap": 0.019550927811063934,
+            "empirical_coverage": 0.919550927811064,
+            "n": 17191,
+            "nominal_coverage": 0.9,
+            "value": "ai"
+          },
+          {
+            "coverage_gap": -0.02121445042275172,
+            "empirical_coverage": 0.8787855495772483,
+            "n": 13010,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "family": [
+          {
+            "coverage_gap": -0.032375189107412994,
+            "empirical_coverage": 0.867624810892587,
+            "n": 2644,
+            "nominal_coverage": 0.9,
+            "value": "bloomz"
+          },
+          {
+            "coverage_gap": -0.09897652016857317,
+            "empirical_coverage": 0.8010234798314269,
+            "n": 3322,
+            "nominal_coverage": 0.9,
+            "value": "chatGPT"
+          },
+          {
+            "coverage_gap": 0.05739910313901342,
+            "empirical_coverage": 0.9573991031390134,
+            "n": 2676,
+            "nominal_coverage": 0.9,
+            "value": "cohere"
+          },
+          {
+            "coverage_gap": 0.024593566240055376,
+            "empirical_coverage": 0.9245935662400554,
+            "n": 2891,
+            "nominal_coverage": 0.9,
+            "value": "davinci"
+          },
+          {
+            "coverage_gap": 0.08657243816254412,
+            "empirical_coverage": 0.9865724381625441,
+            "n": 2830,
+            "nominal_coverage": 0.9,
+            "value": "dolly"
+          },
+          {
+            "coverage_gap": 0.0992927864214993,
+            "empirical_coverage": 0.9992927864214993,
+            "n": 2828,
+            "nominal_coverage": 0.9,
+            "value": "gpt4"
+          },
+          {
+            "coverage_gap": -0.02121445042275172,
+            "empirical_coverage": 0.8787855495772483,
+            "n": 13010,
+            "nominal_coverage": 0.9,
+            "value": "human"
+          }
+        ],
+        "length_bucket": [
+          {
+            "coverage_gap": 0.012820273486722322,
+            "empirical_coverage": 0.9128202734867223,
+            "n": 21427,
+            "nominal_coverage": 0.9,
+            "value": "150-499"
+          },
+          {
+            "coverage_gap": 0.0027522935779816793,
+            "empirical_coverage": 0.9027522935779817,
+            "n": 2725,
+            "nominal_coverage": 0.9,
+            "value": "50-149"
+          },
+          {
+            "coverage_gap": -0.036762030759054154,
+            "empirical_coverage": 0.8632379692409459,
+            "n": 6047,
+            "nominal_coverage": 0.9,
+            "value": "500plus"
+          }
+        ],
+        "pooled": {
+          "alpha": 0.1,
+          "empirical_coverage": 0.9019900003311149,
+          "n": 30201,
+          "threshold": 0.7007125890736342
+        }
+      },
+      "mean_likelihood_ratio": 3.577131190296282,
+      "method": "holdout",
+      "metrics": {
+        "accuracy": 0.8007350749975166,
+        "auprc": 0.8823201029810614,
+        "auroc": 0.8703274254072937,
+        "brier": 0.14160865115817603,
+        "calibration_intercept": -0.012230654092338911,
+        "calibration_slope": 1.0068866867722428,
+        "ece": 0.008328892060115431,
+        "tpr_at_0.1fpr": 0.35070676516782034,
+        "tpr_at_1fpr": 0.35070676516782034,
+        "tpr_at_5fpr": 0.5028212436740155
+      },
+      "n_groups": 151005,
+      "n_splits": 1,
+      "prior_sensitivity": [
+        {
+          "posterior": 0.00356793615075718,
+          "prevalence": 0.001,
+          "prior_odds": 0.001001001001001001
+        },
+        {
+          "posterior": 0.017658119498868842,
+          "prevalence": 0.005,
+          "prior_odds": 0.005025125628140704
+        },
+        {
+          "posterior": 0.03487259927030086,
+          "prevalence": 0.01,
+          "prior_odds": 0.010101010101010102
+        },
+        {
+          "posterior": 0.15844046615779706,
+          "prevalence": 0.05,
+          "prior_odds": 0.052631578947368425
+        },
+        {
+          "posterior": 0.28441551067354454,
+          "prevalence": 0.1,
+          "prior_odds": 0.11111111111111112
+        },
+        {
+          "posterior": 0.5438740823010924,
+          "prevalence": 0.25,
+          "prior_odds": 0.3333333333333333
+        },
+        {
+          "posterior": 0.7815225392446598,
+          "prevalence": 0.5,
+          "prior_odds": 1.0
+        },
+        {
+          "posterior": 0.9147586351137793,
+          "prevalence": 0.75,
+          "prior_odds": 3.0
+        }
+      ],
+      "selective_risk": [
+        {
+          "accuracy": 0.8007350749975166,
+          "brier": 0.14160865115817603,
+          "coverage": 1.0,
+          "empirical_coverage": 1.0,
+          "n_kept": 30201,
+          "selective_risk": 0.19926492500248336
+        },
+        {
+          "accuracy": 0.8157610400474016,
+          "brier": 0.1359202479269344,
+          "coverage": 0.95,
+          "empirical_coverage": 0.9500016555743187,
+          "n_kept": 28691,
+          "selective_risk": 0.18423895995259837
+        },
+        {
+          "accuracy": 0.830433023067584,
+          "brier": 0.1296879891143021,
+          "coverage": 0.9,
+          "empirical_coverage": 0.9000033111486374,
+          "n_kept": 27181,
+          "selective_risk": 0.169566976932416
+        },
+        {
+          "accuracy": 0.8547659451181656,
+          "brier": 0.11698135745208779,
+          "coverage": 0.8,
+          "empirical_coverage": 0.8000066222972749,
+          "n_kept": 24161,
+          "selective_risk": 0.14523405488183436
+        },
+        {
+          "accuracy": 0.8753606735726787,
+          "brier": 0.1043077478786582,
+          "coverage": 0.7,
+          "empirical_coverage": 0.7000099334459123,
+          "n_kept": 21141,
+          "selective_risk": 0.12463932642732131
+        },
+        {
+          "accuracy": 0.9143765313555394,
+          "brier": 0.0772613333256188,
+          "coverage": 0.5,
+          "empirical_coverage": 0.5000165557431873,
+          "n_kept": 15101,
+          "selective_risk": 0.08562346864446063
+        }
+      ]
+    }
+  },
+  "mixtures": {
+    "n_pairs": 0,
+    "rates": [],
+    "skipped": "no human/AI pairs share a group",
+    "workflow": "ai_prefix"
+  },
+  "n": 151005,
+  "open_set": {
+    "families": [
+      {
+        "held_out_family": "bloomz",
+        "mean_distance_seen": 4.356024965550351,
+        "mean_distance_unseen": 16.37935479974041,
+        "n_seen": 73158,
+        "n_unseen": 13218,
+        "unknown_rejection_auroc": 0.7569135575007915
+      },
+      {
+        "held_out_family": "chatGPT",
+        "mean_distance_seen": 4.360260049820254,
+        "mean_distance_unseen": 1.058087421412488,
+        "n_seen": 69485,
+        "n_unseen": 16891,
+        "unknown_rejection_auroc": 0.49420459590667193
+      },
+      {
+        "held_out_family": "cohere",
+        "mean_distance_seen": 4.355445889262067,
+        "mean_distance_unseen": 2.372700271363782,
+        "n_seen": 72826,
+        "n_unseen": 13550,
+        "unknown_rejection_auroc": 0.5614281526112435
+      },
+      {
+        "held_out_family": "davinci",
+        "mean_distance_seen": 4.34759486213143,
+        "mean_distance_unseen": 1.0201184819175924,
+        "n_seen": 72047,
+        "n_unseen": 14329,
+        "unknown_rejection_auroc": 0.46058797721704575
+      },
+      {
+        "held_out_family": "dolly",
+        "mean_distance_seen": 4.656220730898416,
+        "mean_distance_unseen": 178.33001062470234,
+        "n_seen": 72331,
+        "n_unseen": 14045,
+        "unknown_rejection_auroc": 0.5907362399113537
+      },
+      {
+        "held_out_family": "gpt4",
+        "mean_distance_seen": 4.3667256760767525,
+        "mean_distance_unseen": 0.7085505796393532,
+        "n_seen": 72033,
+        "n_unseen": 14343,
+        "unknown_rejection_auroc": 0.3500128162439171
+      }
+    ],
+    "mean_unknown_rejection_auroc": 0.5356472232318371
+  },
+  "power": {
+    "heuristic": {
+      "alpha": 0.05,
+      "brier": {
+        "observed": 0.22440962468124426,
+        "per_observation_variance": 0.01668831636551543,
+        "required_n": {
+          "0.005": 5240,
+          "0.01": 1310,
+          "0.02": 328,
+          "0.05": 53
+        }
+      },
+      "ece": {
+        "approximation": "Fixed-bin ECE variance propagated from per-bin binomial variances with the half-normal factor; ignores bin-boundary estimation and cross-bin covariance.",
+        "per_observation_variance_proxy": 0.16276303151070468,
+        "required_n": {
+          "0.005": 51101,
+          "0.01": 12776,
+          "0.02": 3194,
+          "0.05": 512
+        }
+      },
+      "method": "Normal approximation n = (z_{1-alpha/2} + z_{power})^2 v / delta^2 with v estimated from the scored cohort; complements the protocol's accuracy gate (required n = 3140 at MDE 0.05).",
+      "n_evaluated": 30201,
+      "target_power": 0.8
+    },
+    "logistic": {
+      "alpha": 0.05,
+      "brier": {
+        "observed": 0.14160865115817603,
+        "per_observation_variance": 0.045836258172027064,
+        "required_n": {
+          "0.005": 14391,
+          "0.01": 3598,
+          "0.02": 900,
+          "0.05": 144
+        }
+      },
+      "ece": {
+        "approximation": "Fixed-bin ECE variance propagated from per-bin binomial variances with the half-normal factor; ignores bin-boundary estimation and cross-bin covariance.",
+        "per_observation_variance_proxy": 0.10362995582815382,
+        "required_n": {
+          "0.005": 32536,
+          "0.01": 8134,
+          "0.02": 2034,
+          "0.05": 326
+        }
+      },
+      "method": "Normal approximation n = (z_{1-alpha/2} + z_{power})^2 v / delta^2 with v estimated from the scored cohort; complements the protocol's accuracy gate (required n = 3140 at MDE 0.05).",
+      "n_evaluated": 30201,
+      "target_power": 0.8
+    }
+  },
+  "protocol_id": "Panoptes measurement protocol v1",
+  "protocol_registered_utc": "2026-08-13T00:00:00Z",
+  "schema": "panoptes-measurement-card-v1",
+  "split": {
+    "method": "holdout",
+    "n_groups": 151005,
+    "n_splits": 1,
+    "rule": "Train, calibration, and test are separate. Never fit or tune the calibration layer on the final test set."
+  },
+  "transport": {
+    "axis": "domains",
+    "cells": [
+      {
+        "accuracy": 0.5290985053548312,
+        "auprc": 0.6664494161666766,
+        "auroc": 0.5944299770378467,
+        "brier": 0.2748424002004365,
+        "calibration_intercept": -0.8733207645861866,
+        "calibration_slope": 1.10098961525329,
+        "ece": 0.19439335717886513,
+        "in_domain": true,
+        "n_test": 33988,
+        "n_train": 33988,
+        "test": "arxiv",
+        "tpr_at_0.1fpr": 0.011117287381878822,
+        "tpr_at_1fpr": 0.06436909394107837,
+        "tpr_at_5fpr": 0.1896609227348527,
+        "train": "arxiv"
+      },
+      {
+        "accuracy": 0.8575547512422551,
+        "auprc": 0.9690797997769126,
+        "auroc": 0.8181914930193546,
+        "brier": 0.1254685356286107,
+        "calibration_intercept": -0.6693960304831781,
+        "calibration_slope": 2.9487367995824445,
+        "ece": 0.16427283158213135,
+        "in_domain": false,
+        "n_test": 16301,
+        "n_train": 33988,
+        "test": "peerread",
+        "tpr_at_0.1fpr": 0.09621845735935378,
+        "tpr_at_1fpr": 0.4985345628708271,
+        "tpr_at_5fpr": 0.6565158338694689,
+        "train": "arxiv"
+      },
+      {
+        "accuracy": 0.5241084585912172,
+        "auprc": 0.8345392385755053,
+        "auroc": 0.7568510962056149,
+        "brier": 0.23940014409539975,
+        "calibration_intercept": -2.156112644642458,
+        "calibration_slope": 3.7909531640468526,
+        "ece": 0.21569076110096733,
+        "in_domain": false,
+        "n_test": 33930,
+        "n_train": 33988,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.1535329875634376,
+        "tpr_at_1fpr": 0.33383525737549496,
+        "tpr_at_5fpr": 0.49980480731693716,
+        "train": "arxiv"
+      },
+      {
+        "accuracy": 0.5577112521891419,
+        "auprc": 0.6168603294814665,
+        "auroc": 0.5206664474086213,
+        "brier": 0.2522886509449205,
+        "calibration_intercept": 0.05420435409476905,
+        "calibration_slope": 0.3527419696494517,
+        "ece": 0.0774839095902399,
+        "in_domain": false,
+        "n_test": 36544,
+        "n_train": 33988,
+        "test": "wikihow",
+        "tpr_at_0.1fpr": 0.008323192990995376,
+        "tpr_at_1fpr": 0.04117790216597712,
+        "tpr_at_5fpr": 0.11039182282793868,
+        "train": "arxiv"
+      },
+      {
+        "accuracy": 0.5237418160174592,
+        "auprc": 0.6874354446178439,
+        "auroc": 0.6170132826375232,
+        "brier": 0.267297887020612,
+        "calibration_intercept": -1.0135492712046719,
+        "calibration_slope": 1.4444018140564903,
+        "ece": 0.17854980309058616,
+        "in_domain": false,
+        "n_test": 30242,
+        "n_train": 33988,
+        "test": "wikipedia",
+        "tpr_at_0.1fpr": 0.0006281012499214873,
+        "tpr_at_1fpr": 0.0896928584887884,
+        "tpr_at_5fpr": 0.2350982978456127,
+        "train": "arxiv"
+      },
+      {
+        "accuracy": 0.5290985053548312,
+        "auprc": 0.6664494161666766,
+        "auroc": 0.5944299770378467,
+        "brier": 0.2748424002004365,
+        "calibration_intercept": -0.8733207645861866,
+        "calibration_slope": 1.10098961525329,
+        "ece": 0.19439335717886513,
+        "in_domain": false,
+        "n_test": 33988,
+        "n_train": 16301,
+        "test": "arxiv",
+        "tpr_at_0.1fpr": 0.011117287381878822,
+        "tpr_at_1fpr": 0.06436909394107837,
+        "tpr_at_5fpr": 0.1896609227348527,
+        "train": "peerread"
+      },
+      {
+        "accuracy": 0.8575547512422551,
+        "auprc": 0.9690797997769126,
+        "auroc": 0.8181914930193546,
+        "brier": 0.1254685356286107,
+        "calibration_intercept": -0.6693960304831781,
+        "calibration_slope": 2.9487367995824445,
+        "ece": 0.16427283158213135,
+        "in_domain": true,
+        "n_test": 16301,
+        "n_train": 16301,
+        "test": "peerread",
+        "tpr_at_0.1fpr": 0.09621845735935378,
+        "tpr_at_1fpr": 0.4985345628708271,
+        "tpr_at_5fpr": 0.6565158338694689,
+        "train": "peerread"
+      },
+      {
+        "accuracy": 0.5241084585912172,
+        "auprc": 0.8345392385755053,
+        "auroc": 0.7568510962056149,
+        "brier": 0.23940014409539975,
+        "calibration_intercept": -2.156112644642458,
+        "calibration_slope": 3.7909531640468526,
+        "ece": 0.21569076110096733,
+        "in_domain": false,
+        "n_test": 33930,
+        "n_train": 16301,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.1535329875634376,
+        "tpr_at_1fpr": 0.33383525737549496,
+        "tpr_at_5fpr": 0.49980480731693716,
+        "train": "peerread"
+      },
+      {
+        "accuracy": 0.5577112521891419,
+        "auprc": 0.6168603294814665,
+        "auroc": 0.5206664474086213,
+        "brier": 0.2522886509449205,
+        "calibration_intercept": 0.05420435409476905,
+        "calibration_slope": 0.3527419696494517,
+        "ece": 0.0774839095902399,
+        "in_domain": false,
+        "n_test": 36544,
+        "n_train": 16301,
+        "test": "wikihow",
+        "tpr_at_0.1fpr": 0.008323192990995376,
+        "tpr_at_1fpr": 0.04117790216597712,
+        "tpr_at_5fpr": 0.11039182282793868,
+        "train": "peerread"
+      },
+      {
+        "accuracy": 0.5237418160174592,
+        "auprc": 0.6874354446178439,
+        "auroc": 0.6170132826375232,
+        "brier": 0.267297887020612,
+        "calibration_intercept": -1.0135492712046719,
+        "calibration_slope": 1.4444018140564903,
+        "ece": 0.17854980309058616,
+        "in_domain": false,
+        "n_test": 30242,
+        "n_train": 16301,
+        "test": "wikipedia",
+        "tpr_at_0.1fpr": 0.0006281012499214873,
+        "tpr_at_1fpr": 0.0896928584887884,
+        "tpr_at_5fpr": 0.2350982978456127,
+        "train": "peerread"
+      },
+      {
+        "accuracy": 0.5290985053548312,
+        "auprc": 0.6664494161666766,
+        "auroc": 0.5944299770378467,
+        "brier": 0.2748424002004365,
+        "calibration_intercept": -0.8733207645861866,
+        "calibration_slope": 1.10098961525329,
+        "ece": 0.19439335717886513,
+        "in_domain": false,
+        "n_test": 33988,
+        "n_train": 33930,
+        "test": "arxiv",
+        "tpr_at_0.1fpr": 0.011117287381878822,
+        "tpr_at_1fpr": 0.06436909394107837,
+        "tpr_at_5fpr": 0.1896609227348527,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.8575547512422551,
+        "auprc": 0.9690797997769126,
+        "auroc": 0.8181914930193546,
+        "brier": 0.1254685356286107,
+        "calibration_intercept": -0.6693960304831781,
+        "calibration_slope": 2.9487367995824445,
+        "ece": 0.16427283158213135,
+        "in_domain": false,
+        "n_test": 16301,
+        "n_train": 33930,
+        "test": "peerread",
+        "tpr_at_0.1fpr": 0.09621845735935378,
+        "tpr_at_1fpr": 0.4985345628708271,
+        "tpr_at_5fpr": 0.6565158338694689,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.5241084585912172,
+        "auprc": 0.8345392385755053,
+        "auroc": 0.7568510962056149,
+        "brier": 0.23940014409539975,
+        "calibration_intercept": -2.156112644642458,
+        "calibration_slope": 3.7909531640468526,
+        "ece": 0.21569076110096733,
+        "in_domain": true,
+        "n_test": 33930,
+        "n_train": 33930,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.1535329875634376,
+        "tpr_at_1fpr": 0.33383525737549496,
+        "tpr_at_5fpr": 0.49980480731693716,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.5577112521891419,
+        "auprc": 0.6168603294814665,
+        "auroc": 0.5206664474086213,
+        "brier": 0.2522886509449205,
+        "calibration_intercept": 0.05420435409476905,
+        "calibration_slope": 0.3527419696494517,
+        "ece": 0.0774839095902399,
+        "in_domain": false,
+        "n_test": 36544,
+        "n_train": 33930,
+        "test": "wikihow",
+        "tpr_at_0.1fpr": 0.008323192990995376,
+        "tpr_at_1fpr": 0.04117790216597712,
+        "tpr_at_5fpr": 0.11039182282793868,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.5237418160174592,
+        "auprc": 0.6874354446178439,
+        "auroc": 0.6170132826375232,
+        "brier": 0.267297887020612,
+        "calibration_intercept": -1.0135492712046719,
+        "calibration_slope": 1.4444018140564903,
+        "ece": 0.17854980309058616,
+        "in_domain": false,
+        "n_test": 30242,
+        "n_train": 33930,
+        "test": "wikipedia",
+        "tpr_at_0.1fpr": 0.0006281012499214873,
+        "tpr_at_1fpr": 0.0896928584887884,
+        "tpr_at_5fpr": 0.2350982978456127,
+        "train": "reddit"
+      },
+      {
+        "accuracy": 0.5290985053548312,
+        "auprc": 0.6664494161666766,
+        "auroc": 0.5944299770378467,
+        "brier": 0.2748424002004365,
+        "calibration_intercept": -0.8733207645861866,
+        "calibration_slope": 1.10098961525329,
+        "ece": 0.19439335717886513,
+        "in_domain": false,
+        "n_test": 33988,
+        "n_train": 36544,
+        "test": "arxiv",
+        "tpr_at_0.1fpr": 0.011117287381878822,
+        "tpr_at_1fpr": 0.06436909394107837,
+        "tpr_at_5fpr": 0.1896609227348527,
+        "train": "wikihow"
+      },
+      {
+        "accuracy": 0.8575547512422551,
+        "auprc": 0.9690797997769126,
+        "auroc": 0.8181914930193546,
+        "brier": 0.1254685356286107,
+        "calibration_intercept": -0.6693960304831781,
+        "calibration_slope": 2.9487367995824445,
+        "ece": 0.16427283158213135,
+        "in_domain": false,
+        "n_test": 16301,
+        "n_train": 36544,
+        "test": "peerread",
+        "tpr_at_0.1fpr": 0.09621845735935378,
+        "tpr_at_1fpr": 0.4985345628708271,
+        "tpr_at_5fpr": 0.6565158338694689,
+        "train": "wikihow"
+      },
+      {
+        "accuracy": 0.5241084585912172,
+        "auprc": 0.8345392385755053,
+        "auroc": 0.7568510962056149,
+        "brier": 0.23940014409539975,
+        "calibration_intercept": -2.156112644642458,
+        "calibration_slope": 3.7909531640468526,
+        "ece": 0.21569076110096733,
+        "in_domain": false,
+        "n_test": 33930,
+        "n_train": 36544,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.1535329875634376,
+        "tpr_at_1fpr": 0.33383525737549496,
+        "tpr_at_5fpr": 0.49980480731693716,
+        "train": "wikihow"
+      },
+      {
+        "accuracy": 0.5577112521891419,
+        "auprc": 0.6168603294814665,
+        "auroc": 0.5206664474086213,
+        "brier": 0.2522886509449205,
+        "calibration_intercept": 0.05420435409476905,
+        "calibration_slope": 0.3527419696494517,
+        "ece": 0.0774839095902399,
+        "in_domain": true,
+        "n_test": 36544,
+        "n_train": 36544,
+        "test": "wikihow",
+        "tpr_at_0.1fpr": 0.008323192990995376,
+        "tpr_at_1fpr": 0.04117790216597712,
+        "tpr_at_5fpr": 0.11039182282793868,
+        "train": "wikihow"
+      },
+      {
+        "accuracy": 0.5237418160174592,
+        "auprc": 0.6874354446178439,
+        "auroc": 0.6170132826375232,
+        "brier": 0.267297887020612,
+        "calibration_intercept": -1.0135492712046719,
+        "calibration_slope": 1.4444018140564903,
+        "ece": 0.17854980309058616,
+        "in_domain": false,
+        "n_test": 30242,
+        "n_train": 36544,
+        "test": "wikipedia",
+        "tpr_at_0.1fpr": 0.0006281012499214873,
+        "tpr_at_1fpr": 0.0896928584887884,
+        "tpr_at_5fpr": 0.2350982978456127,
+        "train": "wikihow"
+      },
+      {
+        "accuracy": 0.5290985053548312,
+        "auprc": 0.6664494161666766,
+        "auroc": 0.5944299770378467,
+        "brier": 0.2748424002004365,
+        "calibration_intercept": -0.8733207645861866,
+        "calibration_slope": 1.10098961525329,
+        "ece": 0.19439335717886513,
+        "in_domain": false,
+        "n_test": 33988,
+        "n_train": 30242,
+        "test": "arxiv",
+        "tpr_at_0.1fpr": 0.011117287381878822,
+        "tpr_at_1fpr": 0.06436909394107837,
+        "tpr_at_5fpr": 0.1896609227348527,
+        "train": "wikipedia"
+      },
+      {
+        "accuracy": 0.8575547512422551,
+        "auprc": 0.9690797997769126,
+        "auroc": 0.8181914930193546,
+        "brier": 0.1254685356286107,
+        "calibration_intercept": -0.6693960304831781,
+        "calibration_slope": 2.9487367995824445,
+        "ece": 0.16427283158213135,
+        "in_domain": false,
+        "n_test": 16301,
+        "n_train": 30242,
+        "test": "peerread",
+        "tpr_at_0.1fpr": 0.09621845735935378,
+        "tpr_at_1fpr": 0.4985345628708271,
+        "tpr_at_5fpr": 0.6565158338694689,
+        "train": "wikipedia"
+      },
+      {
+        "accuracy": 0.5241084585912172,
+        "auprc": 0.8345392385755053,
+        "auroc": 0.7568510962056149,
+        "brier": 0.23940014409539975,
+        "calibration_intercept": -2.156112644642458,
+        "calibration_slope": 3.7909531640468526,
+        "ece": 0.21569076110096733,
+        "in_domain": false,
+        "n_test": 33930,
+        "n_train": 30242,
+        "test": "reddit",
+        "tpr_at_0.1fpr": 0.1535329875634376,
+        "tpr_at_1fpr": 0.33383525737549496,
+        "tpr_at_5fpr": 0.49980480731693716,
+        "train": "wikipedia"
+      },
+      {
+        "accuracy": 0.5577112521891419,
+        "auprc": 0.6168603294814665,
+        "auroc": 0.5206664474086213,
+        "brier": 0.2522886509449205,
+        "calibration_intercept": 0.05420435409476905,
+        "calibration_slope": 0.3527419696494517,
+        "ece": 0.0774839095902399,
+        "in_domain": false,
+        "n_test": 36544,
+        "n_train": 30242,
+        "test": "wikihow",
+        "tpr_at_0.1fpr": 0.008323192990995376,
+        "tpr_at_1fpr": 0.04117790216597712,
+        "tpr_at_5fpr": 0.11039182282793868,
+        "train": "wikipedia"
+      },
+      {
+        "accuracy": 0.5237418160174592,
+        "auprc": 0.6874354446178439,
+        "auroc": 0.6170132826375232,
+        "brier": 0.267297887020612,
+        "calibration_intercept": -1.0135492712046719,
+        "calibration_slope": 1.4444018140564903,
+        "ece": 0.17854980309058616,
+        "in_domain": true,
+        "n_test": 30242,
+        "n_train": 30242,
+        "test": "wikipedia",
+        "tpr_at_0.1fpr": 0.0006281012499214873,
+        "tpr_at_1fpr": 0.0896928584887884,
+        "tpr_at_5fpr": 0.2350982978456127,
+        "train": "wikipedia"
+      }
+    ]
+  }
+}

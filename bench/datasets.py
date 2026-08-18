@@ -1,10 +1,13 @@
 """Dataset loading for the bench.
 
-Three sources:
+Sources:
   - the hash-verified baseline corpus (via research/baseline_corpus)
   - user datasets (CSV or JSONL) validated against schemas/bench-dataset.schema.json
   - the Defactify_Text_Dataset (Roy et al. 2026, arXiv:2510.22874), fetched and
     hygiene-filtered locally by research/fetch_defactify.py (raw text gitignored)
+  - RAID (Dugan et al. 2024), M4GT-Bench (Wang et al. 2024), and EvoBench
+    (ACL 2025 Findings), fetched and hygiene-filtered locally by
+    research/fetch_raid.py, research/fetch_m4gt.py, research/fetch_evobench.py
 """
 
 from __future__ import annotations
@@ -26,6 +29,9 @@ from bench.features import FEATURE_NAMES, length_bucket, vector, word_tokens  # 
 
 SCHEMA_PATH = ROOT / "schemas" / "bench-dataset.schema.json"
 DEFACTIFY_DIR = ROOT / "datasets" / "local" / "defactify"
+RAID_DIR = ROOT / "datasets" / "local" / "raid"
+M4GT_DIR = ROOT / "datasets" / "local" / "m4gt"
+EVOBENCH_DIR = ROOT / "datasets" / "local" / "evobench"
 
 _LABELS = {0: 0, 1: 1, "0": 0, "1": 1, "human": 0, "ai": 1}
 
@@ -58,6 +64,7 @@ class Dataset:
     authors: list[str] | None = None
     domains: list[str] | None = None
     enforce_author_disjoint: bool = False
+    _feature_cache: np.ndarray | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         n = len(self.texts)
@@ -80,9 +87,11 @@ class Dataset:
         return len(self.texts)
 
     def features(self) -> np.ndarray:
-        return np.array(
-            [vector(text, kind) for text, kind in zip(self.texts, self.kinds, strict=True)]
-        )
+        if self._feature_cache is None:
+            self._feature_cache = np.array(
+                [vector(text, kind) for text, kind in zip(self.texts, self.kinds, strict=True)]
+            )
+        return self._feature_cache
 
     @property
     def feature_names(self) -> list[str]:
@@ -281,10 +290,183 @@ def reconstruct_story_groups(
 
 def defactify_created_utc() -> str | None:
     """Deterministic timestamp for Defactify-derived artifacts."""
-    manifest = DEFACTIFY_DIR / "fetch-manifest.json"
+    return _fetch_created_utc(DEFACTIFY_DIR)
+
+
+def _fetch_created_utc(directory: Path) -> str | None:
+    """Deterministic timestamp from a fetch manifest, when present."""
+    manifest = directory / "fetch-manifest.json"
     if not manifest.exists():
         return None
     return json.loads(manifest.read_text(encoding="utf-8")).get("created_utc")
+
+
+def _fetch_manifest_sha256(directory: Path) -> str | None:
+    manifest = directory / "fetch-manifest.json"
+    if not manifest.exists():
+        return None
+    return json.loads(manifest.read_text(encoding="utf-8")).get("artifact_sha256")
+
+
+def _group_subsample_mask(
+    groups: list[str], max_rows: int, seed: int
+) -> tuple[np.ndarray, dict]:
+    """Deterministically select whole groups until `max_rows` is reached.
+
+    Subsampling at the group level keeps every row that shares a leakage-
+    control group in the evaluation cohort together.
+    """
+    unique = sorted(set(groups))
+    keyed = sorted(
+        unique, key=lambda g: hashlib.sha256(f"{seed}:{g}".encode("utf-8")).hexdigest()
+    )
+    counts = {g: 0 for g in unique}
+    for g in groups:
+        counts[g] += 1
+    chosen: set[str] = set()
+    total = 0
+    for g in keyed:
+        if total + counts[g] > max_rows and chosen:
+            break
+        chosen.add(g)
+        total += counts[g]
+        if total >= max_rows:
+            break
+    mask = np.array([g in chosen for g in groups])
+    info = {
+        "max_rows": max_rows,
+        "seed": seed,
+        "n_groups_available": len(unique),
+        "n_groups_selected": len(chosen),
+        "n_rows_selected": int(total),
+    }
+    return mask, info
+
+
+def load_raid(attack: str = "none", max_rows: int = 150_000, seed: int = 13) -> Dataset:
+    """Load the hygiene-filtered RAID train split, subsampled at the source_id level.
+
+    `attack` selects the AI rows: "none" is the clean evaluation cohort;
+    any other value yields human rows plus AI rows attacked with that method
+    (the train-clean/test-attacked robustness cell). Human rows are always
+    attack-free and always included.
+    """
+    import pandas as pd
+
+    path = RAID_DIR / "train-clean.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_raid.py first")
+    frame = pd.read_parquet(path)
+    is_human = frame["family"] == "human"
+    frame = frame.loc[is_human | (frame["attack"] == attack)].reset_index(drop=True)
+    rows_before = len(frame)
+
+    groups = frame["group"].astype(str).tolist()
+    subsample = {"max_rows": None, "n_rows_selected": rows_before}
+    if rows_before > max_rows:
+        mask, subsample = _group_subsample_mask(groups, max_rows, seed)
+        frame = frame.loc[mask].reset_index(drop=True)
+        groups = frame["group"].astype(str).tolist()
+
+    texts = frame["text"].tolist()
+    labels = np.array(frame["label"].tolist(), dtype=int)
+    families = frame["family"].astype(str).tolist()
+    domains = frame["domain"].astype(str).tolist()
+    meta = {
+        "attack": attack,
+        "rows_before_subsample": int(rows_before),
+        "subsample": subsample,
+        "fetch_manifest_sha256": _fetch_manifest_sha256(RAID_DIR),
+    }
+    return Dataset(
+        texts=texts,
+        labels=labels,
+        families=families,
+        kinds=["text"] * len(texts),
+        groups=groups,
+        buckets=[length_bucket(len(word_tokens(text))) for text in texts],
+        provenance=f"raid (Dugan et al. 2024, arXiv:2405.07940; attack={attack}, hygiene-filtered, hash-pinned)",
+        sha256=_dataset_hash(texts, labels),
+        meta=meta,
+        domains=domains,
+    )
+
+
+def raid_attacks() -> list[str]:
+    """Attack values present in the clean RAID parquet (excluding 'none')."""
+    import pandas as pd
+
+    path = RAID_DIR / "train-clean.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_raid.py first")
+    values = pd.read_parquet(path, columns=["attack"])["attack"].unique().tolist()
+    return sorted(v for v in (str(v) for v in values) if v and v != "none")
+
+
+def _load_m4gt_file(file_stem: str, provenance: str) -> Dataset:
+    import pandas as pd
+
+    path = M4GT_DIR / f"{file_stem}-clean.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_m4gt.py first")
+    frame = pd.read_parquet(path)
+    texts = frame["text"].tolist()
+    labels = np.array(frame["label"].tolist(), dtype=int)
+    return Dataset(
+        texts=texts,
+        labels=labels,
+        families=frame["family"].astype(str).tolist(),
+        kinds=["text"] * len(texts),
+        groups=frame["group"].astype(str).tolist(),
+        buckets=[length_bucket(len(word_tokens(text))) for text in texts],
+        provenance=provenance,
+        sha256=_dataset_hash(texts, labels),
+        meta={"fetch_manifest_sha256": _fetch_manifest_sha256(M4GT_DIR)},
+        domains=frame["domain"].astype(str).tolist(),
+    )
+
+
+def load_m4gt() -> Dataset:
+    """M4GT-Bench Subtask A (English, 5 domains, 6 generators)."""
+    return _load_m4gt_file(
+        "subtask_a", "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)"
+    )
+
+
+def load_m4gtml() -> Dataset:
+    """M4GT-Bench Subtask A multilingual (16 sources, 8 generators)."""
+    return _load_m4gt_file(
+        "subtask_a_multilingual",
+        "m4gt-multilingual (Wang et al. 2024, arXiv:2403.14822; hygiene-filtered, hash-pinned)",
+    )
+
+
+def load_evobench() -> Dataset:
+    """EvoBench: families are LLM versions, so leave-one-family-out is the
+    generator-generation shift experiment."""
+    import pandas as pd
+
+    path = EVOBENCH_DIR / "clean.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_evobench.py first")
+    frame = pd.read_parquet(path)
+    texts = frame["text"].tolist()
+    labels = np.array(frame["label"].tolist(), dtype=int)
+    return Dataset(
+        texts=texts,
+        labels=labels,
+        families=frame["family"].astype(str).tolist(),
+        kinds=["text"] * len(texts),
+        groups=frame["group"].astype(str).tolist(),
+        buckets=[length_bucket(len(word_tokens(text))) for text in texts],
+        provenance="evobench (ACL 2025 Findings; hygiene-filtered, pinned-commit)",
+        sha256=_dataset_hash(texts, labels),
+        meta={
+            "fetch_manifest_sha256": _fetch_manifest_sha256(EVOBENCH_DIR),
+            "family_groups": sorted(frame["family_group"].astype(str).unique().tolist()),
+        },
+        domains=frame["domain"].astype(str).tolist(),
+    )
 
 
 def load_defactify(

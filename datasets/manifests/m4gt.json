@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": "6f18e0db36bba195c490795b991f3e6195a5d70665038afd492a315704182bf3",
+  "content_hash": {
+    "algorithm": "sha256",
+    "value": "2c692b2754adaa8ed0f0eacea61e23b51d38591d5c8fa838c4d18126413fc43f"
+  },
+  "id": "m4gt",
+  "kind": "prose",
+  "labels": {
+    "schema": "binary_ai",
+    "values": [
+      "human (label=0)",
+      "ai (label=1; model in {bloomz, chatGPT, cohere, davinci, dolly, gpt4} plus llama2-fine-tuned and jais-30b in the multilingual file)"
+    ]
+  },
+  "license": {
+    "citation": "@inproceedings{wang-etal-2024-m4gt, title={M4GT-Bench: Evaluation Benchmark for Black-Box Machine-Generated Text Detection}, author={Wang, Yuxia and Mansurov, Jonibek and Ivanov, Petar and Su, Jinyan and Shelmanov, Artem and Tsvigun, Akim and Mohammed, Osama and Elmadany, Abdelrahman and Whitehouse, Chenxi and Aji, Alham Fikri and Gurevych, Iryna and Nakov, Preslav}, booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages={3964--3992}, year={2024}, address={Bangkok, Thailand}, publisher={Association for Computational Linguistics}, url={https://aclanthology.org/2024.acl-long.218}, doi={10.18653/v1/2024.acl-long.218}}",
+    "redistributable": false,
+    "spdx": "NOASSERTION"
+  },
+  "limitations": [
+    "The upstream files carry no identifier linking a parallel human/AI pair, so paired rows cannot be group-linked; groups are exact-duplicate-level only.",
+    "The multilingual file overlaps the English file's domains; the two are evaluated as separate datasets (m4gt, m4gtml) and never mixed in one split.",
+    "Repository declares no license for the data files; we redistribute hashes and fitted parameters only."
+  ],
+  "notice_entry_required": true,
+  "privacy": {
+    "contains_pii_risk": "low",
+    "raw_text_in_repo": false,
+    "sanitization": "hashes-only"
+  },
+  "schema": "panoptes-dataset-manifest-v1",
+  "source": {
+    "access": "public",
+    "download_instructions": "Run `python research/fetch_m4gt.py`. The script downloads SubtaskA.jsonl and SubtaskA_multilingual.jsonl from the authors' Google Drive folder (confirm-form handled), verifies them against pinned SHA-256 hashes, applies documented hygiene filters, and stores clean parquet files under datasets/local/m4gt/ (gitignored). Raw text is never committed to this repository.",
+    "url": "https://github.com/mbzuai-nlp/M4GT-Bench",
+    "version": "pinned-sha256 subtask_a:fbc0dbbb4045 multilingual:bbace883094c"
+  },
+  "splits": {
+    "calibration": {
+      "groups": [
+        "sha256(normalized text)[:16] \u2014 exact-duplicate-level grouping"
+      ],
+      "n": 151005
+    },
+    "group_keys": [
+      "text_hash"
+    ],
+    "test": {
+      "groups": [
+        "sha256(normalized text)[:16] \u2014 exact-duplicate-level grouping"
+      ],
+      "n": 151005
+    },
+    "train": {
+      "groups": [
+        "sha256(normalized text)[:16] \u2014 exact-duplicate-level grouping"
+      ],
+      "n": 151005
+    }
+  },
+  "title": "M4GT-Bench Subtask A \u2014 multi-domain, multilingual, multi-generator MGT detection (Wang et al. 2024)"
+}

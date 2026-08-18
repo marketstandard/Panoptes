@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": "c812331f21bf46a9782e9811fbab7b3b5fdbe260fb0f9e46cfa1649403d50dd0",
+  "content_hash": {
+    "algorithm": "sha256",
+    "value": "2d552fd078371f5190f30f45b6af34a21481b84e38184633b5ede2ff75bfe47a"
+  },
+  "id": "evobench",
+  "kind": "prose",
+  "labels": {
+    "schema": "binary_ai",
+    "values": [
+      "human (original)",
+      "ai (sampled from an evolving LLM version)"
+    ]
+  },
+  "license": {
+    "citation": "@inproceedings{moer2025evobench, title={EvoBench: Towards Real-world LLM-Generated Text Detection Benchmarking for Evolving Large Language Models}, author={Mo, Yuan and Liu, Ziyi and Zhang, Yichi and others}, booktitle={Findings of the Association for Computational Linguistics: ACL 2025}, year={2025}, publisher={Association for Computational Linguistics}, url={https://aclanthology.org/2025.findings-acl.754}, doi={10.18653/v1/2025.findings-acl.754}}",
+    "redistributable": false,
+    "spdx": "NOASSERTION"
+  },
+  "limitations": [
+    "The 'harmful' domain is paraphrased social-media content; label semantics differ from the continuation domains.",
+    "Human originals are shared across LLM versions within a domain; pair groups keep them out of different folds.",
+    "Repository declares no license; we redistribute hashes and fitted parameters only."
+  ],
+  "notice_entry_required": true,
+  "privacy": {
+    "contains_pii_risk": "low",
+    "raw_text_in_repo": false,
+    "sanitization": "hashes-only"
+  },
+  "schema": "panoptes-dataset-manifest-v1",
+  "source": {
+    "access": "public",
+    "download_instructions": "Run `python research/fetch_evobench.py`. The script downloads the repository tarball at pinned commit 4c866cd21149 from GitHub, extracts the raw_data.json files, applies documented hygiene filters, and stores a clean parquet under datasets/local/evobench/ (gitignored). Raw text is never committed.",
+    "url": "https://github.com/happy-Moer/EvoBench",
+    "version": "pinned-commit 4c866cd21149"
+  },
+  "splits": {
+    "calibration": {
+      "groups": [
+        "domain:sha256(human original)[:16]"
+      ],
+      "n": 29574
+    },
+    "group_keys": [
+      "pair"
+    ],
+    "test": {
+      "groups": [
+        "domain:sha256(human original)[:16]"
+      ],
+      "n": 29574
+    },
+    "train": {
+      "groups": [
+        "domain:sha256(human original)[:16]"
+      ],
+      "n": 29574
+    }
+  },
+  "title": "EvoBench \u2014 detector generalization across evolving LLM versions (ACL 2025 Findings)"
+}

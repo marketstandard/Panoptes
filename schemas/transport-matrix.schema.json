@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/transport-matrix.schema.json",
+  "title": "Panoptes Cross-Dataset Transport Matrix",
+  "description": "Signed train-cohort x test-cohort transport matrix across every bench dataset.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "detector",
+    "created_utc",
+    "cohorts",
+    "cells",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-transport-matrix-v1"},
+    "detector": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "cohorts": {"type": "object"},
+    "matrix_max_rows": {"type": "integer", "minimum": 1},
+    "cells": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

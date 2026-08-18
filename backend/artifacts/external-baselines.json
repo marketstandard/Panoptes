@@ -1,25 +1,332 @@
 {
-  "artifact_sha256": "efc97f740d79d3cbc72d3afd17aecae701343ffa94dc1d5b888b1b5f0c05a09a",
-  "created_utc": "2026-08-13T18:10:12Z",
-  "dataset": "panoptes-verified-corpus",
+  "artifact_sha256": "f4c33556dfc679d43564b48bd99da4aeaae9652ce98211fa2cc7461fcc3eebaf",
+  "created_utc": "2026-08-12T21:45:39Z",
+  "dataset": "panoptes-verified-corpus + defactify-text (protocol splits)",
   "detectors": {
     "binoculars": {
       "citation": "Hans et al. 2024, ICML",
+      "max_tokens": 1024,
       "name": "Binoculars",
+      "observer": "tiiuae/falcon-7b",
+      "performer": "tiiuae/falcon-7b-instruct",
       "requires": "transformers + two observer/performer LMs",
-      "status": "unavailable"
+      "results": {
+        "corpus": {
+          "conformal": {
+            "abstention_rate": 0.0,
+            "alpha": 0.1,
+            "empirical_coverage": 0.9230769230769231,
+            "mean_set_size": 1.0,
+            "singleton_rate": 1.0,
+            "threshold": 0.33333333333333337
+          },
+          "method": "nested_grouped_cv",
+          "metrics": {
+            "accuracy": 0.9230769230769231,
+            "auprc": 0.9847185234871209,
+            "auroc": 0.8352864583333333,
+            "brier": 0.06624009966249778,
+            "calibration_intercept": 0.7350373592842667,
+            "calibration_slope": 0.35648136600687574,
+            "ece": 0.04734109752698237,
+            "tpr_at_0.1fpr": 0.7291666666666666,
+            "tpr_at_1fpr": 0.7291666666666666,
+            "tpr_at_5fpr": 0.7291666666666666
+          },
+          "n_scored": 104,
+          "selective_risk": [
+            {
+              "accuracy": 0.9230769230769231,
+              "brier": 0.06624009966249776,
+              "coverage": 1.0,
+              "empirical_coverage": 1.0,
+              "n_kept": 104,
+              "selective_risk": 0.07692307692307693
+            },
+            {
+              "accuracy": 0.9292929292929293,
+              "brier": 0.06060688359606948,
+              "coverage": 0.95,
+              "empirical_coverage": 0.9519230769230769,
+              "n_kept": 99,
+              "selective_risk": 0.0707070707070707
+            },
+            {
+              "accuracy": 0.9361702127659575,
+              "brier": 0.05461562046897278,
+              "coverage": 0.9,
+              "empirical_coverage": 0.9038461538461539,
+              "n_kept": 94,
+              "selective_risk": 0.06382978723404255
+            },
+            {
+              "accuracy": 0.9523809523809523,
+              "brier": 0.041088932915473435,
+              "coverage": 0.8,
+              "empirical_coverage": 0.8076923076923077,
+              "n_kept": 84,
+              "selective_risk": 0.047619047619047616
+            },
+            {
+              "accuracy": 0.9863013698630136,
+              "brier": 0.012897045255920664,
+              "coverage": 0.7,
+              "empirical_coverage": 0.7019230769230769,
+              "n_kept": 73,
+              "selective_risk": 0.0136986301369863
+            },
+            {
+              "accuracy": 1.0,
+              "brier": 1.0000000000575112e-12,
+              "coverage": 0.5,
+              "empirical_coverage": 0.5,
+              "n_kept": 52,
+              "selective_risk": 0.0
+            }
+          ]
+        },
+        "defactify": {
+          "conformal": {
+            "abstention_rate": 0.0,
+            "alpha": 0.1,
+            "empirical_coverage": 0.9002247191011236,
+            "mean_set_size": 0.9960299625468165,
+            "singleton_rate": 0.9960299625468165,
+            "threshold": 0.4
+          },
+          "method": "holdout",
+          "metrics": {
+            "accuracy": 0.9029213483146067,
+            "auprc": 0.9782677116975806,
+            "auroc": 0.8773227078556178,
+            "brier": 0.07019364634821311,
+            "calibration_intercept": 0.29144536557215134,
+            "calibration_slope": 0.9102390080748267,
+            "ece": 0.01653121993553131,
+            "tpr_at_0.1fpr": 0.2808829654310704,
+            "tpr_at_1fpr": 0.46705539358600584,
+            "tpr_at_5fpr": 0.743856726364015
+          },
+          "n_scored": 27039,
+          "selective_risk": [
+            {
+              "accuracy": 0.9029213483146068,
+              "brier": 0.07019364634821311,
+              "coverage": 1.0,
+              "empirical_coverage": 1.0,
+              "n_kept": 13350,
+              "selective_risk": 0.09707865168539326
+            },
+            {
+              "accuracy": 0.899235196720019,
+              "brier": 0.06579851897166077,
+              "coverage": 0.95,
+              "empirical_coverage": 0.9500374531835206,
+              "n_kept": 12683,
+              "selective_risk": 0.10076480327998108
+            },
+            {
+              "accuracy": 0.8938826466916354,
+              "brier": 0.061211466638970084,
+              "coverage": 0.9,
+              "empirical_coverage": 0.9,
+              "n_kept": 12015,
+              "selective_risk": 0.10611735330836454
+            },
+            {
+              "accuracy": 0.9397003745318352,
+              "brier": 0.036718101081805656,
+              "coverage": 0.8,
+              "empirical_coverage": 0.8,
+              "n_kept": 10680,
+              "selective_risk": 0.060299625468164794
+            },
+            {
+              "accuracy": 0.9884430176565008,
+              "brier": 0.01122489261077451,
+              "coverage": 0.7,
+              "empirical_coverage": 0.7,
+              "n_kept": 9345,
+              "selective_risk": 0.011556982343499198
+            },
+            {
+              "accuracy": 0.9950561797752809,
+              "brier": 0.004916723441126267,
+              "coverage": 0.5,
+              "empirical_coverage": 0.5,
+              "n_kept": 6675,
+              "selective_risk": 0.004943820224719101
+            }
+          ]
+        }
+      },
+      "status": "scored"
     },
     "detectgpt": {
       "citation": "Mitchell et al. 2023, ICML",
+      "failure_reason": "Perturbation cost prohibitive at Defactify scale: ~20 T5 fill passes per text over ~29k calibration+test texts is hours of GPU time. Fast-DetectGPT (Bao et al. 2024, same curvature family, no perturbation model) is scored instead, as the plan allows.",
       "name": "DetectGPT",
       "requires": "source LM + perturbation model",
-      "status": "unavailable"
+      "status": "failed"
     },
     "fast_detectgpt": {
       "citation": "Bao et al. 2024, ICLR",
+      "max_tokens": 1024,
+      "model": "EleutherAI/gpt-j-6B",
+      "n_samples": 5,
       "name": "Fast-DetectGPT",
       "requires": "source/reference LM pair",
-      "status": "unavailable"
+      "results": {
+        "corpus": {
+          "conformal": {
+            "abstention_rate": 0.0,
+            "alpha": 0.1,
+            "empirical_coverage": 0.9230769230769231,
+            "mean_set_size": 1.0,
+            "singleton_rate": 1.0,
+            "threshold": 0.33333333333333337
+          },
+          "method": "nested_grouped_cv",
+          "metrics": {
+            "accuracy": 0.9230769230769231,
+            "auprc": 0.9738220579405763,
+            "auroc": 0.7337239583333333,
+            "brier": 0.07065682004788075,
+            "calibration_intercept": 1.0952641464355364,
+            "calibration_slope": 0.32112924396297376,
+            "ece": 0.032550427115644036,
+            "tpr_at_0.1fpr": 0.6145833333333334,
+            "tpr_at_1fpr": 0.6145833333333334,
+            "tpr_at_5fpr": 0.6145833333333334
+          },
+          "n_scored": 104,
+          "selective_risk": [
+            {
+              "accuracy": 0.9230769230769231,
+              "brier": 0.07065682004788075,
+              "coverage": 1.0,
+              "empirical_coverage": 1.0,
+              "n_kept": 104,
+              "selective_risk": 0.07692307692307693
+            },
+            {
+              "accuracy": 0.9191919191919192,
+              "brier": 0.07005026213784106,
+              "coverage": 0.95,
+              "empirical_coverage": 0.9519230769230769,
+              "n_kept": 99,
+              "selective_risk": 0.08080808080808081
+            },
+            {
+              "accuracy": 0.9148936170212766,
+              "brier": 0.07164868033666238,
+              "coverage": 0.9,
+              "empirical_coverage": 0.9038461538461539,
+              "n_kept": 94,
+              "selective_risk": 0.0851063829787234
+            },
+            {
+              "accuracy": 0.9047619047619048,
+              "brier": 0.07541638037674125,
+              "coverage": 0.8,
+              "empirical_coverage": 0.8076923076923077,
+              "n_kept": 84,
+              "selective_risk": 0.09523809523809523
+            },
+            {
+              "accuracy": 0.9589041095890412,
+              "brier": 0.0376103300274861,
+              "coverage": 0.7,
+              "empirical_coverage": 0.7019230769230769,
+              "n_kept": 73,
+              "selective_risk": 0.0410958904109589
+            },
+            {
+              "accuracy": 1.0,
+              "brier": 1.0000000000575112e-12,
+              "coverage": 0.5,
+              "empirical_coverage": 0.5,
+              "n_kept": 52,
+              "selective_risk": 0.0
+            }
+          ]
+        },
+        "defactify": {
+          "conformal": {
+            "abstention_rate": 0.0,
+            "alpha": 0.1,
+            "empirical_coverage": 0.9045692883895131,
+            "mean_set_size": 1.0,
+            "singleton_rate": 1.0,
+            "threshold": 0.49788434414668503
+          },
+          "method": "holdout",
+          "metrics": {
+            "accuracy": 0.9045692883895131,
+            "auprc": 0.9902375598283569,
+            "auroc": 0.9296450518603617,
+            "brier": 0.05835889894356609,
+            "calibration_intercept": 0.21708282626378958,
+            "calibration_slope": 0.8675816332151762,
+            "ece": 0.0135443592531857,
+            "tpr_at_0.1fpr": 0.7741774260724698,
+            "tpr_at_1fpr": 0.8142440649729279,
+            "tpr_at_5fpr": 0.868304872969596
+          },
+          "n_scored": 27039,
+          "selective_risk": [
+            {
+              "accuracy": 0.9045692883895131,
+              "brier": 0.058358898943566107,
+              "coverage": 1.0,
+              "empirical_coverage": 1.0,
+              "n_kept": 13350,
+              "selective_risk": 0.09543071161048688
+            },
+            {
+              "accuracy": 0.9208389182370101,
+              "brier": 0.04829400254607152,
+              "coverage": 0.95,
+              "empirical_coverage": 0.9500374531835206,
+              "n_kept": 12683,
+              "selective_risk": 0.07916108176298983
+            },
+            {
+              "accuracy": 0.9411568872243029,
+              "brier": 0.03716195058659346,
+              "coverage": 0.9,
+              "empirical_coverage": 0.9,
+              "n_kept": 12015,
+              "selective_risk": 0.058843112775697044
+            },
+            {
+              "accuracy": 0.9864232209737828,
+              "brier": 0.01088733928125515,
+              "coverage": 0.8,
+              "empirical_coverage": 0.8,
+              "n_kept": 10680,
+              "selective_risk": 0.013576779026217229
+            },
+            {
+              "accuracy": 0.9992509363295881,
+              "brier": 0.0007437790974181798,
+              "coverage": 0.7,
+              "empirical_coverage": 0.7,
+              "n_kept": 9345,
+              "selective_risk": 0.000749063670411985
+            },
+            {
+              "accuracy": 1.0,
+              "brier": 1.0000000000574983e-12,
+              "coverage": 0.5,
+              "empirical_coverage": 0.5,
+              "n_kept": 6675,
+              "selective_risk": 0.0
+            }
+          ]
+        }
+      },
+      "status": "scored"
     },
     "transformer_classifier": {
       "citation": "standard fine-tuned detector",
@@ -28,6 +335,6 @@
       "status": "unavailable"
     }
   },
-  "note": "External zero-shot and neural detectors are registered here so that a later run can score them on the frozen protocol splits. This environment does not ship their weights. Do not substitute the Panoptes heuristic for an unavailable external detector.",
+  "note": "External zero-shot detectors scored on the frozen protocol splits (calibration \u222a test partitions; isotonic calibration fitted on the calibration partition only, test groups untouched). Do not substitute the Panoptes heuristic for an unavailable external detector.",
   "schema": "panoptes-external-baselines-v1"
 }

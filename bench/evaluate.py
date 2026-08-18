@@ -205,6 +205,99 @@ def conformal_sets(labels: np.ndarray, probabilities: np.ndarray, alpha: float =
     }
 
 
+def sliced_conformal_coverage(
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+    slices: dict[str, list[str]],
+    alpha: float = 0.1,
+    min_n: int = 30,
+) -> dict[str, list[dict]]:
+    """Conditional conformal coverage: does the pooled threshold hold per slice?
+
+    The split-conformal guarantee is marginal over the evaluation cohort. This
+    measures the empirical coverage of the *pooled* threshold within each
+    slice (length bucket, generator family, human/AI class), which is where
+    coverage gaps actually hide.
+    """
+    y = np.asarray(labels, dtype=int)
+    p = np.asarray(probabilities, dtype=float)
+    nonconformity = 1.0 - np.where(y == 1, p, 1 - p)
+    quantile = math.ceil((len(nonconformity) + 1) * (1 - alpha)) / len(nonconformity)
+    quantile = min(max(quantile, 0.0), 1.0)
+    threshold = float(np.quantile(nonconformity, quantile, method="higher"))
+    covered = nonconformity <= threshold
+    out: dict[str, list[dict]] = {}
+    for dimension, values in slices.items():
+        rows = []
+        for value in sorted(set(values)):
+            mask = np.array([v == value for v in values])
+            n = int(mask.sum())
+            if n < min_n:
+                continue
+            rows.append(
+                {
+                    "value": value,
+                    "n": n,
+                    "nominal_coverage": float(1 - alpha),
+                    "empirical_coverage": float(covered[mask].mean()),
+                    "coverage_gap": float(covered[mask].mean() - (1 - alpha)),
+                }
+            )
+        out[dimension] = rows
+    out["pooled"] = {
+        "alpha": alpha,
+        "threshold": threshold,
+        "empirical_coverage": float(covered.mean()),
+        "n": int(len(y)),
+    }
+    return out
+
+
+def cross_dataset_transport(
+    train_dataset: Dataset,
+    test_dataset: Dataset,
+    detector_factory,
+    seed: int = SEED,
+) -> dict:
+    """Fit + calibrate on one cohort, score the other cohort untouched.
+
+    The within-dataset transport matrix only sees domains that share a
+    feature distribution. Cross-dataset transport is the harder question the
+    paper cares about: does a detector fitted on cohort A stay calibrated on
+    cohort B? Calibration is fit on the source cohort's calibration partition
+    only; the target cohort is never used for fitting or tuning.
+    """
+    from bench.splits import protocol_splits
+
+    split = protocol_splits(train_dataset, seed=seed)[0]
+    detector = detector_factory()
+    detector.fit(train_dataset, split.train)
+    raw_cal = detector.predict_proba(train_dataset, split.calibration)
+    calibrator = fit_isotonic(raw_cal, train_dataset.labels[split.calibration])
+    all_idx = np.arange(len(test_dataset))
+    raw_test = detector.predict_proba(test_dataset, all_idx)
+    if calibrator is None:
+        calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibration_applied = False
+    else:
+        calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibration_applied = True
+    y = test_dataset.labels
+    metrics = binary_metrics(y, calibrated)
+    return {
+        "train_dataset": train_dataset.provenance,
+        "test_dataset": test_dataset.provenance,
+        "n_train": int(len(split.train)),
+        "n_calibration": int(len(split.calibration)),
+        "n_test": int(len(all_idx)),
+        "calibration_applied": calibration_applied,
+        "detector": getattr(detector, "name", type(detector).__name__),
+        **metrics,
+        "selective_risk": selective_risk_curve(y, calibrated),
+        "conformal": conformal_sets(y, calibrated),
+    }
+
+
 def fairness_slices(dataset: Dataset, probabilities: np.ndarray) -> dict[str, list[dict]]:
     labels = dataset.labels
     slices: dict[str, list[dict]] = {"length_bucket": [], "kind": [], "family": []}
@@ -318,14 +411,17 @@ def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> d
     fold_rows = []
     pooled_p: list[np.ndarray] = []
     pooled_y: list[np.ndarray] = []
+    pooled_idx: list[np.ndarray] = []
     for split in splits:
         detector = detector_factory()
         row = evaluate_protocol_split(detector, dataset, split)
         pooled_p.append(row["probabilities"])
         pooled_y.append(row["labels"])
+        pooled_idx.append(row["test_idx"])
         fold_rows.append({k: v for k, v in row.items() if k not in {"probabilities", "labels", "test_idx"}})
     y = np.concatenate(pooled_y)
     p = np.concatenate(pooled_p)
+    idx = np.concatenate(pooled_idx)
     from bench.evidence import likelihood_ratio, prior_sensitivity
 
     prevalence = float(dataset.labels.mean())
@@ -341,6 +437,9 @@ def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> d
         "mean_likelihood_ratio": mean_lr,
         "prior_sensitivity": prior_sensitivity(mean_lr),
         "folds": fold_rows,
+        "pooled_probabilities": p,
+        "pooled_labels": y,
+        "pooled_test_idx": idx,
     }
 
 
