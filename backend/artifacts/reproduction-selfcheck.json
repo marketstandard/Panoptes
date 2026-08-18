@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "4c24cef76125542a505aa4a14ce55626ee284bccfaca0ed0f599d51311ed613c",
+  "artifact_sha256": "31f1400313ee12cdae909e94cd69cfd6e71b21c50a43e784899c21c7651cfea6",
   "artifacts": [
     {
       "match": true,
@@ -179,6 +179,30 @@
     },
     {
       "match": true,
+      "original_sha256": "d0574e84c57b2459595684caf71990f1c25645789705630b876785a25af16c7a",
+      "path": "backend\\artifacts\\cards\\watermarked-generations.json",
+      "recomputed_sha256": "d0574e84c57b2459595684caf71990f1c25645789705630b876785a25af16c7a",
+      "schema": "panoptes-watermarked-generations-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "1ad1548a3e22688f23596b706f58addcc56aac8a0c6041cec62c8ac94a07ca65",
+      "path": "backend\\artifacts\\cards\\watermarked-paraphrases.json",
+      "recomputed_sha256": "1ad1548a3e22688f23596b706f58addcc56aac8a0c6041cec62c8ac94a07ca65",
+      "schema": "panoptes-watermarked-generations-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "2c1c5aac47d35b1b81740ddc1a8568afde0abaf976514c95275f0950a2e5330c",
+      "path": "backend\\artifacts\\cards\\watermark-removal.json",
+      "recomputed_sha256": "2c1c5aac47d35b1b81740ddc1a8568afde0abaf976514c95275f0950a2e5330c",
+      "schema": "panoptes-watermark-removal-eval-card-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
       "original_sha256": "134868bc03ee49df7e07e3f58550e9322acf1b0e3b4ca09112d41785ddf4c215",
       "path": "backend\\artifacts\\transport-matrix-external.json",
       "recomputed_sha256": "134868bc03ee49df7e07e3f58550e9322acf1b0e3b4ca09112d41785ddf4c215",
@@ -201,7 +225,7 @@
     "python research/validate_submission.py research/protocol.json",
     "python -m pytest backend research bench baselines"
   ],
-  "created_utc": "2026-08-18T00:40:38Z",
+  "created_utc": "2026-08-18T04:11:52Z",
   "errors": [],
   "independent": false,
   "kind": "author_selfcheck",
@@ -209,8 +233,8 @@
     "This is a first-party self-check, not an independent reproduction.",
     "Headline metric deltas versus an outside researcher are not yet available."
   ],
-  "n_artifacts": 24,
-  "n_hash_matches": 24,
+  "n_artifacts": 27,
+  "n_hash_matches": 27,
   "n_unsigned": 0,
   "schema": "panoptes-reproduction-selfcheck-v1"
 }

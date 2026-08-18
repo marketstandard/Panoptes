@@ -58,6 +58,11 @@ python research/validate_submission.py path/to/artifact.json
 
 See `docs/contributing-markers.md` for the full workflow and acceptance checklist.
 
+## Watermark-removal and external-system evaluations
+
+- To run or extend the watermark-removal robustness evaluation (attack battery, retention metrics), see `docs/watermark-removal.md`.
+- To evaluate an external watermark scheme, remover, or detector straight from its git repository — or to contribute a `panoptes.adapter.json` / `panoptes_adapter.py` for one — see `docs/testing-external-repos.md`. Only run repositories you trust; the harness executes cloned code in a subprocess.
+
 ## Baseline run submissions
 
 You can also contribute known-model baseline outputs for the canonical prompt set:

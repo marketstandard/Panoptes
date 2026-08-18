@@ -1,0 +1,263 @@
+{
+  "artifact_sha256": "2c1c5aac47d35b1b81740ddc1a8568afde0abaf976514c95275f0950a2e5330c",
+  "attacks": [
+    "unicode_scrub",
+    "synonym_30",
+    "synonym_60",
+    "truncate_50",
+    "drop_20",
+    "shuffle_sentences",
+    "lowercase",
+    "strip_punctuation",
+    "llm_paraphrase"
+  ],
+  "created_utc": "2026-08-18T03:57:15Z",
+  "external_repos": [
+    {
+      "adapter": "watermarks_remover",
+      "card": "external-repo-watermark-remover.json",
+      "kgw_detection_after": 1.0,
+      "kgw_detection_before": 1.0,
+      "repo": "https://github.com/guillaumemeyer/watermarks-remover",
+      "unicode_present_after": 0.0,
+      "unicode_present_before": 1.0
+    }
+  ],
+  "generations_ref": "watermarked-generations.json sha256:d0574e84c57b2459595684caf71990f1c25645789705630b876785a25af16c7a",
+  "kgw": {
+    "baseline": {
+      "detection_rate_0.05": 1.0,
+      "mean_green_rate": 0.8168741941925228,
+      "mean_z": 7.126828784477168,
+      "n": 96,
+      "n_tested": 96
+    },
+    "control_baseline": {
+      "detection_rate_0.05": 0.08333333333333333,
+      "mean_green_rate": 0.5104639080759437,
+      "mean_z": 0.23531002536002962,
+      "n": 96,
+      "n_tested": 96
+    },
+    "n_control": 96,
+    "n_watermarked": 96,
+    "per_attack": [
+      {
+        "attack": "unicode_scrub",
+        "control_fpr_after": 0.08333333333333333,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.8168741941925228,
+        "mean_z_after": 7.126828784477168,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "synonym_30",
+        "control_fpr_after": 0.08333333333333333,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.7981702272567491,
+        "mean_z_after": 6.70622645610521,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "synonym_60",
+        "control_fpr_after": 0.08333333333333333,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.7796204327811888,
+        "mean_z_after": 6.289210741052467,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "truncate_50",
+        "control_fpr_after": 0.041666666666666664,
+        "detection_rate_after": 0.9166666666666666,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.7183985535269156,
+        "mean_z_after": 3.3177334934277636,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "drop_20",
+        "control_fpr_after": 0.03125,
+        "detection_rate_after": 0.9583333333333334,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.6887182475275525,
+        "mean_z_after": 3.6328773785799293,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "shuffle_sentences",
+        "control_fpr_after": 0.09375,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.8141530665600394,
+        "mean_z_after": 7.065660994865522,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "lowercase",
+        "control_fpr_after": 0.03125,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.7477912000908741,
+        "mean_z_after": 5.572803165430702,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "strip_punctuation",
+        "control_fpr_after": 0.07291666666666667,
+        "detection_rate_after": 1.0,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.7859047282883789,
+        "mean_z_after": 6.137437883190954,
+        "mean_z_before": 7.126828784477168
+      },
+      {
+        "attack": "llm_paraphrase",
+        "control_fpr_after": null,
+        "detection_rate_after": 0.4166666666666667,
+        "detection_rate_before": 1.0,
+        "mean_green_rate_after": 0.561868287454465,
+        "mean_z_after": 1.3061149810430541,
+        "mean_z_before": 7.126828784477168
+      }
+    ],
+    "scheme": "kgw-v1"
+  },
+  "limitations": [
+    "KGW retention uses the demo-key watermarked generations (Aaronson/SynthID-Text family), not a vendor's private production key.",
+    "The Unicode scheme is a reference zero-width signature; real vendor Unicode watermarks differ in payload but share the same fragility to hygiene.",
+    "synonym_substitute is a deterministic stand-in for LLM paraphrase; a full neural rewrite is the strongest statistical attack and is evaluated via the external repo harness.",
+    "Passive-evasion AUROC is a full-corpus in-sample shift, consistent with the robustness pilot; it is not blended into the watermark claim."
+  ],
+  "passive": {
+    "dataset": "panoptes-verified-corpus",
+    "detector": "panoptes-heuristic",
+    "n": 104,
+    "per_attack": [
+      {
+        "attack": "unicode_scrub",
+        "auroc_after": 0.6731770833333334,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": 0.0
+      },
+      {
+        "attack": "synonym_30",
+        "auroc_after": 0.45963541666666663,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.21354166666666674
+      },
+      {
+        "attack": "synonym_60",
+        "auroc_after": 0.4296875,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.24348958333333337
+      },
+      {
+        "attack": "truncate_50",
+        "auroc_after": 0.3046875,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.36848958333333337
+      },
+      {
+        "attack": "drop_20",
+        "auroc_after": 0.3151041666666667,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.3580729166666667
+      },
+      {
+        "attack": "shuffle_sentences",
+        "auroc_after": 0.6718749999999999,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.0013020833333334814
+      },
+      {
+        "attack": "lowercase",
+        "auroc_after": 0.6783854166666666,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": 0.005208333333333259
+      },
+      {
+        "attack": "strip_punctuation",
+        "auroc_after": 0.3268229166666667,
+        "auroc_before": 0.6731770833333334,
+        "delta_auroc": -0.3463541666666667
+      }
+    ]
+  },
+  "schema": "panoptes-watermark-removal-eval-card-v1",
+  "schemes": [
+    "kgw-v1",
+    "unicode-zerowidth-v1"
+  ],
+  "unicode": {
+    "baseline": {
+      "mean_marks": 114.36458333333333,
+      "mean_payload_match": 1.0,
+      "n": 96,
+      "present_rate": 1.0
+    },
+    "n": 96,
+    "per_attack": [
+      {
+        "attack": "unicode_scrub",
+        "mean_marks_after": 0.0,
+        "payload_match_after": 0.0,
+        "present_rate_after": 0.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "synonym_30",
+        "mean_marks_after": 114.36458333333333,
+        "payload_match_after": 1.0,
+        "present_rate_after": 1.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "synonym_60",
+        "mean_marks_after": 114.36458333333333,
+        "payload_match_after": 1.0,
+        "present_rate_after": 1.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "truncate_50",
+        "mean_marks_after": 0.0,
+        "payload_match_after": 0.0,
+        "present_rate_after": 0.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "drop_20",
+        "mean_marks_after": 0.0,
+        "payload_match_after": 0.0,
+        "present_rate_after": 0.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "shuffle_sentences",
+        "mean_marks_after": 114.36458333333333,
+        "payload_match_after": 0.5086626071931679,
+        "present_rate_after": 0.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "lowercase",
+        "mean_marks_after": 114.36458333333333,
+        "payload_match_after": 1.0,
+        "present_rate_after": 1.0,
+        "present_rate_before": 1.0
+      },
+      {
+        "attack": "strip_punctuation",
+        "mean_marks_after": 0.0,
+        "payload_match_after": 0.0,
+        "present_rate_after": 0.0,
+        "present_rate_before": 1.0
+      }
+    ],
+    "scheme": "unicode-zerowidth-v1"
+  }
+}

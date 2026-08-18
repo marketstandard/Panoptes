@@ -9,8 +9,8 @@
 <meta name="citation_title" content="Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution" />
 <meta name="citation_author" content="Junior, Carrington" />
 <meta name="citation_author" content="Huffine, Trey" />
-<meta name="citation_publication_date" content="2026/08/13" />
-<meta name="citation_technical_report_number" content="v1.0" />
+<meta name="citation_publication_date" content="2026/08/17" />
+<meta name="citation_technical_report_number" content="v2.0" />
 <style>
   :root {
     --ink: #1a2332;
@@ -166,7 +166,7 @@
       <sup>2</sup>Independent researcher &middot; GitHub
       <a href="https://github.com/treyhuffine" target="_blank" rel="noreferrer">treyhuffine</a>
     </div>
-    <div class="date">August 13, 2026 &middot; Version 1.0 &middot; Measurement protocol registered 2026-08-13</div>
+    <div class="date">August 17, 2026 &middot; Version 2.0 &middot; Measurement protocol registered 2026-08-13</div>
     <div class="correspondence">Correspondence: Carrington Junior, <span class="mono">github.com/Encryptic1</span></div>
   </div>
 
@@ -267,7 +267,12 @@
   in which a pseudorandom partition of the vocabulary biases token selection and detection reduces to a binomial test
   [1]. Aaronson and Kirchner developed a related cryptographic scheme [2]. These tests are powerful when the text is
   unmodified and the scheme is known, and degrade gracefully under editing &mdash; behavior we quantify explicitly through
-  effect sizes, power estimates, and a dilution statistic rather than a bare p-value.</p>
+  effect sizes, power estimates, and a dilution statistic rather than a bare p-value. The family is no longer only
+  academic: Google DeepMind&rsquo;s SynthID-Text productionized a green-list watermark and reported no measurable quality
+  cost in live traffic [37], and Anthropic announced in August 2026 that Claude&rsquo;s text watermark is a version of
+  SynthID-Text, applied globally to comply with the EU AI Act [38]. Our reference adapter models exactly this
+  Aaronson/green-list family; because Anthropic&rsquo;s production key is private, we characterize the family&rsquo;s
+  robustness rather than any vendor&rsquo;s specific key (&sect;12).</p>
   <p><strong>Detection and its limits.</strong> Post-hoc AI-text detectors divide into zero-shot statistics over the
   generating model &mdash; GLTR&rsquo;s token-rank visualization [32], DetectGPT&rsquo;s probability-curvature test [5],
   the Fast-DetectGPT conditional-probability speedup [6], Binoculars&rsquo; cross-model perplexity ratio [7] &mdash; and
@@ -1024,6 +1029,66 @@
     </tbody>
   </table>
 
+  <p><strong>Watermark-removal robustness.</strong> The watermark subsystem above measures Type&nbsp;I behavior on
+  ordinary text. Here we ask the adversarial question: <em>does a removal tool defeat the watermark?</em> Because no
+  watermarked corpus exists, we generated one &mdash; 96 passages from a small language model sampled with the KGW
+  green-list logit bias under the demo key (detected at p&nbsp;&lt;&nbsp;0.05 in 96/96 cases, mean z&nbsp;=&nbsp;7.1),
+  plus 96 matched unwatermarked controls (empirical FPR 0.083) &mdash; then applied a battery of removal attacks and
+  measured how much detection survives. We test two families: the <em>statistical</em> green-list watermark (the
+  Aaronson/SynthID-Text family that Claude now uses [37, 38]) and a <em>Unicode</em> zero-width watermark, the family
+  that &ldquo;Unicode hygiene&rdquo; removers target. Table&nbsp;12 reports retention. Signed cards:
+  <span class="mono">cards/watermarked-generations.json</span>,
+  <span class="mono">cards/watermark-removal.json</span>.</p>
+  <table>
+    <caption>Table 12 &mdash; Watermark retention under removal attacks. <em>KGW detection</em> is the fraction of 96
+    watermarked passages still flagged at p&nbsp;&lt;&nbsp;0.05 (baseline 1.000, mean z&nbsp;=&nbsp;7.1);
+    <em>Unicode present</em> is the fraction of 96 zero-width-embedded controls whose signature survives (baseline
+    1.000); <em>passive AUROC</em> is the shipped heuristic detector on the corpus (n&nbsp;=&nbsp;104) under the same
+    attack (baseline 0.673). The final row is the external <span class="mono">watermarks-remover</span> tool evaluated
+    end-to-end from its git repository. Signed card: <span class="mono">cards/watermark-removal.json</span>.</caption>
+    <thead>
+      <tr><th>Attack</th><th>KGW detection</th><th>Unicode present</th><th>Passive AUROC (&Delta;)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>none (baseline)</td><td>1.000</td><td>1.000</td><td>0.673 (&mdash;)</td></tr>
+      <tr><td>Unicode scrub (hygiene)</td><td>1.000</td><td>0.000</td><td>0.673 (+0.00)</td></tr>
+      <tr><td>synonym substitute 30% / 60%</td><td>1.000 / 1.000</td><td>1.000 / 1.000</td><td>0.460 / 0.430 (&minus;0.21 / &minus;0.24)</td></tr>
+      <tr><td>truncate 50%</td><td>0.917</td><td>0.000</td><td>0.305 (&minus;0.37)</td></tr>
+      <tr><td>drop 20% tokens</td><td>0.958</td><td>0.000</td><td>0.315 (&minus;0.36)</td></tr>
+      <tr><td>shuffle sentences</td><td>1.000</td><td>0.000</td><td>0.672 (&minus;0.00)</td></tr>
+      <tr><td>lowercase</td><td>1.000</td><td>1.000</td><td>0.678 (+0.01)</td></tr>
+      <tr><td>strip punctuation</td><td>1.000</td><td>0.000</td><td>0.327 (&minus;0.35)</td></tr>
+      <tr><td>LLM paraphrase (complete rewrite)</td><td><strong>0.417</strong></td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td><span class="mono">watermarks-remover</span> (external, Unicode hygiene)</td><td>1.000</td><td>0.000</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  <p>Three findings. <em>First, the two watermark families have disjoint attack surfaces.</em> Unicode hygiene destroys
+  the zero-width watermark (100%&nbsp;&rarr;&nbsp;0%) but leaves the statistical watermark fully detectable
+  (100%&nbsp;&rarr;&nbsp;100%); synonym substitution does the reverse, preserving the invisible characters while it
+  perturbs word choice. A remover that handles one family says nothing about the other. <em>Second, the statistical
+  watermark is robust to everything short of a rewrite.</em> Hygiene, truncation, token drop, shuffle, case, and
+  punctuation edits all leave it detectable; only the complete LLM rewrite moves it, cutting detection from 100% to 42%
+  and mean green-rate from 0.82 to 0.56 (near the 0.50 chance floor). This is exactly the behavior Anthropic describes
+  for Claude&rsquo;s watermark &mdash; &ldquo;light editing probably won&rsquo;t remove the watermark completely&rdquo;
+  while &ldquo;a complete rewrite where every word is replaced will&rdquo; [38] &mdash; reproduced here against a
+  green-list scheme whose key we control. <em>Third, watermark removal and passive evasion are orthogonal.</em> Synonym
+  paraphrase barely dents the statistical watermark yet craters passive AUROC (0.67&nbsp;&rarr;&nbsp;0.43), while hygiene
+  destroys the Unicode watermark without moving passive detection at all. The two defenses measure different things and
+  are best deployed together, which is why Panoptes keeps the watermark claim separate from the passive-attribution
+  claim.</p>
+  <p><strong>Evaluating external systems from a git repo.</strong> The
+  <span class="mono">watermarks-remover</span> row above was produced not by reimplementing the tool but by pointing
+  Panoptes at its repository [39]: <span class="mono">python -m bench evaluate-repo &lt;git-url&gt; --kind
+  watermark-remover</span> clones the repo into an isolated directory, resolves a small <em>adapter contract</em>
+  (a <span class="mono">panoptes.adapter.json</span> or <span class="mono">panoptes_adapter.py</span> exposing a
+  conventional callable &mdash; <span class="mono">transform(text)</span> for removers, <span class="mono">detect(text)</span>
+  for watermark schemes, <span class="mono">score(text)</span> for passive detectors), runs it in a subprocess against our
+  fixtures, and signs the result (<span class="mono">cards/external-repo-watermark-remover.json</span>). The same harness
+  evaluates any watermark scheme or passive detector directly from source, so third-party claims become reproducible
+  signed cards rather than anecdotes. Because this executes arbitrary cloned code, it is CLI-only, subprocess-isolated,
+  and documented as run-only-repos-you-trust (with an optional network-disabled <span class="mono">--docker</span> mode);
+  see <span class="mono">docs/testing-external-repos.md</span>.</p>
+
   <h2>13. Independent reproduction</h2>
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
   self-check, not an outside reproduction. <span class="mono">python research/reproduce.py</span> re-hashes every
@@ -1175,7 +1240,7 @@
     <li>Cook, R. D. (1977). Detection of influential observation in linear regression. <em>Technometrics</em>, 19(1),
     15&ndash;18.</li>
     <li>Durbin, J., &amp; Watson, G. S. (1950). Testing for serial correlation in least squares regression. I.
-    <em>Biometrika</em>, 37(3/4), 409&ndash;428.</li>
+    <em>Biometrika</em>, 37(3/4), 409&ndash;428. doi:10.1093/biomet/37.3-4.409</li>
     <li>McNemar, Q. (1947). Note on the sampling error of the difference between correlated proportions or percentages.
     <em>Psychometrika</em>, 12(2), 153&ndash;157.</li>
     <li>DeLong, E. R., DeLong, D. M., &amp; Clarke-Pearson, D. L. (1988). Comparing the areas under two or more
@@ -1196,10 +1261,17 @@
     <li>Yu, X., Yu, Y., Liu, D., Chen, K., Zhang, W., Yu, N., &amp; Shao, J. (2025). EvoBench: Towards real-world
     LLM-generated text detection benchmarking for evolving large language models. <em>Findings of the Association for
     Computational Linguistics: ACL 2025</em>, 14605&ndash;14620. doi:10.18653/v1/2025.findings-acl.754</li>
+    <li>Dathathri, S., See, A., Ghaisas, S., Huang, P.-S., McAdam, R., Welbl, J., et&nbsp;al. (2024). Scalable
+    watermarking for identifying large language model outputs. <em>Nature</em>, 634, 223&ndash;227.
+    doi:10.1038/s41586-024-08025-4</li>
+    <li>Anthropic (2026). How Claude&rsquo;s text watermarking works. Anthropic news, August 2026.
+    https://www.anthropic.com/news/claude-text-watermark</li>
+    <li>Meyer, G. (2026). watermarks-remover [Computer software]. GitHub.
+    https://github.com/guillaumemeyer/watermarks-remover</li>
   </ol>
 
   <div class="footnote">
-    Panoptes research paper, version 1.0 &middot; August 13, 2026. Authors: Carrington Junior
+    Panoptes research paper, version 2.0 &middot; August 17, 2026. Authors: Carrington Junior
     (<a href="https://github.com/Encryptic1">Encryptic1</a>) and Trey Huffine
     (<a href="https://github.com/treyhuffine">treyhuffine</a>). Measurement protocol registered 2026-08-13 in
     <span class="mono">research/protocol.json</span>. Canonical source:

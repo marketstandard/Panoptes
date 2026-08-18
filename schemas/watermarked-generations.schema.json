@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/watermarked-generations.schema.json",
+  "title": "Panoptes Watermarked Generations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "created_utc",
+    "generator",
+    "n_watermarked",
+    "n_control",
+    "verification",
+    "samples",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-watermarked-generations-v1"},
+    "created_utc": {"type": "string"},
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "key_id", "model", "gamma", "delta"],
+      "properties": {
+        "scheme": {"type": "string"},
+        "family": {"type": "string"},
+        "key_id": {"type": "string"},
+        "model": {"type": "string"},
+        "gamma": {"type": "number", "minimum": 0, "maximum": 1},
+        "delta": {"type": "number"},
+        "top_k": {"type": "integer", "minimum": 1},
+        "max_tokens": {"type": "integer", "minimum": 1},
+        "seeds": {"type": "array", "items": {"type": "integer"}}
+      }
+    },
+    "n_watermarked": {"type": "integer", "minimum": 0},
+    "n_control": {"type": "integer", "minimum": 0},
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["watermarked", "control"],
+      "properties": {
+        "watermarked": {"$ref": "#/$defs/summary"},
+        "control": {"$ref": "#/$defs/summary"}
+      }
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "prompt", "text", "sha256"],
+        "properties": {
+          "id": {"type": "string"},
+          "kind": {"enum": ["watermarked", "control"]},
+          "source_id": {"type": "string"},
+          "prompt": {"type": "string"},
+          "text": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "n_tokens": {"type": ["integer", "null"]},
+          "green_rate": {"type": ["number", "null"]},
+          "z": {"type": ["number", "null"]},
+          "p_value": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "n_tested"],
+      "properties": {
+        "n": {"type": "integer", "minimum": 0},
+        "n_tested": {"type": "integer", "minimum": 0},
+        "detection_rate_0.05": {"type": "number", "minimum": 0, "maximum": 1},
+        "mean_z": {"type": "number"},
+        "mean_green_rate": {"type": "number"}
+      }
+    }
+  }
+}

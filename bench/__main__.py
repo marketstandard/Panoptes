@@ -374,6 +374,49 @@ def cmd_predict(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_evaluate_repo(args: argparse.Namespace) -> int:
+    from bench import repo_harness
+
+    print(f"WARNING: {repo_harness.TRUSTED_WARNING}", file=sys.stderr)
+    generations = None
+    corpus = None
+    if args.kind in {"watermark-remover", "watermark-scheme"}:
+        gen_path = CARDS_DIR / "watermarked-generations.json"
+        if not gen_path.exists():
+            raise CliError(
+                f"need {gen_path.relative_to(ROOT)}; run research/run_watermark_generation.py first"
+            )
+        generations = json.loads(gen_path.read_text(encoding="utf-8"))
+    if args.kind == "detector":
+        corpus = datasets.load_verified_corpus()
+
+    result = repo_harness.evaluate_repo(
+        args.url,
+        args.kind,
+        ref=args.ref,
+        adapter_path=Path(args.adapter_path) if args.adapter_path else None,
+        generations_card=generations,
+        corpus=corpus,
+        docker=args.docker,
+        timeout=args.timeout,
+    )
+    result["created_utc"] = _utc_now()
+    result.setdefault(
+        "limitations",
+        [
+            "External system ran in a subprocess against Panoptes fixtures; results characterize that system, not Panoptes.",
+            "Only run repositories you trust; subprocess isolation does not block network unless --docker is used.",
+        ],
+    )
+    cards.sign(result)
+    out = Path(args.out) if args.out else CARDS_DIR / f"external-repo-{result['adapter']['kind']}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(result["result"], indent=2, sort_keys=True))
+    print(f"Card: {out} (sha256 {result['artifact_sha256'][:16]}…)")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="bench", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -426,6 +469,25 @@ def build_parser() -> argparse.ArgumentParser:
     predict.add_argument("--text", required=True)
     predict.add_argument("--kind", default="text", choices=["text", "code"])
     predict.set_defaults(func=cmd_predict)
+
+    repo = sub.add_parser(
+        "evaluate-repo",
+        help="evaluate an external system (watermark-scheme, watermark-remover, detector) from a git repo",
+    )
+    repo.add_argument("url", help="git URL of the repository to evaluate")
+    repo.add_argument(
+        "--kind", required=True, choices=["watermark-remover", "watermark-scheme", "detector"]
+    )
+    repo.add_argument("--ref", default=None, help="git ref/branch/tag (default: HEAD)")
+    repo.add_argument(
+        "--adapter-path",
+        default=None,
+        help="local panoptes_adapter.py to inject for repos that do not ship one",
+    )
+    repo.add_argument("--docker", action="store_true", help="run the adapter in a network-disabled container")
+    repo.add_argument("--timeout", type=int, default=180, help="wall-clock limit (s) for the adapter subprocess")
+    repo.add_argument("--out", default=None, help="output card path")
+    repo.set_defaults(func=cmd_evaluate_repo)
     return parser
 
 

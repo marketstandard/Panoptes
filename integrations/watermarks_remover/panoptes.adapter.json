@@ -1,0 +1,12 @@
+{
+  "kind": "watermark-remover",
+  "name": "watermarks-remover (Layer A Unicode hygiene)",
+  "version": "HEAD",
+  "entry": {
+    "type": "python-function",
+    "module": "panoptes_adapter",
+    "callable": "transform"
+  },
+  "requires_network": false,
+  "notes": "Reference adapter for guillaumemeyer/watermarks-remover. Uses the repo's deterministic Layer A Unicode-hygiene clean_text transform; the network-dependent Layer B statistical rewrite is not exercised. Injected via --adapter-path; see docs/testing-external-repos.md."
+}

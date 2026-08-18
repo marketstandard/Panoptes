@@ -36,6 +36,23 @@ External detector baseline weights (scored locally on frozen protocol splits; ne
   Fast-DetectGPT scoring model (Bao et al. 2024, ICLR). Weights stay in the local cache only;
   only detection scores enter the signed artifact.
 
+Watermark-removal evaluation models (run locally; weights stay in the Hugging Face cache):
+- GPT-2 (OpenAI, Hugging Face; Radford et al. 2019): MIT. Used as the sampling LM for the KGW
+  green-list watermarked-text generator (bench/watermark_gen.py); only the generated passages
+  enter the signed artifact (backend/artifacts/cards/watermarked-generations.json).
+- Qwen2.5-1.5B-Instruct (Qwen, Hugging Face; Qwen Team 2024): Apache 2.0. Used as the
+  instruction-tuned paraphrase model for the complete-rewrite removal attack
+  (research/run_watermark_paraphrase.py); only the paraphrased passages enter the signed
+  artifact (backend/artifacts/cards/watermarked-paraphrases.json).
+
+External evaluation targets (cloned at eval time into the gitignored `.panoptes/repos/`; never
+redistributed — only the resulting evaluation metrics enter the signed card):
+- guillaumemeyer/watermarks-remover (GitHub; Meyer 2026): MIT. Evaluated end-to-end via
+  `bench evaluate-repo` as a watermark-remover. The thin reference adapter under
+  `integrations/watermarks_remover/` is Panoptes code that wires the repo's deterministic
+  Layer A Unicode-hygiene transform to the harness contract (docs/testing-external-repos.md);
+  it is injected into a fresh clone at eval time and is not part of the upstream repository.
+
 The current checked-in calibration artifact is synthetic and intended only to validate the pipeline.
 
 Contributor data policy:

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/external-repo-eval.schema.json",
+  "title": "Panoptes External Repo Evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "repo",
+    "adapter",
+    "kind",
+    "result",
+    "trusted_warning",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-external-repo-eval-v1"},
+    "created_utc": {"type": "string"},
+    "repo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "ref"],
+      "properties": {
+        "url": {"type": "string"},
+        "ref": {"type": "string"},
+        "dir_sha": {"type": "string"}
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "module", "callable", "source"],
+      "properties": {
+        "kind": {"type": "string"},
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "module": {"type": "string"},
+        "callable": {"type": "string"},
+        "source": {"enum": ["manifest", "auto", "injected"]}
+      }
+    },
+    "kind": {"enum": ["watermark-remover", "watermark-scheme", "detector"]},
+    "result": {"type": "object"},
+    "trusted_warning": {"type": "string"},
+    "docker": {"type": "boolean"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

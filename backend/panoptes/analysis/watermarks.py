@@ -115,6 +115,21 @@ class KGWReferenceAdapter(WatermarkAdapter):
 
 
 class ClaudePendingAdapter(WatermarkAdapter):
+    """Placeholder for Anthropic's Claude text watermark.
+
+    Anthropic has announced that Claude's watermark is **SynthID-Text** (Google
+    DeepMind, Nature 2024), a member of the Aaronson (2022) green-list family —
+    the same family :class:`KGWReferenceAdapter` models. Anthropic's production
+    key is private and its detection API is not yet public, so this adapter
+    stays ``adapter_unavailable``: we cannot test Anthropic's specific key. What
+    we *can* characterize is the robustness of the family it belongs to, which
+    the watermark-removal evaluation does (see
+    ``backend/artifacts/cards/watermark-removal.json``): light editing and
+    Unicode hygiene leave a green-list watermark detectable, while a complete
+    LLM rewrite largely removes it — consistent with Anthropic's own statement
+    that a full rewrite defeats the watermark but light editing does not.
+    """
+
     id = "claude-text-watermark"
 
     def detect(
@@ -171,6 +186,13 @@ def evidence_by_segment(segments: list[tuple[int, int]], tokens: list[WatermarkT
 def _green_for(previous: str, token: str) -> bool:
     digest = hashlib.sha256(f"panoptes-demo-key::{previous}::{token}".encode("utf-8")).digest()
     return digest[0] < 128
+
+
+def green_for(previous: str, token: str) -> bool:
+    """Public green-list membership test shared by the detector and the KGW
+    generator (bench.watermark_gen), so generated text is detectable by
+    :class:`KGWReferenceAdapter` under the same key."""
+    return _green_for(previous, token)
 
 
 def _power(n: int, alpha: float, observed_rate: float) -> float:

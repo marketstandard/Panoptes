@@ -37,6 +37,8 @@ models/
 research/figures/ui-audit/
 research/figures/paper-audit/
 
+# evaluate-repo harness clones external repos here (untrusted third-party code)
+.panoptes/
 
 datasets/local/
 

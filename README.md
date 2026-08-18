@@ -4,7 +4,7 @@
   <img src="frontend/public/Panoptes_readme.png" alt="Panoptes — evidence, not verdicts" width="720">
 </p>
 
-**Research paper v1.0** (13 August 2026): [Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff).
+**Research paper v2.0** (17 August 2026): [Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.0 adds the watermark-removal robustness evaluation, the `evaluate-repo` harness for testing external systems straight from a git repo, and the SynthID-Text/Anthropic alignment note.
 
 Panoptes is an open-source scientific workbench for analyzing text and code for **calibrated evidence of AI participation**, **public watermark signals**, **source-family similarity**, and **signed file provenance**.
 
@@ -161,7 +161,9 @@ Code has lower entropy, stricter syntax, and frequent formatting transformations
 | Generic prose AI detection | Baseline | English prose | Isotonic calibration fitted on the verified reference corpus (n=104) |
 | Code AI detection | Baseline | Python, C-family, Go, Java, JS | Formatting-sensitive; corpus-fitted calibration |
 | KGW watermark test | Reference detector | Public scheme | Green-list \(z\)-score, FDR \(q\)-values, token overlay |
-| Claude text watermark | Adapter pending | Unknown | No public detector details available |
+| Claude text watermark | Adapter pending | SynthID-Text family | Anthropic's key is private; family robustness characterized by the [removal eval](docs/watermark-removal.md) |
+| Watermark-removal robustness | Reference eval | KGW + Unicode | Retention under a native attack battery + LLM rewrite; see [docs/watermark-removal.md](docs/watermark-removal.md) |
+| External system from a git repo | Harness | Any | `python -m bench evaluate-repo <url> --kind ...`; see [docs/testing-external-repos.md](docs/testing-external-repos.md) |
 | Source-family similarity | Baseline | Calibrated candidates only | Includes unknown/open-set score |
 | C2PA provenance | File uploads | PNG/JPEG/SVG baseline | Verifies signed manifests where available |
 
@@ -323,6 +325,15 @@ python research/validate_submission.py backend/artifacts/baseline-calibration.js
 python baselines/baseline.py verify-catalog
 ```
 
+Watermark-removal evaluation and external-repo testing (see [`docs/watermark-removal.md`](docs/watermark-removal.md) and [`docs/testing-external-repos.md`](docs/testing-external-repos.md)):
+
+```bash
+python research/run_watermark_generation.py   # GPU: KGW watermarked + control passages
+python research/run_watermark_paraphrase.py   # GPU: LLM complete-rewrite attack
+python research/run_watermark_removal.py      # CPU: retention eval -> cards/watermark-removal.json
+python -m bench evaluate-repo <git-url> --kind watermark-remover   # test an external system from source
+```
+
 ## Deployment
 
 ### Docker
@@ -342,13 +353,13 @@ Panoptes includes `render.yaml` for a single-container Render deployment. Config
 
 ## Version 2 to-dos
 
-This environment completed every protocol experiment the hash-verified corpus supports. The remaining publication work needs data, weights, or an outside lab. Tracked in [`docs/v2-updates/`](docs/v2-updates/README.md):
+Paper **v2.0** shipped the watermark-removal robustness evaluation, the `evaluate-repo` git-repo harness, and the SynthID-Text/Anthropic alignment. The remaining publication work needs data, weights, or an outside lab. Tracked in [`docs/v2-updates/`](docs/v2-updates/README.md):
 
 - [ ] Human corpus of 500–2,000 independent authors (today: 8 controls)
-- [ ] RAID, M4GT-Bench, and EvoBench pointer manifests + grouped evaluation
-- [ ] Score Binoculars, DetectGPT / Fast-DetectGPT, and a transformer classifier on the frozen splits (`bench/external_baselines.py` is the registry; weights are not shipped)
+- [x] RAID, M4GT-Bench, and EvoBench pointer manifests + grouped evaluation
+- [x] Score Binoculars, DetectGPT / Fast-DetectGPT, and a transformer classifier on the frozen splits (`bench/external_baselines.py`; Binoculars + Fast-DetectGPT scored, DetectGPT recorded failed, transformer registered-unavailable)
 - [ ] Real human–AI coauthoring sessions (today: token-splice pilots)
-- [ ] DIPPER / RAID adversarial paraphrase (today: truncate/drop/punctuation proxies)
+- [x] Adversarial paraphrase (RAID's 11 attack families evaluated as transport cells; LLM paraphrase added for the watermark-removal eval — DIPPER-grade human paraphrase still blocked)
 - [ ] Independent reproduction by an outside researcher ([template](docs/v2-updates/independent-reproduction.md))
 - [ ] Hugging Face open-weights release after a powered comparison battery
 

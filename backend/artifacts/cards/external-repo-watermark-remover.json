@@ -1,0 +1,39 @@
+{
+  "adapter": {
+    "callable": "transform",
+    "kind": "watermark-remover",
+    "module": "panoptes_adapter",
+    "name": "watermarks_remover",
+    "source": "injected",
+    "version": ""
+  },
+  "artifact_sha256": "cdbea59d713fca7b81b4cf48bf3c2abc58bc9899f9c266fa0245a9da1ccef2d6",
+  "created_utc": "2026-08-18T03:56:52Z",
+  "docker": false,
+  "kind": "watermark-remover",
+  "limitations": [
+    "External system ran in a subprocess against Panoptes fixtures; results characterize that system, not Panoptes.",
+    "Only run repositories you trust; subprocess isolation does not block network unless --docker is used."
+  ],
+  "repo": {
+    "dir_sha": "180e38ad3f9e4e51",
+    "ref": "HEAD",
+    "url": "https://github.com/guillaumemeyer/watermarks-remover"
+  },
+  "result": {
+    "kgw": {
+      "detection_rate_after": 1.0,
+      "detection_rate_before": 1.0,
+      "mean_z_after": 7.126828784477168,
+      "mean_z_before": 7.126828784477168,
+      "n": 96
+    },
+    "unicode": {
+      "n": 96,
+      "present_rate_after": 0.0,
+      "present_rate_before": 1.0
+    }
+  },
+  "schema": "panoptes-external-repo-eval-v1",
+  "trusted_warning": "evaluate-repo clones and executes code from the given repository in a subprocess. Only run repositories you trust. Subprocess isolation drops common secret environment variables and enforces a wall-clock limit, but does NOT block network access unless you pass --docker."
+}

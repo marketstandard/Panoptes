@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/watermark-removal-eval-card.schema.json",
+  "title": "Panoptes Watermark Removal Evaluation Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generations_ref",
+    "schemes",
+    "attacks",
+    "kgw",
+    "unicode",
+    "passive",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-watermark-removal-eval-card-v1"},
+    "created_utc": {"type": "string"},
+    "generations_ref": {"type": "string"},
+    "schemes": {"type": "array", "items": {"type": "string"}},
+    "attacks": {"type": "array", "items": {"type": "string"}},
+    "kgw": {
+      "type": "object",
+      "required": ["scheme", "n_watermarked", "n_control", "baseline", "per_attack"],
+      "properties": {
+        "scheme": {"type": "string"},
+        "n_watermarked": {"type": "integer"},
+        "n_control": {"type": "integer"},
+        "baseline": {"type": "object"},
+        "control_baseline": {"type": "object"},
+        "per_attack": {"type": "array", "items": {"type": "object", "required": ["attack"]}}
+      }
+    },
+    "unicode": {
+      "type": "object",
+      "required": ["scheme", "n", "baseline", "per_attack"],
+      "properties": {
+        "scheme": {"type": "string"},
+        "n": {"type": "integer"},
+        "baseline": {"type": "object"},
+        "per_attack": {"type": "array", "items": {"type": "object", "required": ["attack"]}}
+      }
+    },
+    "passive": {
+      "type": "object",
+      "required": ["detector", "n", "per_attack"],
+      "properties": {
+        "detector": {"type": "string"},
+        "dataset": {"type": "string"},
+        "n": {"type": "integer"},
+        "per_attack": {"type": "array", "items": {"type": "object", "required": ["attack"]}}
+      }
+    },
+    "external_repos": {"type": "array"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
