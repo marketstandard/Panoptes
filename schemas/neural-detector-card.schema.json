@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/neural-detector-card.schema.json",
+  "title": "Panoptes Neural Detector Card (Phase 5 frozen 3-seed model)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "created_utc",
+    "phase",
+    "winner",
+    "seeds",
+    "data_firewall",
+    "calibration_partition",
+    "environment",
+    "config",
+    "seed_runs",
+    "ensemble",
+    "calibration",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-neural-detector-v1"},
+    "created_utc": {"type": "string"},
+    "phase": {"type": "string"},
+    "winner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["encoder", "hf", "objective", "aggregation", "max_length", "overlap"],
+      "properties": {
+        "encoder": {"type": "string"},
+        "hf": {"type": "string"},
+        "objective": {"enum": ["erm", "group_balanced", "group_dro"]},
+        "aggregation": {"enum": ["overlap_corrected_logit_mean", "hierarchical_summary_head"]},
+        "max_length": {"type": "integer"},
+        "overlap": {"type": "integer"},
+        "pilot_dev": {"type": ["object", "null"]},
+        "pilot_card_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "seeds": {"type": "array", "items": {"type": "integer"}, "minItems": 1},
+    "data_firewall": {"type": "string"},
+    "calibration_partition": {
+      "type": "object",
+      "required": ["source", "n_rows_selected", "disjoint_from_pilot_development"],
+      "properties": {
+        "source": {"type": "string"},
+        "excluded_pilot_dev_groups": {"type": "integer"},
+        "n_rows_selected": {"type": "integer"},
+        "n_groups_selected": {"type": "integer"},
+        "disjoint_from_pilot_development": {"const": true}
+      }
+    },
+    "environment": {"type": "object"},
+    "config": {"type": "object"},
+    "seed_runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["seed", "encoder_sha256"],
+        "properties": {
+          "seed": {"type": "integer"},
+          "encoder_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "summary_head_sha256": {"type": ["string", "null"]},
+          "train_sec": {"type": "number"},
+          "best_epoch": {"type": ["integer", "null"]},
+          "inner_dev": {"type": ["object", "null"]},
+          "calibration_metrics_raw": {"type": "object"}
+        }
+      }
+    },
+    "ensemble": {
+      "type": "object",
+      "required": ["aggregation", "calibration_metrics_raw", "calibration_metrics_calibrated"],
+      "properties": {
+        "aggregation": {"type": "string"},
+        "calibration_metrics_raw": {"type": "object"},
+        "calibration_metrics_calibrated": {"type": "object"}
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": ["method", "binary_calibrator", "conformal", "fpr_thresholds", "selective"],
+      "properties": {
+        "method": {"type": "string"},
+        "binary_calibrator": {
+          "type": "object",
+          "required": ["x_thresholds", "y_thresholds"],
+          "properties": {
+            "x_thresholds": {"type": "array", "items": {"type": "number"}},
+            "y_thresholds": {"type": "array", "items": {"type": "number"}}
+          }
+        },
+        "conformal": {"type": "object"},
+        "fpr_thresholds": {"type": "object"},
+        "tpr_at_fixed_thresholds_on_calibration": {"type": "object"},
+        "selective": {"type": "array"},
+        "auroc_group_bootstrap": {"type": "object"},
+        "adaptive_ece": {"type": "object"}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
