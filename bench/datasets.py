@@ -405,13 +405,19 @@ def raid_attacks() -> list[str]:
     return sorted(v for v in (str(v) for v in values) if v and v != "none")
 
 
-def _load_m4gt_file(file_stem: str, provenance: str) -> Dataset:
+def _load_m4gt_file(file_stem: str, provenance: str, max_rows: int | None = None, seed: int = 13) -> Dataset:
     import pandas as pd
 
     path = M4GT_DIR / f"{file_stem}-clean.parquet"
     if not path.exists():
         raise DatasetError(f"{path} missing; run python research/fetch_m4gt.py first")
     frame = pd.read_parquet(path)
+    rows_before = len(frame)
+    subsample = {"max_rows": None, "n_rows_selected": rows_before}
+    if max_rows is not None and rows_before > max_rows:
+        groups = frame["group"].astype(str).tolist()
+        mask, subsample = _group_subsample_mask(groups, max_rows, seed)
+        frame = frame.loc[mask].reset_index(drop=True)
     texts = frame["text"].tolist()
     labels = np.array(frame["label"].tolist(), dtype=int)
     return Dataset(
@@ -423,23 +429,29 @@ def _load_m4gt_file(file_stem: str, provenance: str) -> Dataset:
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
         provenance=provenance,
         sha256=_dataset_hash(texts, labels),
-        meta={"fetch_manifest_sha256": _fetch_manifest_sha256(M4GT_DIR)},
+        meta={
+            "fetch_manifest_sha256": _fetch_manifest_sha256(M4GT_DIR),
+            "rows_before_subsample": int(rows_before),
+            "subsample": subsample,
+        },
         domains=frame["domain"].astype(str).tolist(),
     )
 
 
-def load_m4gt() -> Dataset:
+def load_m4gt(max_rows: int | None = None, seed: int = 13) -> Dataset:
     """M4GT-Bench Subtask A (English, 5 domains, 6 generators)."""
     return _load_m4gt_file(
-        "subtask_a", "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)"
+        "subtask_a", "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)",
+        max_rows=max_rows, seed=seed,
     )
 
 
-def load_m4gtml() -> Dataset:
+def load_m4gtml(max_rows: int | None = None, seed: int = 13) -> Dataset:
     """M4GT-Bench Subtask A multilingual (16 sources, 8 generators)."""
     return _load_m4gt_file(
         "subtask_a_multilingual",
         "m4gt-multilingual (Wang et al. 2024, arXiv:2403.14822; hygiene-filtered, hash-pinned)",
+        max_rows=max_rows, seed=seed,
     )
 
 
