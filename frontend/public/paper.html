@@ -1311,12 +1311,33 @@ external axes only rather than imply a number we did not measure.</p>
 
 <p><strong>Calibration transfers better than representation, but not for free.</strong> Freezing each scorer and
 re-fitting only the isotonic calibrator on each cohort in turn yields the transfer matrix of
-<span class="mono">calibration-transfer.json</span>. For GBM the off-diagonal Brier score degrades only from 0.091
-(self-calibrated) to 0.096 (cross-calibrated), and the AUROC is unchanged to three decimals &mdash; the score
-<em>ranking</em> is stable across cohorts even when the absolute probabilities shift. The logistic and heuristic tiers
-degrade more (off-diagonal Brier 0.17 and 0.22 against on-diagonal 0.14 and 0.16). The practical reading: a detector
-that ranks well can be re-calibrated to a new population with a modest labelled sample, but the ranking itself must
-transport first, which is the harder problem of Table&nbsp;15.</p>
+<span class="mono">calibration-transfer.json</span>; Table&nbsp;17 shows the frozen neural ensemble&rsquo;s matrix. For
+GBM the off-diagonal Brier score degrades only from 0.091 (self-calibrated) to 0.096 (cross-calibrated), and the AUROC
+is unchanged to three decimals &mdash; the score <em>ranking</em> is stable across cohorts even when the absolute
+probabilities shift. The neural matrix makes the same point more sharply: moving the calibrator off-diagonal changes
+AUROC by at most 0.05 (and usually far less), while the off-diagonal Brier stays within 0.011 of the self-calibrated
+diagonal. The logistic and heuristic tiers degrade more (off-diagonal Brier 0.17 and 0.22 against on-diagonal 0.14 and
+0.16). The practical reading: a detector that ranks well can be re-calibrated to a new population with a modest
+labelled sample, but the ranking itself must transport first, which is the harder problem of Table&nbsp;15.</p>
+
+<table>
+  <caption>Table 17 &mdash; Calibration-transfer matrix for the frozen neural ensemble (Brier score; row&nbsp;=&nbsp;the
+  cohort the isotonic calibrator is fit on, column&nbsp;=&nbsp;the cohort the frozen scorer is evaluated on). The
+  diagonal is self-calibration; off-diagonal cells re-calibrate on one cohort and evaluate on another. AUROC is
+  unchanged to two decimals across every cell of a column (0.98&ndash;1.00), confirming that re-calibration preserves
+  the score ranking &mdash; only the absolute probabilities shift, and only modestly. The column spread (DeFactify
+  &asymp;&nbsp;0.003, MAGE &asymp;&nbsp;0.05, RAID &asymp;&nbsp;0.02) reflects eval-cohort difficulty, not a
+  calibration failure. Full per-tier matrices:
+  <span class="mono">transport-&lt;tier&gt;/calibration-transfer.json</span>.</caption>
+  <thead>
+    <tr><th>Calibrator&nbsp;&darr;&nbsp;/ Eval&nbsp;&rarr;</th><th>DeFactify</th><th>MAGE</th><th>RAID</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>DeFactify</td><td>0.003</td><td>0.058</td><td>0.027</td></tr>
+    <tr><td>MAGE</td><td>0.003</td><td>0.047</td><td>0.023</td></tr>
+    <tr><td>RAID</td><td>0.002</td><td>0.058</td><td>0.021</td></tr>
+  </tbody>
+</table>
 
 <p><strong>External and adversarial targets are the honest stress test, and they invert the in-domain ranking in both
 directions.</strong> On sealed, never-trained targets the neural ensemble is the strongest tier almost everywhere:
@@ -1331,10 +1352,10 @@ essentially unaffected (0.97), and on zero-width-space insertion every tier, neu
 (0.12&ndash;0.36). Unicode-level perturbations that survive tokenization are the neural detector&rsquo;s blind spot;
 semantic perturbations are the classical detectors&rsquo;. These are not failures of the harness &mdash; they are the
 preregistered, sealed measurements of where each representation stops working, and they are exactly the populations a
-deployment would need to abstain on. The full per-target rows are in Table&nbsp;17.</p>
+deployment would need to abstain on. The full per-target rows are in Table&nbsp;18.</p>
 
 <table>
-  <caption>Table 17 &mdash; Sealed external-target AUROC by tier (one-shot; no threshold or calibrator fit on these
+  <caption>Table 18 &mdash; Sealed external-target AUROC by tier (one-shot; no threshold or calibrator fit on these
   labels). RAID rows are attack families applied to held-out machine text. Full per-target cards are in
   <span class="mono">transport-&lt;tier&gt;/representation-transport.json</span>.</caption>
   <thead>
@@ -1369,7 +1390,7 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
   self-check, not an outside reproduction. <span class="mono">python research/reproduce.py</span> re-hashes every
   signed artifact, re-verifies the baseline catalog, and writes
-  <span class="mono">backend/artifacts/reproduction-selfcheck.json</span>. On this checkout, 24 of 24 signed
+  <span class="mono">backend/artifacts/reproduction-selfcheck.json</span>. On this checkout, 42 of 42 signed
   hashes match and the catalog verifies 12 registered runs. The self-check is labeled
   <span class="mono">independent: false</span> because the authors ran it. An outside researcher should follow
   <span class="mono">docs/v2-updates/independent-reproduction.md</span>, record original versus recomputed
