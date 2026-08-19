@@ -201,6 +201,133 @@ class ProvenanceResult(BaseModel):
         return self
 
 
+# --- Typed evidence ledger (protocol v2.1, Phase 7) --------------------------
+#
+# The ledger formalizes the three unlike evidence channels and forbids their
+# arithmetic fusion into a single "confidence" number. Statistical evidence is
+# population-conditional; watermark evidence is a hypothesis test with its own
+# power and multiplicity control; provenance is a signing chain that never
+# inherits detector probability. Each channel is summarized separately.
+
+
+class EvidenceChannel(StrEnum):
+    STATISTICAL = "statistical"
+    WATERMARK = "watermark"
+    PROVENANCE = "provenance"
+
+
+class EvidenceValidity(StrEnum):
+    VALID = "valid"
+    WEAKENED = "weakened"  # e.g. distribution shift, low power, partial chain
+    INVALID = "invalid"  # e.g. failed verification, tampered
+    NOT_APPLICABLE = "not_applicable"
+    UNKNOWN = "unknown"
+
+
+class StatisticalEvidence(BaseModel):
+    """Population-conditional detector evidence for a target claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    detector_id: str
+    model_revision: str | None = None
+    calibrator_id: str | None = None
+    cohort: str
+    cohort_prevalence: float | None = Field(default=None, ge=0, le=1)
+    ai_participation: float | None = Field(default=None, ge=0, le=1)
+    ai_majority_generation: float | None = Field(default=None, ge=0, le=1)
+    contribution_fraction: float | None = Field(default=None, ge=0, le=1)
+    applicability: str | None = None  # OOD / applicability diagnostic (descriptive)
+    transport_warning: str | None = None  # calibration-portability caveat
+
+
+class WatermarkEvidence(BaseModel):
+    """A watermark hypothesis test. A negative result is never human evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scheme: str
+    status: str
+    eligible_tokens: int = Field(ge=0)
+    green_rate: float | None = Field(default=None, ge=0, le=1)
+    z: float | None = None
+    p_value: float | None = Field(default=None, ge=0, le=1)
+    q_value: float | None = Field(default=None, ge=0, le=1)  # multiplicity-adjusted
+    power: float | None = Field(default=None, ge=0, le=1)
+    dilution_estimate: float | None = Field(default=None, ge=0, le=1)
+
+
+class ProvenanceEvidence(BaseModel):
+    """A cryptographic/C2PA signing chain. Never inherits detector probability."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str
+    issuer: str | None = None
+    timestamp: str | None = None
+    signature_chain: list[str] = Field(default_factory=list)
+    level: str | None = None
+    actions: list[str] = Field(default_factory=list)
+
+
+class EvidenceEntry(BaseModel):
+    """One typed evidence item. Exactly one channel detail block is populated."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    channel: EvidenceChannel
+    target_claim: str
+    source_identity: str  # detector id / watermark scheme / provenance issuer
+    validity: EvidenceValidity
+    applicability_scope: str
+    strength: float | None = Field(default=None, ge=0, le=1)
+    uncertainty: str | None = None
+    assumptions: list[str] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+    statistical: StatisticalEvidence | None = None
+    watermark: WatermarkEvidence | None = None
+    provenance: ProvenanceEvidence | None = None
+
+    @model_validator(mode="after")
+    def exactly_one_detail(self) -> "EvidenceEntry":
+        populated = [
+            self.statistical is not None,
+            self.watermark is not None,
+            self.provenance is not None,
+        ]
+        if sum(populated) > 1:
+            raise ValueError("an evidence entry carries exactly one channel detail block")
+        channel_detail = {
+            EvidenceChannel.STATISTICAL: self.statistical is not None,
+            EvidenceChannel.WATERMARK: self.watermark is not None,
+            EvidenceChannel.PROVENANCE: self.provenance is not None,
+        }[self.channel]
+        if not channel_detail:
+            raise ValueError(f"{self.channel} entry is missing its channel detail block")
+        return self
+
+
+class EvidenceLedger(BaseModel):
+    """The three evidence channels, kept separate and never fused.
+
+    There is deliberately no combined score: each channel has its own entries
+    and its own plain-language summary, and ``fusion_note`` states the rule.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    statistical: list[EvidenceEntry] = Field(default_factory=list)
+    watermark: list[EvidenceEntry] = Field(default_factory=list)
+    provenance: list[EvidenceEntry] = Field(default_factory=list)
+    channel_summaries: dict[str, str] = Field(default_factory=dict)
+    fusion_note: str = (
+        "Statistical, watermark, and provenance evidence are distinct channels and are "
+        "never arithmetically fused into a single confidence number. A negative watermark "
+        "test is not evidence of human authorship; valid provenance attests a signing "
+        "chain and does not alter the statistical posterior."
+    )
+
+
 class Segment(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -289,6 +416,7 @@ class AnalysisResponse(BaseModel):
     source_families: SourceFamilies
     watermarks: list[WatermarkResult]
     provenance: ProvenanceResult
+    evidence_ledger: EvidenceLedger | None = None
     segments: list[Segment]
     matrices: Matrices
     math: list[MathDefinition]

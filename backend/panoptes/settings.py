@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     operator_token: str | None = None
     artifact_dir: str = "artifacts"
     calibration_bundle: str = "baseline-calibration.json"
+    neural_enabled: bool = True
+    neural_artifact_dir: str = "models/neural"
     plugin_paths: list[str] = []
 
     @property

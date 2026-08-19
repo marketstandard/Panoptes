@@ -4,6 +4,7 @@ import { analyze } from './api';
 import { AnswerObservatory } from './components/AnswerObservatory';
 import { CorpusPanel } from './components/CorpusPanel';
 import { CoverageCurve } from './components/CoverageCurve';
+import { EvidenceLedgerPanel } from './components/EvidenceLedgerPanel';
 import { EvidenceMatrix } from './components/EvidenceMatrix';
 import { InputProfile } from './components/InputProfile';
 import { ModelCardPanel } from './components/ModelCardPanel';
@@ -143,6 +144,7 @@ export default function App() {
             <SourceFamilyPanel result={result} />
             <ProvenancePanel result={result} />
           </section>
+          <EvidenceLedgerPanel result={result} />
           <section className="matrix-grid-section">
             <EvidenceMatrix
               title="Source family by segment"

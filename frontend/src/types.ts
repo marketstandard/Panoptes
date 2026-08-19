@@ -61,6 +61,67 @@ export interface WatermarkResult {
   tokens: WatermarkTokenSpan[] | null;
 }
 
+export type EvidenceChannel = 'statistical' | 'watermark' | 'provenance';
+
+export type EvidenceValidity = 'valid' | 'weakened' | 'invalid' | 'not_applicable' | 'unknown';
+
+export interface StatisticalEvidence {
+  detector_id: string;
+  model_revision: string | null;
+  calibrator_id: string | null;
+  cohort: string;
+  cohort_prevalence: number | null;
+  ai_participation: number | null;
+  ai_majority_generation: number | null;
+  contribution_fraction: number | null;
+  applicability: string | null;
+  transport_warning: string | null;
+}
+
+export interface WatermarkEvidence {
+  scheme: string;
+  status: string;
+  eligible_tokens: number;
+  green_rate: number | null;
+  z: number | null;
+  p_value: number | null;
+  q_value: number | null;
+  power: number | null;
+  dilution_estimate: number | null;
+}
+
+export interface ProvenanceEvidence {
+  status: string;
+  issuer: string | null;
+  timestamp: string | null;
+  signature_chain: string[];
+  level: string | null;
+  actions: string[];
+}
+
+export interface EvidenceEntry {
+  channel: EvidenceChannel;
+  target_claim: string;
+  source_identity: string;
+  validity: EvidenceValidity;
+  applicability_scope: string;
+  strength: number | null;
+  uncertainty: string | null;
+  assumptions: string[];
+  limitations: string[];
+  statistical: StatisticalEvidence | null;
+  watermark: WatermarkEvidence | null;
+  provenance: ProvenanceEvidence | null;
+}
+
+export interface EvidenceLedger {
+  statistical: EvidenceEntry[];
+  watermark: EvidenceEntry[];
+  provenance: EvidenceEntry[];
+  channel_summaries: Record<string, string>;
+  fusion_note: string;
+}
+
 export interface AnalysisResponse {
   schema_version: string;
   report_id: string;
@@ -134,6 +195,7 @@ export interface AnalysisResponse {
     actions: string[];
     level?: 'P0' | 'P1' | 'P2' | 'P3' | 'P4';
   };
+  evidence_ledger?: EvidenceLedger | null;
   segments: Segment[];
   matrices: {
     source_by_segment: Matrix;

@@ -8,6 +8,8 @@ from statistics import NormalDist
 from panoptes.analysis.attribution import source_family_distribution
 from panoptes.analysis.calibration_bundle import CalibrationBundle, load_bundle
 from panoptes.analysis.detectors import select_detector
+from panoptes.analysis.evidence import build_evidence_ledger
+from panoptes.analysis.neural_runtime import try_neural_detector
 from panoptes.analysis.provenance import decode_upload, verify_provenance
 from panoptes.analysis.watermarks import apply_fdr, evidence_by_segment, watermark_adapters
 from panoptes.analysis.windowing import (
@@ -54,8 +56,17 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
 
     bundle = load_bundle(settings.artifact_dir, settings.calibration_bundle)
 
-    detector = select_detector(settings.profile.value, content_type)
-    document_score = detector.score(text, content_type, language)
+    # The segment tier stays on the fast heuristic detector; the document tier
+    # prefers the frozen neural ensemble when the runtime profile and artifact
+    # support it, falling back to the heuristic/logistic tier otherwise.
+    segment_detector = select_detector(settings.profile.value, content_type)
+    neural = try_neural_detector(settings)
+    document_detector = (
+        neural
+        if neural is not None and content_type in neural.content_types
+        else segment_detector
+    )
+    document_score = document_detector.score(text, content_type, language)
     if document_score.abstain_reason:
         limitations.append(document_score.abstain_reason)
     document_score = _apply_corpus_calibration(document_score, bundle, content_type, settings.profile)
@@ -85,7 +96,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
 
     attribution = source_family_distribution(text, content_type, bundle=bundle)
     provenance = verify_provenance(upload)
-    segment_scores = _score_segments(text, segments, detector, content_type, language)
+    segment_scores = _score_segments(text, segments, segment_detector, content_type, language)
     segment_ranges = [(segment.start, segment.end) for segment in segment_scores]
     evidence_by_scheme = {
         scheme: evidence_by_segment(segment_ranges, tokens)
@@ -103,6 +114,31 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     matrices = _matrices(segment_scores, watermark_results, attribution, request.prior_odds)
     plain_language = _plain_language(state, calibrated, watermark_results, provenance.status)
     limitations.extend(_standard_limitations(state, content_type, language, len(spans), watermark_results))
+
+    cohort_name = (
+        "fixture"
+        if settings.profile == RuntimeProfile.FIXTURE
+        else (bundle.cohort if bundle is not None else "prose-en/code-baseline-v0")
+    )
+    applicability_note = None
+    if bundle is not None and attribution.unknown_score is not None and attribution.unknown_score > 0.5:
+        applicability_note = (
+            "Input is far from every calibrated source-family centroid "
+            f"(open-set unknown score {attribution.unknown_score:.2f}); statistical evidence "
+            "may be off-cohort."
+        )
+    ledger = build_evidence_ledger(
+        state=state,
+        document_score=document_score,
+        calibrated=calibrated,
+        bundle=bundle,
+        bundle_id=_calibration_bundle(content_type, language),
+        cohort=cohort_name,
+        prevalence=prevalence,
+        applicability=applicability_note,
+        watermark_results=watermark_results,
+        provenance=provenance,
+    )
 
     return AnalysisResponse(
         report_id=str(uuid.uuid4()),
@@ -153,6 +189,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
         source_families=attribution,
         watermarks=watermark_results,
         provenance=provenance,
+        evidence_ledger=ledger,
         segments=segment_scores,
         matrices=matrices,
         math=_math_definitions(),

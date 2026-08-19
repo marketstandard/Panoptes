@@ -182,6 +182,18 @@
         "level": {"enum": ["P0", "P1", "P2", "P3", "P4"]}
       }
     },
+    "evidence_ledger": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["statistical", "watermark", "provenance", "channel_summaries", "fusion_note"],
+      "properties": {
+        "statistical": {"type": "array", "items": {"$ref": "#/$defs/evidence_entry"}},
+        "watermark": {"type": "array", "items": {"$ref": "#/$defs/evidence_entry"}},
+        "provenance": {"type": "array", "items": {"$ref": "#/$defs/evidence_entry"}},
+        "channel_summaries": {"type": "object", "additionalProperties": {"type": "string"}},
+        "fusion_note": {"type": "string"}
+      }
+    },
     "segments": {
       "type": "array",
       "items": {
@@ -258,6 +270,68 @@
   "$defs": {
     "evidence_state": {
       "enum": ["supported", "insufficient_data", "unsupported_language", "unsupported_content", "out_of_distribution", "not_applicable", "adapter_unavailable"]
+    },
+    "evidence_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "target_claim", "source_identity", "validity", "applicability_scope", "strength", "uncertainty", "assumptions", "limitations", "statistical", "watermark", "provenance"],
+      "properties": {
+        "channel": {"enum": ["statistical", "watermark", "provenance"]},
+        "target_claim": {"type": "string"},
+        "source_identity": {"type": "string"},
+        "validity": {"enum": ["valid", "weakened", "invalid", "not_applicable", "unknown"]},
+        "applicability_scope": {"type": "string"},
+        "strength": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "uncertainty": {"type": ["string", "null"]},
+        "assumptions": {"type": "array", "items": {"type": "string"}},
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "statistical": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["detector_id", "model_revision", "calibrator_id", "cohort", "cohort_prevalence", "ai_participation", "ai_majority_generation", "contribution_fraction", "applicability", "transport_warning"],
+          "properties": {
+            "detector_id": {"type": "string"},
+            "model_revision": {"type": ["string", "null"]},
+            "calibrator_id": {"type": ["string", "null"]},
+            "cohort": {"type": "string"},
+            "cohort_prevalence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "ai_participation": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "ai_majority_generation": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "contribution_fraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "applicability": {"type": ["string", "null"]},
+            "transport_warning": {"type": ["string", "null"]}
+          }
+        },
+        "watermark": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["scheme", "status", "eligible_tokens", "green_rate", "z", "p_value", "q_value", "power", "dilution_estimate"],
+          "properties": {
+            "scheme": {"type": "string"},
+            "status": {"type": "string"},
+            "eligible_tokens": {"type": "integer", "minimum": 0},
+            "green_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "z": {"type": ["number", "null"]},
+            "p_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "q_value": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "power": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "dilution_estimate": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+          }
+        },
+        "provenance": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["status", "issuer", "timestamp", "signature_chain", "level", "actions"],
+          "properties": {
+            "status": {"type": "string"},
+            "issuer": {"type": ["string", "null"]},
+            "timestamp": {"type": ["string", "null"]},
+            "signature_chain": {"type": "array", "items": {"type": "string"}},
+            "level": {"type": ["string", "null"]},
+            "actions": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
     },
     "outcome_distribution": {
       "type": "object",
