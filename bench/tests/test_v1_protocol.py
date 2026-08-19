@@ -23,8 +23,8 @@ def test_paper_is_v2_with_named_authors():
     assert "Carrington Junior" in paper
     assert "Trey Huffine" in paper
     assert "Encryptic1" in paper
-    assert "Version 2.0" in paper
-    assert "Working paper, v2.1" not in paper
+    assert "Version 2.1" in paper
+    assert "Calibrated Evidence and Distribution-Shift Analysis" in paper
     assert "citation_author" in paper
     assert "Table 8" in paper
 
@@ -35,7 +35,7 @@ def test_citation_cff_lists_v2_authors():
     assert "Junior" in citation
     assert "Encryptic1" in citation
     assert "Huffine" in citation
-    assert 'version: "2.0"' in citation
+    assert 'version: "2.1"' in citation
 
 
 def test_v2_updates_document_blocked_work():

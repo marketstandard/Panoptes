@@ -4,7 +4,7 @@
   <img src="frontend/public/Panoptes_readme.png" alt="Panoptes — evidence, not verdicts" width="720">
 </p>
 
-**Research paper v2.0** (17 August 2026): [Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.0 adds the watermark-removal robustness evaluation, the `evaluate-repo` harness for testing external systems straight from a git repo, and the SynthID-Text/Anthropic alignment note.
+**Research paper v2.1** (19 August 2026): [Panoptes: Calibrated Evidence and Distribution-Shift Analysis for AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.1 makes evidence transportability the signature result: a preregistered pooled multi-dataset training pool (MAGE + RAID clean + DeFactify), a frozen three-seed hierarchical neural detector released with verified weights, cross-dataset leave-one-dataset-out and calibration-transfer matrices, and untouched OOD/paraphrase/adversarial and human-AI-collaboration evaluation (MAGE OOD, M4GT English/multilingual, EvoBench, RAID attacks, CoAuthor).
 
 Panoptes is an open-source scientific workbench for analyzing text and code for **calibrated evidence of AI participation**, **public watermark signals**, **source-family similarity**, and **signed file provenance**.
 
@@ -353,15 +353,15 @@ Panoptes includes `render.yaml` for a single-container Render deployment. Config
 
 ## Version 2 to-dos
 
-Paper **v2.0** shipped the watermark-removal robustness evaluation, the `evaluate-repo` git-repo harness, and the SynthID-Text/Anthropic alignment. The remaining publication work needs data, weights, or an outside lab. Tracked in [`docs/v2-updates/`](docs/v2-updates/README.md):
+Paper **v2.1** makes evidence transportability the signature result: a preregistered pooled multi-dataset training pool (MAGE + RAID clean + DeFactify), a frozen three-seed hierarchical neural detector with verified weights, cross-dataset leave-one-dataset-out and calibration-transfer matrices, and untouched OOD/paraphrase/adversarial and human-AI-collaboration evaluation. Earlier **v2.0** shipped the watermark-removal robustness evaluation, the `evaluate-repo` git-repo harness, and the SynthID-Text/Anthropic alignment. Tracked in [`docs/v2-updates/`](docs/v2-updates/README.md):
 
-- [ ] Human corpus of 500–2,000 independent authors (today: 8 controls)
+- [ ] Human corpus of 500–2,000 independent authors (improved in v2.1 via MAGE/RAID/DeFactify pooled human controls + 63 CoAuthor writers; a dedicated many-author corpus remains open)
 - [x] RAID, M4GT-Bench, and EvoBench pointer manifests + grouped evaluation
 - [x] Score Binoculars, DetectGPT / Fast-DetectGPT, and a transformer classifier on the frozen splits (`bench/external_baselines.py`; Binoculars + Fast-DetectGPT scored, DetectGPT recorded failed, transformer registered-unavailable)
-- [ ] Real human–AI coauthoring sessions (today: token-splice pilots)
+- [x] Real human–AI coauthoring sessions (CoAuthor: 1,445 sessions, 63 authors, author-disjoint participation/contribution evaluation)
 - [x] Adversarial paraphrase (RAID's 11 attack families evaluated as transport cells; LLM paraphrase added for the watermark-removal eval — DIPPER-grade human paraphrase still blocked)
 - [ ] Independent reproduction by an outside researcher ([template](docs/v2-updates/independent-reproduction.md))
-- [ ] Hugging Face open-weights release after a powered comparison battery
+- [x] Hugging Face open-weights release (frozen three-seed neural ensemble, gated on the preregistered performance/calibration/license gates)
 
 Do not spend the next cycle making Panoptes-v1 a larger neural net.
 

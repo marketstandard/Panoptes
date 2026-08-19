@@ -1,9 +1,9 @@
 cff-version: 1.2.0
-title: "Panoptes: A Reproducible Framework for Calibrated, Uncertainty-Aware AI-Text Attribution"
-message: If you use this software or the v2 paper, please cite it.
+title: "Panoptes: Calibrated Evidence and Distribution-Shift Analysis for AI-Text Attribution"
+message: If you use this software or the v2.1 paper, please cite it.
 type: article
-version: "2.0"
-date-released: "2026-08-17"
+version: "2.1"
+date-released: "2026-08-19"
 url: "https://github.com/marketstandard/Panoptes"
 repository-code: "https://github.com/marketstandard/Panoptes"
 authors:
