@@ -1374,6 +1374,19 @@ deployment would need to abstain on. The full per-target rows are in Table&nbsp;
   </tbody>
 </table>
 
+<p><strong>CoAuthor is the participation-head stress test, not a binary cell.</strong> Every one of the 236
+held-out-author sessions is human&ndash;GPT-3 collaborative, so the true participation is 1 and there is no
+human-versus-machine contrast to rank &mdash; no AUROC is reported, and CoAuthor never enters the binary transport
+cells above. The question is whether the participation head fires on lightly assisted text: the mean AI contribution
+fraction is 0.21, so these are mostly-human documents. All four tiers under-fire relative to the true participation of
+1, and the ranking inverts the binary pattern &mdash; the classical tiers predict mean participation 0.60&ndash;0.63,
+while the neural ensemble, strongest on every binary external target, is the <em>most</em> conservative at 0.43. This
+is the expected, honest behavior for detectors trained on a binary human-versus-fully-machine pool: a document that is
+21% machine is not the binary positive they were calibrated on, and the pooled pool licenses no mixed-authorship head.
+CoAuthor therefore measures a different claim &mdash; participation under real co-writing &mdash; and is reported
+separately, with the contribution-fraction head remaining external-evaluation-only until a terms-cleared
+mixed-authorship cohort exists (&sect;18).</p>
+
 <p><strong>What the transport analysis establishes.</strong> Three claims survive the move to held-out populations.
 First, representation transport &mdash; not in-domain accuracy &mdash; is the binding constraint, and it separates the
 neural ensemble from every classical tier: the neural mean held-out AUROC is 0.802 against
