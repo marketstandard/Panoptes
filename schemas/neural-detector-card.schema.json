@@ -11,6 +11,7 @@
     "winner",
     "seeds",
     "data_firewall",
+    "training_pool",
     "calibration_partition",
     "environment",
     "config",
@@ -41,15 +42,27 @@
     },
     "seeds": {"type": "array", "items": {"type": "integer"}, "minItems": 1},
     "data_firewall": {"type": "string"},
+    "training_pool": {
+      "type": "object",
+      "description": "Provenance of the pooled derived-weight-licensed training pool.",
+      "required": ["cohorts", "n_rows", "provenance", "sha256"],
+      "properties": {
+        "cohorts": {"type": "object", "description": "cohort name -> row count"},
+        "n_rows": {"type": "integer"},
+        "provenance": {"type": "string"},
+        "sha256": {"type": "string"}
+      }
+    },
     "calibration_partition": {
       "type": "object",
-      "required": ["source", "n_rows_selected", "disjoint_from_pilot_development"],
+      "required": ["source", "n_rows", "disjoint_from_pilot_development"],
       "properties": {
         "source": {"type": "string"},
+        "cohorts": {"type": "object"},
+        "n_rows": {"type": "integer"},
         "excluded_pilot_dev_groups": {"type": "integer"},
-        "n_rows_selected": {"type": "integer"},
-        "n_groups_selected": {"type": "integer"},
-        "disjoint_from_pilot_development": {"const": true}
+        "disjoint_from_pilot_development": {"const": true},
+        "disjoint_from_pooled_train": {"const": true}
       }
     },
     "environment": {"type": "object"},
