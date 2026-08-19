@@ -1119,7 +1119,16 @@
   the data can arbitrate it; (5)&nbsp;a pre-registered hypothesis registry that turns &ldquo;we tested what we felt
   like&rdquo; into &ldquo;these six tests, these decisions, re-run when the data doubles&rdquo;; and (6)&nbsp;an
   evidential reference architecture whose vacuity and dissonance outputs make &ldquo;the model doesn&rsquo;t know&rdquo;
-  a first-class, displayable result. Each layer is usable without the next: the analyzer runs offline with heuristic
+  a first-class, displayable result. Version 2.1 adds three more. (7)&nbsp;A license-audited dataset registry and split
+  manifest (<span class="mono">research/dataset-registry-v2.1.json</span>,
+  <span class="mono">research/split-manifest-v2.1.json</span>) make the training pool&rsquo;s legal status and its
+  group-disjoint train/calibration/test partitions machine-checkable, so a contributed dataset slots in with its
+  license, group unit, and provenance declared. (8)&nbsp;A frozen, preregistered neural detector &mdash; selected by a
+  train/development-only pilot, hash-verified at load, and released on Hugging Face with a signed model card &mdash;
+  provides a strong, reproducible reference instrument rather than a bespoke per-paper model. (9)&nbsp;An
+  evidence-transportability harness runs any detector through leave-one-cohort-out, calibration-transfer, and sealed
+  external-target analyses under the same data firewall, so a new cohort or a new model is measured against the same
+  transport question. Each layer is usable without the next: the analyzer runs offline with heuristic
   fallbacks, the bench runs on the shipped corpus or your own CSV, and the catalog verifies with one command and no
   account.</p>
 
