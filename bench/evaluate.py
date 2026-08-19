@@ -12,10 +12,52 @@ import numpy as np
 from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 
+from bench import validity
 from bench.datasets import Dataset, grouped_splits
 from research.protocol import COVERAGE_LEVELS
 
 SEED = 13
+
+
+def _valid_operating_block(
+    cal_labels: np.ndarray,
+    cal_probs: np.ndarray,
+    test_labels: np.ndarray,
+    test_probs: np.ndarray,
+    test_groups,
+    alpha: float = 0.1,
+) -> dict:
+    """Calibration-fit operating quantities applied, frozen, to untouched test.
+
+    Every threshold and the conformal level are derived from the calibration
+    partition only; the test partition is never used to fit them. This is the
+    v2.1 repair over the old in-sample (test-ranked) conformal/selective/FPR
+    computations, which are retained separately and labeled descriptive.
+    """
+    cal_labels = np.asarray(cal_labels, dtype=int)
+    test_labels = np.asarray(test_labels, dtype=int)
+    conformal_fit = validity.fit_conformal(cal_labels, cal_probs, alpha=alpha)
+    fpr_thresholds = validity.fit_fpr_thresholds(cal_labels, cal_probs)
+    selective_thresholds = validity.fit_selective_thresholds(cal_probs)
+    auroc_boot = validity.group_bootstrap_ci(
+        test_labels,
+        test_probs,
+        np.asarray(list(test_groups)),
+        lambda y, p: float(roc_auc_score(y, p)),
+        n_boot=1000,
+        seed=SEED,
+    )
+    return {
+        "conformal": validity.apply_conformal(test_probs, test_labels, conformal_fit),
+        "operating_points": validity.tpr_at_fixed_thresholds(test_labels, test_probs, fpr_thresholds),
+        "operating_points_fit_on": "calibration",
+        "selective_risk": validity.apply_selective_thresholds(test_labels, test_probs, selective_thresholds),
+        "auroc_group_bootstrap": auroc_boot,
+        "adaptive_ece": validity.adaptive_ece(
+            test_labels, test_probs, groups=np.asarray(list(test_groups)), n_boot=1000, seed=SEED
+        ),
+        "prevalence": validity.standardized_prevalence_metrics(test_labels, test_probs),
+    }
 
 
 def expected_calibration_error(labels: np.ndarray, probabilities: np.ndarray, bins: int = 10) -> float:
@@ -261,11 +303,12 @@ def cross_dataset_transport(
 ) -> dict:
     """Fit + calibrate on one cohort, score the other cohort untouched.
 
-    The within-dataset transport matrix only sees domains that share a
-    feature distribution. Cross-dataset transport is the harder question the
-    paper cares about: does a detector fitted on cohort A stay calibrated on
-    cohort B? Calibration is fit on the source cohort's calibration partition
-    only; the target cohort is never used for fitting or tuning.
+    This is REPRESENTATION transport: the scorer AND the calibrator are fit on
+    the source cohort (calibration on the source calibration partition only)
+    and then applied, frozen, to the untouched target cohort. Source-calibration
+    and target prevalences are reported separately rather than silently mixed.
+    Operating thresholds and conformal levels are fit on the source calibration
+    partition and applied to the target; coverage is not guaranteed after shift.
     """
     from bench.splits import protocol_splits
 
@@ -273,28 +316,100 @@ def cross_dataset_transport(
     detector = detector_factory()
     detector.fit(train_dataset, split.train)
     raw_cal = detector.predict_proba(train_dataset, split.calibration)
-    calibrator = fit_isotonic(raw_cal, train_dataset.labels[split.calibration])
+    cal_labels = train_dataset.labels[split.calibration]
+    calibrator = fit_isotonic(raw_cal, cal_labels)
     all_idx = np.arange(len(test_dataset))
     raw_test = detector.predict_proba(test_dataset, all_idx)
     if calibrator is None:
         calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(raw_cal, 1e-6, 1 - 1e-6)
         calibration_applied = False
     else:
         calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(calibrator.predict(raw_cal), 1e-6, 1 - 1e-6)
         calibration_applied = True
     y = test_dataset.labels
     metrics = binary_metrics(y, calibrated)
+    valid = _valid_operating_block(cal_labels, calibrated_cal, y, calibrated, test_dataset.groups)
     return {
+        "kind": "representation_transport",
         "train_dataset": train_dataset.provenance,
         "test_dataset": test_dataset.provenance,
         "n_train": int(len(split.train)),
         "n_calibration": int(len(split.calibration)),
         "n_test": int(len(all_idx)),
         "calibration_applied": calibration_applied,
+        "calibration_fit_on": "source_calibration",
+        "source_calibration_prevalence": float(cal_labels.mean()),
+        "target_prevalence": float(y.mean()),
         "detector": getattr(detector, "name", type(detector).__name__),
         **metrics,
-        "selective_risk": selective_risk_curve(y, calibrated),
-        "conformal": conformal_sets(y, calibrated),
+        "selective_risk": valid["selective_risk"],
+        "operating_points": valid["operating_points"],
+        "conformal": valid["conformal"],
+        "auroc_group_bootstrap": valid["auroc_group_bootstrap"],
+        "prevalence_views": valid["prevalence"],
+    }
+
+
+def calibration_transfer(
+    train_dataset: Dataset,
+    target_dataset: Dataset,
+    detector_factory,
+    seed: int = SEED,
+) -> dict:
+    """CALIBRATION transfer: freeze the scorer, re-fit only the calibrator on the target.
+
+    The scorer is fit on the source cohort's train partition and frozen. Only
+    the isotonic calibrator is fit — on the TARGET cohort's calibration
+    partition — then applied to the target's untouched test. Comparing this to
+    representation transport (source-fit calibrator) isolates how much of a
+    transport gap is calibration shift versus representation shift. Source and
+    target prevalences are reported separately.
+    """
+    from bench.splits import protocol_splits
+
+    src_split = protocol_splits(train_dataset, seed=seed)[0]
+    detector = detector_factory()
+    detector.fit(train_dataset, src_split.train)
+    src_cal_prev = float(train_dataset.labels[src_split.calibration].mean())
+
+    tgt_split = protocol_splits(target_dataset, seed=seed)[0]
+    raw_cal = detector.predict_proba(target_dataset, tgt_split.calibration)
+    cal_labels = target_dataset.labels[tgt_split.calibration]
+    calibrator = fit_isotonic(raw_cal, cal_labels)
+    raw_test = detector.predict_proba(target_dataset, tgt_split.test)
+    y = target_dataset.labels[tgt_split.test]
+    if calibrator is None:
+        calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(raw_cal, 1e-6, 1 - 1e-6)
+        calibration_applied = False
+    else:
+        calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(calibrator.predict(raw_cal), 1e-6, 1 - 1e-6)
+        calibration_applied = True
+    test_groups = [target_dataset.groups[int(i)] for i in tgt_split.test]
+    metrics = binary_metrics(y, calibrated)
+    valid = _valid_operating_block(cal_labels, calibrated_cal, y, calibrated, test_groups)
+    return {
+        "kind": "calibration_transfer",
+        "train_dataset": train_dataset.provenance,
+        "target_dataset": target_dataset.provenance,
+        "n_source_train": int(len(src_split.train)),
+        "n_target_calibration": int(len(tgt_split.calibration)),
+        "n_target_test": int(len(tgt_split.test)),
+        "calibration_applied": calibration_applied,
+        "calibration_fit_on": "target_calibration",
+        "source_calibration_prevalence": src_cal_prev,
+        "target_calibration_prevalence": float(cal_labels.mean()),
+        "target_test_prevalence": float(y.mean()),
+        "detector": getattr(detector, "name", type(detector).__name__),
+        **metrics,
+        "selective_risk": valid["selective_risk"],
+        "operating_points": valid["operating_points"],
+        "conformal": valid["conformal"],
+        "auroc_group_bootstrap": valid["auroc_group_bootstrap"],
+        "prevalence_views": valid["prevalence"],
     }
 
 
@@ -318,11 +433,16 @@ def fit_calibrate_score(
     raw_test = detector.predict_proba(test_dataset, np.arange(len(test_dataset)))
     if calibrator is None:
         calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(raw_cal, 1e-6, 1 - 1e-6)
         calibration_applied = False
     else:
         calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(calibrator.predict(raw_cal), 1e-6, 1 - 1e-6)
         calibration_applied = True
     y = test_dataset.labels
+    valid = _valid_operating_block(
+        calibration_dataset.labels, calibrated_cal, y, calibrated, test_dataset.groups
+    )
     return {
         "train_dataset": train_dataset.provenance,
         "calibration_dataset": calibration_dataset.provenance,
@@ -333,8 +453,14 @@ def fit_calibrate_score(
         "calibration_applied": calibration_applied,
         "detector": getattr(detector, "name", type(detector).__name__),
         **binary_metrics(y, calibrated),
-        "selective_risk": selective_risk_curve(y, calibrated),
-        "conformal": conformal_sets(y, calibrated),
+        "selective_risk": valid["selective_risk"],
+        "selective_risk_descriptive": selective_risk_curve(y, calibrated),
+        "operating_points": valid["operating_points"],
+        "operating_points_fit_on": "calibration",
+        "conformal": valid["conformal"],
+        "auroc_group_bootstrap": valid["auroc_group_bootstrap"],
+        "adaptive_ece": valid["adaptive_ece"],
+        "prevalence_views": valid["prevalence"],
         "raw_metrics": binary_metrics(y, np.clip(raw_test, 1e-6, 1 - 1e-6)),
         "probabilities": calibrated,
         "labels": y,
@@ -406,23 +532,35 @@ def fit_isotonic(raw: np.ndarray, labels: np.ndarray) -> IsotonicRegression | No
 
 
 def evaluate_protocol_split(detector, dataset: Dataset, split) -> dict:
-    """Fit on train, calibrate on calibration, score untouched test."""
+    """Fit on train, calibrate on calibration, score untouched test.
+
+    v2.1: conformal levels, low-FPR operating points, and selective-prediction
+    thresholds are fit on the CALIBRATION partition and applied frozen to test.
+    The test-ranked ``metrics``/``raw_metrics`` blocks are retained but labeled
+    descriptive; the headline operating points come from the calibration-fit
+    block. Uncertainty uses the group bootstrap, not i.i.d. document resampling.
+    """
     from bench.evidence import likelihood_ratio, prior_sensitivity
 
     detector.fit(dataset, split.train)
     raw_cal = detector.predict_proba(dataset, split.calibration)
-    calibrator = fit_isotonic(raw_cal, dataset.labels[split.calibration])
+    cal_labels = dataset.labels[split.calibration]
+    calibrator = fit_isotonic(raw_cal, cal_labels)
     raw_test = detector.predict_proba(dataset, split.test)
     if calibrator is None:
         calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(raw_cal, 1e-6, 1 - 1e-6)
         calibration_applied = False
     else:
         calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibrated_cal = np.clip(calibrator.predict(raw_cal), 1e-6, 1 - 1e-6)
         calibration_applied = True
     labels = dataset.labels[split.test]
-    prevalence = float(dataset.labels[split.calibration].mean())
+    prevalence = float(cal_labels.mean())
     metrics = binary_metrics(labels, calibrated)
     mean_lr = float(np.mean(likelihood_ratio(calibrated, prevalence)))
+    test_groups = [dataset.groups[int(i)] for i in split.test]
+    valid = _valid_operating_block(cal_labels, calibrated_cal, labels, calibrated, test_groups)
     return {
         "method": split.method,
         "n_train": int(len(split.train)),
@@ -431,9 +569,16 @@ def evaluate_protocol_split(detector, dataset: Dataset, split) -> dict:
         "cohort_prevalence": prevalence,
         "calibration_applied": calibration_applied,
         "metrics": metrics,
-        "selective_risk": selective_risk_curve(labels, calibrated),
+        "metrics_note": "test-ranked and descriptive; headline operating points are calibration-fit",
+        "selective_risk": valid["selective_risk"],
+        "selective_risk_descriptive": selective_risk_curve(labels, calibrated),
+        "operating_points": valid["operating_points"],
+        "operating_points_fit_on": "calibration",
         "reliability_bins": reliability_bins(labels, calibrated),
-        "conformal": conformal_sets(labels, calibrated),
+        "conformal": valid["conformal"],
+        "auroc_group_bootstrap": valid["auroc_group_bootstrap"],
+        "adaptive_ece": valid["adaptive_ece"],
+        "prevalence_views": valid["prevalence"],
         "worst_group": worst_group_metrics(
             labels, calibrated, [dataset.families[int(i)] for i in split.test]
         ),
@@ -469,14 +614,27 @@ def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> d
 
     prevalence = float(dataset.labels.mean())
     mean_lr = float(np.mean(likelihood_ratio(p, prevalence)))
+    pooled_groups = np.array([dataset.groups[int(i)] for i in idx])
+    # Pooled conformal is fit on the pooled OUT-OF-FOLD test scores (each point
+    # scored by a model that never trained on it), so it is marginally valid
+    # (CV+-style) but not a per-cohort guarantee; per-fold calibration-fit
+    # conformal is in each fold's row. Uncertainty uses the group bootstrap.
+    pooled_conformal = validity.apply_conformal(p, y, validity.fit_conformal(y, p, alpha=0.1))
+    pooled_conformal["method"] = "split_conformal_mondrian_pooled_out_of_fold"
     return {
         "n_splits": len(splits),
         "method": splits[0].method.split(":")[0],
         "n_groups": splits[0].n_groups,
         "metrics": binary_metrics(y, p),
         "selective_risk": selective_risk_curve(y, p),
+        "selective_risk_note": "test-ranked over pooled out-of-fold scores; descriptive",
         "reliability_bins": reliability_bins(y, p),
-        "conformal": conformal_sets(y, p),
+        "conformal": pooled_conformal,
+        "auroc_group_bootstrap": validity.group_bootstrap_ci(
+            y, p, pooled_groups, lambda yy, pp: float(roc_auc_score(yy, pp)), n_boot=1000, seed=seed
+        ),
+        "adaptive_ece": validity.adaptive_ece(y, p, groups=pooled_groups, n_boot=1000, seed=seed),
+        "prevalence_views": validity.standardized_prevalence_metrics(y, p),
         "mean_likelihood_ratio": mean_lr,
         "prior_sensitivity": prior_sensitivity(mean_lr),
         "folds": fold_rows,
@@ -486,49 +644,76 @@ def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> d
     }
 
 
-def transport_matrix(detector_factory, dataset: Dataset, axis: str = "domains") -> dict:
-    """Train-domain × test-domain metrics for evidence transportability."""
-    values = dataset.domains if axis == "domains" else dataset.families
-    unique = sorted(set(values))
-    X = dataset.features()
+def _group_holdout_indices(
+    groups: np.ndarray, test_fraction: float, seed: int
+) -> tuple[np.ndarray, np.ndarray]:
+    """Deterministic group-disjoint local train/test split (positions, not labels)."""
+    unique = sorted(set(groups.tolist()))
+    rng = np.random.default_rng(seed)
+    order = rng.permutation(len(unique))
+    n_test = max(1, int(round(len(unique) * test_fraction)))
+    test_groups = {unique[i] for i in order[:n_test]}
+    test_pos = np.array([i for i, g in enumerate(groups) if g in test_groups], dtype=int)
+    train_pos = np.array([i for i, g in enumerate(groups) if g not in test_groups], dtype=int)
+    return train_pos, test_pos
+
+
+def transport_matrix(
+    detector_factory, dataset: Dataset, axis: str = "domains", seed: int = SEED
+) -> dict:
+    """Train-domain × test-domain metrics for evidence transportability.
+
+    v2.1 repairs the diagonal: in-domain (train == test) cells no longer use
+    train-on-all/in-sample scores. Each diagonal cell does a within-domain
+    group-disjoint holdout — fit on one set of groups, score a held-out set.
+    Off-diagonal cells exclude from training any leakage-control group that
+    appears in the target cell, so cross-domain transport is not contaminated
+    by shared stories/prompts/clusters.
+    """
+    values = np.array(dataset.domains if axis == "domains" else dataset.families)
+    groups = np.array(dataset.groups)
+    unique = sorted(set(values.tolist()))
     y = dataset.labels
     matrix = []
     for train_value in unique:
-        train_mask = np.array([v == train_value for v in values])
-        if int(train_mask.sum()) < 8 or len(set(y[train_mask])) < 2:
-            continue
-        model = detector_factory()
-        train_idx = np.where(train_mask)[0]
-        try:
-            model.fit(dataset, train_idx)
-
-            def predict(idx: np.ndarray, _model=model) -> np.ndarray:
-                return _model.predict_proba(dataset, idx)
-
-        except TypeError:
-            model.fit(X[train_mask], y[train_mask])
-
-            def predict(idx: np.ndarray, _model=model) -> np.ndarray:
-                return _model.predict_proba(X[idx])
-
         for test_value in unique:
-            test_mask = np.array([v == test_value for v in values])
-            if int(test_mask.sum()) < 4 or len(set(y[test_mask])) < 2:
+            test_mask = values == test_value
+            if int(test_mask.sum()) < 4 or len(set(y[test_mask].tolist())) < 2:
                 continue
-            idx = np.where(test_mask)[0]
-            probabilities = np.clip(predict(idx), 1e-6, 1 - 1e-6)
-            metrics = binary_metrics(y[test_mask], probabilities)
+            if train_value == test_value:
+                domain_idx = np.where(test_mask)[0]
+                train_pos, test_pos = _group_holdout_indices(
+                    groups[domain_idx], test_fraction=0.4, seed=seed
+                )
+                train_idx = domain_idx[train_pos]
+                test_idx = domain_idx[test_pos]
+                if len(train_idx) < 8 or len(test_idx) < 4:
+                    continue
+            else:
+                target_groups = set(groups[test_mask].tolist())
+                train_mask = (values == train_value) & ~np.isin(groups, list(target_groups))
+                if int(train_mask.sum()) < 8:
+                    continue
+                train_idx = np.where(train_mask)[0]
+                test_idx = np.where(test_mask)[0]
+            if len(set(y[train_idx].tolist())) < 2:
+                continue
+            model = detector_factory()
+            model.fit(dataset, train_idx)
+            probabilities = np.clip(model.predict_proba(dataset, test_idx), 1e-6, 1 - 1e-6)
+            metrics = binary_metrics(y[test_idx], probabilities)
             matrix.append(
                 {
                     "train": train_value,
                     "test": test_value,
-                    "n_train": int(train_mask.sum()),
-                    "n_test": int(test_mask.sum()),
+                    "n_train": int(len(train_idx)),
+                    "n_test": int(len(test_idx)),
                     "in_domain": train_value == test_value,
+                    "diagonal_held_out": train_value == test_value,
                     **metrics,
                 }
             )
-    return {"axis": axis, "cells": matrix}
+    return {"axis": axis, "cells": matrix, "diagonal": "held_out_group_disjoint"}
 
 
 def leave_one_family_out(dataset: Dataset) -> dict:
@@ -536,16 +721,24 @@ def leave_one_family_out(dataset: Dataset) -> dict:
 
     Unknown-source rejection uses Mahalanobis distance to the nearest known
     centroid. A held-out family should look more unknown than a seen family.
+
+    v2.1 strictness: when a family is held out, every training row that shares
+    a leakage-control group (story / prompt / near-duplicate cluster) with the
+    held-out family is also excluded, so the open-set test is not contaminated
+    by shared sources between train and the held-out generator.
     """
     from sklearn.covariance import LedoitWolf
 
     X = dataset.features()
     families = np.array(dataset.families)
+    groups = np.array(dataset.groups)
     unique = [f for f in sorted(set(dataset.families)) if f != "human"]
     rows = []
     for held in unique:
         known = [f for f in unique if f != held]
-        known_mask = np.isin(families, known)
+        held_groups = set(groups[families == held].tolist())
+        # Exclude training rows whose group also appears in the held-out family.
+        known_mask = np.isin(families, known) & ~np.isin(groups, list(held_groups))
         if int(known_mask.sum()) < 8:
             continue
         centroids = {}

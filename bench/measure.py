@@ -5,16 +5,24 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any
 
 import numpy as np
 
+from bench import validity
 from bench.datasets import Dataset
 from bench.detectors import HeuristicDetector, make_detector
 from bench.evaluate import (
+    _valid_operating_block,
+    binary_metrics,
     cross_dataset_transport,
     evaluate_protocol,
+    fit_isotonic,
     leave_one_family_out,
     sliced_conformal_coverage,
     transport_matrix,
@@ -25,6 +33,203 @@ from bench.mixtures import mixture_curve
 from bench.power import calibration_power
 from bench.splits import protocol_splits
 from research.protocol import load_protocol
+
+
+class CalibrationMismatchError(RuntimeError):
+    """Raised when a calibration bundle is applied to the wrong detector/revision/task/cohort."""
+
+
+@dataclass
+class CalibrationBundle:
+    """A frozen calibration + operating-threshold bundle bound to one detector.
+
+    The bundle ties the isotonic calibrator, the split-conformal level, the
+    low-FPR operating thresholds, and the selective-prediction thresholds to a
+    specific (detector_id, model_revision, task, cohort). ``calibrate`` refuses
+    to run unless the caller asserts the matching identity, so a heuristic-fit
+    map can never be silently applied to neural logits (or any other detector).
+    """
+
+    detector_id: str
+    model_revision: str
+    task: str
+    cohort: str
+    prevalence: float
+    conformal: validity.ConformalFit
+    fpr_thresholds: dict[float, float]
+    selective_thresholds: dict[float, float]
+    iso_x: list[float] | None = None  # isotonic input thresholds (None = identity)
+    iso_y: list[float] | None = None  # isotonic output values
+    created_utc: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
+
+    def identity(self) -> dict[str, str]:
+        return {
+            "detector_id": self.detector_id,
+            "model_revision": self.model_revision,
+            "task": self.task,
+            "cohort": self.cohort,
+        }
+
+    def bundle_sha256(self) -> str:
+        payload = {
+            **self.identity(),
+            "prevalence": self.prevalence,
+            "conformal": {
+                "alpha": self.conformal.alpha,
+                "threshold_by_class": self.conformal.threshold_by_class,
+                "mondrian": self.conformal.mondrian,
+            },
+            "fpr_thresholds": {str(k): v for k, v in self.fpr_thresholds.items()},
+            "selective_thresholds": {str(k): v for k, v in self.selective_thresholds.items()},
+            "iso_x": self.iso_x,
+            "iso_y": self.iso_y,
+        }
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return hashlib.sha256(canonical).hexdigest()
+
+    def _assert_identity(self, detector_id: str, model_revision: str, task: str, cohort: str) -> None:
+        expected = self.identity()
+        given = {
+            "detector_id": detector_id,
+            "model_revision": model_revision,
+            "task": task,
+            "cohort": cohort,
+        }
+        if given != expected:
+            raise CalibrationMismatchError(
+                f"calibration bundle is bound to {expected}, not {given}; "
+                "refusing to apply a calibration map across detectors/revisions/tasks/cohorts"
+            )
+
+    def calibrate(
+        self, raw_scores: np.ndarray, *, detector_id: str, model_revision: str, task: str, cohort: str
+    ) -> np.ndarray:
+        """Apply the frozen isotonic map, enforcing the detector/revision/task/cohort."""
+        self._assert_identity(detector_id, model_revision, task, cohort)
+        raw = np.asarray(raw_scores, dtype=float)
+        if self.iso_x is None or self.iso_y is None:
+            return np.clip(raw, 1e-6, 1 - 1e-6)
+        return np.clip(np.interp(raw, self.iso_x, self.iso_y), 1e-6, 1 - 1e-6)
+
+    def to_dict(self) -> dict:
+        return {
+            **self.identity(),
+            "prevalence": self.prevalence,
+            "conformal": {
+                "alpha": self.conformal.alpha,
+                "threshold_by_class": {str(k): v for k, v in self.conformal.threshold_by_class.items()},
+                "n_calibration": self.conformal.n_calibration,
+                "mondrian": self.conformal.mondrian,
+            },
+            "fpr_thresholds": {str(k): v for k, v in self.fpr_thresholds.items()},
+            "selective_thresholds": {str(k): v for k, v in self.selective_thresholds.items()},
+            "iso_x": self.iso_x,
+            "iso_y": self.iso_y,
+            "created_utc": self.created_utc,
+            "bundle_sha256": self.bundle_sha256(),
+        }
+
+
+def fit_calibration_bundle(
+    detector,
+    cal_dataset: Dataset,
+    *,
+    detector_id: str,
+    model_revision: str,
+    task: str,
+    cohort: str,
+    alpha: float = 0.1,
+) -> CalibrationBundle:
+    """Fit the calibrator and every operating threshold on the calibration cohort only."""
+    raw_cal = detector.predict_proba(cal_dataset, np.arange(len(cal_dataset)))
+    labels = cal_dataset.labels
+    calibrator = fit_isotonic(raw_cal, labels)
+    if calibrator is None:
+        calibrated_cal = np.clip(raw_cal, 1e-6, 1 - 1e-6)
+        iso_x = iso_y = None
+    else:
+        calibrated_cal = np.clip(calibrator.predict(raw_cal), 1e-6, 1 - 1e-6)
+        iso_x = [float(v) for v in calibrator.X_thresholds_]
+        iso_y = [float(v) for v in calibrator.y_thresholds_]
+    return CalibrationBundle(
+        detector_id=detector_id,
+        model_revision=model_revision,
+        task=task,
+        cohort=cohort,
+        prevalence=float(labels.mean()),
+        conformal=validity.fit_conformal(labels, calibrated_cal, alpha=alpha),
+        fpr_thresholds=validity.fit_fpr_thresholds(labels, calibrated_cal),
+        selective_thresholds=validity.fit_selective_thresholds(calibrated_cal),
+        iso_x=iso_x,
+        iso_y=iso_y,
+    )
+
+
+def fit_select_calibrate_test(
+    detector,
+    train: Dataset,
+    dev: Dataset,
+    cal: Dataset,
+    test: Dataset,
+    *,
+    detector_id: str,
+    model_revision: str,
+    task: str = "binary_ai",
+    cohort: str = "unknown",
+    alpha: float = 0.1,
+) -> dict:
+    """The single v2.1 measurement interface: fit(train) → select(dev) → calibrate(cal) → test(test).
+
+    Every detector tier — heuristic, logistic, GBM, and the neural detector —
+    runs through this one path so the data firewall is enforced uniformly:
+
+      * ``fit`` sees only the train partition.
+      * ``select`` (early stopping / hyperparameter or aggregation choice) sees
+        only the development partition, via a ``select`` hook the detector may
+        implement; tiers without selection simply no-op.
+      * the calibrator, conformal level, and all operating thresholds are fit
+        only on the calibration partition (a :class:`CalibrationBundle`).
+      * the test partition is scored once, frozen, and never used for fitting,
+        selection, calibration, or thresholding.
+    """
+    detector.fit(train, np.arange(len(train)))
+    if hasattr(detector, "select"):
+        detector.select(dev, np.arange(len(dev)))
+    bundle = fit_calibration_bundle(
+        detector, cal, detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort, alpha=alpha
+    )
+    raw_test = detector.predict_proba(test, np.arange(len(test)))
+    calibrated = bundle.calibrate(
+        raw_test, detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort
+    )
+    labels = test.labels
+    valid = _valid_operating_block(cal.labels, bundle.calibrate(
+        detector.predict_proba(cal, np.arange(len(cal))),
+        detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort,
+    ), labels, calibrated, test.groups, alpha=alpha)
+    return {
+        "detector_id": detector_id,
+        "model_revision": model_revision,
+        "task": task,
+        "cohort": cohort,
+        "n_train": int(len(train)),
+        "n_development": int(len(dev)),
+        "n_calibration": int(len(cal)),
+        "n_test": int(len(test)),
+        "bundle": bundle.to_dict(),
+        "metrics": binary_metrics(labels, calibrated),
+        "conformal": valid["conformal"],
+        "operating_points": valid["operating_points"],
+        "operating_points_fit_on": "calibration",
+        "selective_risk": valid["selective_risk"],
+        "auroc_group_bootstrap": valid["auroc_group_bootstrap"],
+        "adaptive_ece": valid["adaptive_ece"],
+        "prevalence_views": valid["prevalence"],
+        "probabilities": calibrated,
+        "labels": labels,
+    }
 
 
 def _jsonable(obj: Any) -> Any:
