@@ -182,22 +182,25 @@
     declared prior, and wrapped in uncertainty and abstention; expected calibration error is reported as a diagnostic and
     is not used to rescale the posterior. Three outputs are kept distinct &mdash; probability of AI participation,
     probability of AI generation, and source-family attribution with an explicit unknown state &mdash; and watermark tests
-    are a separate subsystem. A frozen protocol (registered 2026-08-13) enforces author/prompt/source-disjoint
-    train&nbsp;&rarr;&nbsp;calibration&nbsp;&rarr;&nbsp;test splits, primary metrics centered on Brier score, ECE,
-    calibration slope, low-FPR operating points, and selective risk, and a train-domain&nbsp;&times;&nbsp;test-domain
-    transport matrix. We report honest null results at the project corpus size (n&nbsp;=&nbsp;104, 8 human controls) and
-    a full comparison battery in which no model significantly beats any other.     External validation on the
-    Defactify_Text_Dataset (Roy et&nbsp;al. 2026; 71,666 hygiene-filtered records) is the central scientific result:
-    in-domain Panoptes-v0 AUROC is approximately 0.998, the shipped detector on that domain is 0.648, and the
-    Defactify-trained model transported back to the Panoptes corpus is 0.471. The frozen protocol then runs at
-    benchmark scale on RAID, M4GT-Bench (English and multilingual), and EvoBench (29,574&ndash;205,233 records each),
-    yielding a full train-cohort&nbsp;&times;&nbsp;test-cohort transport matrix, real adversarial-attack cells
-    (paraphrase reduces a strong tier to chance; zero-width-space insertion inverts it), and sliced conformal coverage
-    that exposes a systematic human-class coverage deficit hidden by pooled coverage. Zero-shot external baselines
-    (Binoculars, Fast-DetectGPT) are scored on the same frozen splits. Performance and calibration are cohort
-    properties, not model properties. The scientifically stronger question is not whether AI text is universally
-    identifiable, but under what conditions AI participation is statistically identifiable and how the evidence degrades
-    when those conditions change.</p>
+    are a separate subsystem. A frozen protocol enforces author/prompt/source-disjoint
+    train&nbsp;&rarr;&nbsp;calibration&nbsp;&rarr;&nbsp;test splits and primary metrics centered on Brier score, ECE,
+    calibration slope, low-FPR operating points, and selective risk.</p>
+    <p>Version 2.1 rebuilds the bench around <em>transportability</em>. A license-audited dataset registry partitions each
+    cohort by whether its license permits redistribution of derived weights: the pooled public-weight training pool (MAGE,
+    RAID clean, DeFactify; 35,856 documents) is legally clean, while M4GT-Bench, EvoBench, and CoAuthor remain
+    evaluation-only. A preregistered neural detector &mdash; a frozen three-seed hierarchical ensemble over
+    deberta-v3-small, selected by a train/development-only pilot before any final-test access &mdash; reaches 0.993 AUROC
+    with class-balanced split-conformal coverage on a group-disjoint pooled calibration partition. The central v2.1 finding
+    is that in-domain strength does not imply transport. Holding an entire dataset out of both training and calibration
+    drops every classical tier to 0.52&ndash;0.76 AUROC, and a dataset-origin probe (0.81 accuracy against 0.33 chance)
+    shows the features encode dataset identity &mdash; part of every in-domain number is shortcut. The frozen neural
+    ensemble transports at 0.802 mean AUROC (worst cohort 0.658) across the held-out datasets, and
+    is the only tier robust to paraphrase (0.98). Calibration transfer separates ranking from absolute probability: a frozen
+    scorer re-calibrated across cohorts loses little Brier. The residual frontier is Unicode-level adversarial perturbation
+    &mdash; homoglyph and zero-width-space insertion collapse every tier, the neural one most of all. Performance and
+    calibration are cohort properties, not model properties; the scientifically stronger question is not whether AI text is
+    universally identifiable, but under what conditions AI participation is statistically identifiable and how the evidence
+    degrades when those conditions change.</p>
   </div>
 
   <div class="keywords">
@@ -1318,8 +1321,10 @@ transport first, which is the harder problem of Table&nbsp;15.</p>
 <p><strong>External and adversarial targets are the honest stress test, and they invert the in-domain ranking in both
 directions.</strong> On sealed, never-trained targets the neural ensemble is the strongest tier almost everywhere:
 EvoBench 0.93, MAGE OOD 0.97, and &mdash; where the MAGE-and-RAID-trained logistic tier falls below chance (0.40)
-&mdash; M4GT-English 0.93. The neural tier is also the only one that is robust to paraphrase (0.98, versus 0.48&ndash;0.76
-for the classical tiers), the attack that the v2.0 study identified as the classical detectors&rsquo; principal weakness.
+&mdash; M4GT-English 0.93. The neural tier is also the only one that is robust to RAID&rsquo;s paraphrase attack (0.98,
+versus 0.48&ndash;0.76 for the classical tiers), the attack that the v2.0 study identified as the classical
+detectors&rsquo; principal weakness; on MAGE&rsquo;s out-of-distribution paraphrase split it degrades to 0.76, comparable
+to the classical tiers, so the robustness is specific to paraphrase of seen-distribution text.
 But the same learned representation that confers paraphrase robustness is <em>more</em> vulnerable to a different attack
 family: on RAID&rsquo;s homoglyph substitution the neural ensemble collapses to 0.26 while the feature-based GBM tier is
 essentially unaffected (0.97), and on zero-width-space insertion every tier, neural included, falls below chance
@@ -1340,7 +1345,7 @@ deployment would need to abstain on. The full per-target rows are in Table&nbsp;
     <tr><td>M4GT English</td><td>0.631</td><td>0.404</td><td>0.805</td><td>0.927</td></tr>
     <tr><td>M4GT multilingual</td><td>0.668</td><td>0.552</td><td>0.813</td><td>0.872</td></tr>
     <tr><td>MAGE OOD</td><td>0.725</td><td>0.739</td><td>0.672</td><td>0.970</td></tr>
-    <tr><td>MAGE OOD paraphrase</td><td>0.699</td><td>0.718</td><td>0.631</td><td>0.970P</td></tr>
+    <tr><td>MAGE OOD paraphrase</td><td>0.699</td><td>0.718</td><td>0.631</td><td>0.762</td></tr>
     <tr><td>RAID paraphrase</td><td>0.555</td><td>0.484</td><td>0.759</td><td>0.982</td></tr>
     <tr><td>RAID homoglyph</td><td>0.609</td><td>0.739</td><td>0.967</td><td>0.258</td></tr>
     <tr><td>RAID zero-width-space</td><td>0.364</td><td>0.169</td><td>0.121</td><td>0.238</td></tr>
@@ -1472,7 +1477,21 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   merely degrade a strong tier &mdash; paraphrase reduces it to chance and zero-width-space insertion inverts it. The
   unseen-generator result is a replicated null: leave-one-family-out rejection stays near chance from n&nbsp;=&nbsp;104
   to n&nbsp;=&nbsp;205,233. The scientifically stronger question is: under what conditions is AI participation
-  statistically identifiable, and how does the evidence degrade when those conditions change? The machinery described
+  statistically identifiable, and how does the evidence degrade when those conditions change?</p>
+
+  <p>Version 2.1 sharpens that gap into a systematic, preregistered measurement. A frozen three-seed hierarchical neural
+  ensemble (&sect;14), trained only on the license-clean pooled pool, reaches 0.993 AUROC in-domain; yet the
+  leave-one-dataset-out analysis (&sect;15) shows that this in-domain strength does not transport for free. Every classical
+  tier falls to 0.52&ndash;0.76 AUROC on a held-out dataset, and a dataset-origin probe (0.81 accuracy against 0.33 chance)
+  confirms that part of every in-domain number is a dataset shortcut rather than a human-versus-machine signal; the neural
+  ensemble transports at 0.802 mean AUROC across the held-out datasets. Calibration is cheaper to move than
+  representation &mdash; the neural calibrator&rsquo;s off-diagonal Brier degrades only 0.024&rarr;0.028 &mdash; so a detector
+  whose ranking transports can be re-calibrated to a new cohort with a modest labelled sample. The residual frontier is
+  Unicode-level adversarial perturbation: homoglyph and zero-width-space insertion collapse every tier, and the neural
+  representation &mdash; strongest on paraphrase and held-out generators &mdash; is here the most vulnerable. Transport, not
+  in-domain accuracy, is the binding constraint, and it is now measurable.</p>
+
+  <p>The machinery described
   here &mdash; a frozen protocol, group-disjoint train/calibration/test splits, signed artifacts, power gates, and a
   hypothesis registry &mdash; exists so that the numbers can only get more meaningful from here. We invite replication:
   run the canonical prompts, hash your outputs, append your evidence to the catalog, and move the marker on the power
