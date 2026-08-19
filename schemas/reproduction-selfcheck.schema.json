@@ -22,6 +22,8 @@
     "kind": {"const": "author_selfcheck"},
     "independent": {"const": false},
     "catalog_verified": {"type": "boolean"},
+    "metric_path_recomputed": {"type": "boolean"},
+    "metric_path": {"type": "object"},
     "n_artifacts": {"type": "integer", "minimum": 0},
     "n_hash_matches": {"type": "integer", "minimum": 0},
     "n_unsigned": {"type": "integer", "minimum": 0},

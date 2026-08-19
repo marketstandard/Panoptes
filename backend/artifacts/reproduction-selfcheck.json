@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "31f1400313ee12cdae909e94cd69cfd6e71b21c50a43e784899c21c7651cfea6",
+  "artifact_sha256": "23e3b2679bbdb68d86646ce3c0ef4877874442f08ce8019c059cc8118ff8d266",
   "artifacts": [
     {
       "match": true,
@@ -225,7 +225,7 @@
     "python research/validate_submission.py research/protocol.json",
     "python -m pytest backend research bench baselines"
   ],
-  "created_utc": "2026-08-18T04:11:52Z",
+  "created_utc": "2026-08-19T18:07:56Z",
   "errors": [],
   "independent": false,
   "kind": "author_selfcheck",
@@ -233,6 +233,66 @@
     "This is a first-party self-check, not an independent reproduction.",
     "Headline metric deltas versus an outside researcher are not yet available."
   ],
+  "metric_path": {
+    "detector": "logistic",
+    "fixture": "research\\fixtures\\recompute-corpus.json",
+    "metrics": {
+      "accuracy": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      },
+      "auprc": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      },
+      "auroc": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      },
+      "brier": {
+        "expected": 0.001679,
+        "match": true,
+        "recomputed": 0.0016794485800126682
+      },
+      "calibration_intercept": {
+        "expected": -0.475214,
+        "match": true,
+        "recomputed": -0.4752141932699248
+      },
+      "calibration_slope": {
+        "expected": 5.63719,
+        "match": true,
+        "recomputed": 5.637190251110316
+      },
+      "ece": {
+        "expected": 0.035409,
+        "match": true,
+        "recomputed": 0.035409026905698034
+      },
+      "tpr_at_0.1fpr": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      },
+      "tpr_at_1fpr": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      },
+      "tpr_at_5fpr": {
+        "expected": 1.0,
+        "match": true,
+        "recomputed": 1.0
+      }
+    },
+    "n_documents": 16,
+    "recomputed_auroc": 1.0,
+    "recomputed_brier": 0.0016794485800126682
+  },
+  "metric_path_recomputed": true,
   "n_artifacts": 27,
   "n_hash_matches": 27,
   "n_unsigned": 0,
