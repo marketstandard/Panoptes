@@ -45,7 +45,7 @@ from bench.evaluate import _valid_operating_block, binary_metrics, fit_isotonic
 from bench.splits import holdout_split
 
 SEED = 13
-COHORT_AXES = ("domain", "generator", "domain_generator")
+COHORT_AXES = ("domain", "generator", "domain_generator", "dataset")
 
 
 # --- cohort structure ----------------------------------------------------------
@@ -55,11 +55,18 @@ def cohort_keys(dataset: Dataset, axis: str) -> np.ndarray:
     """Per-row cohort label for a declared axis.
 
     ``domain`` and ``generator`` use the dataset's domain/family columns;
-    ``domain_generator`` crosses them. Dataset IDs are sampling/audit metadata
-    and are never model inputs — they only define evaluation cohorts.
+    ``domain_generator`` crosses them. ``dataset`` uses the per-row cohort label
+    populated by :func:`bench.datasets.combine_datasets` for pooled multi-cohort
+    pools, enabling leave-one-dataset-out transport. Dataset IDs are
+    sampling/audit metadata and are never model inputs — they only define
+    evaluation cohorts.
     """
     if axis not in COHORT_AXES:
         raise ValueError(f"unknown cohort axis {axis!r}; expected one of {COHORT_AXES}")
+    if axis == "dataset":
+        if dataset.datasets is None:
+            raise ValueError("axis='dataset' requires a pooled Dataset with per-row `datasets` labels")
+        return np.array([str(d) for d in dataset.datasets])
     if axis == "domain":
         return np.array([str(d) for d in dataset.domains])
     if axis == "generator":

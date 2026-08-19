@@ -25,7 +25,7 @@
   "properties": {
     "schema": {"const": "panoptes-calibration-transfer-v1"},
     "kind": {"const": "calibration_transfer"},
-    "axis": {"enum": ["domain", "generator", "domain_generator"]},
+    "axis": {"enum": ["domain", "generator", "domain_generator", "dataset"]},
     "detector": {"type": "string"},
     "created_utc": {"type": "string"},
     "dataset": {"type": "string"},

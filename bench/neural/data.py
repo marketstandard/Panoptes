@@ -23,13 +23,17 @@ from bench.datasets import Dataset
 from bench.neural.windowing import Window, document_windows, pad_windows
 
 
-def group_key(domain: str, family: str, label: int) -> str:
+def group_key(domain: str, family: str, label: int, dataset: str | None = None) -> str:
     """The audit/sampling group for balanced and GroupDRO objectives.
 
-    Built from dataset-visible metadata only (domain x generator x label). It is
-    never a model input; it only reweights or resamples the loss.
+    Built from dataset-visible metadata only (dataset x domain x generator x
+    label; the dataset component is present only for pooled multi-cohort
+    training). It is never a model input; it only reweights or resamples the loss.
     """
-    return f"{domain}|{family}|{int(label)}"
+    parts = [str(domain), str(family), str(int(label))]
+    if dataset is not None:
+        parts.insert(0, str(dataset))
+    return "|".join(parts)
 
 
 def stratified_group_subsample(
@@ -177,6 +181,7 @@ def build_windowed_corpus(
     n_tokens: list[int] = []
 
     dom = dataset.domains if dataset.domains is not None else dataset.kinds
+    ds_labels = dataset.datasets
     for pos, i in enumerate(indices):
         i = int(i)
         text = dataset.texts[i]
@@ -188,7 +193,9 @@ def build_windowed_corpus(
         groups.append(str(dataset.groups[i]))
         domains.append(str(dom[i]))
         families.append(str(dataset.families[i]))
-        group_keys.append(group_key(dom[i], dataset.families[i], label))
+        group_keys.append(
+            group_key(dom[i], dataset.families[i], label, dataset=ds_labels[i] if ds_labels else None)
+        )
         n_tokens.append(max((w.token_end for w in raw), default=0))
         if show_progress and (pos + 1) % 2000 == 0:
             print(f"    windowed {pos + 1}/{len(indices)} docs", flush=True)

@@ -2,53 +2,72 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://panoptes.dev/schemas/representation-transport-card.schema.json",
   "title": "Panoptes Representation-Transport Card",
-  "description": "Signed leave-one-cohort-out representation-transport result: each cohort is held out of both training and calibration, the detector is trained on the remaining cohorts and calibrated on source-calibration only, then applied frozen to the untouched target cohort. Deltas are against the seen source diagonal.",
+  "description": "Signed v2.1 representation-transport result over the pooled public-weight training pool. The primary analysis is cross-dataset leave-one-dataset-out (LOCO): each dataset is held out of both training and calibration, the detector is retrained on the remaining datasets and calibrated on source-calibration only, then applied frozen to the untouched dataset. A strict within-MAGE leave-one-domain/generator-out run complements it. The pooled seen-cohort holdout (sealed test partition) and the external targets are scored by one frozen production scorer trained on pooled train and calibrated on pooled calibration. Deltas are against the seen source diagonal; seen-cohort cells are never labeled external.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema",
-    "kind",
-    "axis",
     "detector",
     "created_utc",
-    "dataset",
-    "dataset_sha256",
-    "n_cohorts",
-    "cells",
-    "summary",
+    "cross_dataset_loco",
+    "pooled_seen_cohort",
+    "external_targets",
     "limitations",
     "artifact_sha256"
   ],
   "properties": {
     "schema": {"const": "panoptes-representation-transport-v1"},
-    "kind": {"const": "representation_transport_loco"},
-    "axis": {"enum": ["domain", "generator", "domain_generator"]},
     "detector": {"type": "string"},
     "created_utc": {"type": "string"},
-    "dataset": {"type": "string"},
-    "dataset_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "n_cohorts": {"type": "integer", "minimum": 1},
-    "cells": {
-      "type": "object",
-      "description": "Per-cohort LOCO cell. Each evaluable cell carries n_target, n_source_train, n_source_calibration, calibration_fit_on, a seen 'diagonal' metric block, an untouched 'target' metric block, and 'delta_from_diagonal'. Skipped cohorts carry {skipped, reason, n}.",
-      "additionalProperties": {"type": "object"}
+    "cross_dataset_loco": {
+      "oneOf": [{"$ref": "#/$defs/loco"}, {"type": "null"}],
+      "description": "Cross-dataset leave-one-dataset-out over the pooled training pool (axis='dataset')."
     },
-    "summary": {
-      "type": "object",
-      "description": "Aggregate over evaluable target cells: n_evaluable_cells, worst/mean cohort AUROC and Brier."
+    "within_mage_loco": {
+      "oneOf": [{"$ref": "#/$defs/loco"}, {"type": "null"}],
+      "description": "Strict within-MAGE leave-one-domain/generator-out over a declared axis."
     },
     "pooled_seen_cohort": {
       "type": "object",
-      "description": "Pooled production generalization block: seen-cohort holdout cells, the diagonal reference for LOCO deltas. Never labeled external."
+      "description": "Pooled production generalization: per-cohort cells on the sealed seen-cohort holdout (pooled test partition), scored by the frozen production scorer. Never labeled external."
     },
     "external_targets": {
       "type": "object",
-      "description": "External (untouched, off-cohort) targets such as MAGE OOD / OOD-paraphrase, scored by a detector trained on the in-domain train partition.",
+      "description": "External (untouched, off-cohort) targets: MAGE OOD / OOD-paraphrase, M4GT English/multilingual, EvoBench, RAID attack cells, Reference Corpus v0, and the held-out CoAuthor participation eval.",
       "additionalProperties": {"type": "object"}
     },
+    "external_targets_sealed_one_shot": {"type": "boolean"},
     "dataset_origin_probe": {"type": "object"},
+    "within_mage_origin_probe": {"oneOf": [{"type": "object"}, {"type": "null"}]},
+    "training_pool": {
+      "type": "object",
+      "description": "Provenance of the pooled public-weight training pool (cohorts, n_rows, sha256)."
+    },
     "environment": {"type": "object"},
     "limitations": {"type": "array", "items": {"type": "string"}},
     "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "loco": {
+      "type": "object",
+      "description": "A leave-one-cohort-out result: per-cohort cells with a seen diagonal, an untouched target, and delta_from_diagonal.",
+      "required": ["kind", "axis", "dataset", "dataset_sha256", "n_cohorts", "cells", "summary"],
+      "properties": {
+        "kind": {"const": "representation_transport_loco"},
+        "axis": {"enum": ["domain", "generator", "domain_generator", "dataset"]},
+        "dataset": {"type": "string"},
+        "dataset_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "n_cohorts": {"type": "integer", "minimum": 1},
+        "cells": {
+          "type": "object",
+          "description": "Per-cohort LOCO cell with n_target, n_source_train, n_source_calibration, calibration_fit_on, a seen 'diagonal' block, an untouched 'target' block, and 'delta_from_diagonal'. Skipped cohorts carry {skipped, reason, n}.",
+          "additionalProperties": {"type": "object"}
+        },
+        "summary": {
+          "type": "object",
+          "description": "Aggregate over evaluable target cells: n_evaluable_cells, worst/mean cohort AUROC and Brier."
+        }
+      }
+    }
   }
 }
