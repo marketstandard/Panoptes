@@ -417,7 +417,16 @@
   schema-validated, hash-verified artifacts with stated cohort sizes. Every number the corpus influences is therefore
   traceable to a specific, re-verifiable input set.</p>
 
-  <h2>6. Analysis of the reference corpus</h2>
+  <h2>6. Analysis of Reference Community Corpus v0</h2>
+  <p><strong>Framing for v2.1.</strong> The 104-record verified corpus is <em>Reference Community Corpus v0</em>. It is
+  <em>infrastructure-load-bearing, not inference-load-bearing</em>: its job is to be a worked, end-to-end implementation
+  of the contribution, hashing, manifest, calibration, and power-gating machinery &mdash; small enough to inspect by hand,
+  permanent enough to re-verify &mdash; rather than to power the primary statistical claims. In v2.0 it also carried the
+  in-domain inference; in v2.1 that inferential load moves to the expanded, license-audited multi-dataset pool
+  (MAGE, RAID, and DeFactify, with CoAuthor, M4GT, and EvoBench held out for evaluation; &sect;13), and this
+  corpus is retained as the canonical demonstration of how a contributor adds a hash-pinned cohort and how power and
+  coverage expand as cohorts accrue &mdash; without any claim that eight human controls are representative of human
+  writing. Nothing in this section is used to train or calibrate the production detector.</p>
   <p>The release corpus comprises 104 records from 13 verified runs: 96 AI outputs from six frontier model families
   (claude-opus-5-max, gemini-3.1-pro, glm-5.2-max, gpt-5.6-sol-max, grok-4.6-extra-high, kimi-k3-max; eight text and
   eight code outputs each) and 8 human control responses to the text prompts. Every record was re-hashed against its run
@@ -1129,9 +1138,10 @@
   corpus decides. The protocol measurement in &sect;12 is honest on the same small set: mixture slope 0.029,
   unknown-rejection AUROC 0.515, and mean likelihood ratios that explode when isotonic scores saturate. Those are
   instrument readings, not publication-ready transport claims. The human controls were written by a small number of
-  authors and are not a demographic sample. Remaining work that this environment cannot complete &mdash; RAID, M4GT,
-  EvoBench, DetectGPT/Binoculars weights, a 500&ndash;2,000 author panel, real coauthoring sessions, and an outside
-  reproduction &mdash; is listed in <span class="mono">docs/v2-updates/</span>.
+  authors and are not a demographic sample. The v2.1 expansion closes several gaps that v2.0 listed as out of scope
+  &mdash; RAID, M4GT, EvoBench, and real CoAuthor coauthoring sessions are now measured &mdash; while a dedicated
+  500&ndash;2,000-author human panel, DetectGPT/Binoculars weight release, and an outside reproduction remain open and
+  are listed in <span class="mono">docs/v2-updates/</span>.
   GroupKFold by prompt controls topical leakage but cannot control author leakage within the human cohort. The
   corpus-fitted geometry describes six model families on sixteen prompts; it is a prior over a small world, and the
   unknown score exists because the world is larger. Panoptes-v0&rsquo;s uncertainty estimates are calibrated on the same
@@ -1149,6 +1159,22 @@
   downstream users should review that posture before mirroring the data. The seven-class attribution experiment is
   exploratory: family cues may be prompt-specific, and family labels are self-declared generating models, not verified
   provenance.</p>
+  <p>The v2.1 neural detector and transport results carry their own bounds. The pooled training pool (MAGE train, RAID
+  clean, and DeFactify train) is <em>binary</em> &mdash; human versus fully machine &mdash; so the conditional
+  majority-generation and AI-contribution-fraction heads remain external-evaluation-only until a terms-cleared
+  mixed-authorship cohort is available; the participation head is the only outcome the pooled data licenses. The three
+  source datasets differ in provenance and label semantics: MAGE labels are publisher-assigned by generator, RAID clean
+  is a controlled human/machine contrast, and DeFactify is a single-register NYT rewrite task, so the pooled calibrator
+  is a population-conditional map over a heterogeneous mixture, not a universal prior. CoAuthor is GPT-3, English-only,
+  and 63 authors; M4GT carries a <span class="mono">NOASSERTION</span> license and weak pairing groups, so it is
+  evaluation-only. The neural detector is scoped to English prose; code and unsupported languages route to separate
+  detectors and never through it. The dataset-origin probe (&sect;15) reports how strongly the encoder can predict which
+  dataset a document came from; where that signal is strong, observed transport gaps may reflect shortcut features
+  rather than robust AI signal, and we report the probe rather than hide it. Calibration and split-conformal coverage
+  are population-conditional and are not guaranteed after distribution shift; the cross-dataset numbers of &sect;15 are
+  the measurement of that degradation, not a refutation of it. Finally, public text detection remains vulnerable to
+  paraphrase and to future generators, and provenance attests a chain of custody rather than metaphysical authorship
+  &mdash; the two evidence channels are reported separately precisely so that neither is asked to carry the other.</p>
 
   <h3>Ethics</h3>
   <p>Panoptes is designed against the two failure modes that harm people: accusation on thin evidence, and false
