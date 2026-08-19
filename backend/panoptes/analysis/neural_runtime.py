@@ -55,7 +55,7 @@ def _import_neural_stack():
     try:
         import torch  # noqa: F401
         from transformers import AutoConfig, AutoModel, AutoTokenizer  # noqa: F401
-        from bench.neural.aggregate import aggregate_documents  # noqa: F401
+        from bench.neural.aggregate import aggregate_documents, sigmoid  # noqa: F401
         from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: F401
         from bench.neural.windowing import document_windows, pad_windows  # noqa: F401
     except Exception as exc:  # pragma: no cover - depends on environment
@@ -69,10 +69,64 @@ def _import_neural_stack():
         "AutoModel": AutoModel,
         "AutoTokenizer": AutoTokenizer,
         "aggregate_documents": aggregate_documents,
+        "sigmoid": sigmoid,
         "WindowEncoder": WindowEncoder,
         "HierarchicalSummaryHead": HierarchicalSummaryHead,
         "document_windows": document_windows,
         "pad_windows": pad_windows,
+    }
+
+
+def _applicability(
+    raw: float,
+    seed_probs: list[float],
+    seed_window_probs: list,
+    x_thresholds,
+) -> dict:
+    """Applicability/OOD diagnostic for the neural tier (Phase 5).
+
+    A heuristic signal about how far a document sits from the detector's
+    declared calibration geometry, combining:
+
+      - ``seed_std``: disagreement among the frozen ensemble seeds.
+      - ``segment_std``: disagreement among the document's own window-level
+        participation signals (heterogeneous / partially-AI documents score
+        high here).
+      - ``in_calibration_range``: whether the raw score falls inside the
+        isotonic calibrator's fitted range; outside it the calibrator
+        extrapolates and the calibrated value is less trustworthy.
+
+    This diagnostic may trigger abstention downstream, but it is NOT proof that
+    all distribution shifts are detectable — it is a descriptive signal only.
+    """
+    import numpy as np
+
+    seed_std = float(np.std(seed_probs)) if len(seed_probs) > 1 else 0.0
+    if seed_window_probs:
+        mean_window = np.mean(np.stack(seed_window_probs, axis=0), axis=0)
+        segment_std = float(np.std(mean_window)) if mean_window.size > 1 else 0.0
+    else:
+        segment_std = 0.0
+    in_range = True
+    if x_thresholds:
+        lo, hi = float(min(x_thresholds)), float(max(x_thresholds))
+        in_range = bool(lo <= raw <= hi)
+    flags: list[str] = []
+    if not in_range:
+        flags.append("out_of_calibration_range")
+    if seed_std > 0.15:
+        flags.append("ensemble_disagreement")
+    if segment_std > 0.30:
+        flags.append("segment_disagreement")
+    return {
+        "seed_std": round(seed_std, 4),
+        "segment_std": round(segment_std, 4),
+        "in_calibration_range": in_range,
+        "flags": flags,
+        "note": (
+            "Descriptive applicability signal from calibration geometry and "
+            "segment/seed disagreement; not proof that all shifts are detectable."
+        ),
     }
 
 
@@ -212,24 +266,41 @@ class NeuralModelManager:
         n_tokens = max((w.token_end for w in raw_windows), default=0)
 
         seed_probs: list[float] = []
+        seed_window_probs: list[np.ndarray] = []
         with torch.no_grad():
             for rec in ens["models"]:
                 model = rec["model"]
+                head = rec["summary_head"]
                 logits_out = []
+                cls_out = []
                 for start in range(0, len(input_ids), self.max_batch_windows):
                     ids = torch.from_numpy(input_ids[start:start + self.max_batch_windows]).to(device)
                     mask = torch.from_numpy(attention_mask[start:start + self.max_batch_windows]).to(device)
                     with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")):
-                        logits, _cls = model(ids, mask)
+                        logits, cls = model(ids, mask)
                     logits_out.append(logits.float().cpu().numpy())
+                    if head is not None:
+                        cls_out.append(cls.float().cpu().numpy())
                 window_logits = np.concatenate(logits_out, axis=0)
-                if rec["summary_head"] is not None:
-                    # Summary head over this document's window embeddings.
-                    raise NeuralRuntimeError(
-                        "summary-head aggregation is not yet wired into the runtime; "
-                        "use the overlap-corrected logit-mean artifact"
+                # Per-window participation signal (segment disagreement diagnostic).
+                seed_window_probs.append(
+                    stack["sigmoid"](window_logits[:, 1] - window_logits[:, 0]).astype(np.float64)
+                )
+                if head is not None:
+                    # Hierarchical summary head over this document's window embeddings.
+                    window_embeds = np.concatenate(cls_out, axis=0)  # [n_windows, hidden]
+                    w = min(len(window_embeds), self.max_windows)
+                    embeds = np.zeros((1, w, window_embeds.shape[1]), dtype=np.float32)
+                    head_mask = np.zeros((1, w), dtype=bool)
+                    embeds[0, :w] = window_embeds[:w]
+                    head_mask[0, :w] = True
+                    head_logits = head(
+                        torch.from_numpy(embeds).to(device), torch.from_numpy(head_mask).to(device)
                     )
-                prob = float(stack["aggregate_documents"]([window_logits], [spans], [n_tokens])[0])
+                    logit_diff = float((head_logits[:, 1] - head_logits[:, 0])[0])
+                    prob = float(stack["sigmoid"](logit_diff))
+                else:
+                    prob = float(stack["aggregate_documents"]([window_logits], [spans], [n_tokens])[0])
                 seed_probs.append(prob)
 
         raw = float(np.mean(seed_probs))
@@ -237,12 +308,14 @@ class NeuralModelManager:
         xs = calibrator.get("x_thresholds")
         ys = calibrator.get("y_thresholds")
         calibrated = float(np.interp(raw, xs, ys)) if xs and ys else raw
+        applicability = _applicability(raw, seed_probs, seed_window_probs, xs)
         return {
             "raw_participation": raw,
             "calibrated_participation": min(max(calibrated, 0.0), 1.0),
             "seed_probabilities": seed_probs,
             "n_windows": len(input_ids),
             "n_seeds": len(ens["models"]),
+            "applicability": applicability,
         }
 
 

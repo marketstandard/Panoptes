@@ -31,7 +31,7 @@ if not _HAS_ML:
 from tokenizers import Tokenizer, models, pre_tokenizers  # noqa: E402
 from transformers import BertConfig, BertModel, PreTrainedTokenizerFast  # noqa: E402
 
-from bench.neural.model import WindowEncoder  # noqa: E402
+from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: E402
 from panoptes.analysis.neural_runtime import (  # noqa: E402
     NeuralModelManager,
     NeuralProseDetector,
@@ -46,7 +46,13 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _build_tiny_artifact(root: Path, *, hidden: int = 16, vocab_words: list[str] | None = None) -> Path:
+def _build_tiny_artifact(
+    root: Path,
+    *,
+    hidden: int = 16,
+    vocab_words: list[str] | None = None,
+    with_summary_head: bool = False,
+) -> Path:
     """Write a self-contained tiny ensemble artifact and return its directory."""
     root.mkdir(parents=True, exist_ok=True)
     vocab_words = vocab_words or WORDS
@@ -76,13 +82,22 @@ def _build_tiny_artifact(root: Path, *, hidden: int = 16, vocab_words: list[str]
     enc_path = seed_dir / "encoder.safetensors"
     save_file(model.state_dict(), str(enc_path))
 
+    head_rel = None
+    head_sha = None
+    if with_summary_head:
+        head = HierarchicalSummaryHead(hidden=hidden, num_labels=2)
+        head_path = seed_dir / "summary_head.safetensors"
+        save_file(head.state_dict(), str(head_path))
+        head_rel = "seed-1/summary_head.safetensors"
+        head_sha = _sha256(head_path)
+
     manifest = {
         "schema": "panoptes-neural-ensemble-v1",
         "winner": {
             "encoder": "tiny-bert",
             "hf": "tiny-bert",
             "objective": "erm",
-            "aggregation": "overlap_corrected_logit_mean",
+            "aggregation": "hierarchical_summary_head" if with_summary_head else "overlap_corrected_logit_mean",
             "max_length": 16,
             "overlap": 4,
         },
@@ -91,8 +106,8 @@ def _build_tiny_artifact(root: Path, *, hidden: int = 16, vocab_words: list[str]
                 "seed": 1,
                 "encoder": "seed-1/encoder.safetensors",
                 "encoder_sha256": _sha256(enc_path),
-                "summary_head": None,
-                "summary_head_sha256": None,
+                "summary_head": head_rel,
+                "summary_head_sha256": head_sha,
             }
         ],
         "calibration": {
@@ -130,6 +145,32 @@ def test_load_and_score(tmp_path):
     assert out["n_windows"] >= 1
     assert out["n_seeds"] == 1
     assert out["seed_probabilities"] and len(out["seed_probabilities"]) == 1
+
+
+def test_load_and_score_summary_head(tmp_path):
+    artifact = _build_tiny_artifact(tmp_path / "art", with_summary_head=True)
+    manager = NeuralModelManager(artifact_dir=str(artifact), device="cpu")
+    assert manager.available() is True
+    out = manager.score_text(_long_text())
+    assert 0.0 <= out["raw_participation"] <= 1.0
+    assert 0.0 <= out["calibrated_participation"] <= 1.0
+    assert out["n_seeds"] == 1
+    # Applicability diagnostic is present and well-formed.
+    app = out["applicability"]
+    assert 0.0 <= app["seed_std"]
+    assert 0.0 <= app["segment_std"]
+    assert app["in_calibration_range"] in (True, False)
+    assert isinstance(app["flags"], list)
+    assert "not proof" in app["note"]
+
+
+def test_applicability_diagnostic_present(tmp_path):
+    artifact = _build_tiny_artifact(tmp_path / "art")
+    manager = NeuralModelManager(artifact_dir=str(artifact), device="cpu")
+    out = manager.score_text(_long_text())
+    assert "applicability" in out
+    app = out["applicability"]
+    assert set(app) >= {"seed_std", "segment_std", "in_calibration_range", "flags", "note"}
 
 
 def test_hash_mismatch_raises(tmp_path):
