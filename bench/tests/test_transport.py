@@ -237,6 +237,20 @@ def _wrap_card(result: dict, schema: str, detector: str) -> dict:
     return card
 
 
+def _wrap_transport_card_v21(loco_result: dict, detector: str) -> dict:
+    """Wrap a LOCO result in the v2.1 representation-transport card structure."""
+    return {
+        "schema": "panoptes-representation-transport-v1",
+        "detector": detector,
+        "created_utc": "2026-08-19T00:00:00Z",
+        "cross_dataset_loco": loco_result,
+        "within_mage_loco": None,
+        "pooled_seen_cohort": {},
+        "external_targets": {},
+        "limitations": ["synthetic test card"],
+    }
+
+
 def test_representation_transport_card_schema_validates(tmp_path):
     import json
 
@@ -245,7 +259,7 @@ def test_representation_transport_card_schema_validates(tmp_path):
 
     ds = _synthetic_dataset()
     result = transport.leave_one_cohort_out(ds, "domain", _logistic, min_cohort=20, n_boot=20)
-    card = _wrap_card(result, "panoptes-representation-transport-v1", "logistic-tier0")
+    card = _wrap_transport_card_v21(result, "logistic-tier0")
     path = tmp_path / "representation-transport.json"
     path.write_text(json.dumps(sign(card)), encoding="utf-8")
     assert validate_file(path) == []
@@ -273,8 +287,8 @@ def test_representation_transport_card_rejects_bad_axis(tmp_path):
 
     ds = _synthetic_dataset()
     result = transport.leave_one_cohort_out(ds, "domain", _logistic, min_cohort=20, n_boot=20)
-    card = _wrap_card(result, "panoptes-representation-transport-v1", "logistic-tier0")
-    card["axis"] = "not-an-axis"
+    result["axis"] = "not-an-axis"
+    card = _wrap_transport_card_v21(result, "logistic-tier0")
     path = tmp_path / "bad.json"
     path.write_text(json.dumps(sign(card)), encoding="utf-8")
     assert validate_file(path) != []
