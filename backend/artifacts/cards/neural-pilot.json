@@ -1,0 +1,823 @@
+{
+  "artifact_sha256": "58fb5f218f31b71c31735e29a0475cf60ff751651c18e9b8d3f9092e7d1bccff",
+  "cohort": {
+    "dataset": "mage (Li et al. 2023, arXiv:2305.13242; Apache-2.0)",
+    "dev_rows_selected": 5001,
+    "dev_subsample": {
+      "max_rows": 5000,
+      "n_groups_selected": 4696,
+      "n_rows_selected": 5001,
+      "n_strata": 20,
+      "seed": 13,
+      "strata": [
+        "domain",
+        "label"
+      ],
+      "stratified": true
+    },
+    "train_rows_selected": 19999,
+    "train_subsample": {
+      "max_rows": 20000,
+      "n_groups_selected": 18454,
+      "n_rows_selected": 19999,
+      "n_strata": 20,
+      "seed": 13,
+      "strata": [
+        "domain",
+        "label"
+      ],
+      "stratified": true
+    }
+  },
+  "config": {
+    "batch_size": 16,
+    "dro_step_size": 0.05,
+    "grad_accum": 2,
+    "lr": 2e-05,
+    "max_epochs": 2,
+    "max_windows": 16,
+    "per_encoder_batch_tokens": "batch_size scaled by 512/max_length to normalize memory",
+    "precision": "fp32 master weights + bf16 autocast (fp32 loading fixes DeBERTa fp16-default NaN)"
+  },
+  "created_utc": "2026-08-19T18:40:59Z",
+  "data_firewall": "Pilot reads MAGE train (training) and valid (development) only. test/OOD/paraphrase are sealed and never loaded. Selection and early stopping use development metrics only.",
+  "environment": {
+    "cuda_device": "NVIDIA GeForce RTX 3090",
+    "cuda_version": "12.6",
+    "cudnn_benchmark": false,
+    "deterministic": "seeds set; cudnn.benchmark disabled; bf16 autocast",
+    "git": {
+      "commit": "b1f409ed2055b6932e29ff27e33c26ee3e985056",
+      "dirty": true
+    },
+    "numpy": "2.5.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "torch": "2.13.0+cu126",
+    "transformers": "5.15.0"
+  },
+  "limitations": [
+    "Pilot is train/development-only; final-test generalization is evaluated once in Phase 6 after freezing.",
+    "Pilot trains on MAGE only; the final model may add RAID clean under the derived-weight license gate.",
+    "Worst-cohort is per-domain on MAGE development; per-generator results are recorded per run.",
+    "A failed candidate is recorded, not retuned against test."
+  ],
+  "phase": "Phase 4: train/development-only architecture and objective pilot",
+  "runs": [
+    {
+      "aggregation": "overlap_corrected_logit_mean",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9722008525409893,
+        "brier": 0.20031962670540357,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9897394859442842,
+            "brier": 0.124003086190385,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9898357724342384,
+            "brier": 0.09887847873378185,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9706028898854011,
+            "brier": 0.031790566997927414,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9863020833333332,
+            "brier": 0.15786296994153248,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.983607305936073,
+            "brier": 0.2789319519445988,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9869604316546763,
+            "brier": 0.1358639381883469,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9743624281609196,
+            "brier": 0.3367351955309198,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9892747405646705,
+            "brier": 0.15145762044917402,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.914350821671694,
+            "brier": 0.4267250219964247,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9791330021744769,
+            "brier": 0.09874100551609981,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.914350821671694,
+        "worst_cohort_brier": 0.4267250219964247
+      },
+      "encoder": "deberta-v3-base",
+      "latency": {
+        "ms_per_doc": 8.14,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 3638.7,
+        "total_sec": 2.442,
+        "train_sec": 1160.6,
+        "windows_per_sec": 165.0
+      },
+      "objective": "erm",
+      "stage": "A_encoder",
+      "status": "ok",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "overlap_corrected_logit_mean",
+      "best_epoch": 1,
+      "dev": {
+        "auroc": 0.9716189929959338,
+        "brier": 0.0848911860809421,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9924016733749564,
+            "brier": 0.03429317842288581,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.984977177544586,
+            "brier": 0.044134753080139116,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9205281514698554,
+            "brier": 0.03416610237556292,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9634201388888889,
+            "brier": 0.13359243765660012,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9759969558599696,
+            "brier": 0.07200172357013046,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9661902057301527,
+            "brier": 0.07565892795496242,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9483207614942529,
+            "brier": 0.20105111379760307,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9972655419637854,
+            "brier": 0.020411822181108326,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9485198371491207,
+            "brier": 0.14404400155433408,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9657370279490095,
+            "brier": 0.08327024631251194,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.9205281514698554,
+        "worst_cohort_brier": 0.20105111379760307
+      },
+      "encoder": "modernbert-base",
+      "latency": {
+        "ms_per_doc": 10.67,
+        "n_docs": 300,
+        "n_windows": 313,
+        "peak_vram_mb": 1951.0,
+        "total_sec": 3.201,
+        "train_sec": 1436.2,
+        "windows_per_sec": 97.8
+      },
+      "objective": "erm",
+      "stage": "A_encoder",
+      "status": "ok",
+      "window": {
+        "max_length": 1024,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "overlap_corrected_logit_mean",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9770171877279137,
+        "brier": 0.19498959531697058,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9923382879599404,
+            "brier": 0.10549946750535469,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9883299609430145,
+            "brier": 0.10474092941964397,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9382162431489786,
+            "brier": 0.03207480690197739,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9775520833333333,
+            "brier": 0.1903736430130528,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9785312024353121,
+            "brier": 0.24710565985645808,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.97854348100467,
+            "brier": 0.16724656315527986,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9657956178160919,
+            "brier": 0.33684129212104696,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9940286393414112,
+            "brier": 0.11758209688022658,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9220524485321994,
+            "brier": 0.40640502373656245,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.980180341931494,
+            "brier": 0.1060906099074375,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.9220524485321994,
+        "worst_cohort_brier": 0.40640502373656245
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.09,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.228,
+        "train_sec": 598.2,
+        "windows_per_sec": 328.2
+      },
+      "objective": "erm",
+      "stage": "A_encoder",
+      "status": "ok",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "hierarchical_summary_head",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.987123278732154,
+        "brier": 0.058690488441407854,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9956739454251577,
+            "brier": 0.025784433767541973,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9941649804715071,
+            "brier": 0.02628870334568067,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.8918784255107125,
+            "brier": 0.025941274005132207,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9807291666666667,
+            "brier": 0.09129169332750098,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9879908675799087,
+            "brier": 0.05124627315445366,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9839233876057049,
+            "brier": 0.054870544225184885,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9762212643678161,
+            "brier": 0.10929974931149489,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9983767174908691,
+            "brier": 0.0202935703818459,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9658557088463631,
+            "brier": 0.11467635768647856,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.986115267221258,
+            "brier": 0.054673991363615074,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.8918784255107125,
+        "worst_cohort_brier": 0.11467635768647856
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.09,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.228,
+        "train_sec": 598.2,
+        "windows_per_sec": 328.2
+      },
+      "objective": "erm",
+      "stage": "B_objective_aggregation",
+      "status": "ok",
+      "summary_head": "trained_on_frozen_window_embeddings",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "overlap_corrected_logit_mean",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9775956885455238,
+        "brier": 0.24011343616140243,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9907853452920482,
+            "brier": 0.12865463584350711,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.982647875394099,
+            "brier": 0.17635774846239427,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9489287493771799,
+            "brier": 0.037062827604044404,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9872395833333333,
+            "brier": 0.1880353553071557,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.982427701674277,
+            "brier": 0.28439930844329,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9782752745172283,
+            "brier": 0.2630393663349004,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9781788793103446,
+            "brier": 0.3491997624827306,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9919898738091097,
+            "brier": 0.1640655420146525,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9239562214640097,
+            "brier": 0.4467682270011602,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9792626728110598,
+            "brier": 0.1950601546084318,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.9239562214640097,
+        "worst_cohort_brier": 0.4467682270011602
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.1,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.23,
+        "train_sec": 641.4,
+        "windows_per_sec": 327.7
+      },
+      "objective": "group_balanced",
+      "stage": "B_objective_aggregation",
+      "status": "ok",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "hierarchical_summary_head",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9872416338897518,
+        "brier": 0.08716363649264819,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9961017969765157,
+            "brier": 0.03098366408361555,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9908710178344549,
+            "brier": 0.04234197371405481,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9422022919780767,
+            "brier": 0.029589379517455446,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9834375000000001,
+            "brier": 0.12379234413217607,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9890106544901066,
+            "brier": 0.09477076033618127,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9836709579704658,
+            "brier": 0.09088888264081067,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9813757183908046,
+            "brier": 0.15124522976740318,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.9979998840512494,
+            "brier": 0.02664828354261813,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9665397484712126,
+            "brier": 0.1821264210573532,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9849382568276578,
+            "brier": 0.06610996661815291,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.9422022919780767,
+        "worst_cohort_brier": 0.1821264210573532
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.1,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.23,
+        "train_sec": 641.4,
+        "windows_per_sec": 327.7
+      },
+      "objective": "group_balanced",
+      "stage": "B_objective_aggregation",
+      "status": "ok",
+      "summary_head": "trained_on_frozen_window_embeddings",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "overlap_corrected_logit_mean",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9630624748895139,
+        "brier": 0.15198449107690956,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.98702975945235,
+            "brier": 0.07676568847278382,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9806538515834549,
+            "brier": 0.08346125584129414,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9055804683607375,
+            "brier": 0.027658288674088666,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9731944444444445,
+            "brier": 0.1401568797747893,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9669178082191782,
+            "brier": 0.1704955780615638,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9682333080903697,
+            "brier": 0.12612380176636606,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9402658045977011,
+            "brier": 0.27276857291294127,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.991516416410613,
+            "brier": 0.06945667570668787,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.8782450674974039,
+            "brier": 0.36837562886473596,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9802701139106669,
+            "brier": 0.06339680608950063,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.8782450674974039,
+        "worst_cohort_brier": 0.36837562886473596
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.1,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.231,
+        "train_sec": 634.3,
+        "windows_per_sec": 327.4
+      },
+      "objective": "group_dro",
+      "stage": "B_objective_aggregation",
+      "status": "ok",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    },
+    {
+      "aggregation": "hierarchical_summary_head",
+      "best_epoch": 2,
+      "dev": {
+        "auroc": 0.9827623709928782,
+        "brier": 0.0812093885315288,
+        "n": 5001,
+        "n_cohorts": 10,
+        "per_cohort": {
+          "cmv": {
+            "auroc": 0.9922669793680474,
+            "brier": 0.03828259909592734,
+            "n": 505
+          },
+          "eli5": {
+            "auroc": 0.9919415556914968,
+            "brier": 0.04126917834297059,
+            "n": 585
+          },
+          "hswag": {
+            "auroc": 0.9098156452416541,
+            "brier": 0.02636217525013957,
+            "n": 232
+          },
+          "roct": {
+            "auroc": 0.9809375,
+            "brier": 0.13329215316127568,
+            "n": 388
+          },
+          "sci": {
+            "auroc": 0.9865601217656013,
+            "brier": 0.06972422926808607,
+            "n": 517
+          },
+          "squad": {
+            "auroc": 0.9773128865328791,
+            "brier": 0.07759313921354107,
+            "n": 506
+          },
+          "tldr": {
+            "auroc": 0.9654094827586206,
+            "brier": 0.15294680268178673,
+            "n": 472
+          },
+          "wp": {
+            "auroc": 0.997825960925271,
+            "brier": 0.021077146124056076,
+            "n": 649
+          },
+          "xsum": {
+            "auroc": 0.9536831001005456,
+            "brier": 0.1757192149131278,
+            "n": 699
+          },
+          "yelp": {
+            "auroc": 0.9847188142119018,
+            "brier": 0.04645612765455985,
+            "n": 448
+          }
+        },
+        "prevalence": 0.5022995400919816,
+        "worst_cohort_auroc": 0.9098156452416541,
+        "worst_cohort_brier": 0.1757192149131278
+      },
+      "encoder": "deberta-v3-small",
+      "latency": {
+        "ms_per_doc": 4.1,
+        "n_docs": 300,
+        "n_windows": 403,
+        "peak_vram_mb": 2898.7,
+        "total_sec": 1.231,
+        "train_sec": 634.3,
+        "windows_per_sec": 327.4
+      },
+      "objective": "group_dro",
+      "stage": "B_objective_aggregation",
+      "status": "ok",
+      "summary_head": "trained_on_frozen_window_embeddings",
+      "window": {
+        "max_length": 512,
+        "overlap": 128
+      }
+    }
+  ],
+  "schema": "panoptes-neural-pilot-v1",
+  "seed": 13,
+  "selection_rule": "Lexicographic on development only: maximize worst-cohort (per-domain) AUROC, then minimize worst-cohort Brier, then minimize per-document latency. Stagewise: Stage A selects the encoder under (erm, logit_mean); Stage B compares objectives and aggregation on the winner. No final test informs any choice.",
+  "window_conditions": {
+    "deberta-v3-base": {
+      "max_length": 512,
+      "overlap": 128
+    },
+    "deberta-v3-small": {
+      "max_length": 512,
+      "overlap": 128
+    },
+    "modernbert-base": {
+      "max_length": 1024,
+      "overlap": 128
+    }
+  },
+  "winner": {
+    "aggregation": "hierarchical_summary_head",
+    "dev": {
+      "auroc": 0.9872416338897518,
+      "brier": 0.08716363649264819,
+      "n": 5001,
+      "n_cohorts": 10,
+      "per_cohort": {
+        "cmv": {
+          "auroc": 0.9961017969765157,
+          "brier": 0.03098366408361555,
+          "n": 505
+        },
+        "eli5": {
+          "auroc": 0.9908710178344549,
+          "brier": 0.04234197371405481,
+          "n": 585
+        },
+        "hswag": {
+          "auroc": 0.9422022919780767,
+          "brier": 0.029589379517455446,
+          "n": 232
+        },
+        "roct": {
+          "auroc": 0.9834375000000001,
+          "brier": 0.12379234413217607,
+          "n": 388
+        },
+        "sci": {
+          "auroc": 0.9890106544901066,
+          "brier": 0.09477076033618127,
+          "n": 517
+        },
+        "squad": {
+          "auroc": 0.9836709579704658,
+          "brier": 0.09088888264081067,
+          "n": 506
+        },
+        "tldr": {
+          "auroc": 0.9813757183908046,
+          "brier": 0.15124522976740318,
+          "n": 472
+        },
+        "wp": {
+          "auroc": 0.9979998840512494,
+          "brier": 0.02664828354261813,
+          "n": 649
+        },
+        "xsum": {
+          "auroc": 0.9665397484712126,
+          "brier": 0.1821264210573532,
+          "n": 699
+        },
+        "yelp": {
+          "auroc": 0.9849382568276578,
+          "brier": 0.06610996661815291,
+          "n": 448
+        }
+      },
+      "prevalence": 0.5022995400919816,
+      "worst_cohort_auroc": 0.9422022919780767,
+      "worst_cohort_brier": 0.1821264210573532
+    },
+    "encoder": "deberta-v3-small",
+    "latency": {
+      "ms_per_doc": 4.1,
+      "n_docs": 300,
+      "n_windows": 403,
+      "peak_vram_mb": 2898.7,
+      "total_sec": 1.23,
+      "train_sec": 641.4,
+      "windows_per_sec": 327.7
+    },
+    "objective": "group_balanced",
+    "window": {
+      "max_length": 512,
+      "overlap": 128
+    }
+  }
+}
