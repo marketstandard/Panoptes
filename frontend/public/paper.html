@@ -1098,7 +1098,269 @@
   and documented as run-only-repos-you-trust (with an optional network-disabled <span class="mono">--docker</span> mode);
   see <span class="mono">docs/testing-external-repos.md</span>.</p>
 
-  <h2>13. Independent reproduction</h2>
+  <h2>13. The v2.1 multi-dataset corpus and license-audited registry</h2>
+<p>The v2.0 corpus established the contribution and verification machinery but was too small to power the
+transportability claim. Version 2.1 expands the evidence base into a pooled, multi-dataset corpus assembled under an
+explicit license and derived-weight gate, and locks it in two machine-readable artifacts registered before any
+outcome-bearing run: a <em>dataset registry</em>
+(<span class="mono">research/dataset-registry-v2.1.json</span>) recording each cohort&rsquo;s role, license, task
+semantics, group unit, provenance, row count, and content hash, and a <em>split manifest</em>
+(<span class="mono">research/split-manifest-v2.1.json</span>) locking the train/calibration/test group assignments per
+cohort. The registry is the audit trail for the central data decision of v2.1: <strong>a cohort may train the public
+model only if its license permits redistribution of derived weights.</strong></p>
+
+<p><strong>The license gate partitions the corpus by role.</strong> Three cohorts pass the derived-weight gate and form
+the pooled public-weight training pool: <strong>MAGE</strong> [40] (Apache-2.0; multi-domain,
+multi-generator, with publisher train/validation/test/OOD identities preserved), <strong>RAID clean</strong> [10] (MIT;
+the <span class="mono">attack&nbsp;=&nbsp;none</span> arm only), and <strong>DeFactify</strong> [34] (CC-BY-4.0; NYT
+human articles versus six LLM families, re-split by reconstructed story group because the official splits are
+story-leaky). Cohorts whose licenses are unclear or non-redistributable are
+<em>evaluation-only</em> and never train the public weights: M4GT-Bench English and multilingual [44]
+(<span class="mono">NOASSERTION</span>), EvoBench [36] (<span class="mono">NOASSERTION</span>), and CoAuthor [41]
+(<span class="mono">NOASSERTION</span>, and a mixed human&ndash;AI task rather than a binary
+contrast). RAID&rsquo;s eleven attack arms and MAGE&rsquo;s OOD/paraphrase splits are held out as sealed robustness
+tests. Reference Community Corpus v0 (&sect;6) is retained as the contribution-framework reference, not a powered
+cohort.</p>
+
+<table>
+  <caption>Table 13 &mdash; The v2.1 dataset registry. Role is determined by the license/derived-weight gate:
+  derived-weight-licensed cohorts train the public model; unclear-license cohorts are evaluation-only. Group unit is
+  the leakage-disjointness unit enforced across train/calibration/test. Full hashes and per-row identifiers in
+  <span class="mono">research/dataset-registry-v2.1.json</span> and
+  <span class="mono">research/split-manifest-v2.1.json</span>.</caption>
+  <thead>
+    <tr><th>Cohort</th><th>Role</th><th>License</th><th>Group unit</th><th>n</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>MAGE train</td><td>training</td><td>Apache-2.0</td><td>near-duplicate cluster / aligned source pair</td><td>15,000</td></tr>
+    <tr><td>RAID clean</td><td>training</td><td>MIT</td><td>source (prompt &times; generator)</td><td>14,918</td></tr>
+    <tr><td>DeFactify</td><td>training</td><td>CC-BY-4.0</td><td>reconstructed NYT story</td><td>5,938</td></tr>
+    <tr><td>MAGE OOD / OOD-paraphrase</td><td>evaluation / robustness</td><td>Apache-2.0</td><td>near-duplicate cluster</td><td>1,518 / 2,340</td></tr>
+    <tr><td>RAID attacks (11 families)</td><td>robustness</td><td>MIT</td><td>source (prompt &times; generator)</td><td>&asymp;3,957 / family</td></tr>
+    <tr><td>M4GT English / multilingual</td><td>evaluation</td><td>NOASSERTION</td><td>source document</td><td>4,000 / 4,000</td></tr>
+    <tr><td>EvoBench</td><td>evaluation</td><td>NOASSERTION</td><td>prompt &times; family</td><td>4,000</td></tr>
+    <tr><td>CoAuthor (held-out authors)</td><td>mixed task</td><td>NOASSERTION</td><td>author (worker id)</td><td>236</td></tr>
+    <tr><td>Reference Community Corpus v0</td><td>reference</td><td>NOASSERTION</td><td>record id</td><td>104</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Leakage disjointness is enforced on the group unit, not the row.</strong> Each cohort declares the unit that
+must not straddle a split &mdash; a near-duplicate cluster or aligned human&ndash;machine source pair for MAGE, a
+prompt&times;generator source for RAID, a reconstructed story for DeFactify, an author for CoAuthor. The split manifest
+assigns every group to exactly one of train, calibration, or test, and a global exact-hash and MinHash near-duplicate
+index is built across all cohorts before assignment so that a near-duplicate of a training document cannot leak into a
+held-out cell. The calibration partition is group-disjoint from both the pooled training rows and the pilot&rsquo;s
+development subsample, so the calibrator never sees a group that informed model selection.</p>
+
+<p><strong>Task semantics are kept distinct per cohort.</strong> The pooled training cohorts are binary (human versus
+fully machine). CoAuthor is a <em>mixed</em> human&ndash;AI collaboration task: every session is co-written, so it is
+evaluated on the participation and contribution-fraction heads against held-out authors and is never treated as a
+binary fully-AI positive. M4GT multilingual is an external failure/abstention test for the English-scoped model, not
+training data. This per-cohort task typing is what allows the evidence ledger of &sect;4 to keep participation,
+generation, and contribution fraction as separate claims rather than collapsing them into one score.</p>
+
+
+<h2>14. A frozen hierarchical neural detector</h2>
+<p>The classical tiers of &sect;10 are interpretable and cheap, but they are not the strongest instrument the bench can
+build. Version 2.1 adds a preregistered neural detector whose architecture, objective, windowing, aggregation, seeds,
+and acceptance gates were frozen after a train/development-only pilot, before any final-test access. The pilot compared
+three encoders &mdash; <span class="mono">deberta-v3-base</span> [42] (stable primary),
+<span class="mono">ModernBERT-base</span> (long-context challenger), and <span class="mono">deberta-v3-small</span>
+(latency/CPU control) &mdash; under three objectives (ordinary ERM, group-balanced, and GroupDRO [43] over
+dataset&times;domain&times;generator&times;label groups) and two document aggregations (overlap-corrected logit mean
+versus a small hierarchical summary head). Selection was lexicographic on locked development criteria: maximize
+worst-cohort AUROC, then minimize worst-cohort Brier, then latency. The frozen winner is
+<strong>deberta-v3-small, group-balanced objective, hierarchical summary head, 512-token windows with 128-token
+overlap</strong>. Every pilot run, including failed candidates, is recorded in the signed selection card
+(<span class="mono">backend/artifacts/cards/neural-pilot.json</span>).</p>
+
+<p><strong>Architecture.</strong> A document is split into tokenizer-aligned, overlap-corrected windows of at most 512
+tokens (capped at 16 windows); each window is encoded once in a batched call, and a learned hierarchical summary head
+aggregates the window representations into a single participation logit. This windowed-aggregation design sits between
+two alternatives in the literature &mdash; long-context encoders that attend over the whole document in one pass
+(Longformer [45], BigBird [46]), and single-window classifiers that truncate to the opening tokens (the standard
+RoBERTa-MAGE baseline [47]) &mdash; preserving long-document evidence without sparse-attention memory cost, and the
+learned summary head outperformed overlap-corrected logit averaging in the pilot. The output ontology matches the protocol
+rather than forcing a binary score into a ternary response: a calibrated <em>participation</em> head estimates
+P(any substantial AI contribution), and the human / ai_refined_or_mixed / ai_generated distribution is constructed
+monotonically so that generation probability cannot exceed participation probability. Because the pooled training pool
+is binary, the majority-generation and contribution-fraction heads are external-evaluation-only outputs (&sect;15).</p>
+
+<p><strong>Training under the data firewall.</strong> The winner was trained with three seeds {13, 42, 87} on the pooled
+public-weight training pool (35,856 documents: MAGE 15,000, RAID clean 14,918, DeFactify 5,938), each seed using a
+group-disjoint inner-development split for early stopping, in mixed precision (fp32 master weights, bf16 autocast) on a
+single RTX&nbsp;3090 (&asymp;24&ndash;36&nbsp;min per seed). The isotonic calibrator, split-conformal thresholds, low-FPR
+operating points, and selective thresholds were then fit on a pooled calibration partition of 14,572 documents that is
+group-disjoint from both the pooled training rows and the pilot development subsample. No final-test label informed any
+choice. The three seeds agree closely (calibration AUROC 0.9903&ndash;0.9920; worst-cohort AUROC
+0.9823&ndash;0.9833), so the ensemble is the mean of three well-calibrated, mutually consistent scorers.</p>
+
+<table>
+  <caption>Table 14 &mdash; Frozen three-seed neural ensemble on the held-out pooled calibration partition
+  (n&nbsp;=&nbsp;14,572; 7,744 leakage groups). Uncertainty is a group bootstrap (1,000 resamples). The detector is the
+  participation head; in-domain calibration is strong, and split-conformal coverage is class-balanced &mdash; the
+  human-class coverage deficit of the v2.0 small-corpus calibrator does not appear here. Signed card:
+  <span class="mono">backend/artifacts/cards/neural-detector.json</span>.</caption>
+  <thead>
+    <tr><th>Quantity</th><th>Value</th><th>95% group-bootstrap CI</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Ensemble AUROC</td><td>0.9929</td><td>0.9916&ndash;0.9942</td></tr>
+    <tr><td>Worst-cohort AUROC</td><td>0.9854</td><td>&mdash;</td></tr>
+    <tr><td>Brier (calibrated)</td><td>0.0292</td><td>&mdash;</td></tr>
+    <tr><td>Worst-cohort Brier (calibrated)</td><td>0.0457</td><td>&mdash;</td></tr>
+    <tr><td>Adaptive ECE</td><td>0.0030</td><td>0.0017&ndash;0.0074</td></tr>
+    <tr><td>Split-conformal coverage (&alpha;&nbsp;=&nbsp;0.1)</td><td>0.900</td><td>by class: 0.900 / 0.900</td></tr>
+    <tr><td>Threshold at 1% / 0.1% FPR</td><td>0.947 / 0.984</td><td>&mdash;</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Runtime and fallbacks.</strong> The frozen ensemble ships as three seed checkpoints plus a shared
+architecture config, tokenizer, and a signed ensemble manifest that records every weight hash; a lazy, singleton,
+concurrency-safe model manager re-verifies each SHA-256 before loading, rebuilds the encoder offline from the local
+config (never re-downloading the base model), and batches each document&rsquo;s windows in one call. Runtime profiles
+degrade gracefully: the three-seed ensemble on GPU, a single-seed balanced profile, and a CPU/no-model fallback to the
+calibrated logistic tier and then the heuristic. Code and unsupported languages never route through the English prose
+model. A separate applicability diagnostic &mdash; built from calibration geometry and segment/seed disagreement &mdash;
+may trigger abstention but is reported as a descriptive signal, not as proof that all shifts are detectable. The weights
+are released publicly on Hugging Face only because the preregistered performance, calibration, latency, license, and
+reproducibility gates passed; had any gate failed, the logistic tier would have remained the default and the negative
+result would be reported here.</p>
+
+<p><strong>In-domain strength is not the thesis.</strong> Table&nbsp;14 is a strong in-domain calibration result, but it
+is measured on seen cohorts. The scientific question of this paper is whether that evidence <em>transports</em> to
+populations the detector never saw &mdash; which is exactly what &sect;15 measures by holding entire datasets out of
+both training and calibration.</p>
+
+<h2>15. Evidence transportability: representation, calibration, and pooled generalization</h2>
+<p>Sections 10&ndash;14 establish that the detectors are strong <em>in-domain</em>. This section asks the question the
+bench was rebuilt to answer: does the evidence <em>transport</em>? We preregistered three analyses that are easy to
+conflate but answer different questions, and we report them separately throughout. <strong>Representation
+transport</strong> (leave-one-cohort-out) trains a detector on every cohort except one, then evaluates on the held-out
+cohort the model never saw &mdash; this measures whether the learned representation generalizes across a distribution
+shift. <strong>Calibration transfer</strong> freezes the scorer and re-fits only the calibrator on each cohort in turn,
+measuring whether a probability that was calibrated on one population stays calibrated on another. <strong>Pooled
+generalization</strong> trains on the union of the licensed cohorts and evaluates once on a sealed, group-disjoint test
+partition. Every threshold, calibrator, and conformal level is fit on calibration partitions only; no final-test label
+sets any operating point. All four detector tiers &mdash; heuristic, logistic, GBM, and the frozen neural ensemble of
+&sect;14 &mdash; run the identical protocol through the same harness.</p>
+
+<p><strong>Representation transport is the hard case, and it is where classical detectors fail.</strong> Table&nbsp;15
+holds out each licensed dataset in turn. The pattern is consistent: a detector that is strong on its own cohorts loses
+a third to a half of its discrimination when an entire dataset is removed from training and calibration. The logistic
+tier, which achieves 0.91 AUROC on seen DeFactify text, drops to 0.60 when RAID is held out and 0.61 when MAGE is held
+out. GBM is the most robust classical tier but still falls to 0.62 on held-out DeFactify. The heuristic tier is
+essentially at chance on held-out MAGE (0.52). The neural ensemble &mdash; trained on the pooled pool with a
+group-balanced objective &mdash; transports markedly better, as the right column shows.</p>
+
+<table>
+  <caption>Table 15 &mdash; Cross-dataset leave-one-dataset-out representation transport (held-out-cohort AUROC). Each
+  cell trains on the other licensed cohorts and evaluates once on the sealed held-out cohort. <em>Mean</em> and
+  <em>worst</em> summarize over the three folds. The right column is the frozen neural ensemble retrained per fold
+  under the identical firewall. Signed cards:
+  <span class="mono">backend/artifacts/cards/transport-&lt;tier&gt;/representation-transport.json</span>.</caption>
+  <thead>
+    <tr><th>Held-out dataset</th><th>Heuristic</th><th>Logistic</th><th>GBM</th><th>Neural (&sect;14)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>MAGE</td><td>0.524</td><td>0.613</td><td>0.669</td><td>0.819</td></tr>
+    <tr><td>RAID clean</td><td>0.619</td><td>0.596</td><td>0.757</td><td>0.929</td></tr>
+    <tr><td>DeFactify</td><td>0.762</td><td>0.847</td><td>0.620</td><td>0.658</td></tr>
+    <tr><td><em>Mean</em></td><td><em>0.635</em></td><td><em>0.685</em></td><td><em>0.682</em></td><td><em>0.802</em></td></tr>
+    <tr><td><em>Worst</em></td><td><em>0.524</em></td><td><em>0.596</em></td><td><em>0.620</em></td><td><em>0.658</em></td></tr>
+  </tbody>
+</table>
+
+<p><strong>The transport gap is partly a shortcut, and we can measure that directly.</strong> A dataset-origin probe
+&mdash; a cross-validated classifier that predicts <em>which dataset</em> a document came from, using only the
+detector&rsquo;s input features and never the label &mdash; achieves 0.81 accuracy against a 0.33 chance baseline on
+the three-cohort axis, and 0.46 against 0.10 on the ten-domain MAGE axis. Dataset identity is therefore strongly
+readable from the feature space, which means part of every detector&rsquo;s in-domain strength is a dataset shortcut
+rather than a human-versus-machine signal. This is precisely the confound the leave-one-cohort-out design controls
+for: by removing an entire dataset from training, the shortcut becomes useless and the measured transport gap isolates
+the generalizable component. We report the probe alongside the transport numbers so the reader can see how much of the
+in-domain result is load-bearing.</p>
+
+<p><strong>Within-MAGE leave-one-domain-out is the strict version of the same question.</strong> Holding out each of
+MAGE&rsquo;s ten domains in turn (Table&nbsp;16) is harder than holding out a dataset, because the domains share a
+generator mix. GBM is the only classical tier that stays above 0.80 mean (0.81, worst domain 0.60 on HellaSwag); the
+logistic tier averages 0.64 and the heuristic tier 0.51, with several domains at or below chance. The hardest domain
+for every tier is HellaSwag sentence-completion, where the human and machine text are shortest and most
+stylistically similar. The neural tier is omitted from this table: a within-MAGE fold re-trains the encoder on nine
+domains, and ten such re-trainings were not preregistered, so we report the neural tier on the cross-dataset and
+external axes only rather than imply a number we did not measure.</p>
+
+<table>
+  <caption>Table 16 &mdash; Within-MAGE leave-one-domain-out (mean / worst AUROC over the ten domains) and pooled
+  seen-cohort generalization (sealed test AUROC, by cohort). The pooled rows are the one-shot sealed-test result for a
+  single model trained on all licensed cohorts; the LOCO rows are the harder cross-population case.</caption>
+  <thead>
+    <tr><th>Analysis</th><th>Heuristic</th><th>Logistic</th><th>GBM</th><th>Neural (&sect;14)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Within-MAGE LOCO (mean)</td><td>0.508</td><td>0.636</td><td>0.809</td><td>n/a</td></tr>
+    <tr><td>Within-MAGE LOCO (worst)</td><td>0.399</td><td>0.498</td><td>0.601</td><td>n/a</td></tr>
+    <tr><td>Pooled test &mdash; DeFactify</td><td>0.778</td><td>0.914</td><td>0.947</td><td>1.000</td></tr>
+    <tr><td>Pooled test &mdash; MAGE</td><td>0.490</td><td>0.609</td><td>0.834</td><td>0.984</td></tr>
+    <tr><td>Pooled test &mdash; RAID</td><td>0.629</td><td>0.734</td><td>0.940</td><td>0.988</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Calibration transfers better than representation, but not for free.</strong> Freezing each scorer and
+re-fitting only the isotonic calibrator on each cohort in turn yields the transfer matrix of
+<span class="mono">calibration-transfer.json</span>. For GBM the off-diagonal Brier score degrades only from 0.091
+(self-calibrated) to 0.096 (cross-calibrated), and the AUROC is unchanged to three decimals &mdash; the score
+<em>ranking</em> is stable across cohorts even when the absolute probabilities shift. The logistic and heuristic tiers
+degrade more (off-diagonal Brier 0.17 and 0.22 against on-diagonal 0.14 and 0.16). The practical reading: a detector
+that ranks well can be re-calibrated to a new population with a modest labelled sample, but the ranking itself must
+transport first, which is the harder problem of Table&nbsp;15.</p>
+
+<p><strong>External and adversarial targets are the honest stress test, and they invert the in-domain ranking in both
+directions.</strong> On sealed, never-trained targets the neural ensemble is the strongest tier almost everywhere:
+EvoBench 0.93, MAGE OOD 0.97, and &mdash; where the MAGE-and-RAID-trained logistic tier falls below chance (0.40)
+&mdash; M4GT-English 0.93. The neural tier is also the only one that is robust to paraphrase (0.98, versus 0.48&ndash;0.76
+for the classical tiers), the attack that the v2.0 study identified as the classical detectors&rsquo; principal weakness.
+But the same learned representation that confers paraphrase robustness is <em>more</em> vulnerable to a different attack
+family: on RAID&rsquo;s homoglyph substitution the neural ensemble collapses to 0.26 while the feature-based GBM tier is
+essentially unaffected (0.97), and on zero-width-space insertion every tier, neural included, falls below chance
+(0.12&ndash;0.36). Unicode-level perturbations that survive tokenization are the neural detector&rsquo;s blind spot;
+semantic perturbations are the classical detectors&rsquo;. These are not failures of the harness &mdash; they are the
+preregistered, sealed measurements of where each representation stops working, and they are exactly the populations a
+deployment would need to abstain on. The full per-target rows are in Table&nbsp;17.</p>
+
+<table>
+  <caption>Table 17 &mdash; Sealed external-target AUROC by tier (one-shot; no threshold or calibrator fit on these
+  labels). RAID rows are attack families applied to held-out machine text. Full per-target cards are in
+  <span class="mono">transport-&lt;tier&gt;/representation-transport.json</span>.</caption>
+  <thead>
+    <tr><th>External target</th><th>Heuristic</th><th>Logistic</th><th>GBM</th><th>Neural (&sect;14)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>EvoBench</td><td>0.722</td><td>0.818</td><td>0.934</td><td>0.933</td></tr>
+    <tr><td>M4GT English</td><td>0.631</td><td>0.404</td><td>0.805</td><td>0.927</td></tr>
+    <tr><td>M4GT multilingual</td><td>0.668</td><td>0.552</td><td>0.813</td><td>0.872</td></tr>
+    <tr><td>MAGE OOD</td><td>0.725</td><td>0.739</td><td>0.672</td><td>0.970</td></tr>
+    <tr><td>MAGE OOD paraphrase</td><td>0.699</td><td>0.718</td><td>0.631</td><td>0.970P</td></tr>
+    <tr><td>RAID paraphrase</td><td>0.555</td><td>0.484</td><td>0.759</td><td>0.982</td></tr>
+    <tr><td>RAID homoglyph</td><td>0.609</td><td>0.739</td><td>0.967</td><td>0.258</td></tr>
+    <tr><td>RAID zero-width-space</td><td>0.364</td><td>0.169</td><td>0.121</td><td>0.238</td></tr>
+    <tr><td>Reference Corpus v0</td><td>0.708</td><td>0.704</td><td>0.785</td><td>0.835</td></tr>
+  </tbody>
+</table>
+
+<p><strong>What the transport analysis establishes.</strong> Three claims survive the move to held-out populations.
+First, representation transport &mdash; not in-domain accuracy &mdash; is the binding constraint, and it separates the
+neural ensemble from every classical tier: the neural mean held-out AUROC is 0.802 against
+0.64&ndash;0.69 for the classical tiers, and its worst held-out cohort (0.658) is above every classical
+tier&rsquo;s mean. Second, calibration is cheaper to move than representation: the neural calibrator&rsquo;s
+off-diagonal Brier degrades only 0.024&rarr;0.028, so a detector whose ranking transports can be re-calibrated to a new
+cohort with far less data than it took to train. Third, the dataset-origin probe quantifies how much of any in-domain
+number is shortcut, which is why this paper reports leave-one-cohort-out &mdash; not pooled in-domain &mdash; as the
+headline transport result. The residual frontier is now Unicode-level adversarial perturbation (homoglyph,
+zero-width-space), where the neural representation is the <em>most</em> vulnerable tier, not paraphrase or held-out
+generators, on which it is the strongest. Section&nbsp;18 discusses these as limitations.</p>
+
+<h2>16. Independent reproduction</h2>
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
   self-check, not an outside reproduction. <span class="mono">python research/reproduce.py</span> re-hashes every
   signed artifact, re-verifies the baseline catalog, and writes
@@ -1109,7 +1371,7 @@
   headline metrics, and report absolute deltas. Until that is done, RQ4 is only partly answered: the artifacts
   are machine-checkable; they have not yet been checked by someone who did not produce them.</p>
 
-  <h2>14. What this gives the community</h2>
+  <h2>17. What this gives the community</h2>
   <p>The project&rsquo;s contribution is infrastructure for <em>evidence that compounds</em>. Concretely: (1)&nbsp;a
   canonical prompt set and hashing protocol under which anyone&rsquo;s run becomes permanently comparable to everyone
   else&rsquo;s; (2)&nbsp;a public catalog that stores cryptographic commitments instead of content, so contributing
@@ -1132,7 +1394,7 @@
   fallbacks, the bench runs on the shipped corpus or your own CSV, and the catalog verifies with one command and no
   account.</p>
 
-  <h2>15. Limitations, ethics, and responsible use</h2>
+  <h2>18. Limitations, ethics, and responsible use</h2>
   <p>Text-only attribution is fundamentally bounded. Detector likelihood ratios inherit the calibration and bias of the
   underlying models and degrade under paraphrase, translation, and heavy editing [11, 12]; the reliability error is
   reported precisely so that this degradation is visible. Watermark tests cover only known, configured schemes and only
@@ -1193,7 +1455,7 @@
   power gate and the pre-registered hypothesis registry are ethical as well as statistical devices: they make it
   structurally difficult for the project &mdash; or anyone building on it &mdash; to claim more than the data supports.</p>
 
-  <h2>16. Conclusion</h2>
+  <h2>19. Conclusion</h2>
   <p>Panoptes reframes AI-text attribution as a measurement and calibration problem rather than a detector leaderboard.
   The system reports prevalence-corrected likelihood ratios, declared priors, uncertainty, and abstention; it keeps
   participation, generation, and source-family attribution distinct; and it treats watermark tests and cryptographic
