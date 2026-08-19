@@ -464,6 +464,11 @@ def dataset_origin_probe(
     if len(cohorts) < 2:
         return {"axis": axis, "n_cohorts": len(cohorts), "note": "need >=2 cohorts for an origin probe"}
     X = dataset.features()
+    # Standardize so the multinomial probe converges; features are on mixed scales.
+    X = np.asarray(X, dtype=float)
+    mu = X.mean(axis=0)
+    sd = np.where(X.std(axis=0) == 0, 1.0, X.std(axis=0))
+    X = (X - mu) / sd
     y = np.array([cohorts.index(k) for k in keys], dtype=int)
     groups = np.array([str(g) for g in dataset.groups])
     n_groups = len(set(groups.tolist()))

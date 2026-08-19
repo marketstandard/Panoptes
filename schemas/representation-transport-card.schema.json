@@ -37,6 +37,15 @@
       "type": "object",
       "description": "Aggregate over evaluable target cells: n_evaluable_cells, worst/mean cohort AUROC and Brier."
     },
+    "pooled_seen_cohort": {
+      "type": "object",
+      "description": "Pooled production generalization block: seen-cohort holdout cells, the diagonal reference for LOCO deltas. Never labeled external."
+    },
+    "external_targets": {
+      "type": "object",
+      "description": "External (untouched, off-cohort) targets such as MAGE OOD / OOD-paraphrase, scored by a detector trained on the in-domain train partition.",
+      "additionalProperties": {"type": "object"}
+    },
     "dataset_origin_probe": {"type": "object"},
     "environment": {"type": "object"},
     "limitations": {"type": "array", "items": {"type": "string"}},
