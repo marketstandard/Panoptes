@@ -29,6 +29,12 @@ Research datasets:
 - MAGE (yaful/MAGE, Hugging Face; Li et al. 2023, arXiv:2305.13242): Apache 2.0. Panoptes fetches
   the five CSVs at a pinned revision locally only: raw text is never committed or redistributed —
   only SHA-256 hashes, row counts, and fitted parameters (datasets/manifests/mage.json).
+- CoAuthor (coauthor.stanford.edu; Lee et al. 2022, CHI, arXiv:2201.06796): publicly available for
+  research use; no explicit data license is declared (the replay-interface code is MIT; the paper is
+  ACM © 2022). Panoptes fetches the session zip and public metadata sheet locally only and replays
+  the keystroke deltas to reconstruct per-character authorship: raw text is never committed or
+  redistributed — only SHA-256 hashes, row counts, author-disjoint split assignments, and fitted
+  parameters (datasets/manifests/coauthor.json).
 
 External detector baseline weights (scored locally on frozen protocol splits; never redistributed):
 - Falcon-7B and Falcon-7B-Instruct (tiiuae, Hugging Face; Almazrouei et al. 2023): Apache 2.0.

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/coauthor-eval-card.schema.json",
+  "title": "Panoptes CoAuthor Contribution/Participation Evaluation Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "created_utc",
+    "seed",
+    "dataset",
+    "cohort_role",
+    "never_binary_fully_ai",
+    "fetch_manifest_sha256",
+    "reconstruction_validation",
+    "participation_threshold",
+    "detector_training",
+    "splits",
+    "span_provenance",
+    "detectors",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-coauthor-eval-v1"},
+    "created_utc": {"type": "string"},
+    "seed": {"type": "integer"},
+    "dataset": {"type": "string"},
+    "cohort_role": {"const": "mixed_task"},
+    "never_binary_fully_ai": {"const": true},
+    "fetch_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "reconstruction_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "pearson_r", "mae", "min_pearson_required"],
+      "properties": {
+        "n": {"type": "integer"},
+        "pearson_r": {"type": "number", "minimum": 0.95},
+        "mae": {"type": "number"},
+        "min_pearson_required": {"type": "number"}
+      }
+    },
+    "participation_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    "detector_training": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fit_cohort", "mage_train_used", "note"],
+      "properties": {
+        "fit_cohort": {"type": "string"},
+        "mage_train_used": {"type": "integer"},
+        "note": {"type": "string"}
+      }
+    },
+    "splits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "development", "calibration", "test", "n_workers_test"],
+      "properties": {
+        "train": {"type": "integer"},
+        "development": {"type": "integer"},
+        "calibration": {"type": "integer"},
+        "test": {"type": "integer"},
+        "n_workers_test": {"type": "integer"}
+      }
+    },
+    "span_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "test_ai_fraction_mean",
+        "test_ai_fraction_median",
+        "test_ai_fraction_std",
+        "cross_split_workers"
+      ],
+      "properties": {
+        "test_ai_fraction_mean": {"type": "number"},
+        "test_ai_fraction_median": {"type": "number"},
+        "test_ai_fraction_std": {"type": "number"},
+        "cross_split_workers": {"type": "integer", "maximum": 0}
+      }
+    },
+    "detectors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heuristic", "logistic"],
+      "properties": {
+        "heuristic": {"$ref": "#/$defs/detector_block"},
+        "logistic": {"$ref": "#/$defs/detector_block"}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "detector_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "n_calibration",
+        "n_test",
+        "contribution_estimation",
+        "participation_detection",
+        "score_summary"
+      ],
+      "properties": {
+        "n_calibration": {"type": "integer"},
+        "n_test": {"type": "integer"},
+        "contribution_estimation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "spearman",
+            "pearson",
+            "monotone_map_applied",
+            "mae",
+            "calibration_slope",
+            "calibration_intercept",
+            "baseline_mae_predict_calibration_mean"
+          ],
+          "properties": {
+            "spearman": {"type": ["number", "null"]},
+            "pearson": {"type": ["number", "null"]},
+            "monotone_map_applied": {"type": "boolean"},
+            "mae": {"type": "number"},
+            "calibration_slope": {"type": ["number", "null"]},
+            "calibration_intercept": {"type": ["number", "null"]},
+            "baseline_mae_predict_calibration_mean": {"type": "number"}
+          }
+        },
+        "participation_detection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["threshold", "test_prevalence_substantial", "auroc"],
+          "properties": {
+            "threshold": {"type": "number"},
+            "test_prevalence_substantial": {"type": "number"},
+            "auroc": {"type": ["number", "null"]}
+          }
+        },
+        "score_summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "test_score_mean",
+            "test_score_std",
+            "test_fraction_mean",
+            "test_fraction_std"
+          ],
+          "properties": {
+            "test_score_mean": {"type": "number"},
+            "test_score_std": {"type": "number"},
+            "test_fraction_mean": {"type": "number"},
+            "test_fraction_std": {"type": "number"}
+          }
+        }
+      }
+    }
+  }
+}

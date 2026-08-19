@@ -471,6 +471,68 @@ def load_evobench() -> Dataset:
     )
 
 
+COAUTHOR_SPLITS = ("train", "development", "calibration", "test")
+
+
+def load_coauthor(split: str = "test", max_rows: int | None = None, seed: int = 13) -> Dataset:
+    """Load an author-disjoint CoAuthor split with contribution-fraction ground truth.
+
+    CoAuthor (Lee et al. 2022) is a ``mixed_task`` cohort: every session is
+    human+GPT-3 collaborative, so ``label`` is 1 for every row and the dataset
+    is NEVER a binary fully-AI positive set. The real ground truth is
+    ``ai_contribution_fraction`` (ai_chars / (ai_chars + human_chars), prompt
+    excluded), stored per-row in ``meta`` and aligned with ``texts``. Groups and
+    authors are the Mechanical Turk ``worker_id``, so the four-way split is
+    author-disjoint by construction (a writer never crosses the firewall).
+    """
+    import pandas as pd
+
+    if split not in COAUTHOR_SPLITS:
+        raise DatasetError(f"unknown CoAuthor split {split!r}; expected one of {COAUTHOR_SPLITS}")
+    path = COAUTHOR_DIR / "coauthor.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_coauthor.py first")
+    frame = pd.read_parquet(path)
+    frame = frame.loc[frame["split"] == split].reset_index(drop=True)
+
+    rows_before = len(frame)
+    groups = frame["worker_id"].astype(str).tolist()
+    subsample = {"max_rows": None, "n_rows_selected": rows_before}
+    if max_rows is not None and rows_before > max_rows:
+        mask, subsample = _group_subsample_mask(groups, max_rows, seed)
+        frame = frame.loc[mask].reset_index(drop=True)
+        groups = frame["worker_id"].astype(str).tolist()
+
+    texts = frame["text"].tolist()
+    labels = np.array(frame["label"].tolist(), dtype=int)
+    prompts = frame["prompt_code"].astype(str).tolist()
+    meta = {
+        "split": split,
+        "cohort_role": "mixed_task",
+        "ai_contribution_fraction": [float(v) for v in frame["ai_contribution_fraction"].tolist()],
+        "human_chars": [int(v) for v in frame["human_chars"].tolist()],
+        "ai_chars": [int(v) for v in frame["ai_chars"].tolist()],
+        "prompt_chars": [int(v) for v in frame["prompt_chars"].tolist()],
+        "written_by_human_official": [float(v) for v in frame["written_by_human_official"].tolist()],
+        "rows_before_subsample": int(rows_before),
+        "subsample": subsample,
+        "fetch_manifest_sha256": _fetch_manifest_sha256(COAUTHOR_DIR),
+    }
+    return Dataset(
+        texts=texts,
+        labels=labels,
+        families=["gpt-3-assisted"] * len(texts),
+        kinds=["mixed_task"] * len(texts),
+        groups=groups,
+        buckets=[length_bucket(len(word_tokens(text))) for text in texts],
+        provenance=f"coauthor (Lee et al. 2022, arXiv:2201.06796; split={split}, author-disjoint, hash-pinned)",
+        sha256=_dataset_hash(texts, labels),
+        meta=meta,
+        authors=groups,
+        domains=prompts,
+    )
+
+
 MAGE_SPLITS = ("train", "valid", "test", "ood", "ood_para")
 
 

@@ -1,0 +1,92 @@
+{
+  "artifact_sha256": "380a245242f148f5238758ca7a58a87de54033c6d070e45adf3ebc183ea43a61",
+  "cohort_role": "mixed_task",
+  "created_utc": "2026-08-19T16:25:38Z",
+  "dataset": "coauthor (Lee et al. 2022, arXiv:2201.06796; NOASSERTION/research-use; author-disjoint)",
+  "detector_training": {
+    "fit_cohort": "mage train (human vs fully-AI; binary)",
+    "mage_train_used": 30000,
+    "note": "CoAuthor has no pure-human class, so binary detectors are fit on MAGE and transported to author-disjoint CoAuthor splits; CoAuthor itself is never fit."
+  },
+  "detectors": {
+    "heuristic": {
+      "contribution_estimation": {
+        "baseline_mae_predict_calibration_mean": 0.12645442766649548,
+        "calibration_intercept": 0.151981715377236,
+        "calibration_slope": 0.23559387631325332,
+        "mae": 0.12991678901642595,
+        "monotone_map_applied": true,
+        "pearson": 0.0028094125960048035,
+        "spearman": 0.011135052238127855
+      },
+      "n_calibration": 99,
+      "n_test": 236,
+      "participation_detection": {
+        "auroc": 0.4895089285714286,
+        "test_prevalence_substantial": 0.4067796610169492,
+        "threshold": 0.2
+      },
+      "score_summary": {
+        "test_fraction_mean": 0.208325813559322,
+        "test_fraction_std": 0.15084786198110442,
+        "test_score_mean": 0.6045543335363346,
+        "test_score_std": 0.040872246131192336
+      }
+    },
+    "logistic": {
+      "contribution_estimation": {
+        "baseline_mae_predict_calibration_mean": 0.12645442766649548,
+        "calibration_intercept": 0.4414530264091439,
+        "calibration_slope": -1.0019994075177994,
+        "mae": 0.12763257663392127,
+        "monotone_map_applied": true,
+        "pearson": -0.08956507109179332,
+        "spearman": -0.05712694478022794
+      },
+      "n_calibration": 99,
+      "n_test": 236,
+      "participation_detection": {
+        "auroc": 0.48005952380952377,
+        "test_prevalence_substantial": 0.4067796610169492,
+        "threshold": 0.2
+      },
+      "score_summary": {
+        "test_fraction_mean": 0.208325813559322,
+        "test_fraction_std": 0.15084786198110442,
+        "test_score_mean": 0.7462340625646247,
+        "test_score_std": 0.10640274255235754
+      }
+    }
+  },
+  "fetch_manifest_sha256": "2e81075d6055297f34799f57442108616d0442b2a703a77ddf968cd55f6e8447",
+  "limitations": [
+    "Every CoAuthor session is AI-assisted; there is no within-cohort human class, so binary human-vs-AI detection is not defined here.",
+    "Detectors are fit on MAGE (binary) and transported; CoAuthor is never used for fitting, only calibration-map fitting on its calibration split.",
+    "Contribution fraction is keystroke-derived (prompt excluded) and validated against the official written_by_human (see reconstruction_validation).",
+    "Only the 830 sessions with released author metadata are used, enabling author-disjoint splits; 617 sessions without worker ids are excluded.",
+    "A binary detector's score saturating near 1 on mixed text is an expected finding, not a bug: it measures presence, not degree."
+  ],
+  "never_binary_fully_ai": true,
+  "participation_threshold": 0.2,
+  "reconstruction_validation": {
+    "mae": 0.0161,
+    "min_pearson_required": 0.95,
+    "n": 830,
+    "pearson_r": 0.9918
+  },
+  "schema": "panoptes-coauthor-eval-v1",
+  "seed": 13,
+  "span_provenance": {
+    "cross_split_workers": 0,
+    "test_ai_fraction_mean": 0.208325813559322,
+    "test_ai_fraction_median": 0.17009649999999998,
+    "test_ai_fraction_std": 0.15084786198110442
+  },
+  "splits": {
+    "calibration": 99,
+    "development": 117,
+    "n_workers_test": 14,
+    "test": 236,
+    "train": 378
+  }
+}
