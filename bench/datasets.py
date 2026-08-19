@@ -350,6 +350,7 @@ def _group_subsample_mask(
 
 
 _RAID_FRAME_CACHE = None
+_RAID_FRAME_CACHE_DIR = None
 
 
 def _raid_frame():
@@ -357,16 +358,19 @@ def _raid_frame():
 
     The 4.3 GB parquet holds every attack arm; Phase 6 evaluates many attack
     cells, so reading it once and filtering per attack avoids repeated 12 GB
-    transient reads. The cached frame is never mutated (``.loc`` copies).
+    transient reads. The cached frame is never mutated (``.loc`` copies). The
+    cache is keyed on ``RAID_DIR`` so tests that monkeypatch the directory to a
+    missing path still exercise the not-found branch.
     """
-    global _RAID_FRAME_CACHE
-    if _RAID_FRAME_CACHE is None:
+    global _RAID_FRAME_CACHE, _RAID_FRAME_CACHE_DIR
+    if _RAID_FRAME_CACHE is None or _RAID_FRAME_CACHE_DIR != RAID_DIR:
         import pandas as pd
 
         path = RAID_DIR / "train-clean.parquet"
         if not path.exists():
             raise DatasetError(f"{path} missing; run python research/fetch_raid.py first")
         _RAID_FRAME_CACHE = pd.read_parquet(path)
+        _RAID_FRAME_CACHE_DIR = RAID_DIR
     return _RAID_FRAME_CACHE
 
 
