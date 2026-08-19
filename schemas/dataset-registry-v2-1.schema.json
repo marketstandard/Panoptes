@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/dataset-registry-v2-1.schema.json",
+  "title": "Panoptes Dataset Registry v2.1",
+  "description": "Machine-readable registry of every cohort, its role, license posture, provenance, and leakage-control group unit. Frozen after hygiene inspection, before training.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "registered_utc", "protocol_ref", "cohorts", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "panoptes-dataset-registry-v2-1"},
+    "registered_utc": {"type": "string"},
+    "protocol_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "artifact_sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "cohorts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role",
+          "kind",
+          "license_spdx",
+          "redistributable",
+          "derived_weights_permitted",
+          "task_semantics",
+          "group_unit",
+          "provenance",
+          "n_rows",
+          "content_sha256"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "role": {"enum": ["reference", "training", "evaluation", "robustness", "mixed_task"]},
+          "kind": {"enum": ["prose", "code", "mixed", "watermark"]},
+          "license_spdx": {"type": "string"},
+          "redistributable": {"type": "boolean"},
+          "derived_weights_permitted": {"type": "boolean"},
+          "task_semantics": {"enum": ["binary_ai", "participation", "contribution_fraction", "robustness_attack"]},
+          "group_unit": {"type": "string"},
+          "provenance": {"type": "string"},
+          "n_rows": {"type": "integer", "minimum": 0},
+          "content_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

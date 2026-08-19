@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/research-protocol-v2-1.schema.json",
+  "title": "Panoptes Research Protocol v2.1 Addendum",
+  "description": "Preregistered addendum for evidence transportability and the shipped neural detector. Committed before any outcome-bearing run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "registered_utc",
+    "title",
+    "extends",
+    "relationship_to_v1",
+    "thesis",
+    "label_ontology",
+    "cohort_roles",
+    "data_firewall",
+    "primary_endpoints",
+    "secondary_endpoints",
+    "candidate_grid",
+    "seeds",
+    "multiplicity",
+    "uncertainty",
+    "release_gate",
+    "what_not_to_claim"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-research-protocol-v2-1"},
+    "registered_utc": {"type": "string"},
+    "title": {"type": "string"},
+    "extends": {"type": "string"},
+    "relationship_to_v1": {"type": "string"},
+    "thesis": {"type": "string"},
+    "label_ontology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ai_participation",
+        "ai_majority_generation",
+        "ai_contribution_fraction",
+        "source_family",
+        "watermark",
+        "provenance",
+        "hard_rule"
+      ],
+      "properties": {
+        "ai_participation": {"type": "string"},
+        "ai_majority_generation": {"type": "string"},
+        "ai_contribution_fraction": {"type": "string"},
+        "source_family": {"type": "string"},
+        "watermark": {"type": "string"},
+        "provenance": {"type": "string"},
+        "hard_rule": {"type": "string"}
+      }
+    },
+    "cohort_roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "training", "evaluation", "robustness", "mixed_task"],
+      "properties": {
+        "reference": {"type": "string"},
+        "training": {"type": "string"},
+        "evaluation": {"type": "string"},
+        "robustness": {"type": "string"},
+        "mixed_task": {"type": "string"}
+      }
+    },
+    "data_firewall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nesting", "group_disjointness", "global_deduplication", "final_test_lock", "label_hiding"],
+      "properties": {
+        "nesting": {"type": "string"},
+        "group_disjointness": {"type": "string"},
+        "global_deduplication": {"type": "string"},
+        "final_test_lock": {"type": "string"},
+        "label_hiding": {"type": "string"}
+      }
+    },
+    "primary_endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "definition", "direction"],
+        "properties": {
+          "id": {"type": "string"},
+          "definition": {"type": "string"},
+          "direction": {"type": "string"}
+        }
+      }
+    },
+    "secondary_endpoints": {"type": "array", "items": {"type": "string"}},
+    "candidate_grid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["encoders", "objectives", "aggregation", "selection_rule", "selection_budget"],
+      "properties": {
+        "encoders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "hf", "role", "license", "native_window"],
+            "properties": {
+              "id": {"type": "string"},
+              "hf": {"type": "string"},
+              "role": {"type": "string"},
+              "license": {"type": "string"},
+              "native_window": {"type": "integer"},
+              "requires": {"type": "string"}
+            }
+          }
+        },
+        "objectives": {"type": "array", "items": {"type": "string"}},
+        "aggregation": {"type": "array", "items": {"type": "string"}},
+        "excluded_by_default": {"type": "array", "items": {"type": "string"}},
+        "selection_rule": {"type": "string"},
+        "selection_budget": {"type": "string"}
+      }
+    },
+    "seeds": {"type": "array", "items": {"type": "integer"}, "minItems": 1},
+    "multiplicity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["family", "comparisons"],
+      "properties": {
+        "family": {"type": "string"},
+        "comparisons": {"type": "string"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intervals", "conformal", "selective"],
+      "properties": {
+        "intervals": {"type": "string"},
+        "conformal": {"type": "string"},
+        "selective": {"type": "string"}
+      }
+    },
+    "release_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "gates"],
+      "properties": {
+        "description": {"type": "string"},
+        "gates": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "what_not_to_claim": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
