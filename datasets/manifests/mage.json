@@ -1,0 +1,67 @@
+{
+  "artifact_sha256": "9e75ec936200b9e412c6a07cda9c6e797860ab883138bd5f4e1d15909309acf8",
+  "content_hash": {
+    "algorithm": "sha256",
+    "value": "285210f2f79060b14bf9894ccc9073423b86482a264d6aa2725a9a2334a1c8e9"
+  },
+  "id": "mage",
+  "kind": "prose",
+  "labels": {
+    "schema": "binary_ai",
+    "values": [
+      "human",
+      "ai (27 generators, 3 prompt modes; OOD GPT-4 + paraphrase)"
+    ]
+  },
+  "license": {
+    "citation": "@inproceedings{li2023mage, title={MAGE: Machine-generated Text Detection in the Wild}, author={Li, Yafu and Li, Qintong and Cui, Leyang and others}, booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (ACL 2024)}, year={2024}, url={https://arxiv.org/abs/2305.13242}}",
+    "redistributable": true,
+    "spdx": "Apache-2.0"
+  },
+  "limitations": [
+    "OOD domains (cnn, dialogsum, imdb, pubmed) are disjoint from the 10 in-domain domains.",
+    "The paraphrase set labels machine-paraphrased human text as AI (machine-touched).",
+    "Generator tag 'gpt-3.5-trubo' is the upstream spelling (sic).",
+    "Near-duplicate clusters are approximate (MinHash-LSH, Jaccard ~0.42 threshold)."
+  ],
+  "notice_entry_required": true,
+  "privacy": {
+    "contains_pii_risk": "low",
+    "raw_text_in_repo": false,
+    "sanitization": "hashes-only"
+  },
+  "schema": "panoptes-dataset-manifest-v1",
+  "source": {
+    "access": "public",
+    "download_instructions": "Run `python research/fetch_mage.py`. The script downloads the five MAGE CSVs from Hugging Face dataset yaful/MAGE at pinned revision 342663f0a2b7, inverts labels to the project convention, applies documented hygiene filters, builds a near-duplicate leakage-control index, and stores clean parquets under datasets/local/mage/ (gitignored). Raw text is never committed.",
+    "url": "https://huggingface.co/datasets/yaful/MAGE",
+    "version": "pinned-revision 342663f0a2b7"
+  },
+  "splits": {
+    "calibration": {
+      "groups": [
+        "mage:<near-dup-cluster>"
+      ],
+      "n": 42728
+    },
+    "group_keys": [
+      "near_duplicate_cluster",
+      "domain",
+      "generator",
+      "prompt_mode"
+    ],
+    "test": {
+      "groups": [
+        "mage:<near-dup-cluster>"
+      ],
+      "n": 42863
+    },
+    "train": {
+      "groups": [
+        "mage:<near-dup-cluster>"
+      ],
+      "n": 248762
+    }
+  },
+  "title": "MAGE \u2014 Machine-generated Text Detection in the Wild (Li et al. 2023)"
+}

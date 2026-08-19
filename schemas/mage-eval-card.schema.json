@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/mage-eval-card.schema.json",
+  "title": "Panoptes MAGE Evaluation Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "created_utc",
+    "seed",
+    "dataset",
+    "fetch_manifest_sha256",
+    "splits",
+    "detectors",
+    "lofo",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-mage-eval-v1"},
+    "created_utc": {"type": "string"},
+    "seed": {"type": "integer"},
+    "dataset": {"type": "string"},
+    "fetch_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "splits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train_pool", "train_used", "calibration_used", "test", "ood", "ood_para"],
+      "properties": {
+        "train_pool": {"type": "integer"},
+        "train_used": {"type": "integer"},
+        "calibration_used": {"type": "integer"},
+        "test": {"type": "integer"},
+        "ood": {"type": "integer"},
+        "ood_para": {"type": "integer"}
+      }
+    },
+    "leakage_audit": {"type": "object"},
+    "near_duplicate_index": {"type": "object"},
+    "detectors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heuristic", "logistic"],
+      "properties": {
+        "heuristic": {"$ref": "#/$defs/detector_block"},
+        "logistic": {"$ref": "#/$defs/detector_block"}
+      }
+    },
+    "lofo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["detector", "n_generators_held_out", "mean_auroc", "min_auroc", "max_auroc", "per_generator"],
+      "properties": {
+        "detector": {"type": "string"},
+        "n_generators_held_out": {"type": "integer"},
+        "mean_auroc": {"type": ["number", "null"]},
+        "min_auroc": {"type": ["number", "null"]},
+        "max_auroc": {"type": ["number", "null"]},
+        "per_generator": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "detector_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["in_domain", "ood", "ood_para"],
+      "properties": {
+        "in_domain": {"type": "object"},
+        "ood": {"type": "object"},
+        "ood_para": {"type": "object"}
+      }
+    }
+  }
+}

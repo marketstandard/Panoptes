@@ -26,6 +26,9 @@ Research datasets:
   repository declares no license. Panoptes fetches the repository tarball at a pinned commit
   locally only: raw text is never committed or redistributed — only SHA-256 hashes, row counts,
   and fitted parameters (datasets/manifests/evobench.json).
+- MAGE (yaful/MAGE, Hugging Face; Li et al. 2023, arXiv:2305.13242): Apache 2.0. Panoptes fetches
+  the five CSVs at a pinned revision locally only: raw text is never committed or redistributed —
+  only SHA-256 hashes, row counts, and fitted parameters (datasets/manifests/mage.json).
 
 External detector baseline weights (scored locally on frozen protocol splits; never redistributed):
 - Falcon-7B and Falcon-7B-Instruct (tiiuae, Hugging Face; Almazrouei et al. 2023): Apache 2.0.

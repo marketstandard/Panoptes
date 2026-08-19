@@ -298,6 +298,49 @@ def cross_dataset_transport(
     }
 
 
+def fit_calibrate_score(
+    detector,
+    train_dataset: Dataset,
+    calibration_dataset: Dataset,
+    test_dataset: Dataset,
+) -> dict:
+    """Fit on an explicit train set, calibrate on an explicit calibration set,
+    and score an untouched test set.
+
+    This is the primitive for cohorts with publisher-defined partitions (MAGE,
+    CoAuthor): instead of re-splitting one dataset, the three partitions are
+    supplied directly. Calibration is fit on the calibration set only; the test
+    set is never used for fitting or tuning.
+    """
+    detector.fit(train_dataset, np.arange(len(train_dataset)))
+    raw_cal = detector.predict_proba(calibration_dataset, np.arange(len(calibration_dataset)))
+    calibrator = fit_isotonic(raw_cal, calibration_dataset.labels)
+    raw_test = detector.predict_proba(test_dataset, np.arange(len(test_dataset)))
+    if calibrator is None:
+        calibrated = np.clip(raw_test, 1e-6, 1 - 1e-6)
+        calibration_applied = False
+    else:
+        calibrated = np.clip(calibrator.predict(raw_test), 1e-6, 1 - 1e-6)
+        calibration_applied = True
+    y = test_dataset.labels
+    return {
+        "train_dataset": train_dataset.provenance,
+        "calibration_dataset": calibration_dataset.provenance,
+        "test_dataset": test_dataset.provenance,
+        "n_train": int(len(train_dataset)),
+        "n_calibration": int(len(calibration_dataset)),
+        "n_test": int(len(test_dataset)),
+        "calibration_applied": calibration_applied,
+        "detector": getattr(detector, "name", type(detector).__name__),
+        **binary_metrics(y, calibrated),
+        "selective_risk": selective_risk_curve(y, calibrated),
+        "conformal": conformal_sets(y, calibrated),
+        "raw_metrics": binary_metrics(y, np.clip(raw_test, 1e-6, 1 - 1e-6)),
+        "probabilities": calibrated,
+        "labels": y,
+    }
+
+
 def fairness_slices(dataset: Dataset, probabilities: np.ndarray) -> dict[str, list[dict]]:
     labels = dataset.labels
     slices: dict[str, list[dict]] = {"length_bucket": [], "kind": [], "family": []}

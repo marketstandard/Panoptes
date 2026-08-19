@@ -32,6 +32,8 @@ DEFACTIFY_DIR = ROOT / "datasets" / "local" / "defactify"
 RAID_DIR = ROOT / "datasets" / "local" / "raid"
 M4GT_DIR = ROOT / "datasets" / "local" / "m4gt"
 EVOBENCH_DIR = ROOT / "datasets" / "local" / "evobench"
+MAGE_DIR = ROOT / "datasets" / "local" / "mage"
+COAUTHOR_DIR = ROOT / "datasets" / "local" / "coauthor"
 
 _LABELS = {0: 0, 1: 1, "0": 0, "1": 1, "human": 0, "ai": 1}
 
@@ -466,6 +468,72 @@ def load_evobench() -> Dataset:
             "family_groups": sorted(frame["family_group"].astype(str).unique().tolist()),
         },
         domains=frame["domain"].astype(str).tolist(),
+    )
+
+
+MAGE_SPLITS = ("train", "valid", "test", "ood", "ood_para")
+
+
+def load_mage(
+    split: str = "test",
+    domains: tuple[str, ...] | None = None,
+    prompt_modes: tuple[str, ...] | None = None,
+    max_rows: int | None = None,
+    seed: int = 13,
+) -> Dataset:
+    """Load a hygiene-filtered MAGE split with near-duplicate leakage groups.
+
+    `split` is one of train/valid/test (in-domain, 10 domains, 27 generators),
+    `ood` (4 held-out domains, GPT-4), or `ood_para` (held-out domains plus a
+    paraphrase attack). Groups are MinHash-LSH near-duplicate clusters built
+    across all splits jointly, so a human source and its machine continuation
+    never cross partitions. `max_rows` subsamples whole groups deterministically.
+    """
+    import pandas as pd
+
+    if split not in MAGE_SPLITS:
+        raise DatasetError(f"unknown MAGE split {split!r}; expected one of {MAGE_SPLITS}")
+    path = MAGE_DIR / f"{split}-clean.parquet"
+    if not path.exists():
+        raise DatasetError(f"{path} missing; run python research/fetch_mage.py first")
+    frame = pd.read_parquet(path)
+
+    if domains is not None:
+        frame = frame.loc[frame["domain"].isin(list(domains))].reset_index(drop=True)
+    if prompt_modes is not None:
+        frame = frame.loc[frame["prompt_mode"].isin(list(prompt_modes))].reset_index(drop=True)
+
+    rows_before = len(frame)
+    groups = frame["group"].astype(str).tolist()
+    subsample = {"max_rows": None, "n_rows_selected": rows_before}
+    if max_rows is not None and rows_before > max_rows:
+        mask, subsample = _group_subsample_mask(groups, max_rows, seed)
+        frame = frame.loc[mask].reset_index(drop=True)
+        groups = frame["group"].astype(str).tolist()
+
+    texts = frame["text"].tolist()
+    labels = np.array(frame["label"].tolist(), dtype=int)
+    families = frame["family"].astype(str).tolist()
+    domains_list = frame["domain"].astype(str).tolist()
+    meta = {
+        "split": split,
+        "prompt_modes": sorted(frame["prompt_mode"].astype(str).unique().tolist()),
+        "paraphrased_rows": int(frame["paraphrased"].sum()),
+        "rows_before_subsample": int(rows_before),
+        "subsample": subsample,
+        "fetch_manifest_sha256": _fetch_manifest_sha256(MAGE_DIR),
+    }
+    return Dataset(
+        texts=texts,
+        labels=labels,
+        families=families,
+        kinds=["text"] * len(texts),
+        groups=groups,
+        buckets=[length_bucket(len(word_tokens(text))) for text in texts],
+        provenance=f"mage (Li et al. 2023, arXiv:2305.13242; split={split}, hygiene-filtered, hash-pinned)",
+        sha256=_dataset_hash(texts, labels),
+        meta=meta,
+        domains=domains_list,
     )
 
 
