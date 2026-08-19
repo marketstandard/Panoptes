@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/representation-transport-card.schema.json",
+  "title": "Panoptes Representation-Transport Card",
+  "description": "Signed leave-one-cohort-out representation-transport result: each cohort is held out of both training and calibration, the detector is trained on the remaining cohorts and calibrated on source-calibration only, then applied frozen to the untouched target cohort. Deltas are against the seen source diagonal.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "kind",
+    "axis",
+    "detector",
+    "created_utc",
+    "dataset",
+    "dataset_sha256",
+    "n_cohorts",
+    "cells",
+    "summary",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-representation-transport-v1"},
+    "kind": {"const": "representation_transport_loco"},
+    "axis": {"enum": ["domain", "generator", "domain_generator"]},
+    "detector": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "dataset": {"type": "string"},
+    "dataset_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "n_cohorts": {"type": "integer", "minimum": 1},
+    "cells": {
+      "type": "object",
+      "description": "Per-cohort LOCO cell. Each evaluable cell carries n_target, n_source_train, n_source_calibration, calibration_fit_on, a seen 'diagonal' metric block, an untouched 'target' metric block, and 'delta_from_diagonal'. Skipped cohorts carry {skipped, reason, n}.",
+      "additionalProperties": {"type": "object"}
+    },
+    "summary": {
+      "type": "object",
+      "description": "Aggregate over evaluable target cells: n_evaluable_cells, worst/mean cohort AUROC and Brier."
+    },
+    "dataset_origin_probe": {"type": "object"},
+    "environment": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

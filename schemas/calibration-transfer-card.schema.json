@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/calibration-transfer-card.schema.json",
+  "title": "Panoptes Calibration-Transfer Card",
+  "description": "Signed calibration-transfer matrix. One scorer is frozen after training on the global train partition; for each source cohort an isotonic calibrator is fit on that cohort's calibration partition only, then applied to every target cohort's untouched test partition. The diagonal is in-cohort calibration; off-diagonal cells isolate calibration portability from representation learning.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "kind",
+    "axis",
+    "detector",
+    "created_utc",
+    "dataset",
+    "dataset_sha256",
+    "n_train",
+    "n_calibration",
+    "n_test",
+    "cohorts",
+    "matrix",
+    "summary",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-calibration-transfer-v1"},
+    "kind": {"const": "calibration_transfer"},
+    "axis": {"enum": ["domain", "generator", "domain_generator"]},
+    "detector": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "dataset": {"type": "string"},
+    "dataset_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "n_train": {"type": "integer", "minimum": 0},
+    "n_calibration": {"type": "integer", "minimum": 0},
+    "n_test": {"type": "integer", "minimum": 0},
+    "cohorts": {"type": "array", "items": {"type": "string"}},
+    "matrix": {
+      "type": "object",
+      "description": "source cohort -> target cohort -> cell. Each cell carries source_cohort, target_cohort, on_diagonal, counts, prevalence, discrimination/calibration metrics, calibration-fixed operating points, conformal coverage, selective risk, and a group-bootstrap interval.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"type": "object"}
+      }
+    },
+    "delta_from_target_diagonal": {
+      "type": "object",
+      "description": "source cohort -> target cohort -> metric deltas relative to the target's own diagonal (in-cohort) cell."
+    },
+    "summary": {
+      "type": "object",
+      "description": "On- vs off-diagonal means and the calibration-transport AUROC gap."
+    },
+    "environment": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
