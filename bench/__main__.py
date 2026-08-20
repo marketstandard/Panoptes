@@ -117,7 +117,7 @@ def _corpus_created_utc(data_arg: str) -> str | None:
     declared time for the corpus, the fetch manifest's time for fetched
     benchmarks. User datasets keep the wall clock."""
     if data_arg == "corpus":
-        from research.baseline_corpus import run_manifests
+        from bench.baseline_corpus import run_manifests
 
         return max(manifest["created_utc"] for manifest in run_manifests())
     fetch_dirs = {
@@ -384,7 +384,7 @@ def cmd_evaluate_repo(args: argparse.Namespace) -> int:
         gen_path = CARDS_DIR / "watermarked-generations.json"
         if not gen_path.exists():
             raise CliError(
-                f"need {gen_path.relative_to(ROOT)}; run research/run_watermark_generation.py first"
+                f"need {gen_path.relative_to(ROOT)}; run python -m bench.run_watermark_generation first"
             )
         generations = json.loads(gen_path.read_text(encoding="utf-8"))
     if args.kind == "detector":

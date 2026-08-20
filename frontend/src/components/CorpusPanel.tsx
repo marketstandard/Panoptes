@@ -54,7 +54,7 @@ export function CorpusPanel() {
         />
       </h3>
       {!data ? (
-        <p className="figure-empty">Corpus summary artifact not found. Run python research/baseline_corpus.py.</p>
+        <p className="figure-empty">Corpus summary artifact not found. Run python -m bench.baseline_corpus.</p>
       ) : (
         <>
           <div className="stat-row">

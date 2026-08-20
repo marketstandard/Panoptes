@@ -48,12 +48,12 @@ npm --prefix frontend test
 Panoptes accepts marker/watermark evidence through signed pointer manifests and hashed artifacts, not raw third-party corpora.
 
 - Add a dataset pointer manifest under `datasets/manifests/` when introducing a new cohort.
-- Add contributor artifacts under `research/submissions/<contribution-id>/`.
+- Add contributor artifacts under `docs/reproductions/<contribution-id>/`.
 - Keep raw text out of git unless it is a tiny license-clear fixture under `fixtures/`.
 - Validate schemas and hashes with:
 
 ```bash
-python research/validate_submission.py path/to/artifact.json
+python -m bench.validate_submission path/to/artifact.json
 ```
 
 See `docs/contributing-markers.md` for the full workflow and acceptance checklist.

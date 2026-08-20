@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "aa337e01357ad761890804502251b1c666f47c150d4877793df43730cdfe93c3",
+  "artifact_sha256": "4c940771662294926fe20320c1cef409cba8d4346ff869c64cbf6ebf9ea62ed3",
   "binary_calibrator": {
     "x_thresholds": [
       0.4277230769230769,
@@ -93,7 +93,7 @@
   ],
   "repro": {
     "code_commit": "workspace",
-    "command": "python research/calibration.py",
+    "command": "python -m bench.calibration",
     "group_cv": "GroupKFold(n_splits=5, groups=prompt_id)",
     "seed": 13
   },

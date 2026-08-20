@@ -255,7 +255,7 @@ def test_representation_transport_card_schema_validates(tmp_path):
     import json
 
     from bench.cards import sign
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     ds = _synthetic_dataset()
     result = transport.leave_one_cohort_out(ds, "domain", _logistic, min_cohort=20, n_boot=20)
@@ -269,7 +269,7 @@ def test_calibration_transfer_card_schema_validates(tmp_path):
     import json
 
     from bench.cards import sign
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     ds = _synthetic_dataset()
     result = transport.calibration_transfer(ds, "domain", _logistic, min_cell=4, n_boot=20)
@@ -283,7 +283,7 @@ def test_representation_transport_card_rejects_bad_axis(tmp_path):
     import json
 
     from bench.cards import sign
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     ds = _synthetic_dataset()
     result = transport.leave_one_cohort_out(ds, "domain", _logistic, min_cohort=20, n_boot=20)

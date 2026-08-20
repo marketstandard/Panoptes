@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 
 from bench import mixtures, robustness  # noqa: E402
 from bench.tests.test_bench import tiny_dataset  # noqa: E402
-from research.reproduce import reproduce  # noqa: E402
+from bench.reproduce import reproduce  # noqa: E402
 
 
 def test_paper_is_v2_with_named_authors():
@@ -38,14 +38,13 @@ def test_citation_cff_lists_v2_authors():
     assert 'version: "2.1"' in citation
 
 
-def test_v2_updates_document_blocked_work():
-    docs = ROOT / "docs" / "v2-updates"
-    readme = (docs / "README.md").read_text(encoding="utf-8")
-    independent = (docs / "independent-reproduction.md").read_text(encoding="utf-8")
-    assert "500–2,000" in readme or "500-2,000" in readme or "500–2000" in readme
-    assert "RAID" in readme
+def test_independent_reproduction_template_exists():
+    independent = (ROOT / "docs" / "independent-reproduction.md").read_text(encoding="utf-8")
     assert "independent: false" in independent
     assert "0.686" in independent
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "Independent reproduction" in readme
+    assert "docs/independent-reproduction.md" in readme
 
 
 def test_mixture_workflows_all_run():
@@ -103,7 +102,7 @@ def test_reproduce_selfcheck_is_labeled_first_party():
 def test_measurement_card_exists_and_validates():
     path = ROOT / "backend" / "artifacts" / "cards" / "measurement-protocol.json"
     assert path.exists()
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     errors = validate_file(path)
     assert errors == []

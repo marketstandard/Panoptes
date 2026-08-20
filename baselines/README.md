@@ -61,7 +61,7 @@ Supports `openai` and `anthropic` providers (`--model-id` when the API id differ
 
 ## Finalize, anchor, share
 
-`finalize` writes `run.manifest.json` (`panoptes-baseline-run-v1`): model declaration, prompt-set hash, per-output SHA-256, a Merkle root over all outputs, and a canonical `artifact_sha256` of the manifest itself (same canonicalization as `research/validate_submission.py`).
+`finalize` writes `run.manifest.json` (`panoptes-baseline-run-v1`): model declaration, prompt-set hash, per-output SHA-256, a Merkle root over all outputs, and a canonical `artifact_sha256` of the manifest itself (same canonicalization as `bench/validate_submission.py`).
 
 **Optional blockchain anchor.** If you want a tamper-evident timestamp, install the OpenTimestamps client (`pip install opentimestamps-client`) and run `python baselines/baseline.py anchor --run <dir>`. The manifest hash is anchored to the Bitcoin blockchain; the `.ots` proof travels with the manifest. No custom chain, no cost, and the catalog works fine without it — git history is already an append-only ledger.
 
@@ -90,4 +90,4 @@ Be honest about what the ledger proves:
 - An OpenTimestamps proof establishes *when* a manifest existed and that it hasn't changed — nothing more.
 - Baselines exist to calibrate and audit Panoptes. They are not a model leaderboard and must not be used to rank, punish, or attribute authorship.
 
-Consistent, independent runs can later graduate into a `datasets/manifests/` pointer and feed `research/` calibration — see `docs/contributing-markers.md` and `docs/evaluation.md`.
+Consistent, independent runs can later graduate into a `datasets/manifests/` pointer and feed bench calibration — see `docs/contributing-markers.md` and `docs/evaluation.md`.

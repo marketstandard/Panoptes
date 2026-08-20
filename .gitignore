@@ -45,3 +45,6 @@ research/figures/paper-audit/
 
 datasets/local/
 
+# Local arXiv submission package (derived; not part of the public product repo)
+arxiv/
+

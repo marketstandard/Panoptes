@@ -30,7 +30,7 @@ Use this when you have trained or fitted a calibration bundle from a licensed da
 Create:
 
 ```text
-research/submissions/<contribution-id>/calibration-artifact.json
+docs/reproductions/<contribution-id>/calibration-artifact.json
 ```
 
 Validate against `schemas/calibration-artifact.schema.json`.
@@ -42,7 +42,7 @@ Use this when reporting benchmark metrics without adding a calibration bundle.
 Create:
 
 ```text
-research/submissions/<contribution-id>/benchmark-card.json
+docs/reproductions/<contribution-id>/benchmark-card.json
 ```
 
 Validate against `schemas/benchmark-card.schema.json`.
@@ -54,7 +54,7 @@ Use this when adding or updating a watermark adapter.
 Create:
 
 ```text
-research/submissions/<contribution-id>/watermark-eval-card.json
+docs/reproductions/<contribution-id>/watermark-eval-card.json
 ```
 
 Validate against `schemas/watermark-eval-card.schema.json`.
@@ -127,10 +127,10 @@ A watermark adapter must:
 From the repository root:
 
 ```bash
-python research/validate_submission.py \
+python -m bench.validate_submission \
   datasets/manifests/example.json \
-  research/submissions/example/calibration-artifact.json \
-  research/submissions/example/benchmark-card.json
+  docs/reproductions/example/calibration-artifact.json \
+  docs/reproductions/example/benchmark-card.json
 ```
 
 The validator checks:

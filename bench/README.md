@@ -43,7 +43,7 @@ Defactify_Text_Dataset; see below), or a path to your own CSV/JSONL.
 families. Fetch it first:
 
 ```bash
-python research/fetch_defactify.py
+python -m bench.fetch_defactify
 ```
 
 The fetcher downloads the three parquet splits from Hugging Face, verifies each against a pinned
@@ -106,6 +106,6 @@ All metrics are **out-of-fold** under `GroupKFold` by prompt group, so a topic n
 
 ## Panoptes-v0
 
-An evidential deep-learning detector (Dirichlet evidence head) that natively produces **vacuity** and **dissonance** uncertainty, driving the SUPPORTED/INSUFFICIENT evidence states. See `research/findings/panoptes-v0.md` for the full iteration log. Weights are local (`models/panoptes-v0/` and `models/panoptes-v0-defactify/`, gitignored); **open weights on Hugging Face are coming soon**.
+An evidential deep-learning detector (Dirichlet evidence head) that natively produces **vacuity** and **dissonance** uncertainty, driving the SUPPORTED/INSUFFICIENT evidence states. Weights are local (`models/panoptes-v0/` and `models/panoptes-v0-defactify/`, gitignored). The publicly released open-weights instrument is the v2.1 hierarchical neural ensemble on Hugging Face (`MarketStandard/panoptes-neural-v1`).
 
 On the Defactify bench the power gate passes (n=71,666 ≥ 3,140), so the character-sequence branch trains: out-of-fold AUROC 0.998 (95% CI 0.998–0.999), ECE 0.019 under story-grouped GroupKFold. The Defactify-trained card (`backend/artifacts/panoptes-v0-card.json`) also carries a `cross_domain` block (the Defactify ensemble scoring the 104-record project corpus) and a `corpus_trained` block preserving the previous sub-gate iteration for comparison.

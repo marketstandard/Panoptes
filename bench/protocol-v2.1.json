@@ -1,0 +1,152 @@
+{
+  "artifact_sha256": "0cef5dfddd45f5dce5e093c48df17415fc59d93980a8000971c33ea64a9d22b7",
+  "candidate_grid": {
+    "aggregation": [
+      "overlap_corrected_logit_mean",
+      "hierarchical_summary_head"
+    ],
+    "encoders": [
+      {
+        "hf": "microsoft/deberta-v3-base",
+        "id": "deberta-v3-base",
+        "license": "MIT",
+        "native_window": 512,
+        "role": "stable_primary"
+      },
+      {
+        "hf": "answerdotai/ModernBERT-base",
+        "id": "modernbert-base",
+        "license": "Apache-2.0",
+        "native_window": 8192,
+        "requires": "transformers>=4.48",
+        "role": "long_context_challenger"
+      },
+      {
+        "hf": "microsoft/deberta-v3-small",
+        "id": "deberta-v3-small",
+        "license": "MIT",
+        "native_window": 512,
+        "role": "latency_cpu_control"
+      }
+    ],
+    "excluded_by_default": [
+      "longformer-base-4096 (cost does not solve the existing windowing problem; revived only if the locked pilot shows a specific aggregation failure)"
+    ],
+    "objectives": [
+      "erm",
+      "group_balanced",
+      "group_dro"
+    ],
+    "selection_budget": "Fixed compute budget on the RTX 3090; every pilot run, including failures, is recorded in a signed selection card.",
+    "selection_rule": "Lexicographic on development only: maximize worst-cohort AUROC, then minimize worst-cohort Brier, then minimize latency/memory. No final test informs any choice."
+  },
+  "cohort_roles": {
+    "evaluation": "Untouched test cohorts. A cohort represented in pooled training is a seen-cohort holdout, never called external.",
+    "mixed_task": "CoAuthor: real human-AI collaboration with ground-truth contribution fraction. Author-disjoint; never treated as binary fully-AI positives.",
+    "reference": "Reference Community Corpus v0 (the 104-record verified corpus). A worked implementation of contribution, hashing, manifests, calibration, and power-gating. Infrastructure-load-bearing, not inference-load-bearing. Excluded from pooled neural training; used as a transport target and default calibration prior only.",
+    "robustness": "Attack and paraphrase cells (RAID attacks, MAGE OOD/paraphrase). Trained clean, scored attacked.",
+    "training": "Cohorts whose license permits model training and redistribution of derived weights, used in the pooled training pool and leave-one-cohort-out runs."
+  },
+  "data_firewall": {
+    "final_test_lock": "Final test labels are evaluated once, after the architecture, objective, hyperparameters, windowing, aggregation, seeds, calibrators, and acceptance gates are frozen and committed. A failed gate is reported; it never triggers test-driven retuning.",
+    "global_deduplication": "An exact-hash and near-duplicate cluster index spans every cohort before groups are assigned; aligned human/machine source pairs share a group.",
+    "group_disjointness": "All four partitions are disjoint on the leakage-control group (prompt/story/source/author/duplicate-cluster). Author and source/story disjointness are enforced when those fields exist.",
+    "label_hiding": "Final-test labels are not read by training, selection, calibration, or aggregation code paths.",
+    "nesting": "train -> development -> calibration -> test. Development (model/architecture/hyperparameter/aggregation selection) is disjoint from calibration (isotonic/conformal/threshold fitting), which is disjoint from test (one-shot final scoring)."
+  },
+  "extends": "bench/protocol.json (panoptes-research-protocol-v1, registered 2026-08-13)",
+  "label_ontology": {
+    "ai_contribution_fraction": "The real-valued share of the final text attributable to AI (0..1). Observable with ground truth only on CoAuthor; otherwise estimated.",
+    "ai_majority_generation": "P(the majority or entirety of the content was AI-generated | participation). Distinct from participation; a lightly AI-assisted human document has high participation but low majority-generation.",
+    "ai_participation": "P(any substantial AI contribution to the content). Population-conditional statistical evidence.",
+    "hard_rule": "These channels are never blended into a single score. Participation, majority-generation, and contribution-fraction are distinct targets and are never equated.",
+    "provenance": "Cryptographic/C2PA attestation. Population-independent but only as strong as the signing chain. Never inherits detector probability.",
+    "source_family": "Conditional similarity among supported generator families plus an explicit unknown/open-set score. Not exact model identity.",
+    "watermark": "Statistical evidence from an embedded scheme (e.g. KGW green-list, Unicode zero-width). A separate channel with its own power and multiplicity control."
+  },
+  "multiplicity": {
+    "comparisons": "Paired group bootstrap and DeLong/McNemar on identical test partitions for detector-vs-detector claims.",
+    "family": "Primary endpoints form one family; Benjamini-Hochberg at q<=0.05 within the family. Secondary endpoints are descriptive and not used for accept/reject claims."
+  },
+  "primary_endpoints": [
+    {
+      "definition": "Minimum AUROC across evaluation cohorts",
+      "direction": "higher_is_better",
+      "id": "worst_cohort_auroc"
+    },
+    {
+      "definition": "Brier score with group/author/story-bootstrap 95% CI",
+      "direction": "lower_is_better",
+      "id": "brier_group_bootstrap"
+    },
+    {
+      "definition": "Calibration slope with group-bootstrap 95% CI",
+      "direction": "closer_to_1_is_better",
+      "id": "calibration_slope"
+    },
+    {
+      "definition": "TPR at a 1% FPR threshold fixed on the calibration partition",
+      "direction": "higher_is_better",
+      "id": "tpr_at_1fpr_calfixed"
+    },
+    {
+      "definition": "Per-cell delta in ECE/Brier/AUROC/slope/selective-risk vs the source diagonal",
+      "direction": "smaller_magnitude_is_better",
+      "id": "calibration_transfer_delta"
+    },
+    {
+      "definition": "Selective risk at coverage thresholds fixed on the calibration partition",
+      "direction": "lower_is_better",
+      "id": "selective_risk_calfixed"
+    }
+  ],
+  "registered_utc": "2026-08-19T00:00:00Z",
+  "relationship_to_v1": "This addendum narrows and extends the frozen v1 protocol. Every v1 hard rule still applies: train, calibration, and test stay separate; calibration is never fit on the final test set; official publisher splits are audited and never used when they leak groups. v2.1 adds a four-way train/development/calibration/test nesting for the neural detector, a preregistered candidate-selection pilot, a one-shot final-test lock, and a gated public model release.",
+  "release_gate": {
+    "description": "The neural detector becomes the runtime default and its weights are published to Hugging Face only if every gate passes. Failure keeps the model experimental and the calibrated logistic tier as default; the negative result is reported.",
+    "gates": [
+      "performance: meets preregistered primary-endpoint thresholds on seen-cohort holdout",
+      "calibration: calibration slope and Brier within preregistered tolerance on held-out calibration and seen-cohort test",
+      "license: every training cohort passes the derived-weight redistribution audit",
+      "reproducibility: clean-clone recomputation reproduces metrics within tolerance",
+      "safety: no training on unclear-license cohorts; limitations documented",
+      "latency: meets the declared CPU/GPU latency budget for the shipped profile"
+    ]
+  },
+  "schema": "panoptes-research-protocol-v2-1",
+  "secondary_endpoints": [
+    "ece_adaptive",
+    "auprc",
+    "log_loss",
+    "tpr_at_0.1fpr",
+    "tpr_at_5fpr",
+    "attack_degradation",
+    "contribution_fraction_mae",
+    "contribution_fraction_spearman",
+    "contribution_fraction_calibration_slope",
+    "source_family_macro_f1",
+    "unknown_rejection_auroc"
+  ],
+  "seeds": [
+    13,
+    42,
+    87
+  ],
+  "thesis": "AI-text attribution is a measurement problem. The v2.1 claim is narrower and stronger than a detector benchmark: the evidential meaning of a score is a property of the calibration population, and that portability (or its collapse) is measurable. The neural detector is a strong, openly released instrument for that measurement and a useful shipped tier \u2014 not evidence that in-domain accuracy generalizes.",
+  "title": "Panoptes measurement protocol v2.1 \u2014 evidence transportability and a shipped neural detector",
+  "uncertainty": {
+    "conformal": "Split conformal: class-conditional nonconformity thresholds fit on the calibration partition, coverage/set-size evaluated on untouched test. Coverage is not guaranteed under distribution shift and is reported diagnostically across cohorts.",
+    "intervals": "Group/author/story bootstrap 95% CIs; never i.i.d. document bootstrap under grouped data.",
+    "selective": "Selective-prediction and low-FPR thresholds fixed on calibration; test-ranked curves are descriptive only."
+  },
+  "what_not_to_claim": [
+    "Panoptes is a highly accurate AI detector.",
+    "AI text is universally identifiable.",
+    "In-domain neural performance implies cross-domain transport.",
+    "Conformal coverage is guaranteed under distribution shift.",
+    "A negative watermark test is evidence of human authorship.",
+    "Valid provenance proves metaphysical authorship rather than a signing chain.",
+    "Source-family similarity is exact model identity.",
+    "A cohort in the pooled training set is an external evaluation."
+  ]
+}

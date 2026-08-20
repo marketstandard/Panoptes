@@ -1,7 +1,7 @@
 """Neural detector runtime: lazy, singleton, hash-verified ensemble loader.
 
 Protocol v2.1 Phase 5 production integration. The frozen three-seed neural
-detector trained by ``research/run_neural_final.py`` is served here as a
+detector trained by the private neural final runner is served here as a
 runtime tier with explicit fallbacks:
 
   - ``local-gpu`` / ``cloud-gpu``: full three-seed ensemble (when installed).

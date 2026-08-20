@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "9e75ec936200b9e412c6a07cda9c6e797860ab883138bd5f4e1d15909309acf8",
+  "artifact_sha256": "a9e3e823d9b288593ff0f84a413e3d4b3fe1d42c02a84f458eff9db180e6f16b",
   "content_hash": {
     "algorithm": "sha256",
     "value": "285210f2f79060b14bf9894ccc9073423b86482a264d6aa2725a9a2334a1c8e9"
@@ -33,7 +33,7 @@
   "schema": "panoptes-dataset-manifest-v1",
   "source": {
     "access": "public",
-    "download_instructions": "Run `python research/fetch_mage.py`. The script downloads the five MAGE CSVs from Hugging Face dataset yaful/MAGE at pinned revision 342663f0a2b7, inverts labels to the project convention, applies documented hygiene filters, builds a near-duplicate leakage-control index, and stores clean parquets under datasets/local/mage/ (gitignored). Raw text is never committed.",
+    "download_instructions": "Run `python -m bench.fetch_mage`. The script downloads the five MAGE CSVs from Hugging Face dataset yaful/MAGE at pinned revision 342663f0a2b7, inverts labels to the project convention, applies documented hygiene filters, builds a near-duplicate leakage-control index, and stores clean parquets under datasets/local/mage/ (gitignored). Raw text is never committed.",
     "url": "https://huggingface.co/datasets/yaful/MAGE",
     "version": "pinned-revision 342663f0a2b7"
   },

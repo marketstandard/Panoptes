@@ -1,6 +1,6 @@
 # Panoptes research protocol v2.1 (addendum)
 
-Registered 2026-08-19. Machine-readable, self-hashed copy: [`research/protocol-v2.1.json`](../research/protocol-v2.1.json). This addendum extends the frozen [v1 protocol](research-protocol.md) and is committed **before any outcome-bearing run** of the v2.1 experiments. Every v1 hard rule still applies.
+Registered 2026-08-19. Machine-readable, self-hashed copy: [`bench/protocol-v2.1.json`](../bench/protocol-v2.1.json). This addendum extends the frozen [v1 protocol](research-protocol.md) and is committed **before any outcome-bearing run** of the v2.1 experiments. Every v1 hard rule still applies.
 
 ## What changes in v2.1
 

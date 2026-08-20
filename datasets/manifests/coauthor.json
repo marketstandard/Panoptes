@@ -1,47 +1,11 @@
 {
-  "schema": "panoptes-dataset-manifest-v1",
-  "id": "coauthor",
-  "kind": "prose",
-  "title": "CoAuthor \u2014 Human+GPT-3 collaborative writing with keystroke provenance (Lee et al. 2022)",
-  "license": {
-    "spdx": "NOASSERTION",
-    "redistributable": false,
-    "citation": "@inproceedings{lee2022coauthor, title={CoAuthor: Designing a Human-AI Collaborative Writing Dataset for Exploring Language Model Capabilities}, author={Lee, Mina and Liang, Percy and Yang, Qian}, booktitle={CHI Conference on Human Factors in Computing Systems}, year={2022}, url={https://arxiv.org/abs/2201.06796}}"
-  },
-  "source": {
-    "url": "https://coauthor.stanford.edu",
-    "version": "v1.0 (2021 collection; metadata sheet pinned)",
-    "access": "public",
-    "download_instructions": "Run `python research/fetch_coauthor.py`. The script downloads the session zip from Google Drive and the public metadata sheet, replays each session's Quill deltas to reconstruct the final text plus a per-character authorship mask (prompt/user/api), validates the reconstruction against the official written_by_human (Pearson r >= 0.95), filters degenerate sessions, and locks author-disjoint (worker_id) train/development/calibration/test splits. Clean parquet + masks live under datasets/local/coauthor/ (gitignored). Raw text is never committed."
-  },
+  "artifact_sha256": "589a267820ce223bf7e959b4354e4f616c0a00ceef3b9c31a6107f2ca3987092",
   "content_hash": {
     "algorithm": "sha256",
     "value": "a39cb0c09fb2241e2f2f01e499dcf419ed6f04781aa701a6b16ac7e74aa48b61"
   },
-  "splits": {
-    "train": {
-      "groups": [
-        "coauthor:<worker_id>"
-      ],
-      "n": 378
-    },
-    "calibration": {
-      "groups": [
-        "coauthor:<worker_id>"
-      ],
-      "n": 99
-    },
-    "test": {
-      "groups": [
-        "coauthor:<worker_id>"
-      ],
-      "n": 236
-    },
-    "group_keys": [
-      "worker_id",
-      "prompt_code"
-    ]
-  },
+  "id": "coauthor",
+  "kind": "prose",
   "labels": {
     "schema": "binary_ai",
     "values": [
@@ -49,10 +13,10 @@
       "ground truth is ai_contribution_fraction in [0,1], prompt excluded"
     ]
   },
-  "privacy": {
-    "contains_pii_risk": "low",
-    "raw_text_in_repo": false,
-    "sanitization": "hashes-only"
+  "license": {
+    "citation": "@inproceedings{lee2022coauthor, title={CoAuthor: Designing a Human-AI Collaborative Writing Dataset for Exploring Language Model Capabilities}, author={Lee, Mina and Liang, Percy and Yang, Qian}, booktitle={CHI Conference on Human Factors in Computing Systems}, year={2022}, url={https://arxiv.org/abs/2201.06796}}",
+    "redistributable": false,
+    "spdx": "NOASSERTION"
   },
   "limitations": [
     "mixed_task cohort: every session used GPT-3, so CoAuthor is NEVER a binary fully-AI positive set.",
@@ -62,5 +26,41 @@
     "GPT-3 suggestions are text-davinci-002 era (2021); contribution fractions reflect that generator."
   ],
   "notice_entry_required": true,
-  "artifact_sha256": "45d5596094eaef812ff1582a0da29f98ddbe5fe6c761c21e36bf2daff6e4c6f1"
+  "privacy": {
+    "contains_pii_risk": "low",
+    "raw_text_in_repo": false,
+    "sanitization": "hashes-only"
+  },
+  "schema": "panoptes-dataset-manifest-v1",
+  "source": {
+    "access": "public",
+    "download_instructions": "Run `python -m bench.fetch_coauthor`. The script downloads the session zip from Google Drive and the public metadata sheet, replays each session's Quill deltas to reconstruct the final text plus a per-character authorship mask (prompt/user/api), validates the reconstruction against the official written_by_human (Pearson r >= 0.95), filters degenerate sessions, and locks author-disjoint (worker_id) train/development/calibration/test splits. Clean parquet + masks live under datasets/local/coauthor/ (gitignored). Raw text is never committed.",
+    "url": "https://coauthor.stanford.edu",
+    "version": "v1.0 (2021 collection; metadata sheet pinned)"
+  },
+  "splits": {
+    "calibration": {
+      "groups": [
+        "coauthor:<worker_id>"
+      ],
+      "n": 99
+    },
+    "group_keys": [
+      "worker_id",
+      "prompt_code"
+    ],
+    "test": {
+      "groups": [
+        "coauthor:<worker_id>"
+      ],
+      "n": 236
+    },
+    "train": {
+      "groups": [
+        "coauthor:<worker_id>"
+      ],
+      "n": 378
+    }
+  },
+  "title": "CoAuthor \u2014 Human+GPT-3 collaborative writing with keystroke provenance (Lee et al. 2022)"
 }

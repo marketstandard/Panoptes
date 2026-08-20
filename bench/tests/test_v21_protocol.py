@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from research.protocol import (  # noqa: E402
+from bench.protocol import (  # noqa: E402
     PROTOCOL_V21_SEEDS,
     canonical_hash,
     load_protocol_v21,

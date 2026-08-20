@@ -196,7 +196,7 @@ def test_load_evobench_missing_raises(tmp_path, monkeypatch):
 
 
 def test_fetch_m4gt_clean_split_filters(tmp_path):
-    from research import fetch_m4gt
+    from bench import fetch_m4gt
 
     raw = tmp_path / "SubtaskA.jsonl"
     lines = [
@@ -222,7 +222,7 @@ def test_fetch_m4gt_clean_split_filters(tmp_path):
 
 
 def test_fetch_raid_clean_split_filters(tmp_path):
-    from research import fetch_raid
+    from bench import fetch_raid
 
     raw = tmp_path / "train.csv"
     frame = pd.DataFrame(
@@ -252,7 +252,7 @@ def test_fetch_raid_clean_split_filters(tmp_path):
 
 
 def test_fetch_evobench_clean_groups_pairs_by_human_original(tmp_path):
-    from research import fetch_evobench
+    from bench import fetch_evobench
 
     payload_a = {
         "original": [_long_text("shared original"), _long_text("second original")],

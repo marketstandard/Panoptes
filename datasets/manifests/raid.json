@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "d605370ae49bdc2cecbac5877ef537f9834302b322fcf62dc3d1cc7d3bf12d05",
+  "artifact_sha256": "cabc581a5ce4b98e255bf0076e4f09f0a01f031dc9fd279b7753e9cb848cd585",
   "content_hash": {
     "algorithm": "sha256",
     "value": "6548cca937fb55c3d85dfacb494715e7c7586f3804f019798b70abd957ed4f45"
@@ -32,7 +32,7 @@
   "schema": "panoptes-dataset-manifest-v1",
   "source": {
     "access": "public",
-    "download_instructions": "Run `python research/fetch_raid.py`. The script downloads the labeled train.csv from Hugging Face, verifies it against the pinned SHA-256 hash, applies documented hygiene filters, and stores a clean parquet under datasets/local/raid/ (gitignored). Raw text is never committed to this repository.",
+    "download_instructions": "Run `python -m bench.fetch_raid`. The script downloads the labeled train.csv from Hugging Face, verifies it against the pinned SHA-256 hash, applies documented hygiene filters, and stores a clean parquet under datasets/local/raid/ (gitignored). Raw text is never committed to this repository.",
     "url": "https://huggingface.co/datasets/liamdugan/raid",
     "version": "pinned-sha256 train:52f04ceebc12"
   },

@@ -21,7 +21,7 @@ if str(ROOT) not in sys.path:
 
 from bench import datasets  # noqa: E402
 from bench.near_dup import near_duplicate_clusters  # noqa: E402
-from research.fetch_mage import parse_src  # noqa: E402
+from bench.fetch_mage import parse_src  # noqa: E402
 
 pd = pytest.importorskip("pandas", reason="MAGE loader requires pandas/pyarrow")
 
@@ -164,8 +164,8 @@ def test_load_mage_rejects_unknown_split(tmp_path, monkeypatch):
 def test_mage_pointer_manifest_validates():
     pointer = ROOT / "datasets" / "manifests" / "mage.json"
     if not pointer.exists():
-        pytest.skip("MAGE not fetched; run python research/fetch_mage.py")
-    from research.validate_submission import validate_file
+        pytest.skip("MAGE not fetched; run python -m bench.fetch_mage")
+    from bench.validate_submission import validate_file
 
     assert validate_file(pointer) == []
     payload = json.loads(pointer.read_text(encoding="utf-8"))

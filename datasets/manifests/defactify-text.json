@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "35de19800a5ac81a002475da9b64930de95b74c465b4680165fa6884dfdafccc",
+  "artifact_sha256": "5e5df02350eb6d37edd658e0c87dd590b8c4f65f2b6180a605063d2741a78b28",
   "content_hash": {
     "algorithm": "sha256",
     "value": "78f15eeec07301f49b3c1283d4f8ba42b64f2830be2f24cea6c00ad0a721056f"
@@ -33,7 +33,7 @@
   "schema": "panoptes-dataset-manifest-v1",
   "source": {
     "access": "public",
-    "download_instructions": "Run `python research/fetch_defactify.py`. The script downloads the three parquet splits from Hugging Face, verifies them against pinned SHA-256 hashes, applies documented hygiene filters, and stores clean parquet files under datasets/local/defactify/ (gitignored). Raw text is never committed to this repository.",
+    "download_instructions": "Run `python -m bench.fetch_defactify`. The script downloads the three parquet splits from Hugging Face, verifies them against pinned SHA-256 hashes, applies documented hygiene filters, and stores clean parquet files under datasets/local/defactify/ (gitignored). Raw text is never committed to this repository.",
     "url": "https://huggingface.co/datasets/Rajarshi-Roy-research/Defactify_Text_Dataset",
     "version": "pinned-sha256 train:9820a98d995f validation:9dc5a986d8ef test:253f8fb9e049"
   },

@@ -1,5 +1,5 @@
 """Load and validate the signed calibration artifact produced from the
-hash-verified baseline corpus (research/calibration.py).
+hash-verified baseline corpus (the private calibration runner).
 
 The runtime treats the artifact as *calibration infrastructure*: it
 supplies held-out reliability metrics, the isotonic calibrator, and the

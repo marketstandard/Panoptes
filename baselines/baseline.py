@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROMPTS_MANIFEST = ROOT / "baselines" / "prompts" / "prompts.manifest.json"
-VALIDATOR = ROOT / "research" / "validate_submission.py"
+VALIDATOR = ROOT / "bench" / "validate_submission.py"
 RUNS = ROOT / "baselines" / "runs"
 REFERENCE = ROOT / "baselines" / "reference"
 CATALOG = ROOT / "baselines" / "catalog"
@@ -50,7 +50,7 @@ def utc_now() -> str:
 
 
 def canonical_hash(payload: dict) -> str:
-    """Canonical SHA-256, identical to research/validate_submission.py."""
+    """Canonical SHA-256, identical to bench/validate_submission.py."""
     clone = dict(payload)
     clone.pop("artifact_sha256", None)
     canonical = json.dumps(clone, sort_keys=True, separators=(",", ":")).encode("utf-8")

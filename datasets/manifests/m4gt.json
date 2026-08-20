@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "6f18e0db36bba195c490795b991f3e6195a5d70665038afd492a315704182bf3",
+  "artifact_sha256": "34e1583cb614f505e33fead15ab816204f013c49666090ce3cdc2f2b589eb8c5",
   "content_hash": {
     "algorithm": "sha256",
     "value": "2c692b2754adaa8ed0f0eacea61e23b51d38591d5c8fa838c4d18126413fc43f"
@@ -32,7 +32,7 @@
   "schema": "panoptes-dataset-manifest-v1",
   "source": {
     "access": "public",
-    "download_instructions": "Run `python research/fetch_m4gt.py`. The script downloads SubtaskA.jsonl and SubtaskA_multilingual.jsonl from the authors' Google Drive folder (confirm-form handled), verifies them against pinned SHA-256 hashes, applies documented hygiene filters, and stores clean parquet files under datasets/local/m4gt/ (gitignored). Raw text is never committed to this repository.",
+    "download_instructions": "Run `python -m bench.fetch_m4gt`. The script downloads SubtaskA.jsonl and SubtaskA_multilingual.jsonl from the authors' Google Drive folder (confirm-form handled), verifies them against pinned SHA-256 hashes, applies documented hygiene filters, and stores clean parquet files under datasets/local/m4gt/ (gitignored). Raw text is never committed to this repository.",
     "url": "https://github.com/mbzuai-nlp/M4GT-Bench",
     "version": "pinned-sha256 subtask_a:fbc0dbbb4045 multilingual:bbace883094c"
   },

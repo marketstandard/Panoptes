@@ -50,7 +50,7 @@ except ImportError:  # pragma: no cover - exercised on machines without torch
 WEIGHTS_DIR = ROOT / "models" / "panoptes-v0"
 DEFACTIFY_WEIGHTS_DIR = ROOT / "models" / "panoptes-v0-defactify"
 CARD_PATH = ROOT / "backend" / "artifacts" / "panoptes-v0-card.json"
-FINDINGS_LOG = ROOT / "research" / "findings" / "panoptes-v0.md"
+FINDINGS_LOG = ROOT / "bench" / "findings" / "panoptes-v0.md"
 
 SEEDS = (13, 42, 87)
 FEATURE_DIM = len(FEATURE_NAMES)
@@ -367,7 +367,7 @@ def train_cv(dataset, seeds: tuple[int, ...] = SEEDS, use_sequence: bool = False
 
 def calibration_slope(y: np.ndarray, p: np.ndarray) -> dict:
     """Logistic recalibration diagnostic: ideal is intercept 0, slope 1."""
-    from research.methodology import logistic_irls
+    from bench.methodology import logistic_irls
 
     logit = np.log(np.clip(p, 1e-6, 1 - 1e-6) / (1 - np.clip(p, 1e-6, 1 - 1e-6)))
     fit = logistic_irls(logit.reshape(-1, 1), y.astype(float))
@@ -383,7 +383,7 @@ def comparison_battery(dataset, v0_oof: np.ndarray) -> dict:
     """
     from bench import evaluate, models
     from bench.features import heuristic_raw_score
-    from research.methodology import (
+    from bench.methodology import (
         benjamini_hochberg,
         delong_test,
         durbin_watson,

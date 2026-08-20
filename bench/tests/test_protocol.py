@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 from bench import detectors, evaluate, evidence, mixtures, splits  # noqa: E402
 from bench.datasets import Dataset  # noqa: E402
 from bench.tests.test_bench import tiny_dataset  # noqa: E402
-from research.protocol import validate_protocol  # noqa: E402
+from bench.protocol import validate_protocol  # noqa: E402
 
 
 def test_protocol_document_validates():

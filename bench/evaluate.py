@@ -14,7 +14,7 @@ from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_s
 
 from bench import validity
 from bench.datasets import Dataset, grouped_splits
-from research.protocol import COVERAGE_LEVELS
+from bench.protocol import COVERAGE_LEVELS
 
 SEED = 13
 
@@ -92,7 +92,7 @@ def calibration_slope_intercept(labels: np.ndarray, probabilities: np.ndarray) -
     Perfect calibration has slope 1 and intercept 0. Slope < 1 is
     overconfidence; intercept ≠ 0 is a systematic shift.
     """
-    from research.methodology import logistic_irls
+    from bench.methodology import logistic_irls
 
     p = np.clip(np.asarray(probabilities, dtype=float), 1e-6, 1 - 1e-6)
     y = np.asarray(labels, dtype=float)

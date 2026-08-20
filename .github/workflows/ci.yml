@@ -25,12 +25,12 @@ jobs:
       - name: Test bench and research protocol
         run: |
           python -m pip install pandas pyarrow
-          python -m pytest bench/tests research/tests
+          python -m pytest bench/tests
       - name: Validate baseline artifacts and catalog
         run: |
-          python research/validate_submission.py baselines/prompts/prompts.manifest.json research/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
+          python -m bench.validate_submission baselines/prompts/prompts.manifest.json bench/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
           python baselines/baseline.py verify-catalog
-          python research/reproduce.py
+          python -m bench.reproduce
       - name: Test baselines tooling
         run: python -m pytest baselines/tests
 

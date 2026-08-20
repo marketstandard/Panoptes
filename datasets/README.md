@@ -20,7 +20,7 @@ Pointer manifests for these should be added when hashes and access instructions 
 
 | Dataset | Why | Status |
 | --- | --- | --- |
-| RAID (Dugan et al. 2024) | Unseen models, domains, decoding, attacks | Not fetched. Tracked in `docs/v2-updates/`. |
+| RAID (Dugan et al. 2024) | Unseen models, domains, decoding, attacks | Not fetched. Tracked in `docs/`. |
 | M4 / M4GT-Bench (Wang et al.) | Multi-domain, multilingual, multi-generator | Not fetched. |
 | EvoBench | Generator-generation shift | Not fetched. |
 | Multi-author human panel (500–2,000 authors) | Author-disjoint stylometry | Not collected. |

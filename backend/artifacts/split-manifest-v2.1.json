@@ -1,0 +1,309 @@
+{
+  "artifact_sha256": "729e3c30128ba59b912885cc3016c937de03e0410b5d7cf116187bdf13d93f47",
+  "cohorts": [
+    {
+      "cohort_id": "mage",
+      "group_unit": "near-duplicate cluster / aligned human-machine source pair",
+      "notes": "Official train/valid/test; calibration/test drop groups seen in an earlier partition (near-duplicate leakage repair).",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "9ae45db646c37bcf9e3871f023be36d510e3e5a93bb83aad8649f2857d1afcd5",
+          "n_groups": 5439,
+          "n_rows": 6000
+        },
+        "development": {
+          "groups_sha256": "36991011459891c36a7f6dab045f5abc0321d63fa88f3f5527a290956dae2e85",
+          "n_groups": 4696,
+          "n_rows": 4696
+        },
+        "test": {
+          "groups_sha256": "277878711e2204309eddea9210aede9b1b4d7c769a7fd15f79322b07727bf99f",
+          "n_groups": 5589,
+          "n_rows": 6000
+        },
+        "train": {
+          "groups_sha256": "eda00bf0c7130aaa0bb2f1f6ce91b6b6a38ac135e1fb5eefa2047aedcfe41f40",
+          "n_groups": 13699,
+          "n_rows": 15000
+        }
+      }
+    },
+    {
+      "cohort_id": "raid",
+      "group_unit": "source_id (RAID prompt x generator)",
+      "notes": "RAID clean re-split by source_id; attack cells are a separate robustness eval.",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "8db8beab9b3a7d3f323d279ca7671a18a99f6ab5f604e3eaf81ad38d4d075ec5",
+          "n_groups": 136,
+          "n_rows": 6037
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "0578612473773df8afdfa048ecb224d01bb7b17d9b595e099589ace8731f9b8d",
+          "n_groups": 136,
+          "n_rows": 6023
+        },
+        "train": {
+          "groups_sha256": "907ac2c8fbe3851048f1e2eeb62fa4ee1343e61fbcf6b1f6e84f4eeccab4d63d",
+          "n_groups": 339,
+          "n_rows": 14918
+        }
+      }
+    },
+    {
+      "cohort_id": "defactify",
+      "group_unit": "reconstructed NYT story",
+      "notes": "Official splits are story-leaky; all rows re-split by reconstructed story group.",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "8c65ae4fa9af111db7550d4fa39778433a44a874c3a0a6af45a25aadbb6f8755",
+          "n_groups": 2169,
+          "n_rows": 2535
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "6664e805ae7faf86c2cee82156965d8939d63b8cf1d9abe907c034e942086036",
+          "n_groups": 2169,
+          "n_rows": 2296
+        },
+        "train": {
+          "groups_sha256": "028057e013586d87a91608e76ae8f9ad01412e309ae7cde76d0c36234fcb67fd",
+          "n_groups": 5422,
+          "n_rows": 5938
+        }
+      }
+    },
+    {
+      "cohort_id": "mage-ood",
+      "group_unit": "near-duplicate cluster / aligned source pair",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "8b3190f28b1cd7c9a0615e20d6a05033de68a82dd4dba159b3821ce5abf93f02",
+          "n_groups": 1516,
+          "n_rows": 1518
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "mage-ood-paraphrase",
+      "group_unit": "near-duplicate cluster / aligned source pair",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "6167408997803c4cb9d2a06796376c602c0131dacbe3a5c14bb812c6dbfc92dd",
+          "n_groups": 2334,
+          "n_rows": 2340
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "m4gt-english",
+      "group_unit": "source document",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "9701809ed4f885119ccf316eac513a265a37d62fc8869069e51595149fdc7e9c",
+          "n_groups": 4000,
+          "n_rows": 4000
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "m4gt-multilingual",
+      "group_unit": "source document",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "79e63d799013c647ef73781894f7960be478959d9c7b7e6d860ceec8f78d0d7d",
+          "n_groups": 4000,
+          "n_rows": 4000
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "evobench",
+      "group_unit": "group (EvoBench prompt x family)",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "2dd8566705a36655f1e947f945df8e1aae7550d82aceb7cb47bb959f2b64f7dc",
+          "n_groups": 1317,
+          "n_rows": 4000
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "coauthor",
+      "group_unit": "author (Mechanical Turk worker_id)",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "d2581f390edd5409a944e6171883f958037353796aeccb3cd2a9da16bedbb3f3",
+          "n_groups": 14,
+          "n_rows": 236
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "reference-corpus-v0",
+      "group_unit": "record id",
+      "notes": "",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "f8668096f5db921745602768190525e1b805fa75f67c27a3e2fdd1eb88ec4ccb",
+          "n_groups": 16,
+          "n_rows": 104
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    },
+    {
+      "cohort_id": "raid-attacks",
+      "group_unit": "source_id (RAID prompt x generator)",
+      "notes": "Attack arms reuse the RAID clean source_id groups with attacked text; human rows are shared.",
+      "partitions": {
+        "calibration": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "development": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        },
+        "test": {
+          "groups_sha256": "3ce7b82bda6dc76d7305c90092e27662dd3cfd9c5201145acfc7d8cade35c572",
+          "n_groups": 148,
+          "n_rows": 43719
+        },
+        "train": {
+          "groups_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "n_groups": 0,
+          "n_rows": 0
+        }
+      }
+    }
+  ],
+  "protocol_ref": {
+    "artifact_sha256": "0cef5dfddd45f5dce5e093c48df17415fc59d93980a8000971c33ea64a9d22b7",
+    "path": "bench/protocol-v2.1.json"
+  },
+  "registered_utc": "2026-08-19T19:54:34Z",
+  "schema": "panoptes-split-manifest-v2-1",
+  "seed": 13
+}

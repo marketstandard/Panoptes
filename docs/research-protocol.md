@@ -1,6 +1,6 @@
 # Panoptes research protocol v1
 
-Registered 2026-08-13. Machine-readable copy: [`research/protocol.json`](../research/protocol.json). This document freezes the scientific questions, task definitions, split rules, metrics, and power thresholds **before further outcome tuning**.
+Registered 2026-08-13. Machine-readable copy: [`bench/protocol.json`](../bench/protocol.json). This document freezes the scientific questions, task definitions, split rules, metrics, and power thresholds **before further outcome tuning**.
 
 ## Thesis
 
@@ -118,16 +118,16 @@ The scientifically stronger question is: **under what conditions is AI participa
 
 ## Stylometry battery
 
-[`research/hypotheses.json`](../research/hypotheses.json) remains the pre-registered H1–H6 stylometry tests. Those tests are supporting diagnostics, not the primary claims of this protocol.
+[`bench/hypotheses.json`](../bench/hypotheses.json) remains the pre-registered H1–H6 stylometry tests. Those tests are supporting diagnostics, not the primary claims of this protocol.
 
 ## Running the protocol
 
 ```bash
 python -m bench measure --data corpus
-python research/run_v1_experiments.py
-python research/reproduce.py
-python research/make_figures.py
-python research/validate_submission.py research/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
+# experiment runners are private; signed cards are under backend/artifacts/
+python -m bench.reproduce
+# figure generation is private paper tooling
+python -m bench.validate_submission bench/protocol.json backend/artifacts/cards/measurement-protocol.json backend/artifacts/cards/mixture-workflows.json backend/artifacts/cards/robustness-pilot.json backend/artifacts/cards/watermark-degradation.json
 ```
 
-Paper v1.0 authors: Carrington Junior (Encryptic1) and Trey Huffine. Work this environment cannot complete is listed in [`docs/v2-updates/`](v2-updates/README.md).
+Paper v1.0 authors: Carrington Junior (Encryptic1) and Trey Huffine. Work this environment cannot complete is listed in [`docs/`](v2-updates/README.md).

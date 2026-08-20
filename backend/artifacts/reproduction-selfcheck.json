@@ -1,19 +1,19 @@
 {
-  "artifact_sha256": "2fb2d6891077dc6336bfacab02ffa704f18900c06a3e072204e29ee9177aebd7",
+  "artifact_sha256": "ed710c9f5d86a03b48d268a24697aa87f3b1c9b3a00b4466960012717aa211b8",
   "artifacts": [
     {
       "match": true,
-      "original_sha256": "2d3d5df5b4d156b2f9047ee41892c4fd6974da6a83cc5caa0d26fa2eceaba855",
-      "path": "research\\protocol.json",
-      "recomputed_sha256": "2d3d5df5b4d156b2f9047ee41892c4fd6974da6a83cc5caa0d26fa2eceaba855",
+      "original_sha256": "87c8d03c0549525fa47813b2d8b2437a0386320e84327be0e05bb9e90887e284",
+      "path": "bench\\protocol.json",
+      "recomputed_sha256": "87c8d03c0549525fa47813b2d8b2437a0386320e84327be0e05bb9e90887e284",
       "schema": "panoptes-research-protocol-v1",
       "schema_errors": []
     },
     {
       "match": true,
-      "original_sha256": "b4eed12bef4148075105ace29de5d427aeea0b77a16d2cdfae9f5191cc0be63d",
-      "path": "research\\hypotheses.json",
-      "recomputed_sha256": "b4eed12bef4148075105ace29de5d427aeea0b77a16d2cdfae9f5191cc0be63d",
+      "original_sha256": "9a03706b3e9dc56db6385cd86fa852a27fc91ba0c77f7b2155868a9a4c87cae1",
+      "path": "bench\\hypotheses.json",
+      "recomputed_sha256": "9a03706b3e9dc56db6385cd86fa852a27fc91ba0c77f7b2155868a9a4c87cae1",
       "schema": "panoptes-hypotheses-v1",
       "schema_errors": []
     },
@@ -35,9 +35,9 @@
     },
     {
       "match": true,
-      "original_sha256": "aa337e01357ad761890804502251b1c666f47c150d4877793df43730cdfe93c3",
+      "original_sha256": "4c940771662294926fe20320c1cef409cba8d4346ff869c64cbf6ebf9ea62ed3",
       "path": "backend\\artifacts\\baseline-calibration.json",
-      "recomputed_sha256": "aa337e01357ad761890804502251b1c666f47c150d4877793df43730cdfe93c3",
+      "recomputed_sha256": "4c940771662294926fe20320c1cef409cba8d4346ff869c64cbf6ebf9ea62ed3",
       "schema": "panoptes-calibration-v1",
       "schema_errors": []
     },
@@ -51,9 +51,9 @@
     },
     {
       "match": true,
-      "original_sha256": "4ff35c7ca357a0b8905c4be984a413c6a04a06d43c2af0a350887dba1a49aea4",
+      "original_sha256": "1874e2ecb3b6ce2279820bce6e046a018c3fe494d0876c9fded992bcd7f525e6",
       "path": "backend\\artifacts\\defactify-calibration.json",
-      "recomputed_sha256": "4ff35c7ca357a0b8905c4be984a413c6a04a06d43c2af0a350887dba1a49aea4",
+      "recomputed_sha256": "1874e2ecb3b6ce2279820bce6e046a018c3fe494d0876c9fded992bcd7f525e6",
       "schema": "panoptes-calibration-v1",
       "schema_errors": []
     },
@@ -219,25 +219,25 @@
     },
     {
       "match": true,
-      "original_sha256": "6e7a8de65152c6d57711b916ba77cd22ef1fa99c70131c6065fe369830de5099",
-      "path": "research\\protocol-v2.1.json",
-      "recomputed_sha256": "6e7a8de65152c6d57711b916ba77cd22ef1fa99c70131c6065fe369830de5099",
+      "original_sha256": "0cef5dfddd45f5dce5e093c48df17415fc59d93980a8000971c33ea64a9d22b7",
+      "path": "bench\\protocol-v2.1.json",
+      "recomputed_sha256": "0cef5dfddd45f5dce5e093c48df17415fc59d93980a8000971c33ea64a9d22b7",
       "schema": "panoptes-research-protocol-v2-1",
       "schema_errors": []
     },
     {
       "match": true,
-      "original_sha256": "642ae2da4b8110caf93b0350c43b8bcbe97e084caadde476103af99ba40c2485",
-      "path": "research\\dataset-registry-v2.1.json",
-      "recomputed_sha256": "642ae2da4b8110caf93b0350c43b8bcbe97e084caadde476103af99ba40c2485",
+      "original_sha256": "988f3609f216016521e062a5a5d643ea0c80949e4ecbed8523e82776123a1e6a",
+      "path": "backend\\artifacts\\dataset-registry-v2.1.json",
+      "recomputed_sha256": "988f3609f216016521e062a5a5d643ea0c80949e4ecbed8523e82776123a1e6a",
       "schema": "panoptes-dataset-registry-v2-1",
       "schema_errors": []
     },
     {
       "match": true,
-      "original_sha256": "b3012cb46a93143e7f028afcf9c142ed74f861d81e4630d9924635004d06a393",
-      "path": "research\\split-manifest-v2.1.json",
-      "recomputed_sha256": "b3012cb46a93143e7f028afcf9c142ed74f861d81e4630d9924635004d06a393",
+      "original_sha256": "729e3c30128ba59b912885cc3016c937de03e0410b5d7cf116187bdf13d93f47",
+      "path": "backend\\artifacts\\split-manifest-v2.1.json",
+      "recomputed_sha256": "729e3c30128ba59b912885cc3016c937de03e0410b5d7cf116187bdf13d93f47",
       "schema": "panoptes-split-manifest-v2-1",
       "schema_errors": []
     },
@@ -340,12 +340,12 @@
   ],
   "catalog_verified": true,
   "commands": [
-    "python research/reproduce.py",
+    "python -m bench.reproduce",
     "python baselines/baseline.py verify-catalog",
-    "python research/validate_submission.py research/protocol.json",
-    "python -m pytest backend research bench baselines"
+    "python -m bench.validate_submission bench/protocol.json",
+    "python -m pytest backend bench baselines"
   ],
-  "created_utc": "2026-08-20T01:28:15Z",
+  "created_utc": "2026-08-20T02:30:03Z",
   "errors": [],
   "independent": false,
   "kind": "author_selfcheck",
@@ -355,7 +355,7 @@
   ],
   "metric_path": {
     "detector": "logistic",
-    "fixture": "research\\fixtures\\recompute-corpus.json",
+    "fixture": "bench\\fixtures\\recompute-corpus.json",
     "metrics": {
       "accuracy": {
         "expected": 1.0,

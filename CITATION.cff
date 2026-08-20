@@ -6,6 +6,11 @@ version: "2.1"
 date-released: "2026-08-19"
 url: "https://github.com/marketstandard/Panoptes"
 repository-code: "https://github.com/marketstandard/Panoptes"
+repository-artifact: "https://huggingface.co/MarketStandard/panoptes-neural-v1"
+identifiers:
+  - type: url
+    value: "https://huggingface.co/MarketStandard/panoptes-neural-v1"
+    description: "Frozen three-seed hierarchical neural detector (pinned revision 76bf26782c783506c9af24d8277be0e1b708d243)"
 authors:
   - family-names: Junior
     given-names: Carrington

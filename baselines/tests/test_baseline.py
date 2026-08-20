@@ -18,7 +18,7 @@ SPEC = importlib.util.spec_from_file_location("panoptes_baseline", ROOT / "basel
 baseline = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(baseline)
 
-sys.path.insert(0, str(ROOT / "research"))
+sys.path.insert(0, str(ROOT / "bench"))
 import validate_submission  # noqa: E402
 
 

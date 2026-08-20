@@ -1,6 +1,6 @@
 # Evaluation methodology
 
-Panoptes evaluation follows the frozen measurement protocol in [`docs/research-protocol.md`](research-protocol.md) (`research/protocol.json`, registered 2026-08-13). Attribution is treated as a measurement problem: the evidential meaning of a detector score depends on population, prevalence, domain, manipulation history, provenance, and calibration cohort.
+Panoptes evaluation follows the frozen measurement protocol in [`docs/research-protocol.md`](research-protocol.md) (`bench/protocol.json`, registered 2026-08-13). Attribution is treated as a measurement problem: the evidential meaning of a detector score depends on population, prevalence, domain, manipulation history, provenance, and calibration cohort.
 
 ## Research questions
 
@@ -9,7 +9,7 @@ Panoptes evaluation follows the frozen measurement protocol in [`docs/research-p
 3. **RQ3 Evidence aggregation.** Do calibration, Bayesian aggregation, uncertainty, and abstention improve trustworthiness over raw scores?
 4. **RQ4 Reproducibility.** Can the claim be verified from committed datasets, artifacts, manifests, and results?
 
-H1–H6 in `research/hypotheses.json` remain the stylometry battery. They are supporting diagnostics, not the primary claims.
+H1–H6 in `bench/hypotheses.json` remain the stylometry battery. They are supporting diagnostics, not the primary claims.
 
 ## Tasks (kept distinct)
 
@@ -66,15 +66,15 @@ Priors for sensitivity: 0.1%, 0.5%, 1%, 5%, 10%, 25%, 50%, 75%.
 
 ## Current status
 
-The shipped calibration artifact (`backend/artifacts/baseline-calibration.json`) is fitted on the verified reference corpus — 104 hash-verified records (96 AI outputs across 6 model families, 8 human controls) — via isotonic regression with grouped cross-validation, corpus-fitted source-family geometry, and conformal thresholds. The methodology report (`backend/artifacts/methodology-report.json`) records the VIF feature screening, pre-registered hypothesis tests (H1–H6) with Benjamini–Hochberg q-values, and the econometric specification battery, per cohort (`cohorts.corpus` and `cohorts.defactify`). The synthetic development artifact remains reproducible via `python research/calibration.py --synthetic` for pipeline testing.
+The shipped calibration artifact (`backend/artifacts/baseline-calibration.json`) is fitted on the verified reference corpus — 104 hash-verified records (96 AI outputs across 6 model families, 8 human controls) — via isotonic regression with grouped cross-validation, corpus-fitted source-family geometry, and conformal thresholds. The methodology report (`backend/artifacts/methodology-report.json`) records the VIF feature screening, pre-registered hypothesis tests (H1–H6) with Benjamini–Hochberg q-values, and the econometric specification battery, per cohort (`cohorts.corpus` and `cohorts.defactify`). The synthetic development artifact remains reproducible via `python -m bench.calibration --synthetic` for pipeline testing.
 
 Honest statistical caveats: at n=104 the corpus supports calibration and tier-0/tier-1 modeling, but hypothesis tests are underpowered for small effects (≈23% power for a d=0.5 two-group difference), and on that corpus the neural tier (Panoptes-v0) is gated accordingly. Growing the corpus through community baseline submissions directly increases what the methodology can conclude.
 
-Version 1 protocol cards live at `backend/artifacts/cards/measurement-protocol.json` (nested grouped CV), `mixture-workflows.json`, `robustness-pilot.json`, and `watermark-degradation.json`. First-party hash verification is `python research/reproduce.py` (`independent: false`). Work this environment cannot complete is listed in [`docs/v2-updates/`](v2-updates/README.md).
+Version 1 protocol cards live at `backend/artifacts/cards/measurement-protocol.json` (nested grouped CV), `mixture-workflows.json`, `robustness-pilot.json`, and `watermark-degradation.json`. First-party hash verification is `python -m bench.reproduce` (`independent: false`). Work this environment cannot complete is listed in [`docs/`](v2-updates/README.md).
 
 ### Defactify external validation (n=71,666)
 
-The release-quality external evaluation now exists: the bench runs on the Defactify_Text_Dataset (Roy et al. 2026, arXiv:2510.22874), fetched and hygiene-filtered by `research/fetch_defactify.py` (73,193 raw → 71,666 clean: 412 API-error artifacts, 73 exact duplicates, and 957 sub-50-token texts dropped). Raw text stays local and gitignored; a signed pointer manifest lives at `datasets/manifests/defactify-text.json`.
+The release-quality external evaluation now exists: the bench runs on the Defactify_Text_Dataset (Roy et al. 2026, arXiv:2510.22874), fetched and hygiene-filtered by `python -m bench.fetch_defactify` (73,193 raw → 71,666 clean: 412 API-error artifacts, 73 exact duplicates, and 957 sub-50-token texts dropped). Raw text stays local and gitignored; a signed pointer manifest lives at `datasets/manifests/defactify-text.json`.
 
 - **Leakage audit.** TF-IDF story-group reconstruction (cosine threshold 0.45) finds 61,006 groups; 11.5% of the official test split shares a story with official train. All reported numbers use story-grouped GroupKFold, not the official splits.
 - **Detection (out-of-fold).** Logistic tier-0 AUROC 0.989 (95% CI 0.988–0.990, ECE 0.006); GBM tier-1 AUROC 0.999 (ECE 0.005); Panoptes-v0 with the sequence branch admitted AUROC 0.998 (ECE 0.019). The dataset authors' baselines score 53–58% accuracy.

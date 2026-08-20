@@ -12,7 +12,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from bench.datasets import Dataset
-from research.protocol import NESTED_CV_GROUP_THRESHOLD
+from bench.protocol import NESTED_CV_GROUP_THRESHOLD
 
 SEED = 13
 

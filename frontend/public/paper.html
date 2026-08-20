@@ -47,6 +47,7 @@
   .authors { font-size: 1.02rem; margin-bottom: 0.2em; }
   .authors a { color: var(--ink); border-bottom: 1px solid rgba(29, 78, 216, 0.35); }
   .correspondence { color: var(--muted); font-size: 0.82rem; margin-top: 0.45em; }
+  .resources { color: var(--muted); font-size: 0.82rem; margin-top: 0.55em; line-height: 1.45; }
   .affil { color: var(--muted); font-size: 0.9rem; font-style: italic; }
   .date { color: var(--muted); font-size: 0.9rem; margin-top: 0.35em; }
   .abstract {
@@ -168,39 +169,38 @@
     </div>
     <div class="date">August 19, 2026 &middot; Version 2.1 &middot; Measurement protocol registered 2026-08-13; v2.1 transportability addendum registered 2026-08-19</div>
     <div class="correspondence">Correspondence: Carrington Junior, <span class="mono">github.com/Encryptic1</span></div>
+    <div class="resources">Code:
+      <a href="https://github.com/marketstandard/Panoptes" target="_blank" rel="noreferrer">github.com/marketstandard/Panoptes</a>
+      &nbsp;&middot;&nbsp; Weights:
+      <a href="https://huggingface.co/MarketStandard/panoptes-neural-v1" target="_blank" rel="noreferrer">huggingface.co/MarketStandard/panoptes-neural-v1</a>
+      (revision <span class="mono">76bf26782c783506c9af24d8277be0e1b708d243</span>)
+    </div>
   </div>
 
   <div class="abstract">
     <h2>Abstract</h2>
-    <p>Automated judgments about whether a document was written or assisted by a large language model are increasingly
-    consequential, yet the dominant tooling presents a single opaque score with little account of calibration, sample size,
-    or the conditions under which the judgment fails. We argue that AI-text attribution should be treated as a
-    <em>measurement problem</em>: the evidential meaning of a detector score depends on the generating population,
-    prevalence, domain, manipulation history, provenance, and calibration cohort. We present <em>Panoptes</em>, an open,
-    local-first system that reports calibrated evidence rather than a verdict. Detector scores are mapped through an
-    independent calibration set to probabilities, converted to prevalence-corrected likelihood ratios, combined with a
-    declared prior, and wrapped in uncertainty and abstention; expected calibration error is reported as a diagnostic and
-    is not used to rescale the posterior. Three outputs are kept distinct &mdash; probability of AI participation,
-    probability of AI generation, and source-family attribution with an explicit unknown state &mdash; and watermark tests
-    are a separate subsystem. A frozen protocol enforces author/prompt/source-disjoint
-    train&nbsp;&rarr;&nbsp;calibration&nbsp;&rarr;&nbsp;test splits and primary metrics centered on Brier score, ECE,
-    calibration slope, low-FPR operating points, and selective risk.</p>
-    <p>Version 2.1 rebuilds the bench around <em>transportability</em>. A license-audited dataset registry partitions each
-    cohort by whether its license permits redistribution of derived weights: the pooled public-weight training pool (MAGE,
-    RAID clean, DeFactify; 35,856 documents) is legally clean, while M4GT-Bench, EvoBench, and CoAuthor remain
-    evaluation-only. A preregistered neural detector &mdash; a frozen three-seed hierarchical ensemble over
-    deberta-v3-small, selected by a train/development-only pilot before any final-test access &mdash; reaches 0.993 AUROC
-    with class-balanced split-conformal coverage on a group-disjoint pooled calibration partition. The central v2.1 finding
-    is that in-domain strength does not imply transport. Holding an entire dataset out of both training and calibration
-    drops every classical tier to 0.52&ndash;0.76 AUROC, and a dataset-origin probe (0.81 accuracy against 0.33 chance)
-    shows the features encode dataset identity &mdash; part of every in-domain number is shortcut. The frozen neural
-    ensemble transports at 0.802 mean AUROC (worst cohort 0.658) across the held-out datasets, and
-    is the only tier robust to paraphrase (0.98). Calibration transfer separates ranking from absolute probability: a frozen
-    scorer re-calibrated across cohorts loses little Brier. The residual frontier is Unicode-level adversarial perturbation
-    &mdash; homoglyph and zero-width-space insertion collapse every tier, the neural one most of all. Performance and
-    calibration are cohort properties, not model properties; the scientifically stronger question is not whether AI text is
-    universally identifiable, but under what conditions AI participation is statistically identifiable and how the evidence
-    degrades when those conditions change.</p>
+    <p>We find that detector performance is highly cohort-dependent: models trained on a large controlled rewrite
+    benchmark achieve AUROC near 0.999 under story-grouped evaluation, and a preregistered hierarchical neural ensemble
+    reaches 0.993 AUROC in-domain, while the same shipped detector calibrated on a small mixed corpus falls to AUROC
+    0.648 on that benchmark. Holding an entire dataset out of both training and calibration drops every classical tier
+    to 0.52&ndash;0.76 AUROC; the frozen neural ensemble transports at 0.802 mean AUROC (worst cohort 0.658) and is the
+    only tier robust to paraphrase (0.98). A dataset-origin probe (0.81 accuracy against 0.33 chance) shows that features
+    encode dataset identity &mdash; part of every in-domain number is shortcut. Calibration transfer separates ranking
+    from absolute probability: a frozen scorer re-calibrated across cohorts loses little Brier. The residual frontier is
+    Unicode-level adversarial perturbation &mdash; homoglyph and zero-width-space insertion collapse every tier, the
+    neural one most of all. Performance and calibration are therefore cohort properties, not model properties. This
+    demonstrates that detector scores are not portable evidence without population-specific calibration, and that the
+    scientifically stronger question is not whether AI text is universally identifiable, but under what conditions AI
+    participation is statistically identifiable and how the evidence degrades when those conditions change.</p>
+    <p>We present <em>Panoptes</em>, an open measurement framework for calibrated AI-text attribution under distribution
+    shift. Detector scores are mapped through an independent calibration set to probabilities, converted to
+    prevalence-corrected likelihood ratios, combined with a declared prior in odds form, and wrapped in uncertainty and
+    abstention; expected calibration error is reported as a diagnostic and is not used to rescale the posterior. Three
+    outputs stay distinct &mdash; probability of AI participation, probability of AI generation, and exploratory
+    source-family attribution with an explicit unknown state &mdash; and watermark tests are a separate subsystem. A
+    license-audited registry partitions cohorts by whether derived weights may be redistributed (pooled training pool:
+    MAGE, RAID clean, DeFactify; evaluation-only: M4GT-Bench, EvoBench, CoAuthor). Code and pinned open weights accompany
+    the paper.</p>
   </div>
 
   <div class="keywords">
@@ -221,7 +221,7 @@
   and anti-correlated on a mixed prompt corpus. Panoptes is built to measure that evidential strength and its failure
   modes, not to win a detector leaderboard.</p>
   <p>Four research questions are frozen in the measurement protocol (registered 2026-08-13,
-  <span class="mono">research/protocol.json</span>) before further outcome tuning:</p>
+  <span class="mono">bench/protocol.json</span>) before further outcome tuning:</p>
   <p><strong>RQ1 &mdash; Calibration.</strong> When Panoptes reports a probability of AI participation, does that
   probability correspond to empirical frequency under a declared population?</p>
   <p><strong>RQ2 &mdash; Distribution shift.</strong> How much does attribution degrade when the domain, generator,
@@ -329,7 +329,7 @@
 
   <figure>
     <!-- FIG:pipeline -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 132" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6b7f"/></marker></defs><text x="230" y="22" text-anchor="middle" font-size="11" fill="#1a2332">evidence pipeline (ECE is a diagnostic, not a step)</text><rect x="18" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="53" y="62" text-anchor="middle" font-size="10" fill="#1a2332">raw score</text><line x1="88" y1="58" x2="92" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="92" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="127" y="62" text-anchor="middle" font-size="10" fill="#1a2332">calibrate</text><line x1="162" y1="58" x2="166" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="166" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="201" y="62" text-anchor="middle" font-size="10" fill="#1a2332">LR</text><line x1="236" y1="58" x2="230" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="230" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="265" y="62" text-anchor="middle" font-size="10" fill="#1a2332">prior</text><line x1="300" y1="58" x2="294" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="294" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="329" y="62" text-anchor="middle" font-size="10" fill="#1a2332">posterior</text><line x1="364" y1="58" x2="372" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="372" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="407" y="62" text-anchor="middle" font-size="10" fill="#1a2332">uncertain / abstain</text><text x="230" y="108" text-anchor="middle" font-size="10" fill="#5b6b7f">train → calibration → untouched test; never fit calibration on test</text><text x="230" y="124" text-anchor="middle" font-size="10" fill="#5b6b7f">LR = (p/(1−p)) · ((1−π)/π)</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 132" role="img" style="max-width:100%;height:auto;font-family:Georgia,serif"><defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5b6b7f"/></marker></defs><text x="230" y="22" text-anchor="middle" font-size="11" fill="#1a2332">evidence pipeline (ECE is a diagnostic, not a step)</text><rect x="18" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="53" y="62" text-anchor="middle" font-size="10" fill="#1a2332">raw score</text><line x1="88" y1="58" x2="92" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="92" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="127" y="62" text-anchor="middle" font-size="10" fill="#1a2332">calibrate</text><line x1="162" y1="58" x2="166" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="166" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="201" y="62" text-anchor="middle" font-size="10" fill="#1a2332">LR</text><line x1="236" y1="58" x2="230" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="230" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="265" y="62" text-anchor="middle" font-size="10" fill="#1a2332">prior</text><line x1="300" y1="58" x2="294" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="294" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="329" y="62" text-anchor="middle" font-size="10" fill="#1a2332">posterior</text><line x1="364" y1="58" x2="372" y2="58" stroke="#5b6b7f" stroke-width="1.2" marker-end="url(#arr)"/><rect x="372" y="36" width="70" height="44" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.4"/><text x="407" y="56" text-anchor="middle" font-size="10" fill="#1a2332">uncertain</text><text x="407" y="69" text-anchor="middle" font-size="10" fill="#1a2332">or abstain</text><text x="230" y="108" text-anchor="middle" font-size="10" fill="#5b6b7f">train → calibration → untouched test; never fit calibration on test</text><text x="230" y="124" text-anchor="middle" font-size="10" fill="#5b6b7f">LR = (p/(1−p)) · ((1−π)/π)</text></svg>
 <!-- /FIG:pipeline -->
     <figcaption>Figure 1 &mdash; Frozen evidence pipeline. Calibration happens before the posterior is reported.
     ECE is a diagnostic of the probability map, not a step that rescales the posterior.</figcaption>
@@ -358,7 +358,7 @@
   length) report a structured status rather than a silent null.</p>
 
   <h3>4.4 Corpus-fitted calibration and source-family geometry</h3>
-  <p>Two runtime components are fitted on the verified reference corpus (&sect;4) and shipped as a single signed artifact,
+  <p>Two runtime components are fitted on the verified reference corpus (&sect;6) and shipped as a single signed artifact,
   <span class="mono">baseline-calibration.json</span>, which the backend loads at startup and verifies before use.
   First, the heuristic detector&rsquo;s raw score is recalibrated with isotonic regression [20] fitted out-of-fold under
   GroupKFold by prompt, so no record&rsquo;s calibration is informed by its own prompt&rsquo;s siblings; the artifact
@@ -412,7 +412,7 @@
   containing only the registry line and the manifest file. Raw outputs remain on the contributor&rsquo;s machine, ignored
   by version control. External corpora participate by reference rather than by inclusion: a signed pointer manifest
   records the source URL, access conditions, download instructions, and a SHA-256 integrity commitment, so third-party
-  data is never copied into the repository. The training bench (&sect;8) consumes these pointers to validate contributed
+  data is never copied into the repository. The training bench (&sect;9) consumes these pointers to validate contributed
   datasets locally.</p>
   <p><strong>Relationship to the analyzer.</strong> The catalog itself remains a non-runtime input: no live score ever
   reads community-submitted text. What the corpus feeds is the <em>offline</em> pipeline of &sect;&sect;6&ndash;9 &mdash;
@@ -497,8 +497,8 @@
 
   <h2>7. Variable selection and specification testing</h2>
   <p>Before any hypothesis is tested, the feature set passes through an econometric screening layer
-  (<span class="mono">research/methodology.py</span>, pre-registered in
-  <span class="mono">research/hypotheses.json</span>). Seventeen candidate stylometric features are screened for
+  (<span class="mono">bench/methodology.py</span>, pre-registered in
+  <span class="mono">bench/hypotheses.json</span>). Seventeen candidate stylometric features are screened for
   multicollinearity by variance inflation factors, VIF<sub><em>j</em></sub>&nbsp;=&nbsp;1/(1&nbsp;&minus;&nbsp;<em>R</em><sub><em>j</em></sub><sup>2</sup>)
   from an auxiliary regression of each feature on the rest [21]: values above 5 are investigated and above 10 excluded,
   with the exclusion and its justification recorded in the signed report. Four features were excluded
@@ -558,14 +558,14 @@
   <p>On the project corpus, no hypothesis survives multiplicity control at q&nbsp;&le;&nbsp;0.05. This is a
   sample-size statement before it is a science statement: with eight human controls, a Welch t-test on a medium effect
   (d&nbsp;=&nbsp;0.5) has power near 23%, and the two-proportion power gate used elsewhere in the system
-  (&sect;8) puts the corpus at roughly 7% power for five-point accuracy differences. The Defactify cohort resolves the
+  (&sect;9) puts the corpus at roughly 7% power for five-point accuracy differences. The Defactify cohort resolves the
   ambiguity the small corpus cannot: the same six pre-registered tests, re-run unchanged at n&nbsp;=&nbsp;71,666,
   reject five of six nulls. The two results that were merely suggestive at n&nbsp;=&nbsp;104 &mdash; token entropy (H2)
   and long-word rate (H5) &mdash; are confirmed with the same sign, as are connector rate (H1), the
   length-discrimination increment (H3), and per-family centroid separation (H4). H6 again finds no evidence that
   segment-level residuals are autocorrelated (DW&nbsp;=&nbsp;2.68, q&nbsp;=&nbsp;1.0). That non-rejection is
   <em>not</em> treated as proof of segment independence: the measurement protocol compares naive accumulation,
-  correlation-aware shrinkage, and document-level evidence explicitly (&sect;3.2), because residual diagnostics can
+  correlation-aware shrinkage, and document-level evidence explicitly (&sect;4.2), because residual diagnostics can
   look acceptable while summed log-likelihood ratios still overstate document-level evidence. The registry exists
   precisely so that these numbers cannot be silently re-litigated: the tests, directions, and &alpha; were fixed before
   either cohort was scored. H1&ndash;H6 remain supporting stylometry diagnostics; the primary scientific claims of this
@@ -583,7 +583,7 @@
   Tier&nbsp;2 (neural) requires passing a two-proportion worst-case power calculation: to detect a five-point accuracy
   gain at &alpha;&nbsp;=&nbsp;0.05 with 80% power demands n&nbsp;&asymp;&nbsp;3,140 eligible records. At the current
   n&nbsp;=&nbsp;104 the gate fails (Figure&nbsp;4), and the bench says so on every card it writes; Panoptes-v0
-  (&sect;9) is therefore reported as an experimental architecture with a comparison battery, never as an improvement.</p>
+  (&sect;10) is therefore reported as an experimental architecture with a comparison battery, never as an improvement.</p>
 
   <figure>
     <!-- FIG:power -->
@@ -601,7 +601,7 @@
   split-conformal wrap at &alpha;&nbsp;=&nbsp;0.1 delivers 0.923 empirical coverage with mean set size 1.06 and a 5.8%
   abstention rate. Figure&nbsp;5 shows the coverage&ndash;accuracy trade the abstention knob offers. For contrast, the
   shipped heuristic detector&rsquo;s raw scores on the same held-out folds reach only AUROC 0.589 with ECE 0.127 before
-  isotonic recalibration &mdash; a concrete, quantified motivation for the corpus-fitted calibration of &sect;3.4, whose
+  isotonic recalibration &mdash; a concrete, quantified motivation for the corpus-fitted calibration of &sect;4.4, whose
   reliability diagram appears in Figure&nbsp;6.</p>
 
   <figure>
@@ -642,8 +642,9 @@
   split-conformal wrap calibrates the final scores [15]. A character-n-gram sequence branch (128-vocab char embedding,
   mean-pooled, projected to 64) is admitted by the power gate: off at n&nbsp;=&nbsp;104 (batch 16, &le;200 epochs,
   patience 20), on at Defactify scale (batch 512, &le;40 epochs, patience 6). Weights are saved locally under
-  <span class="mono">models/panoptes-v0*/</span> (gitignored, SHA-256 recorded on the card); an open-weights release on
-  Hugging Face is planned once the release checklist clears.</p>
+  <span class="mono">models/panoptes-v0*/</span> (gitignored, SHA-256 recorded on the card). Panoptes-v0 remains an
+  experimental architecture; the publicly released open-weights instrument is the v2.1 hierarchical neural ensemble
+  (<a href="https://huggingface.co/MarketStandard/panoptes-neural-v1" target="_blank" rel="noreferrer">MarketStandard/panoptes-neural-v1</a>).</p>
 
   <figure>
     <!-- FIG:training -->
@@ -700,7 +701,7 @@
   project&rsquo;s mixed prompt corpus are different worlds, and a detector fitted on one can anti-correlate with the
   other. Together with the shipped runtime&rsquo;s 0.648 AUROC on Defactify, this is the paper&rsquo;s central result,
   not a footnote: <em>calibration is a cohort property, not a model property</em>, which is why the runtime ships
-  per-cohort calibration bundles with an explicit switch (&sect;10) and why the measurement protocol reports a
+  per-cohort calibration bundles with an explicit switch (&sect;11) and why the measurement protocol reports a
   train-domain&nbsp;&times;&nbsp;test-domain transport matrix rather than a single leaderboard number. The scientific
   question is how portable detection evidence is.</p>
 
@@ -717,7 +718,7 @@
   73,193 rows pairing New York Times human articles with single-prompt rewrites by six LLM families (Gemma-2-9B,
   GPT-4o, Llama-8B, Mistral-7B, Qwen-2-72B, Yi-Large). The dataset is deliberately hard: its authors report
   53&ndash;58% detection accuracy and 5&ndash;9% attribution accuracy for their own baselines. It is fetched by
-  <span class="mono">research/fetch_defactify.py</span>, which verifies each parquet split against a pinned SHA-256,
+  <span class="mono">python -m bench.fetch_defactify</span>, which verifies each parquet split against a pinned SHA-256,
   applies documented hygiene filters, and stores the result locally (raw text never enters the repository; a signed
   pointer manifest records hashes and counts only).</p>
 
@@ -736,7 +737,7 @@
   group-disjoint evaluation &mdash; GroupKFold-5 by reconstructed story &mdash; so no fold ever scores a rewrite of a
   story it trained on.</p>
 
-  <p><strong>Detection battery.</strong> With n&nbsp;=&nbsp;71,666 the power gate of &sect;8 passes by a factor of
+  <p><strong>Detection battery.</strong> With n&nbsp;=&nbsp;71,666 the power gate of &sect;9 passes by a factor of
   twenty, and the tiered zoo trains at full strength. Table&nbsp;6 reports out-of-fold results under story-grouped
   cross-validation. The tier-0 logistic model attains AUROC 0.989 (95% CI 0.988&ndash;0.990), the tier-1 gradient
   booster 0.999 (0.9986&ndash;0.9989), and Panoptes-v0 &mdash; its character-sequence branch now admitted by the gate
@@ -822,14 +823,14 @@
   n&nbsp;=&nbsp;151,005 English and n&nbsp;=&nbsp;205,233 multilingual after hygiene) contributes multi-domain,
   multilingual, multi-generator text; and <em>EvoBench</em> (Yu et&nbsp;al. 2025 [36]; n&nbsp;=&nbsp;29,574) contributes
   generator-generation shift across model versions, with pair groups keyed by a content hash of the human original so
-  no fold ever trains on a text whose rewrite it scores. Table&nbsp;9 reports the frozen-protocol headline numbers for
+  no fold ever trains on a text whose rewrite it scores. Table&nbsp;7 reports the frozen-protocol headline numbers for
   the shipped heuristic and the logistic tier on every cohort. Two regularities matter more than any single number:
   the in-cohort logistic tier is strong everywhere (AUROC 0.78&ndash;0.99) while the shipped corpus-calibrated heuristic
   is much weaker everywhere it is off-domain (0.63&ndash;0.69 on RAID and M4GT), and the human-class conformal coverage
   deficit of &sect;12 recurs on every cohort.</p>
 
   <table>
-    <caption>Table 9 &mdash; Frozen-protocol headline metrics on every bench cohort (group-disjoint; isotonic fitted
+    <caption>Table 7 &mdash; Frozen-protocol headline metrics on every bench cohort (group-disjoint; isotonic fitted
     on the calibration partition only). Signed cards:
     <span class="mono">cards/measurement-protocol-{corpus,defactify,raid,m4gt,m4gtml,evobench}.json</span>.</caption>
     <thead>
@@ -864,7 +865,7 @@
   <p><strong>The transport matrix, systematic.</strong> The two-point corpus&nbsp;&harr;&nbsp;Defactify result above
   generalizes to the full train-cohort&nbsp;&times;&nbsp;test-cohort grid over all six cohorts (logistic tier, source
   calibration partition only, target untouched; diagonal cells are within-cohort group-disjoint holdouts; large cohorts
-  group-subsampled to 60,000 rows). Table&nbsp;10 reports AUROC; the signed artifact
+  group-subsampled to 60,000 rows). Table&nbsp;8 reports AUROC; the signed artifact
   (<span class="mono">backend/artifacts/transport-matrix-external.json</span>) carries Brier, ECE, calibration slope,
   and selective risk per cell. The diagonal is strong (0.78&ndash;0.99); the off-diagonal is where calibration goes to
   die &mdash; cross-cohort AUROC spans 0.23&ndash;0.84 with calibration slopes from &minus;0.61 to 1.37 (negative slope
@@ -874,7 +875,7 @@
   Transportability is a property of the (train, test) pair, not of the detector.</p>
 
   <table>
-    <caption>Table 10 &mdash; Cross-cohort transport matrix, AUROC (logistic tier-0; train cohort &rarr; test cohort).
+    <caption>Table 8 &mdash; Cross-cohort transport matrix, AUROC (logistic tier-0; train cohort &rarr; test cohort).
     Diagonal cells are within-cohort group-disjoint holdouts; off-diagonal cells never touch the target during fitting
     or calibration. Signed artifact: <span class="mono">backend/artifacts/transport-matrix-external.json</span>
     (AUROC / Brier / ECE / calibration slope / selective risk per cell).</caption>
@@ -896,12 +897,12 @@
   <span class="mono">python -m bench measure --data corpus</span> produces a signed card
   (<span class="mono">backend/artifacts/cards/measurement-protocol.json</span>) under nested grouped
   cross-validation (16 prompt groups, 5 outer folds). Train, calibration, and test groups are disjoint; isotonic
-  calibration is never fit on the outer test fold. Table&nbsp;7 reports the protocol scores. These numbers are
+  calibration is never fit on the outer test fold. Table&nbsp;9 reports the protocol scores. These numbers are
   <em>not</em> the older GroupKFold-without-a-calibration-partition scores in &sect;9: they are lower, as they
   should be, because the calibration layer cannot see the test groups.</p>
 
   <table>
-    <caption>Table 7 &mdash; Protocol-compliant nested grouped CV on the project corpus (n&nbsp;=&nbsp;104).
+    <caption>Table 9 &mdash; Protocol-compliant nested grouped CV on the project corpus (n&nbsp;=&nbsp;104).
     Signed card: <span class="mono">cards/measurement-protocol.json</span>.</caption>
     <thead>
       <tr><th>Detector</th><th>AUROC</th><th>AUPRC</th><th>Brier</th><th>ECE</th><th>Slope</th><th>TPR@1% FPR</th><th>Conformal coverage</th></tr>
@@ -960,11 +961,11 @@
 
   <p><strong>Editing robustness (proxy).</strong> Truncating documents to 75%, 50%, or 25% of tokens drops heuristic
   AUROC from 0.673 to approximately 0.31; dropping 20% of tokens or stripping punctuation does the same. Lowercasing
-  and sentence shuffle do not (Table&nbsp;8). These are not RAID or DIPPER attacks; they are the edits this environment
+  and sentence shuffle do not (Table&nbsp;10). These are not RAID or DIPPER attacks; they are the edits this environment
   can apply to the hash-verified corpus. They already show that length and surface form move the score more than
   sentence order. Signed card: <span class="mono">cards/robustness-pilot.json</span>.</p>
   <table>
-    <caption>Table 8 &mdash; Heuristic AUROC under proxy edits on the project corpus (n&nbsp;=&nbsp;104).
+    <caption>Table 10 &mdash; Heuristic AUROC under proxy edits on the project corpus (n&nbsp;=&nbsp;104).
     Signed card: <span class="mono">cards/robustness-pilot.json</span>.</caption>
     <thead>
       <tr><th>Transform</th><th>AUROC</th><th>&Delta; AUROC</th><th>Notes</th></tr>
@@ -1008,7 +1009,7 @@
   <p><strong>External detector baselines, scored.</strong> Binoculars (Falcon-7B observer/performer pair) and
   Fast-DetectGPT (GPT-J-6B) were run on the frozen protocol splits as zero-shot adapters &mdash; never trained on the
   bench data, isotonic calibration fitted on the calibration partition only, test groups untouched
-  (<span class="mono">research/run_external_baselines.py</span>). DetectGPT classic is recorded
+  (signed card below). DetectGPT classic is recorded
   <span class="mono">failed</span> with reason (its ~20 T5 perturbation passes per text are prohibitive at Defactify
   scale); Fast-DetectGPT, the same curvature family without a perturbation model, is scored in its place. The
   transformer classifier remains registered-<em>unavailable</em> (no fine-tuned weights) and is not replaced by the
@@ -1106,9 +1107,9 @@
 transportability claim. Version 2.1 expands the evidence base into a pooled, multi-dataset corpus assembled under an
 explicit license and derived-weight gate, and locks it in two machine-readable artifacts registered before any
 outcome-bearing run: a <em>dataset registry</em>
-(<span class="mono">research/dataset-registry-v2.1.json</span>) recording each cohort&rsquo;s role, license, task
+(<span class="mono">backend/artifacts/dataset-registry-v2.1.json</span>) recording each cohort&rsquo;s role, license, task
 semantics, group unit, provenance, row count, and content hash, and a <em>split manifest</em>
-(<span class="mono">research/split-manifest-v2.1.json</span>) locking the train/calibration/test group assignments per
+(<span class="mono">backend/artifacts/split-manifest-v2.1.json</span>) locking the train/calibration/test group assignments per
 cohort. The registry is the audit trail for the central data decision of v2.1: <strong>a cohort may train the public
 model only if its license permits redistribution of derived weights.</strong></p>
 
@@ -1129,8 +1130,8 @@ cohort.</p>
   <caption>Table 13 &mdash; The v2.1 dataset registry. Role is determined by the license/derived-weight gate:
   derived-weight-licensed cohorts train the public model; unclear-license cohorts are evaluation-only. Group unit is
   the leakage-disjointness unit enforced across train/calibration/test. Full hashes and per-row identifiers in
-  <span class="mono">research/dataset-registry-v2.1.json</span> and
-  <span class="mono">research/split-manifest-v2.1.json</span>.</caption>
+  <span class="mono">backend/artifacts/dataset-registry-v2.1.json</span> and
+  <span class="mono">backend/artifacts/split-manifest-v2.1.json</span>.</caption>
   <thead>
     <tr><th>Cohort</th><th>Role</th><th>License</th><th>Group unit</th><th>n</th></tr>
   </thead>
@@ -1226,9 +1227,11 @@ degrade gracefully: the three-seed ensemble on GPU, a single-seed balanced profi
 calibrated logistic tier and then the heuristic. Code and unsupported languages never route through the English prose
 model. A separate applicability diagnostic &mdash; built from calibration geometry and segment/seed disagreement &mdash;
 may trigger abstention but is reported as a descriptive signal, not as proof that all shifts are detectable. The weights
-are released publicly on Hugging Face only because the preregistered performance, calibration, latency, license, and
-reproducibility gates passed; had any gate failed, the logistic tier would have remained the default and the negative
-result would be reported here.</p>
+are released publicly at
+<a href="https://huggingface.co/MarketStandard/panoptes-neural-v1" target="_blank" rel="noreferrer">huggingface.co/MarketStandard/panoptes-neural-v1</a>
+(immutable revision <span class="mono">76bf26782c783506c9af24d8277be0e1b708d243</span>) only because the preregistered
+performance, calibration, latency, license, and reproducibility gates passed; had any gate failed, the logistic tier
+would have remained the default and the negative result would be reported here.</p>
 
 <p><strong>In-domain strength is not the thesis.</strong> Table&nbsp;14 is a strong in-domain calibration result, but it
 is measured on seen cohorts. The scientific question of this paper is whether that evidence <em>transports</em> to
@@ -1401,12 +1404,12 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
 
 <h2>16. Independent reproduction</h2>
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
-  self-check, not an outside reproduction. <span class="mono">python research/reproduce.py</span> re-hashes every
+  self-check, not an outside reproduction. <span class="mono">python -m bench.reproduce</span> re-hashes every
   signed artifact, re-verifies the baseline catalog, and writes
   <span class="mono">backend/artifacts/reproduction-selfcheck.json</span>. On this checkout, 42 of 42 signed
   hashes match and the catalog verifies 12 registered runs. The self-check is labeled
   <span class="mono">independent: false</span> because the authors ran it. An outside researcher should follow
-  <span class="mono">docs/v2-updates/independent-reproduction.md</span>, record original versus recomputed
+  <span class="mono">docs/independent-reproduction.md</span>, record original versus recomputed
   headline metrics, and report absolute deltas. Until that is done, RQ4 is only partly answered: the artifacts
   are machine-checkable; they have not yet been checked by someone who did not produce them.</p>
 
@@ -1421,11 +1424,13 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   like&rdquo; into &ldquo;these six tests, these decisions, re-run when the data doubles&rdquo;; and (6)&nbsp;an
   evidential reference architecture whose vacuity and dissonance outputs make &ldquo;the model doesn&rsquo;t know&rdquo;
   a first-class, displayable result. Version 2.1 adds three more. (7)&nbsp;A license-audited dataset registry and split
-  manifest (<span class="mono">research/dataset-registry-v2.1.json</span>,
-  <span class="mono">research/split-manifest-v2.1.json</span>) make the training pool&rsquo;s legal status and its
+  manifest (<span class="mono">backend/artifacts/dataset-registry-v2.1.json</span>,
+  <span class="mono">backend/artifacts/split-manifest-v2.1.json</span>) make the training pool&rsquo;s legal status and its
   group-disjoint train/calibration/test partitions machine-checkable, so a contributed dataset slots in with its
   license, group unit, and provenance declared. (8)&nbsp;A frozen, preregistered neural detector &mdash; selected by a
-  train/development-only pilot, hash-verified at load, and released on Hugging Face with a signed model card &mdash;
+  train/development-only pilot, hash-verified at load, and released at
+  <a href="https://huggingface.co/MarketStandard/panoptes-neural-v1" target="_blank" rel="noreferrer">MarketStandard/panoptes-neural-v1</a>
+  with a signed model card &mdash;
   provides a strong, reproducible reference instrument rather than a bespoke per-paper model. (9)&nbsp;An
   evidence-transportability harness runs any detector through leave-one-cohort-out, calibration-transfer, and sealed
   external-target analyses under the same data firewall, so a new cohort or a new model is measured against the same
@@ -1440,7 +1445,7 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   text that survived editing; a negative result under low power is weak evidence, and the interface says so. Provenance
   covers only files that carry credentials. In agent-assisted baseline runs, the model identity is self-reported by the
   runner; the catalog attests <em>what was claimed and what resulted</em>, not the ground truth of the serving stack
-  &mdash; the byte-identical code-07 outputs of &sect;5 are exactly the kind of signal this arrangement can and cannot
+  &mdash; the byte-identical code-07 outputs of &sect;6 are exactly the kind of signal this arrangement can and cannot
   interpret.</p>
   <p>The statistical results carry their own bounds. The corpus is small (n&nbsp;=&nbsp;104), English-heavy, and
   severely unbalanced at the label level (8 human controls against 96 AI outputs); every null result in &sect;8 is
@@ -1645,15 +1650,16 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
     Panoptes research paper, version 2.1 &middot; August 19, 2026. Authors: Carrington Junior
     (<a href="https://github.com/Encryptic1">Encryptic1</a>) and Trey Huffine
     (<a href="https://github.com/treyhuffine">treyhuffine</a>). Measurement protocol registered 2026-08-13 in
-    <span class="mono">research/protocol.json</span>; v2.1 transportability addendum registered 2026-08-19 in
-    <span class="mono">research/protocol-v2.1.json</span>. Canonical source:
+    <span class="mono">bench/protocol.json</span>; v2.1 transportability addendum registered 2026-08-19 in
+    <span class="mono">bench/protocol-v2.1.json</span>. Code:
     <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>.
-    Figures are generated from signed artifacts by <span class="mono">research/make_figures.py</span>.
+    Weights:
+    <a href="https://huggingface.co/MarketStandard/panoptes-neural-v1">huggingface.co/MarketStandard/panoptes-neural-v1</a>
+    (revision <span class="mono">76bf26782c783506c9af24d8277be0e1b708d243</span>).
     Catalog: <span class="mono">python baselines/baseline.py verify-catalog</span>.
     Protocol card: <span class="mono">python -m bench measure --data corpus</span>.
-    Self-check: <span class="mono">python research/reproduce.py</span>.
-    Remaining work that this environment cannot complete is listed in
-    <span class="mono">docs/v2-updates/</span>.
+    Self-check: <span class="mono">python -m bench.reproduce</span>.
+    Outside reproduction template: <span class="mono">docs/independent-reproduction.md</span>.
   </div>
 
 </div>

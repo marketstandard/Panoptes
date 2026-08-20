@@ -14,7 +14,7 @@ import numpy as np
 from bench.datasets import Dataset
 from bench.detectors import Detector, HeuristicDetector
 from bench.features import word_tokens
-from research.protocol import MIXTURE_RATES
+from bench.protocol import MIXTURE_RATES
 
 
 def mix_tokens(human: str, ai: str, rate: float) -> str:

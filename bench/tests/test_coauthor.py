@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from bench import datasets  # noqa: E402
-from research.fetch_coauthor import _assign_split, reconstruct_session  # noqa: E402
+from bench.fetch_coauthor import _assign_split, reconstruct_session  # noqa: E402
 
 pd = pytest.importorskip("pandas", reason="CoAuthor loader requires pandas/pyarrow")
 
@@ -174,8 +174,8 @@ def test_load_coauthor_rejects_unknown_split(tmp_path, monkeypatch):
 def test_coauthor_pointer_manifest_validates():
     pointer = ROOT / "datasets" / "manifests" / "coauthor.json"
     if not pointer.exists():
-        pytest.skip("CoAuthor not fetched; run python research/fetch_coauthor.py")
-    from research.validate_submission import validate_file
+        pytest.skip("CoAuthor not fetched; run python -m bench.fetch_coauthor")
+    from bench.validate_submission import validate_file
 
     assert validate_file(pointer) == []
     payload = json.loads(pointer.read_text(encoding="utf-8"))
@@ -186,7 +186,7 @@ def test_coauthor_pointer_manifest_validates():
 def test_coauthor_author_disjoint_firewall():
     parquet = ROOT / "datasets" / "local" / "coauthor" / "coauthor.parquet"
     if not parquet.exists():
-        pytest.skip("CoAuthor not fetched; run python research/fetch_coauthor.py")
+        pytest.skip("CoAuthor not fetched; run python -m bench.fetch_coauthor")
     frame = pd.read_parquet(parquet)
     worker_splits = frame.groupby("worker_id")["split"].nunique()
     assert int((worker_splits > 1).sum()) == 0, "a writer must never cross the split firewall"
@@ -195,8 +195,8 @@ def test_coauthor_author_disjoint_firewall():
 def test_coauthor_card_validates_and_reports_contribution():
     card = ROOT / "backend" / "artifacts" / "cards" / "coauthor-eval.json"
     if not card.exists():
-        pytest.skip("CoAuthor card not generated; run python research/run_coauthor_eval.py")
-    from research.validate_submission import validate_file
+        pytest.skip("CoAuthor card not generated; run python -m bench.run_coauthor_eval")
+    from bench.validate_submission import validate_file
 
     assert validate_file(card) == []
     payload = json.loads(card.read_text(encoding="utf-8"))

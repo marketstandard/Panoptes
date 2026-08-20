@@ -23,14 +23,14 @@ The two have **disjoint attack surfaces**: Unicode hygiene destroys the zero-wid
 
 ```bash
 # 1. GPU: generate ground-truth watermarked + control passages (KGW green-list, demo key)
-python research/run_watermark_generation.py
+python -m bench.run_watermark_generation
 
 # 2. GPU: LLM complete-rewrite attack (the strongest removal — a paraphrase model that
 #    does NOT know the watermark key re-rolls word choices off the green list)
-python research/run_watermark_paraphrase.py
+python -m bench.run_watermark_paraphrase
 
 # 3. CPU, deterministic: apply the attack battery and measure retention
-python research/run_watermark_removal.py
+python -m bench.run_watermark_removal
 ```
 
 Steps 1–2 are one-time GPU steps that write signed cards (`watermarked-generations.json`, `watermarked-paraphrases.json`). Step 3 is CPU-only and deterministic; it reads those cards and writes `watermark-removal.json`. Keeping generation on the GPU and the eval on the CPU means the reported numbers are reproducible without a GPU.

@@ -32,7 +32,7 @@ from bench.features import heuristic_raw_score
 from bench.mixtures import mixture_curve
 from bench.power import calibration_power
 from bench.splits import protocol_splits
-from research.protocol import load_protocol
+from bench.protocol import load_protocol
 
 
 class CalibrationMismatchError(RuntimeError):

@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "4ff35c7ca357a0b8905c4be984a413c6a04a06d43c2af0a350887dba1a49aea4",
+  "artifact_sha256": "1874e2ecb3b6ce2279820bce6e046a018c3fe494d0876c9fded992bcd7f525e6",
   "binary_calibrator": {
     "x_thresholds": [
       0.39889056603773576,
@@ -416,7 +416,7 @@
   ],
   "repro": {
     "code_commit": "workspace",
-    "command": "python research/calibration.py --dataset defactify",
+    "command": "python -m bench.calibration --dataset defactify",
     "group_cv": "GroupKFold(n_splits=5, groups=reconstructed story id)",
     "seed": 13
   },

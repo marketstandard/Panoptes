@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://panoptes.dev/schemas/reproduction-selfcheck.schema.json",
   "title": "Panoptes First-party Reproduction Self-check",
-  "description": "Author-run hash verification. independent must be false; an outside lab fills docs/v2-updates/independent-reproduction.md.",
+  "description": "Author-run hash verification. independent must be false; an outside lab fills docs/independent-reproduction.md.",
   "type": "object",
   "additionalProperties": false,
   "required": [

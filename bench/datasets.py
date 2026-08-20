@@ -1,13 +1,13 @@
 """Dataset loading for the bench.
 
 Sources:
-  - the hash-verified baseline corpus (via research/baseline_corpus)
+  - the hash-verified baseline corpus (via bench.baseline_corpus)
   - user datasets (CSV or JSONL) validated against schemas/bench-dataset.schema.json
   - the Defactify_Text_Dataset (Roy et al. 2026, arXiv:2510.22874), fetched and
-    hygiene-filtered locally by research/fetch_defactify.py (raw text gitignored)
-  - RAID (Dugan et al. 2024), M4GT-Bench (Wang et al. 2024), and EvoBench
-    (ACL 2025 Findings), fetched and hygiene-filtered locally by
-    research/fetch_raid.py, research/fetch_m4gt.py, research/fetch_evobench.py
+    hygiene-filtered locally by python -m bench.fetch_defactify (raw text gitignored)
+  - RAID (Dugan et al. 2024), M4GT-Bench (Wang et al. 2024), EvoBench
+    (ACL 2025 Findings), CoAuthor, and MAGE, fetched and hygiene-filtered locally by
+    python -m bench.fetch_raid / fetch_m4gt / fetch_evobench / fetch_coauthor / fetch_mage
 """
 
 from __future__ import annotations
@@ -136,7 +136,7 @@ def _dataset_hash(texts: list[str], labels: np.ndarray) -> str:
 
 def load_verified_corpus() -> Dataset:
     """The project corpus; every document re-hashed against its run manifest."""
-    from research.baseline_corpus import load_corpus
+    from bench.baseline_corpus import load_corpus
 
     records = load_corpus()
     texts = [record.text for record in records]
@@ -368,7 +368,7 @@ def _raid_frame():
 
         path = RAID_DIR / "train-clean.parquet"
         if not path.exists():
-            raise DatasetError(f"{path} missing; run python research/fetch_raid.py first")
+            raise DatasetError(f"{path} missing; run python -m bench.fetch_raid first")
         _RAID_FRAME_CACHE = pd.read_parquet(path)
         _RAID_FRAME_CACHE_DIR = RAID_DIR
     return _RAID_FRAME_CACHE
@@ -424,7 +424,7 @@ def raid_attacks() -> list[str]:
 
     path = RAID_DIR / "train-clean.parquet"
     if not path.exists():
-        raise DatasetError(f"{path} missing; run python research/fetch_raid.py first")
+        raise DatasetError(f"{path} missing; run python -m bench.fetch_raid first")
     values = pd.read_parquet(path, columns=["attack"])["attack"].unique().tolist()
     return sorted(v for v in (str(v) for v in values) if v and v != "none")
 
@@ -434,7 +434,7 @@ def _load_m4gt_file(file_stem: str, provenance: str, max_rows: int | None = None
 
     path = M4GT_DIR / f"{file_stem}-clean.parquet"
     if not path.exists():
-        raise DatasetError(f"{path} missing; run python research/fetch_m4gt.py first")
+        raise DatasetError(f"{path} missing; run python -m bench.fetch_m4gt first")
     frame = pd.read_parquet(path)
     rows_before = len(frame)
     subsample = {"max_rows": None, "n_rows_selected": rows_before}
@@ -486,7 +486,7 @@ def load_evobench(max_rows: int | None = None, seed: int = 13) -> Dataset:
 
     path = EVOBENCH_DIR / "clean.parquet"
     if not path.exists():
-        raise DatasetError(f"{path} missing; run python research/fetch_evobench.py first")
+        raise DatasetError(f"{path} missing; run python -m bench.fetch_evobench first")
     frame = pd.read_parquet(path)
     rows_before = len(frame)
     groups = frame["group"].astype(str).tolist()
@@ -535,7 +535,7 @@ def load_coauthor(split: str = "test", max_rows: int | None = None, seed: int = 
         raise DatasetError(f"unknown CoAuthor split {split!r}; expected one of {COAUTHOR_SPLITS}")
     path = COAUTHOR_DIR / "coauthor.parquet"
     if not path.exists():
-        raise DatasetError(f"{path} missing; run python research/fetch_coauthor.py first")
+        raise DatasetError(f"{path} missing; run python -m bench.fetch_coauthor first")
     frame = pd.read_parquet(path)
     frame = frame.loc[frame["split"] == split].reset_index(drop=True)
 
@@ -601,7 +601,7 @@ def load_mage(
         raise DatasetError(f"unknown MAGE split {split!r}; expected one of {MAGE_SPLITS}")
     path = MAGE_DIR / f"{split}-clean.parquet"
     if not path.exists():
-        raise DatasetError(f"{path} missing; run python research/fetch_mage.py first")
+        raise DatasetError(f"{path} missing; run python -m bench.fetch_mage first")
     frame = pd.read_parquet(path)
 
     if domains is not None:
@@ -664,7 +664,7 @@ def load_defactify(
     for split in splits:
         path = DEFACTIFY_DIR / f"{split}-clean.parquet"
         if not path.exists():
-            raise DatasetError(f"{path} missing; run python research/fetch_defactify.py first")
+            raise DatasetError(f"{path} missing; run python -m bench.fetch_defactify first")
         frame = pd.read_parquet(path)
         frame["official_split"] = split
         frames.append(frame)

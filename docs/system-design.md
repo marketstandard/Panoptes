@@ -44,7 +44,7 @@ The initial deployment is deliberately boring: one Python FastAPI process serves
 - `frontend/` — React/Vite user interface.
 - `schemas/` — canonical JSON Schemas and golden response fixtures.
 - `fixtures/` — deterministic sample inputs and expected responses.
-- `research/` — reproducible calibration and evaluation pipelines.
+- `bench/` — reproducible protocol, dataset fetchers, and evaluation pipelines.
 - `sdk/python/` — typed Python client for the API.
 - `plugins/` — examples and contracts for extensions.
 - `docs/` — architecture, mathematics, interpretation, deployment, and contribution documentation.

@@ -15,7 +15,7 @@ import math
 
 import numpy as np
 
-from research.protocol import PREVALENCE_GRID
+from bench.protocol import PREVALENCE_GRID
 
 EPS = 1e-6
 

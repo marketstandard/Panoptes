@@ -63,7 +63,7 @@ def _signed_card() -> dict:
 
 
 def test_synthetic_pilot_card_validates(tmp_path):
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     path = tmp_path / "card.json"
     path.write_text(json.dumps(_signed_card()), encoding="utf-8")
@@ -71,7 +71,7 @@ def test_synthetic_pilot_card_validates(tmp_path):
 
 
 def test_pilot_card_missing_required_field_fails(tmp_path):
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     card = _signed_card()
     del card["winner"]
@@ -81,7 +81,7 @@ def test_pilot_card_missing_required_field_fails(tmp_path):
 
 
 def test_pilot_card_bad_objective_fails(tmp_path):
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     card = _signed_card()
     card["runs"][0]["objective"] = "not_an_objective"
@@ -91,11 +91,11 @@ def test_pilot_card_bad_objective_fails(tmp_path):
 
 
 def test_real_pilot_card_validates_and_freezes_winner():
-    from research.validate_submission import validate_file
+    from bench.validate_submission import validate_file
 
     card_path = ROOT / "backend" / "artifacts" / "cards" / "neural-pilot.json"
     if not card_path.exists():
-        pytest.skip("pilot not run yet; run research/run_neural_pilot.py")
+        pytest.skip("pilot card not present; private training runner not shipped in the public repo")
     assert validate_file(card_path) == []
     card = json.loads(card_path.read_text(encoding="utf-8"))
     # The winner must be one of the evaluated ok runs, and every run recorded.
