@@ -1,0 +1,1420 @@
+{
+  "artifact_sha256": "017b2fbfb4ff88d4e4e9fec908a82cdc89756decf54245cfc59fe3ce817c523f",
+  "axis": "dataset",
+  "cohorts": [
+    "defactify",
+    "mage",
+    "raid"
+  ],
+  "created_utc": "2026-08-19T21:48:47Z",
+  "dataset": "pooled-loco-pool-v2.1 (pooled train+cal; test sealed)",
+  "dataset_sha256": "ec7f9cb7a93a63cdbb926cf2eb30b7170276677935a6b0c2589ac61f094ced1a",
+  "delta_from_target_diagonal": {
+    "defactify": {
+      "defactify": {
+        "delta_auprc": 0.0,
+        "delta_auroc": 0.0,
+        "delta_brier": 0.0,
+        "delta_calibration_slope": 0.0,
+        "delta_ece": 0.0
+      },
+      "mage": {
+        "delta_auprc": 0.0013458423583621038,
+        "delta_auroc": -0.006773517427859033,
+        "delta_brier": 0.05518854195734513,
+        "delta_calibration_slope": -0.8374775559475788,
+        "delta_ece": 0.1720890660536019
+      },
+      "raid": {
+        "delta_auprc": -0.02945952669848506,
+        "delta_auroc": -0.02804924693162869,
+        "delta_brier": 0.028387689969514684,
+        "delta_calibration_slope": -0.6626142687833751,
+        "delta_ece": 0.12806248301066536
+      }
+    },
+    "mage": {
+      "defactify": {
+        "delta_auprc": -0.0028213417538272,
+        "delta_auroc": -0.004380465269757439,
+        "delta_brier": 0.04665811291425354,
+        "delta_calibration_slope": 3.7946783507366892,
+        "delta_ece": 0.19486871918012455
+      },
+      "mage": {
+        "delta_auprc": 0.0,
+        "delta_auroc": 0.0,
+        "delta_brier": 0.0,
+        "delta_calibration_slope": 0.0,
+        "delta_ece": 0.0
+      },
+      "raid": {
+        "delta_auprc": -0.008781195136863817,
+        "delta_auroc": -0.004511185530207684,
+        "delta_brier": 0.0008689658279360524,
+        "delta_calibration_slope": 0.5965897605601638,
+        "delta_ece": 0.017970047281376952
+      }
+    },
+    "raid": {
+      "defactify": {
+        "delta_auprc": -0.006540147831939902,
+        "delta_auroc": -0.013119947203431792,
+        "delta_brier": 0.03373965799584377,
+        "delta_calibration_slope": 2.269505384215203,
+        "delta_ece": 0.15967683527122525
+      },
+      "mage": {
+        "delta_auprc": 0.0035274494561607916,
+        "delta_auroc": -0.004686076433630504,
+        "delta_brier": 0.01152907191754643,
+        "delta_calibration_slope": -0.5784878981822252,
+        "delta_ece": 0.04462829233704291
+      },
+      "raid": {
+        "delta_auprc": 0.0,
+        "delta_auroc": 0.0,
+        "delta_brier": 0.0,
+        "delta_calibration_slope": 0.0,
+        "delta_ece": 0.0
+      }
+    }
+  },
+  "detector": "logistic",
+  "environment": {
+    "git": {
+      "commit": "f30873047a846c7aa977beda4a7c679470604d62",
+      "dirty": true
+    },
+    "numpy": "2.5.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "sklearn": "1.9.0"
+  },
+  "kind": "calibration_transfer",
+  "limitations": [
+    "All operating thresholds, the calibrator, and the conformal level are fit on calibration partitions only; no final-test label sets a threshold.",
+    "Cross-dataset LOCO holds an entire dataset out of training and calibration; pooled seen-cohort cells are never labeled external.",
+    "Split-conformal coverage and calibration are population-conditional and not guaranteed after distribution shift.",
+    "The sealed pooled test partition and external targets are evaluated once with the frozen production scorer under --finalize.",
+    "RAID clean is a seen cohort (in pooled training); only RAID attack cells are external robustness tests.",
+    "The dataset-origin probe reports shortcut risk as a limitation, not as proof all shifts are detectable.",
+    "Dataset-origin probe predicts cohort at 0.81 (chance 0.33); transport gaps may reflect shortcut features."
+  ],
+  "matrix": {
+    "defactify": {
+      "defactify": {
+        "accuracy": 0.923249299719888,
+        "adaptive_ece": {
+          "adaptive_ece": 0.014002742791009172,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.008253362229196188,
+            0.030628329750217436
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.982932651351387,
+        "auroc": 0.9110856294340868,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.8720087522112171,
+            0.9389492151798956
+          ],
+          "n_boot": 1000,
+          "n_groups": 1549,
+          "point": 0.9110856294340868,
+          "resample_unit": "group"
+        },
+        "brier": 0.05466268563841618,
+        "calibration_intercept": 0.4706128457410338,
+        "calibration_slope": 0.5737200717304112,
+        "conformal": {
+          "abstention_rate": 0.13669467787114845,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.8580570098894706,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.8842105263157894,
+            "1": 0.922884012539185
+          },
+          "empirical_coverage": 0.9187675070028011,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.1366946778711484,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 1719,
+          "n_test": 1785,
+          "singleton_rate": 0.8633053221288516,
+          "threshold_class_0": 0.8932038834951457,
+          "threshold_class_1": 0.15714285714285714
+        },
+        "ece": 0.010465516577626347,
+        "n_calibration": 1719,
+        "n_groups": 1549,
+        "n_test": 1785,
+        "on_diagonal": true,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.5830721003134797,
+          "tpr_at_1fpr": 0.6539184952978057,
+          "tpr_at_5fpr": 0.7874608150470219
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.9110856294340868,
+          "natural": {
+            "accuracy": 0.923249299719888,
+            "brier": 0.05466268563841618,
+            "log_loss": 0.2319508041878464
+          },
+          "natural_prevalence": 0.8935574229691877,
+          "standardized": {
+            "accuracy": 0.6951080679755816,
+            "brier": 0.19555745591813706,
+            "log_loss": 0.8318483957843827
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.923249299719888,
+            "brier": 0.05466268563841618,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07675070028011205,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.950868783702816,
+            "brier": 0.04150594561706315,
+            "confidence_threshold": 0.6923076923076923,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.9350140056022409,
+            "n_kept": 1669,
+            "selective_risk": 0.04913121629718394,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9738255033557047,
+            "brier": 0.02480465937202039,
+            "confidence_threshold": 0.8873239436619719,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.834733893557423,
+            "n_kept": 1490,
+            "selective_risk": 0.026174496644295303,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9824828636709825,
+            "brier": 0.017057097899224757,
+            "confidence_threshold": 0.9517241379310345,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.7355742296918768,
+            "n_kept": 1313,
+            "selective_risk": 0.017517136329017517,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.986336464560205,
+            "brier": 0.01344226494683208,
+            "confidence_threshold": 0.96,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.6560224089635854,
+            "n_kept": 1171,
+            "selective_risk": 0.013663535439795047,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9903567984570878,
+            "brier": 0.009639404245280815,
+            "confidence_threshold": 0.987012987012987,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.580952380952381,
+            "n_kept": 1037,
+            "selective_risk": 0.009643201542912247,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.8580570098894706,
+        "source_cohort": "defactify",
+        "target_cohort": "defactify",
+        "target_prevalence": 0.8935574229691877,
+        "tpr_at_0.1fpr": 0.47648902821316613,
+        "tpr_at_1fpr": 0.47648902821316613,
+        "tpr_at_5fpr": 0.6338557993730407
+      },
+      "mage": {
+        "accuracy": 0.6285024154589371,
+        "adaptive_ece": {
+          "adaptive_ece": 0.20000471600932357,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.17978104612352647,
+            0.20825356665415662
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.7453790055821112,
+        "auroc": 0.633168445319387,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.6163011377385504,
+            0.6506902115630983
+          ],
+          "n_boot": 1000,
+          "n_groups": 3812,
+          "point": 0.633168445319387,
+          "resample_unit": "group"
+        },
+        "brier": 0.27151995508816046,
+        "calibration_intercept": 0.42684223696866347,
+        "calibration_slope": 0.063518917849741,
+        "conformal": {
+          "abstention_rate": 0.13333333333333333,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.8580570098894706,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.7912984364377974,
+            "1": 0.563132259273136
+          },
+          "empirical_coverage": 0.6442028985507247,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.1333333333333333,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 1719,
+          "n_test": 4140,
+          "singleton_rate": 0.8666666666666667,
+          "threshold_class_0": 0.8932038834951457,
+          "threshold_class_1": 0.15714285714285714
+        },
+        "ece": 0.193749673721839,
+        "n_calibration": 1719,
+        "n_groups": 3812,
+        "n_test": 4140,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.298613713001124,
+          "tpr_at_1fpr": 0.34020232296740355,
+          "tpr_at_5fpr": 0.42113150992881226
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.633168445319387,
+          "natural": {
+            "accuracy": 0.6285024154589371,
+            "brier": 0.27151995508816046,
+            "log_loss": 1.468095289476713
+          },
+          "natural_prevalence": 0.6446859903381642,
+          "standardized": {
+            "accuracy": 0.5838719298723745,
+            "brier": 0.3054619390635215,
+            "log_loss": 1.6980646216499438
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.6285024154589371,
+            "brier": 0.27151995508816046,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.3714975845410628,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6521349656613915,
+            "brier": 0.2763402779366648,
+            "confidence_threshold": 0.6923076923076923,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.8089371980676329,
+            "n_kept": 3349,
+            "selective_risk": 0.34786503433860855,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7001401214385801,
+            "brier": 0.2812882476032987,
+            "confidence_threshold": 0.8873239436619719,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.5171497584541063,
+            "n_kept": 2141,
+            "selective_risk": 0.2998598785614199,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7093768200349446,
+            "brier": 0.282421766963657,
+            "confidence_threshold": 0.9517241379310345,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.4147342995169082,
+            "n_kept": 1717,
+            "selective_risk": 0.2906231799650553,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7062750333778371,
+            "brier": 0.28778318494637367,
+            "confidence_threshold": 0.96,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.36183574879227054,
+            "n_kept": 1498,
+            "selective_risk": 0.2937249666221629,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7561807331628303,
+            "brier": 0.24310216180631233,
+            "confidence_threshold": 0.987012987012987,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.2833333333333333,
+            "n_kept": 1173,
+            "selective_risk": 0.24381926683716965,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.8580570098894706,
+        "source_cohort": "defactify",
+        "target_cohort": "mage",
+        "target_prevalence": 0.6446859903381642,
+        "tpr_at_0.1fpr": 0.2566504308729861,
+        "tpr_at_1fpr": 0.2566504308729861,
+        "tpr_at_5fpr": 0.2566504308729861
+      },
+      "raid": {
+        "accuracy": 0.7681281618887015,
+        "adaptive_ece": {
+          "adaptive_ece": 0.15099009076279543,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.1256110162898737,
+            0.17467282341434603
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.8632639638274645,
+        "auroc": 0.7290585795396595,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.6876484772677949,
+            0.7708810794082493
+          ],
+          "n_boot": 1000,
+          "n_groups": 80,
+          "point": 0.7290585795396595,
+          "resample_unit": "group"
+        },
+        "brier": 0.18689332388821742,
+        "calibration_intercept": 0.33951718891157784,
+        "calibration_slope": 0.12426694324369807,
+        "conformal": {
+          "abstention_rate": 0.09752670039347948,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.8580570098894706,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.6161731207289294,
+            "1": 0.8417910447761194
+          },
+          "empirical_coverage": 0.7861157953906689,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.0975267003934794,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 1719,
+          "n_test": 3558,
+          "singleton_rate": 0.9024732996065206,
+          "threshold_class_0": 0.8932038834951457,
+          "threshold_class_1": 0.15714285714285714
+        },
+        "ece": 0.14983272551880955,
+        "n_calibration": 1719,
+        "n_groups": 80,
+        "n_test": 3558,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.658955223880597,
+          "tpr_at_1fpr": 0.6955223880597015,
+          "tpr_at_5fpr": 0.7563432835820896
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.7290585795396595,
+          "natural": {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.18689332388821742,
+            "log_loss": 1.313316305766536
+          },
+          "natural_prevalence": 0.7532321528948848,
+          "standardized": {
+            "accuracy": 0.619017101281746,
+            "brier": 0.31382393166681843,
+            "log_loss": 2.369916459333463
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.18689332388821742,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.2318718381112985,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7864757843435881,
+            "brier": 0.1821975120426182,
+            "confidence_threshold": 0.6923076923076923,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.9227093872962339,
+            "n_kept": 3283,
+            "selective_risk": 0.21352421565641183,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8270192994996426,
+            "brier": 0.16410522542709133,
+            "confidence_threshold": 0.8873239436619719,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.7863968521641371,
+            "n_kept": 2798,
+            "selective_risk": 0.1729807005003574,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8434782608695652,
+            "brier": 0.15294892986006284,
+            "confidence_threshold": 0.9517241379310345,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.7110736368746486,
+            "n_kept": 2530,
+            "selective_risk": 0.1565217391304348,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8528918692372172,
+            "brier": 0.14500000823828232,
+            "confidence_threshold": 0.96,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.670601461495222,
+            "n_kept": 2386,
+            "selective_risk": 0.1471081307627829,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8727272727272728,
+            "brier": 0.12699296719817882,
+            "confidence_threshold": 0.987012987012987,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.602866779089376,
+            "n_kept": 2145,
+            "selective_risk": 0.12727272727272726,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.8580570098894706,
+        "source_cohort": "defactify",
+        "target_cohort": "raid",
+        "target_prevalence": 0.7532321528948848,
+        "tpr_at_0.1fpr": 0.6119402985074627,
+        "tpr_at_1fpr": 0.6119402985074627,
+        "tpr_at_5fpr": 0.6119402985074627
+      }
+    },
+    "mage": {
+      "defactify": {
+        "accuracy": 0.9249299719887956,
+        "adaptive_ece": {
+          "adaptive_ece": 0.21764079772680078,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.1931692945033892,
+            0.21816997814092642
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.9801113095975598,
+        "auroc": 0.9067051641643293,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.8677061559017467,
+            0.9364133213683992
+          ],
+          "n_boot": 1000,
+          "n_groups": 1549,
+          "point": 0.9067051641643293,
+          "resample_unit": "group"
+        },
+        "brier": 0.10132079855266972,
+        "calibration_intercept": -1.0364246293761736,
+        "calibration_slope": 4.3683984224671,
+        "conformal": {
+          "abstention_rate": 0.8896358543417366,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.6339048539000242,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9789473684210527,
+            "1": 1.0
+          },
+          "empirical_coverage": 0.9977591036414566,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.8896358543417366,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4141,
+          "n_test": 1785,
+          "singleton_rate": 0.1103641456582633,
+          "threshold_class_0": 0.7637795275590551,
+          "threshold_class_1": 0.507505360972123
+        },
+        "ece": 0.2053342357577509,
+        "n_calibration": 4141,
+        "n_groups": 1549,
+        "n_test": 1785,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.0219435736677116,
+          "tpr_at_1fpr": 0.0219435736677116,
+          "tpr_at_5fpr": 0.6721003134796238
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.9067051641643293,
+          "natural": {
+            "accuracy": 0.9249299719887956,
+            "brier": 0.10132079855266972,
+            "log_loss": 0.36992881796378785
+          },
+          "natural_prevalence": 0.8935574229691877,
+          "standardized": {
+            "accuracy": 0.7030028048176868,
+            "brier": 0.2075635344916068,
+            "log_loss": 0.6006335963575307
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.9249299719887956,
+            "brier": 0.10132079855266972,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07507002801120448,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9249299719887956,
+            "brier": 0.10132079855266972,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.9,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07507002801120448,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9249299719887956,
+            "brier": 0.10132079855266972,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.8,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07507002801120448,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9249299719887956,
+            "brier": 0.10132079855266972,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.7,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07507002801120448,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9362336114421931,
+            "brier": 0.09201564051230139,
+            "confidence_threshold": 0.5631399317406144,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.9400560224089636,
+            "n_kept": 1678,
+            "selective_risk": 0.06376638855780692,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.96,
+            "brier": 0.08215614063640155,
+            "confidence_threshold": 0.631004366812227,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.8823529411764706,
+            "n_kept": 1575,
+            "selective_risk": 0.04,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.6339048539000242,
+        "source_cohort": "mage",
+        "target_cohort": "defactify",
+        "target_prevalence": 0.8935574229691877,
+        "tpr_at_0.1fpr": 0.0219435736677116,
+        "tpr_at_1fpr": 0.0219435736677116,
+        "tpr_at_5fpr": 0.6721003134796238
+      },
+      "mage": {
+        "accuracy": 0.6292270531400966,
+        "adaptive_ece": {
+          "adaptive_ece": 0.1053115378188608,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.01498675818653279,
+            0.03710215063539524
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.7440331632237491,
+        "auroc": 0.639941962747246,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.622621768772509,
+            0.6576551786472953
+          ],
+          "n_boot": 1000,
+          "n_groups": 3812,
+          "point": 0.639941962747246,
+          "resample_unit": "group"
+        },
+        "brier": 0.21633141313081533,
+        "calibration_intercept": 0.10495909249545088,
+        "calibration_slope": 0.9009964737973197,
+        "conformal": {
+          "abstention_rate": 0.9094202898550725,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.6339048539000242,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9598912304554724,
+            "1": 1.0
+          },
+          "empirical_coverage": 0.9857487922705314,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.9094202898550725,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4141,
+          "n_test": 4140,
+          "singleton_rate": 0.09057971014492754,
+          "threshold_class_0": 0.7637795275590551,
+          "threshold_class_1": 0.507505360972123
+        },
+        "ece": 0.02166060766823708,
+        "n_calibration": 4141,
+        "n_groups": 3812,
+        "n_test": 4140,
+        "on_diagonal": true,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.0618209067066317,
+          "tpr_at_1fpr": 0.0618209067066317,
+          "tpr_at_5fpr": 0.3491944548520045
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.639941962747246,
+          "natural": {
+            "accuracy": 0.6292270531400966,
+            "brier": 0.21633141313081533,
+            "log_loss": 0.6223095778830495
+          },
+          "natural_prevalence": 0.6446859903381642,
+          "standardized": {
+            "accuracy": 0.5868750380466717,
+            "brier": 0.249293270288046,
+            "log_loss": 0.6953362079695576
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.6292270531400966,
+            "brier": 0.21633141313081533,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.37077294685990336,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6292270531400966,
+            "brier": 0.21633141313081533,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.9,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.37077294685990336,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6292270531400966,
+            "brier": 0.21633141313081533,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.8,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.37077294685990336,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6292270531400966,
+            "brier": 0.21633141313081533,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.7,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.37077294685990336,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7067587209302326,
+            "brier": 0.19907697368613828,
+            "confidence_threshold": 0.5631399317406144,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.6647342995169082,
+            "n_kept": 2752,
+            "selective_risk": 0.29324127906976744,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7452873563218391,
+            "brier": 0.18643004245941855,
+            "confidence_threshold": 0.631004366812227,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.5253623188405797,
+            "n_kept": 2175,
+            "selective_risk": 0.25471264367816093,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.6339048539000242,
+        "source_cohort": "mage",
+        "target_cohort": "mage",
+        "target_prevalence": 0.6446859903381642,
+        "tpr_at_0.1fpr": 0.0618209067066317,
+        "tpr_at_1fpr": 0.0618209067066317,
+        "tpr_at_5fpr": 0.3491944548520045
+      },
+      "raid": {
+        "accuracy": 0.7681281618887015,
+        "adaptive_ece": {
+          "adaptive_ece": 0.037515545217619434,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.029117124322439798,
+            0.06936520025120183
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.8839422953890858,
+        "auroc": 0.7525966409410805,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.7150985702703316,
+            0.7897143254205835
+          ],
+          "n_boot": 1000,
+          "n_groups": 80,
+          "point": 0.7525966409410805,
+          "resample_unit": "group"
+        },
+        "brier": 0.15937459974663878,
+        "calibration_intercept": -0.19301073653230744,
+        "calibration_slope": 1.383470972587237,
+        "conformal": {
+          "abstention_rate": 0.6750983698707139,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.6339048539000242,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9134396355353075,
+            "1": 1.0
+          },
+          "empirical_coverage": 0.9786396852164138,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.6750983698707138,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4141,
+          "n_test": 3558,
+          "singleton_rate": 0.32490163012928613,
+          "threshold_class_0": 0.7637795275590551,
+          "threshold_class_1": 0.507505360972123
+        },
+        "ece": 0.03974028978952114,
+        "n_calibration": 4141,
+        "n_groups": 80,
+        "n_test": 3558,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.2720149253731343,
+          "tpr_at_1fpr": 0.2720149253731343,
+          "tpr_at_5fpr": 0.7074626865671642
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.7525966409410805,
+          "natural": {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.15937459974663878,
+            "log_loss": 0.48562019330195744
+          },
+          "natural_prevalence": 0.7532321528948848,
+          "standardized": {
+            "accuracy": 0.619782919117397,
+            "brier": 0.248681000548589,
+            "log_loss": 0.6906896803414008
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.15937459974663878,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.2318718381112985,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.15937459974663878,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.9,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.2318718381112985,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.15937459974663878,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.8,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.2318718381112985,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7681281618887015,
+            "brier": 0.15937459974663878,
+            "confidence_threshold": 0.507505360972123,
+            "coverage_target": 0.7,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.2318718381112985,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8054179055170135,
+            "brier": 0.14367004895951557,
+            "confidence_threshold": 0.5631399317406144,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.8507588532883642,
+            "n_kept": 3027,
+            "selective_risk": 0.19458209448298647,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8215428368290082,
+            "brier": 0.13638525967566367,
+            "confidence_threshold": 0.631004366812227,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.7906127037661608,
+            "n_kept": 2813,
+            "selective_risk": 0.17845716317099183,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.6339048539000242,
+        "source_cohort": "mage",
+        "target_cohort": "raid",
+        "target_prevalence": 0.7532321528948848,
+        "tpr_at_0.1fpr": 0.2720149253731343,
+        "tpr_at_1fpr": 0.2720149253731343,
+        "tpr_at_5fpr": 0.2720149253731343
+      }
+    },
+    "raid": {
+      "defactify": {
+        "accuracy": 0.9277310924369748,
+        "adaptive_ece": {
+          "adaptive_ece": 0.18180201571439789,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.1517603140635533,
+            0.18074722710343852
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.9763925035194471,
+        "auroc": 0.897965682230655,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.857285275428939,
+            0.9285651827269112
+          ],
+          "n_boot": 1000,
+          "n_groups": 1549,
+          "point": 0.897965682230655,
+          "resample_unit": "group"
+        },
+        "brier": 0.08840234363425994,
+        "calibration_intercept": -0.031104737125948738,
+        "calibration_slope": 2.843225455945614,
+        "conformal": {
+          "abstention_rate": 0.8644257703081233,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.7502252252252253,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9842105263157894,
+            "1": 0.9830721003134796
+          },
+          "empirical_coverage": 0.9831932773109243,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.8644257703081233,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4440,
+          "n_test": 1785,
+          "singleton_rate": 0.13557422969187674,
+          "threshold_class_0": 0.8741258741258742,
+          "threshold_class_1": 0.40625
+        },
+        "ece": 0.1701423518488516,
+        "n_calibration": 4440,
+        "n_groups": 1549,
+        "n_test": 1785,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.0012539184952978057,
+          "tpr_at_1fpr": 0.0025078369905956114,
+          "tpr_at_5fpr": 0.05579937304075235
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.897965682230655,
+          "natural": {
+            "accuracy": 0.9277310924369748,
+            "brier": 0.08840234363425994,
+            "log_loss": 0.33159999751504504
+          },
+          "natural_prevalence": 0.8935574229691877,
+          "standardized": {
+            "accuracy": 0.723114997525161,
+            "brier": 0.18184255414587583,
+            "log_loss": 0.544163837066653
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.9277310924369748,
+            "brier": 0.08840234363425994,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 1785,
+            "selective_risk": 0.07226890756302522,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9383720930232559,
+            "brier": 0.08295365732558632,
+            "confidence_threshold": 0.59375,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.9635854341736695,
+            "n_kept": 1720,
+            "selective_risk": 0.06162790697674419,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9612015018773467,
+            "brier": 0.07155934058636165,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.8952380952380953,
+            "n_kept": 1598,
+            "selective_risk": 0.03879849812265332,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9612015018773467,
+            "brier": 0.07155934058636165,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.8952380952380953,
+            "n_kept": 1598,
+            "selective_risk": 0.03879849812265332,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9899175068744271,
+            "brier": 0.04179512734455849,
+            "confidence_threshold": 0.7525252525252525,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.6112044817927171,
+            "n_kept": 1091,
+            "selective_risk": 0.01008249312557287,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.9903225806451613,
+            "brier": 0.03768532092837099,
+            "confidence_threshold": 0.7830423940149626,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.5210084033613446,
+            "n_kept": 930,
+            "selective_risk": 0.00967741935483871,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.7502252252252253,
+        "source_cohort": "raid",
+        "target_cohort": "defactify",
+        "target_prevalence": 0.8935574229691877,
+        "tpr_at_0.1fpr": 0.0012539184952978057,
+        "tpr_at_1fpr": 0.0219435736677116,
+        "tpr_at_5fpr": 0.6764890282131661
+      },
+      "mage": {
+        "accuracy": 0.6294685990338165,
+        "adaptive_ece": {
+          "adaptive_ece": 0.21728299751534394,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.055053316697425754,
+            0.08041178598465053
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.7475606126799099,
+        "auroc": 0.6352558863136155,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.6175836671831478,
+            0.6529164362297695
+          ],
+          "n_boot": 1000,
+          "n_groups": 3812,
+          "point": 0.6352558863136155,
+          "resample_unit": "group"
+        },
+        "brier": 0.22786048504836176,
+        "calibration_intercept": 0.4385941749828733,
+        "calibration_slope": 0.3225085756150945,
+        "conformal": {
+          "abstention_rate": 0.576328502415459,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.7502252252252253,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9653297076818491,
+            "1": 0.7197452229299363
+          },
+          "empirical_coverage": 0.8070048309178744,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.576328502415459,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4440,
+          "n_test": 4140,
+          "singleton_rate": 0.4236714975845411,
+          "threshold_class_0": 0.8741258741258742,
+          "threshold_class_1": 0.40625
+        },
+        "ece": 0.06628890000527998,
+        "n_calibration": 4440,
+        "n_groups": 3812,
+        "n_test": 4140,
+        "on_diagonal": false,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.02772573997751967,
+          "tpr_at_1fpr": 0.03259647808167853,
+          "tpr_at_5fpr": 0.09029599100786811
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.6352558863136155,
+          "natural": {
+            "accuracy": 0.6294685990338165,
+            "brier": 0.22786048504836176,
+            "log_loss": 0.6784268989037032
+          },
+          "natural_prevalence": 0.6446859903381642,
+          "standardized": {
+            "accuracy": 0.5927074177192169,
+            "brier": 0.25162506766555237,
+            "log_loss": 0.7305334513252829
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.6294685990338165,
+            "brier": 0.22786048504836176,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 4140,
+            "selective_risk": 0.3705314009661836,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6637797711104237,
+            "brier": 0.22001855914589996,
+            "confidence_threshold": 0.59375,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.7809178743961352,
+            "n_kept": 3233,
+            "selective_risk": 0.33622022888957626,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6979038224414303,
+            "brier": 0.21081931759319059,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.5876811594202899,
+            "n_kept": 2433,
+            "selective_risk": 0.30209617755856966,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.6979038224414303,
+            "brier": 0.21081931759319059,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.5876811594202899,
+            "n_kept": 2433,
+            "selective_risk": 0.30209617755856966,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.791421362489487,
+            "brier": 0.16907824747006736,
+            "confidence_threshold": 0.7525252525252525,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.2871980676328502,
+            "n_kept": 1189,
+            "selective_risk": 0.20857863751051303,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7997967479674797,
+            "brier": 0.16541131307255805,
+            "confidence_threshold": 0.7830423940149626,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.23768115942028986,
+            "n_kept": 984,
+            "selective_risk": 0.20020325203252032,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.7502252252252253,
+        "source_cohort": "raid",
+        "target_cohort": "mage",
+        "target_prevalence": 0.6446859903381642,
+        "tpr_at_0.1fpr": 0.011989509179467965,
+        "tpr_at_1fpr": 0.0618209067066317,
+        "tpr_at_5fpr": 0.20419632821281378
+      },
+      "raid": {
+        "accuracy": 0.7664418212478921,
+        "adaptive_ece": {
+          "adaptive_ece": 0.036111638387642156,
+          "binning": "equal_mass",
+          "bins": 10,
+          "ci": [
+            0.022645093830317046,
+            0.05809319482017889
+          ],
+          "resample_unit": "group"
+        },
+        "auprc": 0.8927234905259496,
+        "auroc": 0.7571078264712882,
+        "auroc_group_bootstrap": {
+          "ci": [
+            0.7194887592825802,
+            0.7943774794382699
+          ],
+          "n_boot": 1000,
+          "n_groups": 80,
+          "point": 0.7571078264712882,
+          "resample_unit": "group"
+        },
+        "brier": 0.15850563391870273,
+        "calibration_intercept": 0.24112061985981878,
+        "calibration_slope": 0.7868812120270732,
+        "conformal": {
+          "abstention_rate": 0.5553681843732434,
+          "alpha": 0.1,
+          "calibration_prevalence": 0.7502252252252253,
+          "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+          "coverage_by_class": {
+            "0": 0.9225512528473804,
+            "1": 0.9085820895522388
+          },
+          "empirical_coverage": 0.9120292299044407,
+          "empty_rate": 0.0,
+          "fit_on": "calibration",
+          "mean_set_size": 1.5553681843732434,
+          "method": "split_conformal_mondrian",
+          "n_calibration": 4440,
+          "n_test": 3558,
+          "singleton_rate": 0.44463181562675663,
+          "threshold_class_0": 0.8741258741258742,
+          "threshold_class_1": 0.40625
+        },
+        "ece": 0.02177024250814419,
+        "n_calibration": 4440,
+        "n_groups": 80,
+        "n_test": 3558,
+        "on_diagonal": true,
+        "operating_points": {
+          "tpr_at_0.1fpr": 0.1496268656716418,
+          "tpr_at_1fpr": 0.17350746268656717,
+          "tpr_at_5fpr": 0.3384328358208955
+        },
+        "operating_points_fit_on": "calibration",
+        "prevalence_views": {
+          "auroc": 0.7571078264712882,
+          "natural": {
+            "accuracy": 0.7664418212478921,
+            "brier": 0.15850563391870273,
+            "log_loss": 0.489066156353435
+          },
+          "natural_prevalence": 0.7532321528948848,
+          "standardized": {
+            "accuracy": 0.6205780607214495,
+            "brier": 0.24453646662108147,
+            "log_loss": 0.7034547907375543
+          },
+          "target_prevalence": 0.5
+        },
+        "selective_risk": [
+          {
+            "accuracy": 0.7664418212478921,
+            "brier": 0.15850563391870273,
+            "confidence_threshold": 0.0,
+            "coverage_target": 1.0,
+            "empirical_coverage": 1.0,
+            "n_kept": 3558,
+            "selective_risk": 0.23355817875210794,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.7920610687022901,
+            "brier": 0.14953619629007672,
+            "confidence_threshold": 0.59375,
+            "coverage_target": 0.9,
+            "empirical_coverage": 0.9204609331084879,
+            "n_kept": 3275,
+            "selective_risk": 0.20793893129770993,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8111559139784946,
+            "brier": 0.14048620980614596,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.8,
+            "empirical_coverage": 0.836424957841484,
+            "n_kept": 2976,
+            "selective_risk": 0.18884408602150538,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8111559139784946,
+            "brier": 0.14048620980614596,
+            "confidence_threshold": 0.6739446870451238,
+            "coverage_target": 0.7,
+            "empirical_coverage": 0.836424957841484,
+            "n_kept": 2976,
+            "selective_risk": 0.18884408602150538,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8691290469676243,
+            "brier": 0.10877626007048101,
+            "confidence_threshold": 0.7525252525252525,
+            "coverage_target": 0.6,
+            "empirical_coverage": 0.6163575042158516,
+            "n_kept": 2193,
+            "selective_risk": 0.13087095303237575,
+            "threshold_fit_on": "calibration"
+          },
+          {
+            "accuracy": 0.8785607196401799,
+            "brier": 0.1022513518251346,
+            "confidence_threshold": 0.7830423940149626,
+            "coverage_target": 0.5,
+            "empirical_coverage": 0.5623946037099494,
+            "n_kept": 2001,
+            "selective_risk": 0.12143928035982009,
+            "threshold_fit_on": "calibration"
+          }
+        ],
+        "shift_caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+        "source_calibration_prevalence": 0.7502252252252253,
+        "source_cohort": "raid",
+        "target_cohort": "raid",
+        "target_prevalence": 0.7532321528948848,
+        "tpr_at_0.1fpr": 0.09477611940298507,
+        "tpr_at_1fpr": 0.1496268656716418,
+        "tpr_at_5fpr": 0.2720149253731343
+      }
+    }
+  },
+  "n_calibration": 10300,
+  "n_test": 9483,
+  "n_train": 30645,
+  "schema": "panoptes-calibration-transfer-v1",
+  "summary": {
+    "calibration_transport_auroc_gap": 0.010253406466085857,
+    "n_source_cohorts": 3,
+    "off_diagonal_mean_auroc": 0.7591250664181212,
+    "off_diagonal_mean_brier": 0.17256191765971804,
+    "on_diagonal_mean_auroc": 0.769378472884207,
+    "on_diagonal_mean_brier": 0.14316657756264475
+  }
+}

@@ -1,0 +1,800 @@
+{
+  "artifact_sha256": "bf2a62902cadb0dce646e39bbd5c93d1eb1986ddc4adc71854fca6c2f0936ef6",
+  "calibration": {
+    "adaptive_ece": {
+      "adaptive_ece": 0.003023411006634104,
+      "binning": "equal_mass",
+      "bins": 10,
+      "ci": [
+        0.0016644612607788105,
+        0.00741987624370686
+      ],
+      "resample_unit": "group"
+    },
+    "auroc_group_bootstrap": {
+      "ci": [
+        0.9915776433352061,
+        0.9942275155043783
+      ],
+      "n_boot": 1000,
+      "n_groups": 7744,
+      "point": 0.9929086958137044,
+      "resample_unit": "group"
+    },
+    "binary_calibrator": {
+      "x_thresholds": [
+        0.0,
+        0.003922,
+        0.007843,
+        0.023529,
+        0.039216,
+        0.078431,
+        0.082353,
+        0.129412,
+        0.141176,
+        0.184314,
+        0.188235,
+        0.223529,
+        0.227451,
+        0.345098,
+        0.34902,
+        0.372549,
+        0.443137,
+        0.54902,
+        0.584314,
+        0.686275,
+        0.690196,
+        0.694118,
+        0.698039,
+        0.741176,
+        0.745098,
+        0.752941,
+        0.823529,
+        0.827451,
+        0.890196,
+        0.894118,
+        0.917647,
+        0.92549,
+        0.945098,
+        0.952941,
+        0.968627,
+        0.988235,
+        0.996078,
+        1.0
+      ],
+      "y_thresholds": [
+        0.0,
+        0.019231,
+        0.033419,
+        0.063291,
+        0.067708,
+        0.071429,
+        0.089655,
+        0.1,
+        0.108333,
+        0.109549,
+        0.122222,
+        0.122347,
+        0.130045,
+        0.142857,
+        0.195652,
+        0.216216,
+        0.292994,
+        0.315789,
+        0.355828,
+        0.362598,
+        0.416667,
+        0.444444,
+        0.469136,
+        0.471068,
+        0.5,
+        0.622222,
+        0.628746,
+        0.651852,
+        0.770033,
+        0.770115,
+        0.787879,
+        0.810811,
+        0.860465,
+        0.883117,
+        0.941315,
+        0.958084,
+        0.981928,
+        1.0
+      ]
+    },
+    "conformal": {
+      "abstention_rate": 0.0,
+      "alpha": 0.1,
+      "calibration_prevalence": 0.6651797968707109,
+      "caveat": "Split-conformal coverage and calibration are guaranteed only under exchangeability with the calibration cohort; they are not guaranteed after distribution shift.",
+      "coverage_by_class": {
+        "0": 0.9003894240623078,
+        "1": 0.9002372846383988
+      },
+      "empirical_coverage": 0.900288223991216,
+      "empty_rate": 0.0833790831732089,
+      "fit_on": "calibration",
+      "mean_set_size": 0.9166209168267911,
+      "method": "split_conformal_mondrian",
+      "n_calibration": 14572,
+      "n_test": 14572,
+      "singleton_rate": 0.9166209168267911,
+      "threshold_class_0": 0.3054313948808522,
+      "threshold_class_1": 0.05424812801265677
+    },
+    "fpr_thresholds": {
+      "0.001": 0.9841422139238876,
+      "0.01": 0.946572483691778,
+      "0.05": 0.4708170647945585
+    },
+    "method": "isotonic_regression_fit_on_calibration",
+    "selective": [
+      {
+        "accuracy": 0.9617073840241559,
+        "brier": 0.029214009164483298,
+        "confidence_threshold": 0.0,
+        "coverage_target": 1.0,
+        "empirical_coverage": 1.0,
+        "n_kept": 14572,
+        "selective_risk": 0.03829261597584408,
+        "threshold_fit_on": "calibration"
+      },
+      {
+        "accuracy": 0.9877230440750343,
+        "brier": 0.011523673071584159,
+        "confidence_threshold": 0.8776792439484732,
+        "coverage_target": 0.9,
+        "empirical_coverage": 0.8999451001921493,
+        "n_kept": 13114,
+        "selective_risk": 0.012276955924965685,
+        "threshold_fit_on": "calibration"
+      },
+      {
+        "accuracy": 0.9955391610191301,
+        "brier": 0.004366376231373799,
+        "confidence_threshold": 0.9567387265245624,
+        "coverage_target": 0.8,
+        "empirical_coverage": 0.799958825144112,
+        "n_kept": 11657,
+        "selective_risk": 0.004460838980869864,
+        "threshold_fit_on": "calibration"
+      },
+      {
+        "accuracy": 0.9988235294117647,
+        "brier": 0.0011753992091581677,
+        "confidence_threshold": 0.987598601211952,
+        "coverage_target": 0.7,
+        "empirical_coverage": 0.6999725500960746,
+        "n_kept": 10200,
+        "selective_risk": 0.001176470588235294,
+        "threshold_fit_on": "calibration"
+      },
+      {
+        "accuracy": 0.9993137367036486,
+        "brier": 0.000684294534512427,
+        "confidence_threshold": 0.996544183741899,
+        "coverage_target": 0.6,
+        "empirical_coverage": 0.5999862750480374,
+        "n_kept": 8743,
+        "selective_risk": 0.0006862632963513668,
+        "threshold_fit_on": "calibration"
+      },
+      {
+        "accuracy": 0.9998627504803733,
+        "brier": 0.00013722453283336846,
+        "confidence_threshold": 0.9986076007775022,
+        "coverage_target": 0.5,
+        "empirical_coverage": 0.5,
+        "n_kept": 7286,
+        "selective_risk": 0.0001372495196266813,
+        "threshold_fit_on": "calibration"
+      }
+    ],
+    "tpr_at_fixed_thresholds_on_calibration": {
+      "tpr_at_0.1fpr": 0.7870628288455587,
+      "tpr_at_1fpr": 0.8981739399566697,
+      "tpr_at_5fpr": 0.9670896523264211
+    }
+  },
+  "calibration_partition": {
+    "cohorts": {
+      "defactify": 2535,
+      "mage": 6000,
+      "raid": 6037
+    },
+    "disjoint_from_pilot_development": true,
+    "disjoint_from_pooled_train": true,
+    "excluded_pilot_dev_groups": 4696,
+    "n_rows": 14572,
+    "source": "pooled calibration (mage valid + raid clean holdout + defactify)"
+  },
+  "config": {
+    "batch_size": 16,
+    "cal_rows": 6000,
+    "grad_accum": 2,
+    "inner_dev_frac": 0.12,
+    "lr": 2e-05,
+    "max_epochs": 3,
+    "max_windows": 16,
+    "train_rows": 15000
+  },
+  "created_utc": "2026-08-19T21:13:06Z",
+  "data_firewall": "Each seed trains on a group-disjoint inner-train split of the pooled public-weight training pool (MAGE train + RAID clean + DeFactify train; all licenses permit derived weights) with inner-dev early stopping. The calibrator, split-conformal, low-FPR, and selective thresholds are fit on a pooled calibration partition (MAGE valid + RAID clean holdout + DeFactify) that is group-disjoint from the pooled training rows and from the pilot's development subsample. MAGE test/OOD/paraphrase, DeFactify/RAID holdouts, M4GT, EvoBench, and the reference corpus remain sealed for the one-shot Phase 6 evaluation.",
+  "ensemble": {
+    "aggregation": "mean of per-seed document probabilities",
+    "calibration_metrics_calibrated": {
+      "auroc": 0.9929086958137044,
+      "brier": 0.029214009164483298,
+      "n": 14572,
+      "n_cohorts": 3,
+      "per_cohort": {
+        "defactify": {
+          "auroc": 0.9999734643838961,
+          "brier": 0.0012701580847473508,
+          "n": 2535
+        },
+        "mage": {
+          "auroc": 0.985374539898604,
+          "brier": 0.04569506462254541,
+          "n": 6000
+        },
+        "raid": {
+          "auroc": 0.9941773933295006,
+          "brier": 0.024567881905705424,
+          "n": 6037
+        }
+      },
+      "prevalence": 0.6651797968707109,
+      "worst_cohort_auroc": 0.985374539898604,
+      "worst_cohort_brier": 0.04569506462254541
+    },
+    "calibration_metrics_raw": {
+      "auroc": 0.9929086958137044,
+      "brier": 0.03327521035606248,
+      "n": 14572,
+      "n_cohorts": 3,
+      "per_cohort": {
+        "defactify": {
+          "auroc": 0.9999734643838961,
+          "brier": 0.0017505029481871045,
+          "n": 2535
+        },
+        "mage": {
+          "auroc": 0.985374539898604,
+          "brier": 0.05579600623360933,
+          "n": 6000
+        },
+        "raid": {
+          "auroc": 0.9941773933295006,
+          "brier": 0.02412999882942389,
+          "n": 6037
+        }
+      },
+      "prevalence": 0.6651797968707109,
+      "worst_cohort_auroc": 0.985374539898604,
+      "worst_cohort_brier": 0.05579600623360933
+    }
+  },
+  "environment": {
+    "cuda_device": "NVIDIA GeForce RTX 3090",
+    "cuda_version": "12.6",
+    "deterministic": "seeds set; cudnn.benchmark disabled; fp32 master weights + bf16 autocast",
+    "git": {
+      "commit": "fa1f7f2bc161af80720a0db40c1e8ea7c509b18b",
+      "dirty": true
+    },
+    "numpy": "2.5.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "torch": "2.13.0+cu126",
+    "transformers": "5.15.0"
+  },
+  "limitations": [
+    "Trained on the derived-weight-licensed pool (MAGE + RAID clean + DeFactify); EvoBench and M4GT remain evaluation-only under the license gate.",
+    "The pool is binary (human vs fully machine); the majority-generation and contribution-fraction heads are external-evaluation-only until a terms-cleared mixed cohort is available.",
+    "DeFactify contributes NYT news prose only; RAID/MAGE span broader registers, but calibration is population-conditional and transport to unseen cohorts is measured in Phase 6, not assumed.",
+    "This card reports development and calibration metrics only; no final-test label was read."
+  ],
+  "phase": "Phase 5: frozen 3-seed neural detector, calibrated on held-out groups",
+  "schema": "panoptes-neural-detector-v1",
+  "seed_runs": [
+    {
+      "best_epoch": 3,
+      "calibration_metrics_raw": {
+        "auroc": 0.9919140697926022,
+        "brier": 0.04461167907918232,
+        "n": 14572,
+        "n_cohorts": 3,
+        "per_cohort": {
+          "defactify": {
+            "auroc": 0.9999761179455064,
+            "brier": 0.0013974997102195606,
+            "n": 2535
+          },
+          "mage": {
+            "auroc": 0.9823694423223833,
+            "brier": 0.07644463728742405,
+            "n": 6000
+          },
+          "raid": {
+            "auroc": 0.9937910432913922,
+            "brier": 0.031119910891484834,
+            "n": 6037
+          }
+        },
+        "prevalence": 0.6651797968707109,
+        "worst_cohort_auroc": 0.9823694423223833,
+        "worst_cohort_brier": 0.07644463728742405
+      },
+      "encoder_sha256": "b99ae1fa0d124a0492a699ee911816e92f0ec136608c6d151091f617b4328e09",
+      "inner_dev": {
+        "auroc": 0.9883173021427181,
+        "brier": 0.10024342924357664,
+        "n": 3964,
+        "n_cohorts": 18,
+        "per_cohort": {
+          "books": {
+            "auroc": 0.9975144808506959,
+            "brier": 0.11487550046120489,
+            "n": 355
+          },
+          "cmv": {
+            "auroc": 0.9888814016172506,
+            "brier": 0.09330820389852634,
+            "n": 134
+          },
+          "eli5": {
+            "auroc": 0.9863636363636364,
+            "brier": 0.13439389473201716,
+            "n": 235
+          },
+          "hswag": {
+            "auroc": NaN,
+            "brier": 0.004987357212452308,
+            "n": 111
+          },
+          "journalism-nyt": {
+            "auroc": 1.0,
+            "brier": 0.002872715471385495,
+            "n": 672
+          },
+          "news": {
+            "auroc": 0.990205081114172,
+            "brier": 0.11491092889391488,
+            "n": 132
+          },
+          "poetry": {
+            "auroc": 0.9812834224598932,
+            "brier": 0.08427616593936611,
+            "n": 216
+          },
+          "recipes": {
+            "auroc": 0.9914135194307607,
+            "brier": 0.11977145987220907,
+            "n": 275
+          },
+          "reddit": {
+            "auroc": 0.9935362461135657,
+            "brier": 0.12740759046149733,
+            "n": 257
+          },
+          "reviews": {
+            "auroc": 0.9893048128342248,
+            "brier": 0.090285965177527,
+            "n": 90
+          },
+          "roct": {
+            "auroc": 0.9970414201183432,
+            "brier": 0.01304181747363959,
+            "n": 173
+          },
+          "sci": {
+            "auroc": 0.9748074454428755,
+            "brier": 0.1841711021604117,
+            "n": 120
+          },
+          "squad": {
+            "auroc": 0.9589111453518234,
+            "brier": 0.1965480056796336,
+            "n": 217
+          },
+          "tldr": {
+            "auroc": 0.9754032258064517,
+            "brier": 0.10635151777433335,
+            "n": 144
+          },
+          "wiki": {
+            "auroc": 0.9762139917695473,
+            "brier": 0.1656589535058507,
+            "n": 180
+          },
+          "wp": {
+            "auroc": 0.9844604508470055,
+            "brier": 0.09319030480778538,
+            "n": 198
+          },
+          "xsum": {
+            "auroc": 0.9467129440587995,
+            "brier": 0.128408618732075,
+            "n": 189
+          },
+          "yelp": {
+            "auroc": 0.9891895050546369,
+            "brier": 0.18035288681263273,
+            "n": 266
+          }
+        },
+        "prevalence": 0.7555499495459133,
+        "worst_cohort_auroc": 0.9467129440587995,
+        "worst_cohort_brier": 0.1965480056796336
+      },
+      "seed": 13,
+      "summary_head_sha256": "2a7c5c9dc36093283b1d4d370c81fd67bc13488d33dc291bab6cd8b21684dabf",
+      "train_sec": 2166.1
+    },
+    {
+      "best_epoch": 1,
+      "calibration_metrics_raw": {
+        "auroc": 0.9903018570926797,
+        "brier": 0.040842527125825256,
+        "n": 14572,
+        "n_cohorts": 3,
+        "per_cohort": {
+          "defactify": {
+            "auroc": 0.9993870272679991,
+            "brier": 0.005918045084300464,
+            "n": 2535
+          },
+          "mage": {
+            "auroc": 0.9822576567817211,
+            "brier": 0.06667693630061437,
+            "n": 6000
+          },
+          "raid": {
+            "auroc": 0.9915125874627144,
+            "brier": 0.029831612255282053,
+            "n": 6037
+          }
+        },
+        "prevalence": 0.6651797968707109,
+        "worst_cohort_auroc": 0.9822576567817211,
+        "worst_cohort_brier": 0.06667693630061437
+      },
+      "encoder_sha256": "fbe4b407961d135b3e9ceef7dbbdf5f212450698d7c4a5a218f59147d51b329d",
+      "inner_dev": {
+        "auroc": 0.9834984512105733,
+        "brier": 0.07650335468004522,
+        "n": 4269,
+        "n_cohorts": 19,
+        "per_cohort": {
+          "abstracts": {
+            "auroc": 0.9878514404720582,
+            "brier": 0.08313767747515846,
+            "n": 177
+          },
+          "books": {
+            "auroc": 0.9937611408199644,
+            "brier": 0.07796632377696021,
+            "n": 135
+          },
+          "cmv": {
+            "auroc": 1.0,
+            "brier": 0.0428932402440803,
+            "n": 134
+          },
+          "eli5": {
+            "auroc": 0.9783056925145674,
+            "brier": 0.12802257411715284,
+            "n": 212
+          },
+          "hswag": {
+            "auroc": NaN,
+            "brier": 3.280565559201467e-05,
+            "n": 124
+          },
+          "journalism-nyt": {
+            "auroc": 1.0,
+            "brier": 0.007862277441082218,
+            "n": 699
+          },
+          "news": {
+            "auroc": 0.980621558968415,
+            "brier": 0.08270194285436029,
+            "n": 271
+          },
+          "poetry": {
+            "auroc": 0.978021978021978,
+            "brier": 0.07649971397920721,
+            "n": 474
+          },
+          "recipes": {
+            "auroc": 0.9961889479490523,
+            "brier": 0.11401886601113095,
+            "n": 228
+          },
+          "reddit": {
+            "auroc": 0.9522352647352648,
+            "brier": 0.09394531084866456,
+            "n": 206
+          },
+          "reviews": {
+            "auroc": 0.9991349480968859,
+            "brier": 0.028595785678910524,
+            "n": 136
+          },
+          "roct": {
+            "auroc": 0.9515337423312883,
+            "brier": 0.026796332524523975,
+            "n": 168
+          },
+          "sci": {
+            "auroc": 0.9627675610491409,
+            "brier": 0.07666127405938762,
+            "n": 138
+          },
+          "squad": {
+            "auroc": 0.9544563279857398,
+            "brier": 0.1831497627532697,
+            "n": 212
+          },
+          "tldr": {
+            "auroc": 0.9823747680890538,
+            "brier": 0.04607394504842516,
+            "n": 109
+          },
+          "wiki": {
+            "auroc": 0.9561283714578355,
+            "brier": 0.1019408444128328,
+            "n": 130
+          },
+          "wp": {
+            "auroc": 0.9940268065268065,
+            "brier": 0.07040145294943628,
+            "n": 191
+          },
+          "xsum": {
+            "auroc": 0.93192048012003,
+            "brier": 0.10521732326194662,
+            "n": 203
+          },
+          "yelp": {
+            "auroc": 0.9635758998435054,
+            "brier": 0.14926587634510596,
+            "n": 322
+          }
+        },
+        "prevalence": 0.7603654251581167,
+        "worst_cohort_auroc": 0.93192048012003,
+        "worst_cohort_brier": 0.1831497627532697
+      },
+      "seed": 42,
+      "summary_head_sha256": "175a365a67a95fd974cfa1563d1ae58ba8cec6176f80a21ddd406493d1b98378",
+      "train_sec": 1465.1
+    },
+    {
+      "best_epoch": 2,
+      "calibration_metrics_raw": {
+        "auroc": 0.9919684339981435,
+        "brier": 0.03352297778367423,
+        "n": 14572,
+        "n_cohorts": 3,
+        "per_cohort": {
+          "defactify": {
+            "auroc": 0.9999774447263116,
+            "brier": 0.0013916266576798092,
+            "n": 2535
+          },
+          "mage": {
+            "auroc": 0.9832701715396902,
+            "brier": 0.05362348249444521,
+            "n": 6000
+          },
+          "raid": {
+            "auroc": 0.9934419970244757,
+            "brier": 0.02703795986745259,
+            "n": 6037
+          }
+        },
+        "prevalence": 0.6651797968707109,
+        "worst_cohort_auroc": 0.9832701715396902,
+        "worst_cohort_brier": 0.05362348249444521
+      },
+      "encoder_sha256": "fee29c0cb63184c6c7f32a5f98d83254de832fa2d4448861040e405c90e708c5",
+      "inner_dev": {
+        "auroc": 0.9892373391732823,
+        "brier": 0.08044666255474694,
+        "n": 4374,
+        "n_cohorts": 19,
+        "per_cohort": {
+          "abstracts": {
+            "auroc": 0.9989284347493302,
+            "brier": 0.06274120652982913,
+            "n": 266
+          },
+          "books": {
+            "auroc": 0.9979983660130718,
+            "brier": 0.09097155952273618,
+            "n": 362
+          },
+          "cmv": {
+            "auroc": 0.9964285714285714,
+            "brier": 0.04012219345024436,
+            "n": 137
+          },
+          "eli5": {
+            "auroc": 0.9643820831084727,
+            "brier": 0.12794933395677796,
+            "n": 245
+          },
+          "hswag": {
+            "auroc": NaN,
+            "brier": 1.7957067393590665e-07,
+            "n": 134
+          },
+          "journalism-nyt": {
+            "auroc": 0.9998929794520548,
+            "brier": 0.009695539677663487,
+            "n": 680
+          },
+          "news": {
+            "auroc": 0.961361014994233,
+            "brier": 0.13199244401456256,
+            "n": 136
+          },
+          "poetry": {
+            "auroc": 0.9884478554582883,
+            "brier": 0.07018114484279038,
+            "n": 362
+          },
+          "recipes": {
+            "auroc": 0.9980392156862745,
+            "brier": 0.054918777185530766,
+            "n": 137
+          },
+          "reddit": {
+            "auroc": 0.9699376947040499,
+            "brier": 0.12116233626357098,
+            "n": 437
+          },
+          "reviews": {
+            "auroc": 1.0,
+            "brier": 0.018713638999122345,
+            "n": 90
+          },
+          "roct": {
+            "auroc": 0.9945652173913043,
+            "brier": 0.0276699520033841,
+            "n": 146
+          },
+          "sci": {
+            "auroc": 0.9648782589959061,
+            "brier": 0.12826712947392468,
+            "n": 158
+          },
+          "squad": {
+            "auroc": 0.977704081632653,
+            "brier": 0.2111777039063976,
+            "n": 198
+          },
+          "tldr": {
+            "auroc": 0.9622697563874034,
+            "brier": 0.08436232144607762,
+            "n": 116
+          },
+          "wiki": {
+            "auroc": 0.9991349480968859,
+            "brier": 0.1170176929154597,
+            "n": 136
+          },
+          "wp": {
+            "auroc": 0.9998243765367053,
+            "brier": 0.020994710329520383,
+            "n": 185
+          },
+          "xsum": {
+            "auroc": 0.9433023872679045,
+            "brier": 0.12326559571671314,
+            "n": 185
+          },
+          "yelp": {
+            "auroc": 0.9869472043639197,
+            "brier": 0.13179974791170834,
+            "n": 264
+          }
+        },
+        "prevalence": 0.7430269775948788,
+        "worst_cohort_auroc": 0.9433023872679045,
+        "worst_cohort_brier": 0.2111777039063976
+      },
+      "seed": 87,
+      "summary_head_sha256": "ed80f37d6a64303cbf52507cb15e5de25b0912e4c69bd8441acff6ac273675a2",
+      "train_sec": 1461.6
+    }
+  ],
+  "seeds": [
+    13,
+    42,
+    87
+  ],
+  "training_pool": {
+    "cohorts": {
+      "defactify": 5938,
+      "mage": 15000,
+      "raid": 14918
+    },
+    "n_rows": 35856,
+    "provenance": "pooled-train-v2.1 (mage+raid-clean+defactify; derived-weight-licensed)",
+    "sha256": "d381c115e76542a11600ab33e414a6b9a5f5404e4caa2d850e80953af2029cdc"
+  },
+  "winner": {
+    "aggregation": "hierarchical_summary_head",
+    "encoder": "deberta-v3-small",
+    "hf": "microsoft/deberta-v3-small",
+    "max_length": 512,
+    "objective": "group_balanced",
+    "overlap": 128,
+    "pilot_card_sha256": "58fb5f218f31b71c31735e29a0475cf60ff751651c18e9b8d3f9092e7d1bccff",
+    "pilot_dev": {
+      "auroc": 0.9872416338897518,
+      "brier": 0.08716363649264819,
+      "n": 5001,
+      "n_cohorts": 10,
+      "per_cohort": {
+        "cmv": {
+          "auroc": 0.9961017969765157,
+          "brier": 0.03098366408361555,
+          "n": 505
+        },
+        "eli5": {
+          "auroc": 0.9908710178344549,
+          "brier": 0.04234197371405481,
+          "n": 585
+        },
+        "hswag": {
+          "auroc": 0.9422022919780767,
+          "brier": 0.029589379517455446,
+          "n": 232
+        },
+        "roct": {
+          "auroc": 0.9834375000000001,
+          "brier": 0.12379234413217607,
+          "n": 388
+        },
+        "sci": {
+          "auroc": 0.9890106544901066,
+          "brier": 0.09477076033618127,
+          "n": 517
+        },
+        "squad": {
+          "auroc": 0.9836709579704658,
+          "brier": 0.09088888264081067,
+          "n": 506
+        },
+        "tldr": {
+          "auroc": 0.9813757183908046,
+          "brier": 0.15124522976740318,
+          "n": 472
+        },
+        "wp": {
+          "auroc": 0.9979998840512494,
+          "brier": 0.02664828354261813,
+          "n": 649
+        },
+        "xsum": {
+          "auroc": 0.9665397484712126,
+          "brier": 0.1821264210573532,
+          "n": 699
+        },
+        "yelp": {
+          "auroc": 0.9849382568276578,
+          "brier": 0.06610996661815291,
+          "n": 448
+        }
+      },
+      "prevalence": 0.5022995400919816,
+      "worst_cohort_auroc": 0.9422022919780767,
+      "worst_cohort_brier": 0.1821264210573532
+    }
+  }
+}

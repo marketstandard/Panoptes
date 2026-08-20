@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "23e3b2679bbdb68d86646ce3c0ef4877874442f08ce8019c059cc8118ff8d266",
+  "artifact_sha256": "3da527fb347b9c604d50a8801336ba07f53511c49262f8ecc292bf45ac2d9a88",
   "artifacts": [
     {
       "match": true,
@@ -216,6 +216,126 @@
       "recomputed_sha256": "f4c33556dfc679d43564b48bd99da4aeaae9652ce98211fa2cc7461fcc3eebaf",
       "schema": "panoptes-external-baselines-v1",
       "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "6e7a8de65152c6d57711b916ba77cd22ef1fa99c70131c6065fe369830de5099",
+      "path": "research\\protocol-v2.1.json",
+      "recomputed_sha256": "6e7a8de65152c6d57711b916ba77cd22ef1fa99c70131c6065fe369830de5099",
+      "schema": "panoptes-research-protocol-v2-1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "642ae2da4b8110caf93b0350c43b8bcbe97e084caadde476103af99ba40c2485",
+      "path": "research\\dataset-registry-v2.1.json",
+      "recomputed_sha256": "642ae2da4b8110caf93b0350c43b8bcbe97e084caadde476103af99ba40c2485",
+      "schema": "panoptes-dataset-registry-v2-1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "b3012cb46a93143e7f028afcf9c142ed74f861d81e4630d9924635004d06a393",
+      "path": "research\\split-manifest-v2.1.json",
+      "recomputed_sha256": "b3012cb46a93143e7f028afcf9c142ed74f861d81e4630d9924635004d06a393",
+      "schema": "panoptes-split-manifest-v2-1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "ed8da28632f64e979eb22fc6e5dfdfc194c7241aa143bb70c453a331461d4ce1",
+      "path": "backend\\artifacts\\cards\\mage-eval.json",
+      "recomputed_sha256": "ed8da28632f64e979eb22fc6e5dfdfc194c7241aa143bb70c453a331461d4ce1",
+      "schema": "panoptes-mage-eval-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "8acdeeeda38f5358c16cd92151e2680989982c853acde7fd89375ea35eafbbb2",
+      "path": "backend\\artifacts\\cards\\coauthor-eval.json",
+      "recomputed_sha256": "8acdeeeda38f5358c16cd92151e2680989982c853acde7fd89375ea35eafbbb2",
+      "schema": "panoptes-coauthor-eval-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "58fb5f218f31b71c31735e29a0475cf60ff751651c18e9b8d3f9092e7d1bccff",
+      "path": "backend\\artifacts\\cards\\neural-pilot.json",
+      "recomputed_sha256": "58fb5f218f31b71c31735e29a0475cf60ff751651c18e9b8d3f9092e7d1bccff",
+      "schema": "panoptes-neural-pilot-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "bf2a62902cadb0dce646e39bbd5c93d1eb1986ddc4adc71854fca6c2f0936ef6",
+      "path": "backend\\artifacts\\cards\\neural-detector.json",
+      "recomputed_sha256": "bf2a62902cadb0dce646e39bbd5c93d1eb1986ddc4adc71854fca6c2f0936ef6",
+      "schema": "panoptes-neural-detector-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "9dc2941f5f76acb0042d5b3f52d2f9d700b6c07bd33c9ecd24f8d5e02a03a46f",
+      "path": "backend\\artifacts\\cards\\transport-logistic\\representation-transport.json",
+      "recomputed_sha256": "9dc2941f5f76acb0042d5b3f52d2f9d700b6c07bd33c9ecd24f8d5e02a03a46f",
+      "schema": "panoptes-representation-transport-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "017b2fbfb4ff88d4e4e9fec908a82cdc89756decf54245cfc59fe3ce817c523f",
+      "path": "backend\\artifacts\\cards\\transport-logistic\\calibration-transfer.json",
+      "recomputed_sha256": "017b2fbfb4ff88d4e4e9fec908a82cdc89756decf54245cfc59fe3ce817c523f",
+      "schema": "panoptes-calibration-transfer-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "df5891606559b290a42aa5093cf711d90ca8434927f58d78cb9c5c491e2bc7b6",
+      "path": "backend\\artifacts\\cards\\transport-gbm\\representation-transport.json",
+      "recomputed_sha256": "df5891606559b290a42aa5093cf711d90ca8434927f58d78cb9c5c491e2bc7b6",
+      "schema": "panoptes-representation-transport-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "84288e871c85903b21b330807bfc1af30d07e59c5bb23ac7ba1ab92e7ec2fc2c",
+      "path": "backend\\artifacts\\cards\\transport-gbm\\calibration-transfer.json",
+      "recomputed_sha256": "84288e871c85903b21b330807bfc1af30d07e59c5bb23ac7ba1ab92e7ec2fc2c",
+      "schema": "panoptes-calibration-transfer-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "6fc90fad5f1691ed3ed34d6bcbee3f50794f0cc06caad52eba0aa088afa69280",
+      "path": "backend\\artifacts\\cards\\transport-heuristic\\representation-transport.json",
+      "recomputed_sha256": "6fc90fad5f1691ed3ed34d6bcbee3f50794f0cc06caad52eba0aa088afa69280",
+      "schema": "panoptes-representation-transport-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "e6063f12b9fdd194614f24600f37ed5a46a3eec64ef75aba20773a4a1dffca9f",
+      "path": "backend\\artifacts\\cards\\transport-heuristic\\calibration-transfer.json",
+      "recomputed_sha256": "e6063f12b9fdd194614f24600f37ed5a46a3eec64ef75aba20773a4a1dffca9f",
+      "schema": "panoptes-calibration-transfer-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "016a751ae5ad2ed3b19cd0a60eac9f5e6b2097d698044d8c55b1016d923a9411",
+      "path": "backend\\artifacts\\cards\\transport-neural\\representation-transport.json",
+      "recomputed_sha256": "016a751ae5ad2ed3b19cd0a60eac9f5e6b2097d698044d8c55b1016d923a9411",
+      "schema": "panoptes-representation-transport-v1",
+      "schema_errors": []
+    },
+    {
+      "match": true,
+      "original_sha256": "8c22dbd1bc7238d559605f53dcb6e3c0be9d577c48bc5ae1eb2a9b1fc3203daf",
+      "path": "backend\\artifacts\\cards\\transport-neural\\calibration-transfer.json",
+      "recomputed_sha256": "8c22dbd1bc7238d559605f53dcb6e3c0be9d577c48bc5ae1eb2a9b1fc3203daf",
+      "schema": "panoptes-calibration-transfer-v1",
+      "schema_errors": []
     }
   ],
   "catalog_verified": true,
@@ -225,7 +345,7 @@
     "python research/validate_submission.py research/protocol.json",
     "python -m pytest backend research bench baselines"
   ],
-  "created_utc": "2026-08-19T18:07:56Z",
+  "created_utc": "2026-08-19T23:55:00Z",
   "errors": [],
   "independent": false,
   "kind": "author_selfcheck",
@@ -293,8 +413,8 @@
     "recomputed_brier": 0.0016794485800126682
   },
   "metric_path_recomputed": true,
-  "n_artifacts": 27,
-  "n_hash_matches": 27,
+  "n_artifacts": 42,
+  "n_hash_matches": 42,
   "n_unsigned": 0,
   "schema": "panoptes-reproduction-selfcheck-v1"
 }
