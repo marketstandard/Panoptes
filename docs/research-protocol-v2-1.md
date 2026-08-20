@@ -80,3 +80,17 @@ The neural detector becomes the runtime default and its weights are published to
 - Valid provenance proves metaphysical authorship rather than a signing chain.
 - Source-family similarity is exact model identity.
 - A cohort in the pooled training set is an external evaluation.
+- Watermark radioactivity proves unauthorized distillation (it is lineage-compatible evidence under web contamination).
+- Private vendor watermarks (e.g. Anthropic SynthID-Text) are detectable without their published detector.
+
+## Watermark intelligence addendum (2026-08-20)
+
+Registered evaluations that extend the watermark channel without blending it into passive attribution:
+
+| Eval | Runner | Signed card | Question |
+| --- | --- | --- | --- |
+| Temperature sweep | `python -m bench.run_watermark_temperature` | `watermark-temperature.json` | How does sampling temperature (incl. greedy T=0) affect detection power? |
+| Radioactivity | `python -m bench.run_radioactivity` | `radioactivity.json` | Does a student inherit green-list bias from watermarked teachers, and do paraphrase/neutralization remove it? |
+| Contamination screening | `python -m bench.baseline_corpus` | embedded in `corpus-summary.json` | Which baseline cohorts are declared/suspected watermarked? |
+
+See [watermark-contamination.md](watermark-contamination.md), [watermark-removal.md](watermark-removal.md).

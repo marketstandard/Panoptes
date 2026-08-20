@@ -72,6 +72,16 @@ Honest statistical caveats: at n=104 the corpus supports calibration and tier-0/
 
 Version 1 protocol cards live at `backend/artifacts/cards/measurement-protocol.json` (nested grouped CV), `mixture-workflows.json`, `robustness-pilot.json`, and `watermark-degradation.json`. First-party hash verification is `python -m bench.reproduce` (`independent: false`). Work this environment cannot complete is listed in [`docs/`](v2-updates/README.md).
 
+### Watermark intelligence cards (2026-08-20)
+
+| Card | Command | Role |
+| --- | --- | --- |
+| `watermark-temperature.json` | `python -m bench.run_watermark_temperature` | Detection power vs temperature (greedy dead zone) |
+| `radioactivity.json` | `python -m bench.run_radioactivity` | Distillation inheritance + removal arms |
+| `watermark-removal.json` | `python -m bench.run_watermark_removal` | Edit/hygiene retention (existing) |
+
+Contamination status flows through baseline manifests into `corpus-summary.json` (`contaminated_cohorts`).
+
 ### Defactify external validation (n=71,666)
 
 The release-quality external evaluation now exists: the bench runs on the Defactify_Text_Dataset (Roy et al. 2026, arXiv:2510.22874), fetched and hygiene-filtered by `python -m bench.fetch_defactify` (73,193 raw → 71,666 clean: 412 API-error artifacts, 73 exact duplicates, and 957 sub-50-token texts dropped). Raw text stays local and gitignored; a signed pointer manifest lives at `datasets/manifests/defactify-text.json`.

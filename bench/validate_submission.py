@@ -30,6 +30,8 @@ FILES = {
     "panoptes-transport-matrix-v1": "transport-matrix.schema.json",
     "panoptes-watermarked-generations-v1": "watermarked-generations.schema.json",
     "panoptes-watermark-removal-eval-card-v1": "watermark-removal-eval-card.schema.json",
+    "panoptes-watermark-temperature-card-v1": "watermark-temperature-card.schema.json",
+    "panoptes-radioactivity-card-v1": "radioactivity-card.schema.json",
     "panoptes-external-repo-eval-v1": "external-repo-eval.schema.json",
     "panoptes-research-protocol-v2-1": "research-protocol-v2-1.schema.json",
     "panoptes-dataset-registry-v2-1": "dataset-registry-v2-1.schema.json",

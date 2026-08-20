@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "6829a43fbbdf4b77f9b34cb0d5f586bfa775dd0f2c7d7d3424f20f53d809d529",
+  "artifact_sha256": "cf99389c6c57f05914884ba3e77eb068c89e4b73a4c2b0f442e39430952a1177",
   "catalog_entries": 12,
   "cohorts": [
     {
@@ -102,7 +102,8 @@
       "n": 8,
       "runs": [
         "claude-opus-5-max_code-20260812t193712z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "claude-opus-5-max",
@@ -204,7 +205,8 @@
       "n": 8,
       "runs": [
         "claude-opus-5-max_text-20260812t193701z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "gemini-3.1-pro",
@@ -306,7 +308,8 @@
       "n": 8,
       "runs": [
         "gemini-3.1-pro_code-20260812t194331z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "gemini-3.1-pro",
@@ -408,7 +411,8 @@
       "n": 8,
       "runs": [
         "gemini-3.1-pro_text-20260812t194331z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "glm-5.2-max",
@@ -510,7 +514,8 @@
       "n": 8,
       "runs": [
         "glm-5.2-max_code-20260812t194011z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "glm-5.2-max",
@@ -612,7 +617,8 @@
       "n": 8,
       "runs": [
         "glm-5.2-max_text-20260812t194001z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "gpt-5.6-sol-max",
@@ -714,7 +720,8 @@
       "n": 8,
       "runs": [
         "gpt-5.6-sol-max_code-20260812t193106z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "gpt-5.6-sol-max",
@@ -816,7 +823,8 @@
       "n": 8,
       "runs": [
         "gpt-5.6-sol-max_text-20260812t193039z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "grok-4.6-extra-high",
@@ -918,7 +926,8 @@
       "n": 8,
       "runs": [
         "grok-4.6-extra-high_code-20260812t185932z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "grok-4.6-extra-high",
@@ -1020,7 +1029,8 @@
       "n": 8,
       "runs": [
         "grok-4.6-extra-high_text-20260812t185911z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "human",
@@ -1122,7 +1132,8 @@
       "n": 8,
       "runs": [
         "human-control_text-20260812t202824z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "kimi-k3-max",
@@ -1224,7 +1235,8 @@
       "n": 8,
       "runs": [
         "kimi-k3-max_code-20260812t185244z"
-      ]
+      ],
+      "watermark_status": "unknown"
     },
     {
       "family": "kimi-k3-max",
@@ -1326,9 +1338,11 @@
       "n": 8,
       "runs": [
         "kimi-k3-max_text-20260812t185240z"
-      ]
+      ],
+      "watermark_status": "unknown"
     }
   ],
+  "contaminated_cohorts": [],
   "families": [
     "claude-opus-5-max",
     "gemini-3.1-pro",
@@ -1346,5 +1360,50 @@
   "n_human": 8,
   "n_records": 104,
   "n_runs": 13,
-  "schema": "panoptes-corpus-summary-v1"
+  "schema": "panoptes-corpus-summary-v1",
+  "watermark_screening": {
+    "alpha": 0.05,
+    "flagged": [
+      {
+        "family": "human",
+        "p_value": 0.013159490004468255,
+        "prompt_id": "text-03",
+        "run_id": "human-control_text-20260812t202824z",
+        "scheme": "kgw-v1",
+        "z": 2.2214724304019944
+      },
+      {
+        "family": "human",
+        "p_value": 0.011225268738441985,
+        "prompt_id": "text-05",
+        "run_id": "human-control_text-20260812t202824z",
+        "scheme": "kgw-v1",
+        "z": 2.2826577307580465
+      },
+      {
+        "family": "human",
+        "p_value": 0.011817550991416903,
+        "prompt_id": "text-07",
+        "run_id": "human-control_text-20260812t202824z",
+        "scheme": "kgw-v1",
+        "z": 2.263009527424072
+      }
+    ],
+    "kgw": {
+      "human_reject_rate": 0.375,
+      "human_rejects": 3,
+      "n_tested": 100,
+      "reject_rate": 0.13
+    },
+    "limitations": [
+      "Screening uses the public KGW demo key and a Unicode zero-width reference scheme only.",
+      "Private vendor watermarks (e.g. Anthropic SynthID-Text) cannot be detected here.",
+      "Unexpected rejects on human controls are integrity signals, not authorship claims."
+    ],
+    "n_records": 104,
+    "unicode": {
+      "present_count": 0,
+      "present_rate": 0.0
+    }
+  }
 }

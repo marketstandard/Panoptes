@@ -165,7 +165,8 @@
                 "green": {"type": "boolean"}
               }
             }
-          }
+          },
+          "origin": {"enum": ["builtin", "plugin"], "default": "builtin"}
         }
       }
     },

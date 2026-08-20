@@ -1,4 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+import json
+import os
+from typing import Annotated, Any
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from panoptes.schemas import RuntimeProfile
 
@@ -18,7 +23,21 @@ class Settings(BaseSettings):
     calibration_bundle: str = "baseline-calibration.json"
     neural_enabled: bool = True
     neural_artifact_dir: str = "models/neural"
-    plugin_paths: list[str] = []
+    # NoDecode: accept a plain path string from PANOPTES_PLUGIN_PATHS, not just JSON.
+    plugin_paths: Annotated[list[str], NoDecode] = []
+
+    @field_validator("plugin_paths", mode="before")
+    @classmethod
+    def _parse_plugin_paths(cls, value: Any) -> list[str]:
+        if value is None or value == "":
+            return []
+        if isinstance(value, str):
+            text = value.strip()
+            if text.startswith("["):
+                parsed = json.loads(text)
+                return [str(item) for item in parsed]
+            return [part for part in text.split(os.pathsep) if part]
+        return [str(item) for item in value]
 
     @property
     def is_cloud(self) -> bool:

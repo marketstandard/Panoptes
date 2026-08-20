@@ -19,7 +19,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,6 +39,9 @@ SCAFFOLD_STATE = "_run.json"
 CHECKLIST_NAME = "_CHECKLIST.md"
 KINDS = ("text", "code")
 INTERFACES = ("chat-ui", "api", "agent-chat", "human")
+WATERMARK_STATUSES = ("declared-none", "declared-active", "suspected", "unknown")
+# Anthropic's EU AI Act transition / SynthID-Text rollout date (UTC).
+ANTHROPIC_WATERMARK_TRANSITION_UTC = "2026-08-02T00:00:00Z"
 
 
 class BaselineError(Exception):
@@ -46,7 +49,7 @@ class BaselineError(Exception):
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def canonical_hash(payload: dict) -> str:
@@ -151,7 +154,7 @@ def checklist_text(kind: str, prompts: list[dict]) -> str:
         "When every box is checked:",
         "",
         "```bash",
-        f"python baselines/baseline.py finalize --run <this folder>",
+        "python baselines/baseline.py finalize --run <this folder>",
         "```",
         "",
     ]
@@ -247,7 +250,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     for prompt in prompts:
         output_path = run_dir / f"{prompt['id']}.md"
         print(f"Running {prompt['id']} via {args.provider} ({model_id}) ...")
-        text, reported_version = _call_provider(args.provider, model_id, prompt["prompt"], args.timeout)
+        text, reported_version = _call_provider(
+            args.provider, model_id, prompt["prompt"], args.timeout
+        )
         if not text.strip():
             raise BaselineError(f"empty response for {prompt['id']}; aborting before finalize")
         output_path.write_text(text, encoding="utf-8")
@@ -262,11 +267,51 @@ def cmd_run(args: argparse.Namespace) -> int:
             "prompts_version": manifest["version"],
             "prompts_sha256": prompts_hash,
             "scaffolded_utc": utc_now(),
+            "watermark_status": getattr(args, "watermark", None),
+            "watermark_scheme": getattr(args, "watermark_scheme", None),
+            "watermark_notes": getattr(args, "watermark_notes", None),
         },
     )
     print(f"Wrote {len(prompts)} outputs to {run_dir}")
     print(f"Next: python baselines/baseline.py finalize --run {run_dir}")
     return 0
+
+
+def resolve_watermark(
+    *,
+    provider: str | None,
+    created_utc: str,
+    status: str | None = None,
+    scheme: str | None = None,
+    notes: str | None = None,
+) -> dict:
+    """Build the optional watermark contamination block for a baseline run.
+
+    Explicit ``status`` wins. Otherwise Anthropic runs on/after the EU transition
+    date default to ``suspected`` (SynthID-Text rollout); everything else is
+    ``unknown`` so pre-existing corpora are not silently reclassified.
+    """
+    if status is not None:
+        if status not in WATERMARK_STATUSES:
+            raise BaselineError(f"watermark status must be one of {', '.join(WATERMARK_STATUSES)}")
+        block: dict = {"status": status}
+        if scheme:
+            block["scheme"] = scheme
+        if notes:
+            block["notes"] = notes
+        return block
+    provider_norm = (provider or "").strip().lower()
+    if provider_norm == "anthropic" and created_utc >= ANTHROPIC_WATERMARK_TRANSITION_UTC:
+        return {
+            "status": "suspected",
+            "scheme": "synthid-text",
+            "notes": (
+                "Default heuristic: Anthropic API/chat runs on/after "
+                f"{ANTHROPIC_WATERMARK_TRANSITION_UTC[:10]} may carry SynthID-Text; "
+                "override with --watermark declared-none|declared-active|unknown."
+            ),
+        }
+    return {"status": "unknown"}
 
 
 def build_manifest(run_dir: Path, state: dict) -> dict:
@@ -297,6 +342,13 @@ def build_manifest(run_dir: Path, state: dict) -> dict:
         raise BaselineError(f"run is incomplete; missing or empty outputs: {', '.join(missing)}")
     stamp = utc_now()
     run_stamp = stamp.replace(":", "").replace("-", "").lower()
+    watermark = resolve_watermark(
+        provider=state.get("provider"),
+        created_utc=stamp,
+        status=state.get("watermark_status"),
+        scheme=state.get("watermark_scheme"),
+        notes=state.get("watermark_notes"),
+    )
     return {
         "schema": SCHEMA_ID,
         "run_id": f"{state['model']}_{kind}-{run_stamp}",
@@ -315,6 +367,7 @@ def build_manifest(run_dir: Path, state: dict) -> dict:
         },
         "outputs": outputs,
         "merkle_root": merkle_root([o["sha256"] for o in outputs]),
+        "watermark": watermark,
     }
 
 
@@ -338,6 +391,12 @@ def cmd_finalize(args: argparse.Namespace) -> int:
         state["provider"] = args.provider
     if args.reported_version:
         state["reported_version"] = args.reported_version
+    if getattr(args, "watermark", None):
+        state["watermark_status"] = args.watermark
+    if getattr(args, "watermark_scheme", None):
+        state["watermark_scheme"] = args.watermark_scheme
+    if getattr(args, "watermark_notes", None):
+        state["watermark_notes"] = args.watermark_notes
     if not state.get("model"):
         raise BaselineError(
             "no model slug recorded; pass --model <slug> (the person running the test "
@@ -359,6 +418,7 @@ def cmd_finalize(args: argparse.Namespace) -> int:
     print(f"Wrote {manifest_path}")
     print(f"manifest sha256: {manifest['artifact_sha256']}")
     print(f"merkle root:     {manifest['merkle_root']}")
+    print(f"watermark:       {manifest['watermark']['status']}")
     return 0
 
 
@@ -443,11 +503,15 @@ def cmd_submit(args: argparse.Namespace) -> int:
         line["ots_proof"] = f"{expected}.ots"
 
     MANIFESTS.mkdir(parents=True, exist_ok=True)
-    existing = [
-        json.loads(entry)
-        for entry in REGISTRY.read_text(encoding="utf-8").splitlines()
-        if entry.strip()
-    ] if REGISTRY.exists() else []
+    existing = (
+        [
+            json.loads(entry)
+            for entry in REGISTRY.read_text(encoding="utf-8").splitlines()
+            if entry.strip()
+        ]
+        if REGISTRY.exists()
+        else []
+    )
     if any(entry["run_id"] == line["run_id"] for entry in existing):
         raise BaselineError(f"run_id {line['run_id']!r} is already in the registry")
     stored_manifest = MANIFESTS / f"{expected}.json"
@@ -498,7 +562,9 @@ def cmd_verify_catalog(args: argparse.Namespace) -> int:
             errors.append(f"{run_id}: run_id mismatch between registry and manifest")
         if "ots_proof" in entry and not (MANIFESTS / entry["ots_proof"]).exists():
             errors.append(f"{run_id}: missing OTS proof {entry['ots_proof']}")
-    stray = {p.name for p in MANIFESTS.glob("*.json")} - {f"{e['manifest_sha256']}.json" for e in lines}
+    stray = {p.name for p in MANIFESTS.glob("*.json")} - {
+        f"{e['manifest_sha256']}.json" for e in lines
+    }
     for name in sorted(stray):
         errors.append(f"manifest {name} is not referenced by any registry line")
     if manifest_paths:
@@ -518,9 +584,13 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     scaffold = commands.add_parser("scaffold", help="create an empty run folder to fill manually")
-    scaffold.add_argument("--model", help="model slug, e.g. gpt-5.6-sol (omit for agent-assisted runs)")
+    scaffold.add_argument(
+        "--model", help="model slug, e.g. gpt-5.6-sol (omit for agent-assisted runs)"
+    )
     scaffold.add_argument("--kind", choices=KINDS, required=True)
-    scaffold.add_argument("--provider", default=None, help="provider label recorded in the manifest")
+    scaffold.add_argument(
+        "--provider", default=None, help="provider label recorded in the manifest"
+    )
     scaffold.set_defaults(func=cmd_scaffold)
 
     run = commands.add_parser("run", help="execute the prompt set against a provider API")
@@ -530,6 +600,14 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--model-id", help="provider API model id if it differs from the slug")
     run.add_argument("--timeout", type=int, default=120)
     run.add_argument("--force", action="store_true", help="overwrite an existing run folder")
+    run.add_argument(
+        "--watermark",
+        choices=WATERMARK_STATUSES,
+        default=None,
+        help="override watermark contamination status (default: heuristic)",
+    )
+    run.add_argument("--watermark-scheme", default=None, help="scheme id when known")
+    run.add_argument("--watermark-notes", default=None, help="free-text notes")
     run.set_defaults(func=cmd_run)
 
     finalize = commands.add_parser("finalize", help="hash outputs and write run.manifest.json")
@@ -537,7 +615,17 @@ def build_parser() -> argparse.ArgumentParser:
     finalize.add_argument("--model", help="model slug (required if not set at scaffold time)")
     finalize.add_argument("--interface", choices=INTERFACES)
     finalize.add_argument("--provider")
-    finalize.add_argument("--reported-version", help="exact model version string shown by the product")
+    finalize.add_argument(
+        "--reported-version", help="exact model version string shown by the product"
+    )
+    finalize.add_argument(
+        "--watermark",
+        choices=WATERMARK_STATUSES,
+        default=None,
+        help="override watermark contamination status (default: heuristic)",
+    )
+    finalize.add_argument("--watermark-scheme", default=None, help="scheme id when known")
+    finalize.add_argument("--watermark-notes", default=None, help="free-text notes")
     finalize.set_defaults(func=cmd_finalize)
 
     anchor = commands.add_parser("anchor", help="OpenTimestamps-stamp the manifest (optional)")
@@ -548,7 +636,9 @@ def build_parser() -> argparse.ArgumentParser:
     promote.add_argument("--run", required=True)
     promote.set_defaults(func=cmd_promote)
 
-    submit = commands.add_parser("submit", help="append the run to the community catalog (hashes only)")
+    submit = commands.add_parser(
+        "submit", help="append the run to the community catalog (hashes only)"
+    )
     submit.add_argument("--run", required=True)
     submit.add_argument("--contributor", help="handle recorded in the registry")
     submit.set_defaults(func=cmd_submit)

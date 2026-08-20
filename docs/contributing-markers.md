@@ -71,6 +71,14 @@ python baselines/baseline.py submit --run baselines/runs/<model-slug>_<kind> --c
 
 This appends to `baselines/catalog/registry.jsonl` and writes `baselines/catalog/manifests/<manifest_sha256>.json`. Validate against `schemas/baseline-run.schema.json` (the submit command does this for you). The full workflow and trust model are documented in `baselines/README.md`.
 
+Optional watermark contamination declaration (strongly recommended for post-2026 Anthropic runs):
+
+```bash
+python baselines/baseline.py finalize --run <folder> --interface api --provider anthropic \
+  --watermark declared-active --watermark-scheme synthid-text
+```
+
+Statuses: `declared-none`, `declared-active`, `suspected`, `unknown`. See [watermark-contamination.md](watermark-contamination.md).
 ## 2. Dataset manifest requirements
 
 A dataset manifest must include:

@@ -4,7 +4,7 @@
   <img src="frontend/public/Panoptes_readme.png" alt="Panoptes — evidence, not verdicts" width="720">
 </p>
 
-**Research paper v2.1** (19 August 2026): [Panoptes: Calibrated Evidence and Distribution-Shift Analysis for AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.1 makes evidence transportability the signature result: a preregistered pooled multi-dataset training pool (MAGE + RAID clean + DeFactify), a frozen three-seed hierarchical neural detector released with verified weights, cross-dataset leave-one-dataset-out and calibration-transfer matrices, and untouched OOD/paraphrase/adversarial and human-AI-collaboration evaluation (MAGE OOD, M4GT English/multilingual, EvoBench, RAID attacks, CoAuthor).
+**Research paper v2.1** (20 August 2026): [Panoptes: Calibrated Evidence and Distribution-Shift Analysis for AI-Text Attribution](frontend/public/paper.html). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.1 makes evidence transportability the signature result: a preregistered pooled multi-dataset training pool (MAGE + RAID clean + DeFactify), a frozen three-seed hierarchical neural detector released with verified weights, cross-dataset leave-one-dataset-out and calibration-transfer matrices, and untouched OOD/paraphrase/adversarial and human-AI-collaboration evaluation (MAGE OOD, M4GT English/multilingual, EvoBench, RAID attacks, CoAuthor). Watermark intelligence cards add temperature-dependent detection power, distillation radioactivity / removal, and contamination governance for post-2026 provider watermarks (SynthID-Text family).
 
 Panoptes is an open-source scientific workbench for analyzing text and code for **calibrated evidence of AI participation**, **public watermark signals**, **source-family similarity**, and **signed file provenance**.
 
@@ -163,6 +163,10 @@ Code has lower entropy, stricter syntax, and frequent formatting transformations
 | KGW watermark test | Reference detector | Public scheme | Green-list \(z\)-score, FDR \(q\)-values, token overlay |
 | Claude text watermark | Adapter pending | SynthID-Text family | Anthropic's key is private; family robustness characterized by the [removal eval](docs/watermark-removal.md) |
 | Watermark-removal robustness | Reference eval | KGW + Unicode | Retention under a native attack battery + LLM rewrite; see [docs/watermark-removal.md](docs/watermark-removal.md) |
+| Temperature power curve | Signed card | KGW demo key | Detection vs sampling temperature incl. greedy T=0; `python -m bench.run_watermark_temperature` |
+| Distillation radioactivity | Signed card | KGW demo key | Inheritance + paraphrase/neutralization; `python -m bench.run_radioactivity` |
+| Contamination governance | Baseline manifests | Provider declarations | `watermark.status` on runs; screening in corpus summary; [docs/watermark-contamination.md](docs/watermark-contamination.md) |
+| Runtime plugins | Local paths | Operator extensions | `PANOPTES_PLUGIN_PATHS`; schemes namespaced `plugin:<id>`; [plugins/README.md](plugins/README.md) |
 | External system from a git repo | Harness | Any | `python -m bench evaluate-repo <url> --kind ...`; see [docs/testing-external-repos.md](docs/testing-external-repos.md) |
 | Source-family similarity | Baseline | Calibrated candidates only | Includes unknown/open-set score |
 | C2PA provenance | File uploads | PNG/JPEG/SVG baseline | Verifies signed manifests where available |
@@ -327,6 +331,8 @@ Watermark-removal evaluation and external-repo testing (see [`docs/watermark-rem
 python -m bench.run_watermark_generation   # GPU: KGW watermarked + control passages
 python -m bench.run_watermark_paraphrase   # GPU: LLM complete-rewrite attack
 python -m bench.run_watermark_removal      # CPU: retention eval -> cards/watermark-removal.json
+python -m bench.run_watermark_temperature  # CPU synthetic (or --with-model): temperature power card
+python -m bench.run_radioactivity          # CPU synthetic (or --with-model): radioactivity card
 python -m bench evaluate-repo <git-url> --kind watermark-remover   # test an external system from source
 ```
 

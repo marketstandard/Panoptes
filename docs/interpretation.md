@@ -40,6 +40,18 @@ A known watermark test asks whether token choices line up with a configured pseu
 
 A p-value is the probability of evidence at least this extreme **if no watermark were present**. It is not the probability that the text is watermarked.
 
+### Contamination flags
+
+Baseline cohorts may be marked `declared-none`, `declared-active`, `suspected`, or `unknown`. Contaminated calibration cohorts can make stylometry look like a specific model *lineage* rather than direct use. Treat flags as distribution-shift diagnostics — see [watermark-contamination.md](watermark-contamination.md).
+
+### Radioactivity results
+
+Elevated green-list density in a student model's outputs after training on watermarked teacher text is lineage-compatible evidence. It is not proof of unauthorized distillation: scraped web text can weakly radioactivate unrelated models. Removal arms (paraphrase, neutralization) show how fragile that inheritance is.
+
+### Plugin watermarks
+
+Schemes named `plugin:<id>` (and `origin: plugin`) come from operator-local adapters. They are opt-in extensions, not shipped claims.
+
 ## AI participation probability
 
 The generic detector output is recalibrated on held-out data. The displayed probability depends on:

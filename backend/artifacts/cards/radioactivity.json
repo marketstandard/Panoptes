@@ -1,0 +1,80 @@
+{
+  "adapter_version": "kgw-v1",
+  "artifact_sha256": "192049caf6505b0cdf4342f0e2c678eec562c78fbe7a795ea6ffa161833aecc7",
+  "created_utc": "2026-08-20T15:29:40Z",
+  "inheritance": {
+    "attenuation": {
+      "detection_ratio": 0.625,
+      "z_ratio": 0.2877782417262884
+    },
+    "student_on_control": {
+      "detection_rate_0.05": 0.0,
+      "mean_green_rate": 0.5097835497835498,
+      "mean_z": 0.1713182340340287,
+      "n": 8,
+      "n_tested": 8
+    },
+    "student_on_watermarked": {
+      "detection_rate_0.05": 0.625,
+      "mean_green_rate": 0.6003369218500797,
+      "mean_z": 1.749347108257538,
+      "n": 8,
+      "n_tested": 8
+    }
+  },
+  "knowledge_preservation": {
+    "held_out_n": 4,
+    "nll_ratio": 0.9557672706676029,
+    "nll_student_on_control": 5.483885977759994,
+    "nll_student_on_watermarked": 5.2413187336160085,
+    "note": "Lower NLL = better knowledge preservation on held-out teacher text."
+  },
+  "limitations": [
+    "Demo KGW key models the Aaronson/SynthID-Text family, not Anthropic's private production key.",
+    "Positive inheritance is lineage-compatible evidence, not proof of unauthorized distillation.",
+    "Web-scale scraping can contaminate unrelated models with weak radioactivity.",
+    "Synthetic mode uses a bigram student fitted on teacher text; --with-model runs real HF SFT.",
+    "Neutralize_post applies inverse green-list bias at decode (known demo key); vendor keys remain private."
+  ],
+  "mode": "synthetic",
+  "removal": {
+    "neutralize_post": {
+      "detection_rate_0.05": 0.0,
+      "mean_green_rate": 0.18249231032125768,
+      "mean_z": -5.535229326629642,
+      "n": 8,
+      "n_tested": 8
+    },
+    "paraphrase_pre": {
+      "detection_rate_0.05": 0.125,
+      "mean_green_rate": 0.5376834130781499,
+      "mean_z": 0.6582885452927423,
+      "n": 8,
+      "n_tested": 8
+    }
+  },
+  "schema": "panoptes-radioactivity-card-v1",
+  "scheme": "kgw-v1",
+  "student_model": null,
+  "teacher": {
+    "control": {
+      "detection_rate_0.05": 0.0,
+      "mean_green_rate": 0.4712116282839967,
+      "mean_z": -0.5054558676874387,
+      "n": 16,
+      "n_tested": 16
+    },
+    "delta": 2.0,
+    "n_probe_prompts": 8,
+    "n_train_prompts": 16,
+    "watermarked": {
+      "detection_rate_0.05": 1.0,
+      "mean_green_rate": 0.8465709181169707,
+      "mean_z": 6.078802545195119,
+      "n": 16,
+      "n_tested": 16
+    }
+  },
+  "teacher_model": null,
+  "tier": "cpu"
+}

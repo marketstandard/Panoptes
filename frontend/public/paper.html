@@ -275,7 +275,14 @@
   cost in live traffic [37], and Anthropic announced in August 2026 that Claude&rsquo;s text watermark is a version of
   SynthID-Text, applied globally to comply with the EU AI Act [38]. Our reference adapter models exactly this
   Aaronson/green-list family; because Anthropic&rsquo;s production key is private, we characterize the family&rsquo;s
-  robustness rather than any vendor&rsquo;s specific key (&sect;12).</p>
+  robustness rather than any vendor&rsquo;s specific key (&sect;12). Watermarked outputs are also
+  <em>radioactive</em>: student models trained on them can inherit a detectable green-list bias [46, 47], which makes
+  distillation forensics conceivable but fragile &mdash; targeted paraphrase and inference-time neutralization can
+  scrub the inherited signal while preserving distilled knowledge [48]. Separately, closed image watermarks in the
+  SynthID family have been reverse-engineered by spectral analysis [49], underscoring that fixed-structure carriers
+  are extractable; text schemes with per-context pseudorandom green lists are harder but not immune to an arms race.
+  Sampling temperature is a first-order control on embeddability: at temperature&nbsp;0 (greedy decoding) there is no
+  randomness left to steer (&sect;16).</p>
   <p><strong>Detection and its limits.</strong> Post-hoc AI-text detectors divide into zero-shot statistics over the
   generating model &mdash; GLTR&rsquo;s token-rank visualization [32], DetectGPT&rsquo;s probability-curvature test [5],
   the Fast-DetectGPT conditional-probability speedup [6], Binoculars&rsquo; cross-model perplexity ratio [7] &mdash; and
@@ -1388,7 +1395,7 @@ is the expected, honest behavior for detectors trained on a binary human-versus-
 21% machine is not the binary positive they were calibrated on, and the pooled pool licenses no mixed-authorship head.
 CoAuthor therefore measures a different claim &mdash; participation under real co-writing &mdash; and is reported
 separately, with the contribution-fraction head remaining external-evaluation-only until a terms-cleared
-mixed-authorship cohort exists (&sect;18).</p>
+mixed-authorship cohort exists (&sect;21).</p>
 
 <p><strong>What the transport analysis establishes.</strong> Three claims survive the move to held-out populations.
 First, representation transport &mdash; not in-domain accuracy &mdash; is the binding constraint, and it separates the
@@ -1400,9 +1407,54 @@ cohort with far less data than it took to train. Third, the dataset-origin probe
 number is shortcut, which is why this paper reports leave-one-cohort-out &mdash; not pooled in-domain &mdash; as the
 headline transport result. The residual frontier is now Unicode-level adversarial perturbation (homoglyph,
 zero-width-space), where the neural representation is the <em>most</em> vulnerable tier, not paraphrase or held-out
-generators, on which it is the strongest. Section&nbsp;18 discusses these as limitations.</p>
+generators, on which it is the strongest. Section&nbsp;21 discusses these as limitations.</p>
 
-<h2>16. Independent reproduction</h2>
+  <h2>16. Temperature-dependent watermark power</h2>
+  <p>Green-list watermarks live in the sampling step: a logits processor biases candidates after top-<em>k</em>/top-<em>p</em>
+  filtering. API temperature therefore controls whether a watermark can embed at all. We sweep temperature
+  (0.0, 0.3, 0.7, 1.0, 1.3) against matched delta (0, 2) generations under the Panoptes demo key and score with
+  <span class="mono">KGWReferenceAdapter</span>. The signed card
+  <span class="mono">backend/artifacts/cards/watermark-temperature.json</span> reports per-cell detection rate, mean
+  <em>z</em>, and power. At temperature&nbsp;0 (greedy), sampling randomness vanishes: with delta&nbsp;&gt;&nbsp;0 the
+  bias can still flip the argmax and embed a <em>deterministic</em> mark; with delta&nbsp;=&nbsp;0 there is nothing to
+  watermark. At moderate temperatures (0.3&ndash;1.3) watermarked cells retain high detection under the demo key while
+  controls stay near the Type&nbsp;I floor. Providers that floor temperature, skip watermarking greedy calls, or apply
+  deterministic logit bias make different quality/embeddability trade-offs; Anthropic has not disclosed which path
+  Claude takes. The card is a family characterization, not a measurement of any private production key.</p>
+
+  <h2>17. Distillation radioactivity and removal</h2>
+  <p>If a student is trained on watermarked teacher outputs, the green-list bias can transfer &mdash; the
+  &ldquo;radioactivity&rdquo; property [46, 47]. We evaluate inheritance against our own adapter with a signed card
+  (<span class="mono">backend/artifacts/cards/radioactivity.json</span>). The default CPU tier fits a bigram student on
+  synthetic KGW-biased teacher text (CI-friendly); an optional <span class="mono">--with-model</span> path runs tiny
+  Hugging Face SFT, and GPU-tier flags accept 7B-class teacher/student pairs. On the synthetic card, students trained
+  on watermarked teachers show elevated detection relative to control-trained students; pre-distillation synonym
+  paraphrase attenuates the signal; post-distillation neutralization (inverse green-list bias at decode with the known
+  demo key) drives mean <em>z</em> strongly negative. These results align with ACL 2025 removal findings [48]:
+  watermarks deter lazy distillation but do not robustly prevent a motivated adversary who paraphrases training data or
+  neutralizes at inference. A positive radioactivity hit is <em>lineage-compatible evidence</em>, not proof of
+  unauthorized distillation &mdash; web-scale scraping can contaminate unrelated models with weak radioactivity
+  (&sect;18).</p>
+
+  <h2>18. Contamination governance for community corpora</h2>
+  <p>Once providers emit watermarked text into APIs and the public web, calibration corpora absorb a confound that can
+  look like &ldquo;Claude-like&rdquo; stylometry or a weak watermark hit. Panoptes therefore records an optional
+  <span class="mono">watermark</span> block on baseline-run and dataset manifests
+  (<span class="mono">declared-none</span>, <span class="mono">declared-active</span>,
+  <span class="mono">suspected</span>, <span class="mono">unknown</span>). Anthropic runs on or after 2026-08-02
+  default to <span class="mono">suspected</span> unless overridden. The corpus summary aggregates per-cohort status and
+  lists <span class="mono">contaminated_cohorts</span>; a known-scheme smoke screen
+  (<span class="mono">bench/watermark_screening.py</span>) runs only public adapters and cannot read private vendor
+  keys. On the frozen 104-record corpus the screen flags three of eight human controls at
+  &alpha;&nbsp;=&nbsp;0.05 under the demo key (marginal <em>z</em>&nbsp;&asymp;&nbsp;2.2&ndash;2.3) while AI records sit
+  symmetric about zero (mean <em>z</em>&nbsp;=&nbsp;0.02) &mdash; an integrity signal to monitor as the corpus grows, not
+  an authorship claim. The live analyzer appends a calibration limitation when the loaded bundle carries
+  contamination metadata. See
+  <span class="mono">docs/watermark-contamination.md</span>. The runtime plugin loader
+  (<span class="mono">panoptes.plugins</span>) additionally lets operators attach local watermark detectors under the
+  <span class="mono">plugin:&lt;id&gt;</span> namespace without changing the evidence contract.</p>
+
+<h2>19. Independent reproduction</h2>
   <p>RQ4 asks whether the claim can be verified from committed artifacts. This version ships a first-party
   self-check, not an outside reproduction. <span class="mono">python -m bench.reproduce</span> re-hashes every
   signed artifact, re-verifies the baseline catalog, and writes
@@ -1413,7 +1465,7 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   headline metrics, and report absolute deltas. Until that is done, RQ4 is only partly answered: the artifacts
   are machine-checkable; they have not yet been checked by someone who did not produce them.</p>
 
-  <h2>17. What this gives the community</h2>
+  <h2>20. What this gives the community</h2>
   <p>The project&rsquo;s contribution is infrastructure for <em>evidence that compounds</em>. Concretely: (1)&nbsp;a
   canonical prompt set and hashing protocol under which anyone&rsquo;s run becomes permanently comparable to everyone
   else&rsquo;s; (2)&nbsp;a public catalog that stores cryptographic commitments instead of content, so contributing
@@ -1438,7 +1490,7 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   fallbacks, the bench runs on the shipped corpus or your own CSV, and the catalog verifies with one command and no
   account.</p>
 
-  <h2>18. Limitations, ethics, and responsible use</h2>
+  <h2>21. Limitations, ethics, and responsible use</h2>
   <p>Text-only attribution is fundamentally bounded. Detector likelihood ratios inherit the calibration and bias of the
   underlying models and degrade under paraphrase, translation, and heavy editing [11, 12]; the reliability error is
   reported precisely so that this degradation is visible. Watermark tests cover only known, configured schemes and only
@@ -1490,6 +1542,11 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   the measurement of that degradation, not a refutation of it. Finally, public text detection remains vulnerable to
   paraphrase and to future generators, and provenance attests a chain of custody rather than metaphysical authorship
   &mdash; the two evidence channels are reported separately precisely so that neither is asked to carry the other.</p>
+  <p>Watermark intelligence (&sect;&sect;16&ndash;18) adds three further bounds. Private vendor keys remain
+  undetectable: Panoptes characterizes the Aaronson/SynthID-Text <em>family</em> with a demo key, never Anthropic&rsquo;s
+  production key. Radioactivity is lineage evidence under web contamination, not courtroom proof of distillation.
+  Greedy decoding (temperature&nbsp;0) is a structural dead zone for sampling watermarks unless providers apply a
+  deterministic logit bias. Plugin detectors are operator-local and unsigned unless they ship evaluation cards.</p>
 
   <h3>Ethics</h3>
   <p>Panoptes is designed against the two failure modes that harm people: accusation on thin evidence, and false
@@ -1499,7 +1556,7 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
   power gate and the pre-registered hypothesis registry are ethical as well as statistical devices: they make it
   structurally difficult for the project &mdash; or anyone building on it &mdash; to claim more than the data supports.</p>
 
-  <h2>19. Conclusion</h2>
+  <h2>22. Conclusion</h2>
   <p>Panoptes reframes AI-text attribution as a measurement and calibration problem rather than a detector leaderboard.
   The system reports prevalence-corrected likelihood ratios, declared priors, uncertainty, and abstention; it keeps
   participation, generation, and source-family attribution distinct; and it treats watermark tests and cryptographic
@@ -1644,14 +1701,24 @@ generators, on which it is the strongest. Section&nbsp;18 discusses these as lim
     arXiv:2007.14062.</li>
     <li>Liu, Y., Ott, M., Goyal, N., Du, J., Joshi, M., Chen, D., Levy, O., Lewis, M., Zettlemoyer, L., &amp; Stoyanov,
     V. (2019). RoBERTa: A robustly optimized BERT pretraining approach. <em>arXiv:1907.11692</em>.</li>
+    <li>Sander, T., Fernandez, P., Durmus, A., Douze, M., &amp; Furon, T. (2024). Watermarking makes language models
+    radioactive. <em>NeurIPS</em>.</li>
+    <li>Gu, C., Li, X. L., Liang, P., &amp; Hashimoto, T. (2024). On the learnability of watermarks for language
+    models. <em>ICLR</em>.</li>
+    <li>Can LLM watermarks robustly prevent unauthorized knowledge distillation? (2025). <em>ACL</em>
+    (long paper). https://aclanthology.org/2025.acl-long.648.pdf</li>
+    <li>Denny, A. (2026). reverse-SynthID: spectral analysis of Gemini&rsquo;s SynthID image watermark
+    [Computer software]. GitHub. https://github.com/aloshdenny/reverse-SynthID</li>
   </ol>
 
   <div class="footnote">
-    Panoptes research paper, version 2.1 &middot; August 19, 2026. Authors: Carrington Junior
+    Panoptes research paper, version 2.1 &middot; August 20, 2026. Authors: Carrington Junior
     (<a href="https://github.com/Encryptic1">Encryptic1</a>) and Trey Huffine
     (<a href="https://github.com/treyhuffine">treyhuffine</a>). Measurement protocol registered 2026-08-13 in
     <span class="mono">bench/protocol.json</span>; v2.1 transportability addendum registered 2026-08-19 in
-    <span class="mono">bench/protocol-v2.1.json</span>. Code:
+    <span class="mono">bench/protocol-v2.1.json</span>; watermark intelligence cards
+    (<span class="mono">watermark-temperature.json</span>, <span class="mono">radioactivity.json</span>) added
+    2026-08-20. Code:
     <a href="https://github.com/marketstandard/Panoptes">github.com/marketstandard/Panoptes</a>.
     Weights:
     <a href="https://huggingface.co/MarketStandard/panoptes-neural-v1">huggingface.co/MarketStandard/panoptes-neural-v1</a>

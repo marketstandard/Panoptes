@@ -110,6 +110,11 @@ export function TechnicalDrilldown({ result }: { result: AnalysisResponse }) {
               <div className="watermark-title">
                 <strong>{watermark.scheme}</strong>
                 <span>{watermark.status.replaceAll('_', ' ')}</span>
+                {watermark.origin === 'plugin' || watermark.scheme.startsWith('plugin:') ? (
+                  <span className="badge">plugin</span>
+                ) : (
+                  <span className="badge">builtin</span>
+                )}
               </div>
               <Equation formula="z=\frac{G-\gamma n}{\sqrt{n\gamma(1-\gamma)}}, \qquad p=1-\Phi(z)" />
               <div className="stat-grid">

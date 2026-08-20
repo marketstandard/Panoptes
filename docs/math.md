@@ -33,6 +33,14 @@ where \(\Phi\) is the standard normal cumulative distribution function. For smal
 
 The green-rate confidence interval should use a binomial interval suitable for small counts, such as Wilson or exact intervals. The interval communicates uncertainty in signal strength without turning a p-value into a posterior probability.
 
+### Temperature-scaled embedding
+
+Candidate logits \(\ell\) are scaled by \(1/T\) before the green-list bias \(\delta\) is added. At \(T=0\) (greedy), the sampler takes \(\arg\max(\ell+\delta\cdot\mathbf{1}_{\text{green}})\) — there is no sampling randomness; the watermark either embeds deterministically via bias flipping the ranking, or not at all. See `backend/artifacts/cards/watermark-temperature.json`.
+
+### Inheritance (radioactivity) \(z\)
+
+A student trained on watermarked teacher text is scored with the same \(z\)-statistic on held-out prompts. Attenuation is \(z_{\text{student}}/z_{\text{teacher}}\) (and detection-rate ratios). Neutralization applies \(-\delta\) to green candidates at student decode time. See `backend/artifacts/cards/radioactivity.json`.
+
 ## Editing and dilution model
 
 Heavy editing can remove some watermark-bearing tokens while leaving others. Panoptes may model the retained signal fraction \(\rho\) with a Beta-Binomial process:

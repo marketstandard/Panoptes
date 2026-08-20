@@ -5,6 +5,7 @@ export interface CorpusCohort {
   family: string;
   kind: string;
   n: number;
+  watermark_status?: string;
   features: Record<string, { mean: number; min: number; max: number }>;
 }
 
@@ -16,6 +17,12 @@ export interface CorpusSummary {
   families: string[];
   catalog_entries: number;
   cohorts: CorpusCohort[];
+  contaminated_cohorts?: Array<{
+    family: string;
+    kind: string;
+    watermark_status: string;
+    notes?: string;
+  }>;
 }
 
 export interface DefactifySummary {
@@ -79,12 +86,19 @@ export function CorpusPanel() {
               <strong>{data.catalog_entries}</strong>
             </div>
           </div>
+          {data.contaminated_cohorts && data.contaminated_cohorts.length > 0 ? (
+            <p className="error" role="status">
+              Watermark-flagged cohorts: {data.contaminated_cohorts.map((c) => `${c.family}/${c.kind} (${c.watermark_status})`).join('; ')}.
+              Calibration evidence may partly reflect model lineage rather than direct use.
+            </p>
+          ) : null}
           <table className="corpus-table">
             <thead>
               <tr>
                 <th>family</th>
                 <th>kind</th>
                 <th>n</th>
+                <th>watermark</th>
                 {FEATURE_LABELS.map(([, label]) => (
                   <th key={label}>{label}</th>
                 ))}
@@ -96,6 +110,7 @@ export function CorpusPanel() {
                   <td>{cohort.family}</td>
                   <td>{cohort.kind}</td>
                   <td>{cohort.n}</td>
+                  <td>{cohort.watermark_status ?? 'unknown'}</td>
                   {FEATURE_LABELS.map(([key]) => (
                     <td key={key}>{cohort.features[key] ? cohort.features[key].mean.toFixed(3) : '—'}</td>
                   ))}

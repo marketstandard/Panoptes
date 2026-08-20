@@ -76,7 +76,9 @@ class KGWReferenceAdapter(WatermarkAdapter):
         for span in spans:
             token = span.group(0)
             green = _green_for(previous, token)
-            tokens.append(WatermarkToken(token=token, start=span.start(), end=span.end(), green=green))
+            tokens.append(
+                WatermarkToken(token=token, start=span.start(), end=span.end(), green=green)
+            )
             previous = token
 
         green_count = sum(token.green for token in tokens)
@@ -141,12 +143,25 @@ class ClaudePendingAdapter(WatermarkAdapter):
         return _empty_result(self.id, "adapter_unavailable", len(_TOKEN_RE.findall(text))), []
 
 
-def watermark_adapters() -> list[WatermarkAdapter]:
-    return [KGWReferenceAdapter(), ClaudePendingAdapter()]
+def watermark_adapters(settings=None) -> list[WatermarkAdapter]:
+    adapters: list[WatermarkAdapter] = [KGWReferenceAdapter(), ClaudePendingAdapter()]
+    if settings is not None:
+        try:
+            from panoptes.plugins import get_plugin_registry
+
+            registry = get_plugin_registry(settings)
+            adapters.extend(registry.watermarks)
+        except Exception:
+            pass
+    return adapters
 
 
 def apply_fdr(results: list[WatermarkResult]) -> list[WatermarkResult]:
-    tested = [(index, result.p_value) for index, result in enumerate(results) if result.p_value is not None]
+    tested = [
+        (index, result.p_value)
+        for index, result in enumerate(results)
+        if result.p_value is not None
+    ]
     if not tested:
         return results
     ordered = sorted(tested, key=lambda item: item[1])
@@ -166,7 +181,9 @@ def apply_fdr(results: list[WatermarkResult]) -> list[WatermarkResult]:
     return updated
 
 
-def evidence_by_segment(segments: list[tuple[int, int]], tokens: list[WatermarkToken]) -> list[float | None]:
+def evidence_by_segment(
+    segments: list[tuple[int, int]], tokens: list[WatermarkToken]
+) -> list[float | None]:
     values: list[float | None] = []
     for start, end in segments:
         segment_tokens = [token for token in tokens if token.start >= start and token.end <= end]
@@ -184,7 +201,7 @@ def evidence_by_segment(segments: list[tuple[int, int]], tokens: list[WatermarkT
 
 
 def _green_for(previous: str, token: str) -> bool:
-    digest = hashlib.sha256(f"panoptes-demo-key::{previous}::{token}".encode("utf-8")).digest()
+    digest = hashlib.sha256(f"panoptes-demo-key::{previous}::{token}".encode()).digest()
     return digest[0] < 128
 
 

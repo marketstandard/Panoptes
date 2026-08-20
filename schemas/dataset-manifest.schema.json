@@ -87,6 +87,19 @@
     },
     "limitations": {"type": "array", "items": {"type": "string"}},
     "notice_entry_required": {"type": "boolean"},
+    "watermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "description": "Optional watermark contamination declaration for the dataset as a whole.",
+      "properties": {
+        "status": {
+          "enum": ["declared-none", "declared-active", "suspected", "unknown"]
+        },
+        "scheme": {"type": "string", "maxLength": 128},
+        "notes": {"type": "string", "maxLength": 512}
+      }
+    },
     "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
   },
   "$defs": {

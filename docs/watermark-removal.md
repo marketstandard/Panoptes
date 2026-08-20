@@ -60,3 +60,11 @@ Headline v2.0 findings: the statistical watermark survives hygiene, truncation, 
 - The generator uses a small LM (GPT-2 by default) for speed; the green-list statistics, not the prose quality, are what the eval measures.
 - The demo key is public (`panoptes-demo-key`). A vendor's production key is private; results characterize the *family*, not any specific deployment.
 - Paraphrase fidelity is not separately scored; the card measures only whether the watermark survives rewriting.
+
+## Related watermark intelligence cards
+
+| Card | Command | Role |
+| --- | --- | --- |
+| `watermark-temperature.json` | `python -m bench.run_watermark_temperature` | Detection power vs sampling temperature (greedy dead zone) |
+| `radioactivity.json` | `python -m bench.run_radioactivity` | Distillation inheritance + paraphrase/neutralization removal |
+| Contamination flags | baseline manifests + `docs/watermark-contamination.md` | Calibration confound governance |

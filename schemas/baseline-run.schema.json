@@ -57,6 +57,27 @@
     },
     "merkle_root": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "contributor": {"type": "string", "maxLength": 64},
+    "watermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "description": "Declared watermark contamination status for this baseline run. Optional so pre-2026 manifests remain valid.",
+      "properties": {
+        "status": {
+          "enum": ["declared-none", "declared-active", "suspected", "unknown"],
+          "description": "declared-none: provider asserts no watermark; declared-active: provider watermark is known active; suspected: heuristic (e.g. Anthropic post EU transition); unknown: not assessed."
+        },
+        "scheme": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Scheme identifier when known (e.g. synthid-text, kgw-v1)."
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    },
     "anchor": {
       "type": "object",
       "additionalProperties": false,

@@ -11,10 +11,12 @@ import { ModelCardPanel } from './components/ModelCardPanel';
 import { PosteriorSensitivity } from './components/PosteriorSensitivity';
 import { PowerCurve } from './components/PowerCurve';
 import { ProvenancePanel } from './components/ProvenancePanel';
+import { RadioactivityPanel } from './components/RadioactivityPanel';
 import { ReliabilityDiagram } from './components/ReliabilityDiagram';
 import { SourceFamilyPanel } from './components/SourceFamilyPanel';
 import { TechnicalDrilldown } from './components/TechnicalDrilldown';
 import { TokenEvidenceOverlay } from './components/TokenEvidenceOverlay';
+import { WatermarkTemperaturePanel } from './components/WatermarkTemperaturePanel';
 import { useArtifact } from './hooks';
 import type { DefactifySummary } from './components/CorpusPanel';
 import type { AnalysisResponse } from './types';
@@ -168,6 +170,8 @@ export default function App() {
             <PowerCurve currentN={result.calibration?.n_records ?? 0} defactifyN={defactifySummary?.n_records} />
             <CoverageCurve />
             <InputProfile featureProfile={result.input.feature_profile} />
+            <WatermarkTemperaturePanel />
+            <RadioactivityPanel />
           </section>
           <section className="technical-toggle-panel glass-panel">
             <div>

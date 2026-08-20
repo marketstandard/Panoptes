@@ -87,21 +87,25 @@ app.add_typer(models_app, name="models")
 
 @models_app.command("list")
 def models_list() -> None:
-    from panoptes.registry import DETECTOR_REGISTRY
+    from panoptes.registry import enabled_registrations
 
+    settings = Settings()
     table = Table(title="Registered detectors")
     table.add_column("ID")
     table.add_column("Kind")
     table.add_column("Status")
     table.add_column("License")
-    for item in DETECTOR_REGISTRY:
+    for item in enabled_registrations(settings.profile.value, settings):
         table.add_row(item.id, item.kind, item.status, item.license or "")
     console.print(table)
 
 
 @models_app.command("verify")
 def models_verify() -> None:
-    console.print("Artifact verification is configured for pinned bundles; no external artifacts are required in fixture mode.")
+    console.print(
+        "Artifact verification is configured for pinned bundles; "
+        "no external artifacts are required in fixture mode."
+    )
 
 
 plugins_app = typer.Typer(help="Inspect plugin loading")
@@ -110,12 +114,47 @@ app.add_typer(plugins_app, name="plugins")
 
 @plugins_app.command("list")
 def plugins_list() -> None:
+    from panoptes.plugins import clear_plugin_cache, get_plugin_registry
+
     settings = Settings()
     if not settings.plugin_paths:
-        console.print("No plugin paths configured.")
+        console.print("No plugin paths configured (set PANOPTES_PLUGIN_PATHS).")
         return
-    for path in settings.plugin_paths:
-        console.print(path)
+    clear_plugin_cache()
+    registry = get_plugin_registry(settings)
+    table = Table(title="Panoptes plugins")
+    table.add_column("Path")
+    table.add_column("Kind")
+    table.add_column("ID")
+    table.add_column("Status")
+    table.add_column("Detail")
+    for item in registry.loaded:
+        plugin_id = str(item.metadata.get("id", "")) if item.metadata else ""
+        detail = item.error or item.metadata.get("version", "")
+        table.add_row(item.path, item.kind, plugin_id, item.status, str(detail))
+    console.print(table)
+
+
+@plugins_app.command("doctor")
+def plugins_doctor() -> None:
+    from panoptes.plugins import clear_plugin_cache, get_plugin_registry
+
+    settings = Settings()
+    clear_plugin_cache()
+    registry = get_plugin_registry(settings)
+    ok = sum(1 for item in registry.loaded if item.status == "ok")
+    err = sum(1 for item in registry.loaded if item.status == "error")
+    console.print(
+        f"plugin_paths={len(settings.plugin_paths)} loaded_ok={ok} loaded_error={err} "
+        f"watermark_adapters={len(registry.watermarks)} detector_adapters={len(registry.detectors)}"
+    )
+    for item in registry.loaded:
+        if item.status == "error":
+            console.print(f"[red]error[/red] {item.path}: {item.error}")
+        else:
+            console.print(
+                f"[green]ok[/green] {item.path} kind={item.kind} id={item.metadata.get('id')}"
+            )
 
 
 def _cuda_visible() -> str:

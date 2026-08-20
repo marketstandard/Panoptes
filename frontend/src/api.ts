@@ -32,7 +32,9 @@ export type ArtifactName =
   | 'logistic-defactify-card'
   | 'gbm-defactify-card'
   | 'attribution-defactify-card'
-  | 'defactify-external-validation';
+  | 'defactify-external-validation'
+  | 'watermark-temperature'
+  | 'radioactivity';
 
 export async function fetchArtifact<T = unknown>(name: ArtifactName): Promise<T | null> {
   const response = await fetch(`/api/v1/artifacts/${name}`);

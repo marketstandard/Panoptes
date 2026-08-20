@@ -21,7 +21,6 @@ import re
 from dataclasses import dataclass
 
 import numpy as np
-
 from panoptes.analysis.watermarks import green_for
 
 _WORD_RE = re.compile(r"^\w+$")
@@ -73,18 +72,29 @@ def biased_pick(
     delta: float,
     rng: np.random.Generator,
     top_k: int | None = None,
+    temperature: float = 1.0,
 ) -> int:
     """Pick a candidate index, biasing green-listed (previous, token) pairs.
 
-    Adds ``delta`` to the logit of each candidate whose token is green-listed
-    given ``previous`` (KGW logit bias), then samples from the restricted
-    softmax. Pure numpy so it is testable without a model.
+    Scales logits by ``1/temperature`` (temperature > 0), then adds ``delta`` to
+    the logit of each green-listed candidate (KGW logit bias), then samples from
+    the restricted softmax. ``temperature=0`` selects argmax after the green-list
+    bias — documenting the greedy dead zone where sampling randomness vanishes.
+    Pure numpy so it is testable without a model.
     """
     logits = np.asarray(cand_logits, dtype=float)
     order = np.argsort(-logits, kind="stable")
     if top_k is not None:
         order = order[: max(1, top_k)]
     sel = logits[order].copy()
+    if temperature <= 0:
+        # Greedy: apply bias, then take argmax. Bias still changes the ranking
+        # when two candidates are close; there is no sampling randomness left.
+        for j, idx in enumerate(order):
+            if green_for(previous, cand_tokens[int(idx)]):
+                sel[j] += delta
+        return int(order[int(np.argmax(sel))])
+    sel = sel / float(temperature)
     for j, idx in enumerate(order):
         if green_for(previous, cand_tokens[int(idx)]):
             sel[j] += delta
@@ -123,10 +133,12 @@ def generate_watermarked(
     seed: int = 0,
     device: str | None = None,
     progress: bool = False,
+    temperature: float = 1.0,
 ) -> list[str]:
     """Generate one passage per prompt with KGW green-list biasing.
 
     ``delta=0`` yields matched unwatermarked controls (same model, no bias).
+    ``temperature`` scales candidate logits before the bias (0 = greedy).
     Returns the full text (prompt + generated continuation) per prompt.
     """
     import torch
@@ -148,7 +160,15 @@ def generate_watermarked(
             with torch.no_grad():
                 logits = model(input_ids).logits[0, -1]
             cand_logits = logits[cand_ids].float().cpu().numpy()
-            pick = biased_pick(cand_logits, cand.tokens, previous, delta, rng, top_k=top_k)
+            pick = biased_pick(
+                cand_logits,
+                cand.tokens,
+                previous,
+                delta,
+                rng,
+                top_k=top_k,
+                temperature=temperature,
+            )
             token = cand.tokens[pick]
             text = (text + " " + token) if _WORD_RE.match(token) else (text + token)
             previous = token

@@ -86,3 +86,15 @@ test('ModelCardPanel shows empty state without a card', () => {
   render(<ModelCardPanel />);
   expect(screen.getByText(/No Panoptes-v0 card found/i)).toBeTruthy();
 });
+
+test('WatermarkTemperaturePanel shows empty state without the artifact', async () => {
+  const { WatermarkTemperaturePanel } = await import('./WatermarkTemperaturePanel');
+  render(<WatermarkTemperaturePanel />);
+  expect(screen.getByText(/Temperature card not found/i)).toBeTruthy();
+});
+
+test('RadioactivityPanel shows empty state without the artifact', async () => {
+  const { RadioactivityPanel } = await import('./RadioactivityPanel');
+  render(<RadioactivityPanel />);
+  expect(screen.getByText(/Radioactivity card not found/i)).toBeTruthy();
+});

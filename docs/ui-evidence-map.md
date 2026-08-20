@@ -68,6 +68,16 @@ This document maps every user-visible surface to the versioned analysis response
 | `watermarks[].effect` | stat | Observed green-rate excess |
 | `watermarks[].power` | stat | Approximate power of test at current \(n\) |
 | `watermarks[].tokens[]` | source overlay | `{start, end, green}` spans used for local rendering only |
+| `watermarks[].origin` | watermark lab badge | `builtin` or `plugin` (plugin schemes are also namespaced `plugin:<id>`) |
+
+## Research artifacts (signed cards)
+
+| Artifact | UI surface | Interpretation |
+| --- | --- | --- |
+| `watermark-temperature` | WatermarkTemperaturePanel | Detection rate / mean z vs sampling temperature; greedy (T=0) annotated |
+| `radioactivity` | RadioactivityPanel | Teacher vs student inheritance, paraphrase-pre and neutralize-post removal |
+| `corpus-summary.contaminated_cohorts` | CorpusPanel banner | Cohorts with declared-active or suspected watermarks |
+| `corpus-summary.cohorts[].watermark_status` | CorpusPanel table | Per-cohort contamination declaration |
 
 ## Source-family panel
 

@@ -56,6 +56,15 @@ The baseline catalog (`baselines/catalog/`) lets anyone register hashes of model
 - **Ledger poisoning and spam.** Registry lines and manifests are schema-validated data only (bounded strings, hex hashes, no free-form markup, no executable content). `verify-catalog` recomputes every canonical hash, rejects duplicates, tampering, and unreferenced manifests, and runs in CI. Maintainers review every catalog PR per `docs/contributing-markers.md`.
 - **Raw text leakage.** Community outputs stay in gitignored `baselines/runs/`; only SHA-256 manifests enter the repository. The validator rejects baseline manifests that embed output text, mirroring the `raw_text_in_repo` rule for datasets.
 - **Timestamp trust.** Optional OpenTimestamps proofs anchor a manifest's existence and integrity in the Bitcoin blockchain. They prove *when* a claim existed, not that the claim is true.
+- **Watermark contamination.** Post-2026 provider watermarks (e.g. Anthropic SynthID-Text) can enter baselines and scraped corpora. Declared/suspected flags and screening govern this confound; a radioactivity hit is lineage evidence, not proof of distillation. See [watermark-contamination.md](watermark-contamination.md).
+
+## Plugin trust model
+
+- Plugins load only from explicit local paths (`PANOPTES_PLUGIN_PATHS`).
+- No remote code fetch at runtime.
+- Metadata (`id`, `version`, `license`, `content_types`, `limitations`) is required.
+- Exceptions inside plugins become abstentions; they must not crash `analyze()`.
+- Optional external-oracle plugins (future vendor detection APIs) must declare network use in limitations and remain opt-in.
 
 ## Ethical limits
 

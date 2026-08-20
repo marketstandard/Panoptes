@@ -45,7 +45,7 @@ class OutcomeDistribution(BaseModel):
     ai_generated: float = Field(ge=0, le=1)
     ai_refined_or_mixed: float = Field(ge=0, le=1)
 
-    def normalized(self) -> "OutcomeDistribution":
+    def normalized(self) -> OutcomeDistribution:
         total = self.human + self.ai_generated + self.ai_refined_or_mixed
         if total <= 0:
             return OutcomeDistribution(human=1 / 3, ai_generated=1 / 3, ai_refined_or_mixed=1 / 3)
@@ -116,7 +116,9 @@ class SourceFamilies(BaseModel):
     conditional_on_ai: list[SourceFamilyProbability]
     unknown_score: float = Field(ge=0, le=1)
     interpretation: str
-    basis: str = "heuristic"  # "corpus-fitted" when the signed calibration artifact supplied the geometry
+    basis: str = (
+        "heuristic"  # "corpus-fitted" when the signed calibration artifact supplied the geometry
+    )
     cohort_size: int | None = Field(default=None, ge=0)
 
 
@@ -182,12 +184,15 @@ class WatermarkResult(BaseModel):
     effect: float | None = None
     power: float | None = Field(default=None, ge=0, le=1)
     tokens: list[WatermarkTokenSpan] | None = None
+    origin: Literal["builtin", "plugin"] = "builtin"
 
 
 class ProvenanceResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    status: Literal["verified", "tampered", "not_present", "unsupported_file", "error", "not_applicable"]
+    status: Literal[
+        "verified", "tampered", "not_present", "unsupported_file", "error", "not_applicable"
+    ]
     summary: str
     issuer: str | None = None
     timestamp: str | None = None
@@ -195,7 +200,7 @@ class ProvenanceResult(BaseModel):
     level: Literal["P0", "P1", "P2", "P3", "P4"] = "P0"
 
     @model_validator(mode="after")
-    def assign_default_level(self) -> "ProvenanceResult":
+    def assign_default_level(self) -> ProvenanceResult:
         if self.status == "verified" and self.level == "P0":
             return self.model_copy(update={"level": "P3"})
         return self
@@ -289,7 +294,7 @@ class EvidenceEntry(BaseModel):
     provenance: ProvenanceEvidence | None = None
 
     @model_validator(mode="after")
-    def exactly_one_detail(self) -> "EvidenceEntry":
+    def exactly_one_detail(self) -> EvidenceEntry:
         populated = [
             self.statistical is not None,
             self.watermark is not None,

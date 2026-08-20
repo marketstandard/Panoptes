@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoptes.dev/schemas/watermark-temperature-card.schema.json",
+  "title": "Panoptes Watermark Temperature Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "scheme",
+    "temperatures",
+    "deltas",
+    "cells",
+    "limitations",
+    "artifact_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "panoptes-watermark-temperature-card-v1"},
+    "scheme": {"type": "string"},
+    "adapter_version": {"type": "string"},
+    "created_utc": {"type": "string"},
+    "generator": {"type": "object"},
+    "temperatures": {"type": "array", "items": {"type": "number"}},
+    "deltas": {"type": "array", "items": {"type": "number"}},
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["temperature", "delta", "n", "detection_rate_0.05", "mean_z", "mean_power", "mean_green_rate"],
+        "properties": {
+          "temperature": {"type": "number"},
+          "delta": {"type": "number"},
+          "n": {"type": "integer"},
+          "n_tested": {"type": "integer"},
+          "detection_rate_0.05": {"type": ["number", "null"]},
+          "mean_z": {"type": ["number", "null"]},
+          "mean_power": {"type": ["number", "null"]},
+          "mean_green_rate": {"type": ["number", "null"]},
+          "greedy": {"type": "boolean"}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

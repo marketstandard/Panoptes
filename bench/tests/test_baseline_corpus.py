@@ -79,7 +79,9 @@ def test_tampered_manifest_is_rejected(tmp_path):
     manifest_path = forged / "run.manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     manifest["outputs"][0]["bytes"] += 1  # edit without re-signing
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     with pytest.raises(CorpusError, match="self-hash mismatch"):
         verify_run(forged)
 
@@ -92,3 +94,55 @@ def test_missing_output_is_rejected(tmp_path):
     (forged / manifest["outputs"][1]["file"]).unlink()
     with pytest.raises(CorpusError, match="missing output"):
         verify_run(forged)
+
+
+def test_watermark_status_defaults_to_unknown_for_legacy_manifests():
+    records = load_corpus()
+    assert all(
+        record.watermark_status in {"declared-none", "declared-active", "suspected", "unknown"}
+        for record in records
+    )
+    # Existing reference runs predate the watermark block.
+    assert all(record.watermark_status == "unknown" for record in records)
+
+
+def test_summarize_propagates_contaminated_cohorts(tmp_path):
+    from bench.baseline_corpus import CorpusRecord, summarize
+
+    records = [
+        CorpusRecord(
+            text="hello world " * 20,
+            label=1,
+            family="claude-test",
+            kind="text",
+            length_bucket="50-149",
+            prompt_id="text-01",
+            run_id="claude-test_text-1",
+            sha256="a" * 64,
+            watermark_status="suspected",
+            watermark_notes="post-transition heuristic",
+        ),
+        CorpusRecord(
+            text="human control " * 20,
+            label=0,
+            family="human",
+            kind="text",
+            length_bucket="50-149",
+            prompt_id="text-01",
+            run_id="human_text-1",
+            sha256="b" * 64,
+            watermark_status="declared-none",
+        ),
+    ]
+    summary = summarize(records, catalog_entries=0)
+    assert summary["contaminated_cohorts"] == [
+        {
+            "family": "claude-test",
+            "kind": "text",
+            "watermark_status": "suspected",
+            "notes": "post-transition heuristic",
+        }
+    ]
+    by_family = {c["family"]: c for c in summary["cohorts"]}
+    assert by_family["claude-test"]["watermark_status"] == "suspected"
+    assert by_family["human"]["watermark_status"] == "declared-none"

@@ -85,7 +85,17 @@ DETECTOR_REGISTRY: tuple[DetectorRegistration, ...] = (
 )
 
 
-def enabled_registrations(profile: str) -> list[DetectorRegistration]:
+def enabled_registrations(profile: str, settings=None) -> list[DetectorRegistration]:
     if profile == "fixture":
-        return [item for item in DETECTOR_REGISTRY if item.status == "fixture"]
-    return [item for item in DETECTOR_REGISTRY if item.status != "fixture"]
+        base = [item for item in DETECTOR_REGISTRY if item.status == "fixture"]
+    else:
+        base = [item for item in DETECTOR_REGISTRY if item.status != "fixture"]
+    if settings is None:
+        return list(base)
+    try:
+        from panoptes.plugins import get_plugin_registry
+
+        registry = get_plugin_registry(settings)
+        return list(base) + registry.watermark_registrations() + registry.detector_registrations()
+    except Exception:
+        return list(base)

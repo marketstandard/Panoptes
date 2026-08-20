@@ -46,7 +46,7 @@ def analyze_endpoint(
 
 @app.get("/api/v1/capabilities")
 def capabilities(settings: Settings = Depends(get_settings)) -> dict:
-    registrations = enabled_registrations(settings.profile.value)
+    registrations = enabled_registrations(settings.profile.value, settings)
     return {
         "profile": settings.profile.value,
         "detectors": [registration.__dict__ for registration in registrations],
@@ -80,6 +80,8 @@ _ARTIFACT_ALLOWLIST = {
     "gbm-defactify-card": "cards/gbm-tier1-defactify.json",
     "attribution-defactify-card": "cards/attribution-defactify.json",
     "defactify-external-validation": "cards/defactify-external-validation.json",
+    "watermark-temperature": "cards/watermark-temperature.json",
+    "radioactivity": "cards/radioactivity.json",
 }
 
 

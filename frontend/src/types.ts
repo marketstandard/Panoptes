@@ -59,6 +59,7 @@ export interface WatermarkResult {
   effect: number | null;
   power: number | null;
   tokens: WatermarkTokenSpan[] | null;
+  origin?: 'builtin' | 'plugin';
 }
 
 export type EvidenceChannel = 'statistical' | 'watermark' | 'provenance';

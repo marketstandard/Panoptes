@@ -38,6 +38,14 @@ flowchart LR
 
 The initial deployment is deliberately boring: one Python FastAPI process serves the built TypeScript UI and analysis API. No database, queue, or persistent local state is required. Heavy models are lazy-loaded according to the selected runtime profile.
 
+### Plugin loader
+
+`PANOPTES_PLUGIN_PATHS` / `Settings.plugin_paths` loads local adapters via `panoptes.plugins`. Validated watermark plugins are merged into `watermark_adapters(settings)` under the `plugin:<id>` namespace; detector plugins may replace the document detector when their content types match. Failures become abstentions. See [plugins/README.md](../plugins/README.md).
+
+### Watermark contamination data-flow
+
+Baseline manifests may declare `watermark.status`. `bench/baseline_corpus.py` propagates status into `corpus-summary.json` (`contaminated_cohorts` + optional `watermark_screening`). Calibration bundles may carry `watermark_note` / `contaminated_cohorts`; `analyze()` surfaces them as limitations. Details: [watermark-contamination.md](watermark-contamination.md).
+
 ## Repository map
 
 - `backend/` — FastAPI API, analysis pipeline, detectors, calibration, and CLI.

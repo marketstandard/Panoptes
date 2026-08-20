@@ -42,6 +42,9 @@ class CorpusRecord:
     prompt_id: str
     run_id: str
     sha256: str
+    watermark_status: str = "unknown"  # declared-none | declared-active | suspected | unknown
+    watermark_scheme: str | None = None
+    watermark_notes: str | None = None
 
 
 def canonical_hash(payload: dict) -> str:
@@ -94,6 +97,10 @@ def verify_run(run_dir: Path) -> list[CorpusRecord]:
     slug = manifest["model"]["slug"]
     label = 0 if interface == "human" else 1
     family = "human" if interface == "human" else slug
+    watermark = manifest.get("watermark") or {}
+    watermark_status = watermark.get("status", "unknown")
+    watermark_scheme = watermark.get("scheme")
+    watermark_notes = watermark.get("notes")
 
     records: list[CorpusRecord] = []
     for output in manifest["outputs"]:
@@ -121,6 +128,9 @@ def verify_run(run_dir: Path) -> list[CorpusRecord]:
                 prompt_id=prompt_id,
                 run_id=manifest["run_id"],
                 sha256=actual,
+                watermark_status=watermark_status,
+                watermark_scheme=watermark_scheme,
+                watermark_notes=watermark_notes,
             )
         )
 
@@ -162,12 +172,18 @@ def catalog_entry_count(registry: Path = REGISTRY) -> int:
     return sum(1 for line in registry.read_text(encoding="utf-8").splitlines() if line.strip())
 
 
-def summarize(records: list[CorpusRecord], catalog_entries: int) -> dict:
+def summarize(
+    records: list[CorpusRecord],
+    catalog_entries: int,
+    *,
+    screening: dict | None = None,
+) -> dict:
     groups: dict[tuple[str, str], list[CorpusRecord]] = {}
     for record in records:
         groups.setdefault((record.family, record.kind), []).append(record)
 
     cohorts = []
+    contaminated_cohorts: list[dict] = []
     for (family, kind), group in sorted(groups.items()):
         features = [extract(record.text, record.kind) for record in group]
         stats = {}
@@ -178,6 +194,18 @@ def summarize(records: list[CorpusRecord], catalog_entries: int) -> dict:
                 "min": min(values),
                 "max": max(values),
             }
+        # Prefer the strongest contamination signal in the cohort.
+        statuses = {record.watermark_status for record in group}
+        if "declared-active" in statuses:
+            watermark_status = "declared-active"
+        elif "suspected" in statuses:
+            watermark_status = "suspected"
+        elif "declared-none" in statuses and statuses <= {"declared-none"}:
+            watermark_status = "declared-none"
+        else:
+            watermark_status = (
+                "unknown" if "unknown" in statuses or not statuses else next(iter(statuses))
+            )
         cohorts.append(
             {
                 "family": family,
@@ -189,11 +217,25 @@ def summarize(records: list[CorpusRecord], catalog_entries: int) -> dict:
                     bucket: sum(1 for record in group if record.length_bucket == bucket)
                     for bucket in ("lt50", "50-149", "150-499", "500plus")
                 },
+                "watermark_status": watermark_status,
                 "features": stats,
             }
         )
+        if watermark_status in {"declared-active", "suspected"}:
+            notes = next(
+                (record.watermark_notes for record in group if record.watermark_notes),
+                None,
+            )
+            entry = {
+                "family": family,
+                "kind": kind,
+                "watermark_status": watermark_status,
+            }
+            if notes:
+                entry["notes"] = notes
+            contaminated_cohorts.append(entry)
 
-    return {
+    payload = {
         "schema": "panoptes-corpus-summary-v1",
         "n_records": len(records),
         "n_runs": len({record.run_id for record in records}),
@@ -203,7 +245,11 @@ def summarize(records: list[CorpusRecord], catalog_entries: int) -> dict:
         "kinds": sorted({record.kind for record in records}),
         "catalog_entries": catalog_entries,
         "cohorts": cohorts,
+        "contaminated_cohorts": contaminated_cohorts,
     }
+    if screening is not None:
+        payload["watermark_screening"] = screening
+    return payload
 
 
 def save_signed_summary(payload: dict, output: Path) -> None:
@@ -214,8 +260,11 @@ def save_signed_summary(payload: dict, output: Path) -> None:
 
 
 def main() -> None:
+    from bench.watermark_screening import screen_corpus
+
     records = load_corpus()
-    summary = summarize(records, catalog_entry_count())
+    screening = screen_corpus(records)
+    summary = summarize(records, catalog_entry_count(), screening=screening)
     save_signed_summary(summary, SUMMARY_OUT)
     print(
         json.dumps(
@@ -226,6 +275,7 @@ def main() -> None:
                 "n_ai": summary["n_ai"],
                 "families": summary["families"],
                 "catalog_entries": summary["catalog_entries"],
+                "contaminated_cohorts": summary.get("contaminated_cohorts", []),
                 "artifact_sha256": summary["artifact_sha256"],
             },
             indent=2,

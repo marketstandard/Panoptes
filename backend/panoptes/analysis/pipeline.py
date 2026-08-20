@@ -59,17 +59,17 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     # The segment tier stays on the fast heuristic detector; the document tier
     # prefers the frozen neural ensemble when the runtime profile and artifact
     # support it, falling back to the heuristic/logistic tier otherwise.
-    segment_detector = select_detector(settings.profile.value, content_type)
+    segment_detector = select_detector(settings.profile.value, content_type, settings)
     neural = try_neural_detector(settings)
     document_detector = (
-        neural
-        if neural is not None and content_type in neural.content_types
-        else segment_detector
+        neural if neural is not None and content_type in neural.content_types else segment_detector
     )
     document_score = document_detector.score(text, content_type, language)
     if document_score.abstain_reason:
         limitations.append(document_score.abstain_reason)
-    document_score = _apply_corpus_calibration(document_score, bundle, content_type, settings.profile)
+    document_score = _apply_corpus_calibration(
+        document_score, bundle, content_type, settings.profile
+    )
 
     state = _evidence_state(len(spans), content_type, language, document_score.abstain_reason)
     prevalence = 0.5
@@ -87,8 +87,10 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
     watermark_results = []
     tokens_by_scheme: dict[str, list] = {}
     include_overlay = request.include_text
-    for adapter in watermark_adapters():
+    for adapter in watermark_adapters(settings):
         result, tokens = adapter.detect(text, content_type, include_tokens=include_overlay)
+        if getattr(adapter, "origin", None) == "plugin" and result.origin != "plugin":
+            result = result.model_copy(update={"origin": "plugin"})
         watermark_results.append(result)
         if tokens:
             tokens_by_scheme[adapter.id] = tokens
@@ -113,7 +115,11 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
 
     matrices = _matrices(segment_scores, watermark_results, attribution, request.prior_odds)
     plain_language = _plain_language(state, calibrated, watermark_results, provenance.status)
-    limitations.extend(_standard_limitations(state, content_type, language, len(spans), watermark_results))
+    limitations.extend(
+        _standard_limitations(
+            state, content_type, language, len(spans), watermark_results, bundle=bundle
+        )
+    )
 
     cohort_name = (
         "fixture"
@@ -121,7 +127,11 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
         else (bundle.cohort if bundle is not None else "prose-en/code-baseline-v0")
     )
     applicability_note = None
-    if bundle is not None and attribution.unknown_score is not None and attribution.unknown_score > 0.5:
+    if (
+        bundle is not None
+        and attribution.unknown_score is not None
+        and attribution.unknown_score > 0.5
+    ):
         applicability_note = (
             "Input is far from every calibrated source-family centroid "
             f"(open-set unknown score {attribution.unknown_score:.2f}); statistical evidence "
@@ -149,7 +159,9 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
             calibration_bundles=[_calibration_bundle(content_type, language)],
         ),
         input=InputDiagnostics(
-            content_hash=content_hash(text) if text else content_hash(upload.content.hex() if upload else ""),
+            content_hash=content_hash(text)
+            if text
+            else content_hash(upload.content.hex() if upload else ""),
             content_type=content_type,
             language=language,
             token_count=len(spans),
@@ -169,9 +181,7 @@ def analyze(request: AnalysisRequest, settings: Settings) -> AnalysisResponse:
         posterior=PosteriorInfo(
             prior_odds=request.prior_odds,
             likelihood_ratio=lr if state == EvidenceState.SUPPORTED else None,
-            posterior_odds=(
-                request.prior_odds * lr if state == EvidenceState.SUPPORTED else None
-            ),
+            posterior_odds=(request.prior_odds * lr if state == EvidenceState.SUPPORTED else None),
             calibration_bundle=_calibration_bundle(content_type, language),
             reliability_error=(
                 bundle.metrics["ece"]
@@ -279,7 +289,8 @@ def _fixture_text(name: str) -> str:
         ),
         "ai-prose": (
             "AI-generated effective home maintenance requires a systematic approach to roof "
-            "inspection. Furthermore, homeowners should document visible damage, evaluate drainage, "
+            "inspection. Furthermore, homeowners should document visible damage, "
+            "evaluate drainage, "
             "and consult qualified professionals. Overall, timely intervention can reduce repair "
             "costs and preserve structural integrity. Additionally, establishing a regular "
             "maintenance schedule ensures that minor issues are identified before they escalate "
@@ -288,14 +299,14 @@ def _fixture_text(name: str) -> str:
         ),
         "code": (
             "def calculate_repair_cost(area, rate):\n"
-            "    \"\"\"Return the estimated repair cost for a damaged roof section.\n\n"
+            '    """Return the estimated repair cost for a damaged roof section.\n\n'
             "    Raises ValueError when the area is not positive.\n"
-            "    \"\"\"\n"
+            '    """\n'
             "    if area <= 0:\n"
             "        raise ValueError('area must be positive')\n"
             "    return round(area * rate, 2)\n\n\n"
             "def estimate_total(regions, rate, tax=0.0):\n"
-            "    \"\"\"Sum repair costs over roof regions and apply an optional tax rate.\"\"\"\n"
+            '    """Sum repair costs over roof regions and apply an optional tax rate."""\n'
             "    subtotal = sum(calculate_repair_cost(region, rate) for region in regions)\n"
             "    return round(subtotal * (1 + tax), 2)\n"
         ),
@@ -337,7 +348,9 @@ def _calibrate_distribution(
             ai_refined_or_mixed=1 / 3,
         )
     participation = distribution.ai_generated + distribution.ai_refined_or_mixed
-    mixed_share = 0.0 if participation <= 1e-12 else distribution.ai_refined_or_mixed / participation
+    mixed_share = (
+        0.0 if participation <= 1e-12 else distribution.ai_refined_or_mixed / participation
+    )
     lr = _likelihood_ratio(participation, cohort_prevalence)
     posterior_odds = prior_odds * lr
     p_participation = posterior_odds / (1.0 + posterior_odds)
@@ -358,9 +371,11 @@ def _confidence(
 ) -> ConfidenceLabel:
     if state != EvidenceState.SUPPORTED or abstain_reason:
         return ConfidenceLabel.LOW
-    if token_count >= 500 and max(
-        distribution.human, distribution.ai_generated, distribution.ai_refined_or_mixed
-    ) >= 0.8:
+    if (
+        token_count >= 500
+        and max(distribution.human, distribution.ai_generated, distribution.ai_refined_or_mixed)
+        >= 0.8
+    ):
         return ConfidenceLabel.HIGH
     if token_count >= 150:
         return ConfidenceLabel.MEDIUM
@@ -402,7 +417,8 @@ def _matrices(
         watermark_values.append([segment.watermark_evidence.get(row) for segment in segments])
 
     ai_score = sum(
-        segment.posterior.ai_generated + segment.posterior.ai_refined_or_mixed for segment in segments
+        segment.posterior.ai_generated + segment.posterior.ai_refined_or_mixed
+        for segment in segments
     ) / max(len(segments), 1)
     lr = _likelihood_ratio(ai_score)
     waterfall = [
@@ -438,11 +454,15 @@ def _matrices(
     )
 
 
-def _plain_language(state: EvidenceState, distribution: OutcomeDistribution, watermarks, provenance_status: str) -> str:
+def _plain_language(
+    state: EvidenceState, distribution: OutcomeDistribution, watermarks, provenance_status: str
+) -> str:
     if state != EvidenceState.SUPPORTED:
         return "There is not enough supported evidence for a reliable statistical conclusion."
     ai = distribution.ai_generated + distribution.ai_refined_or_mixed
-    tested = [result for result in watermarks if result.status == "tested" and result.q_value is not None]
+    tested = [
+        result for result in watermarks if result.status == "tested" and result.q_value is not None
+    ]
     watermark_clause = ""
     if any(result.q_value < 0.01 for result in tested):
         watermark_clause = " A configured public watermark test found strong evidence."
@@ -450,12 +470,24 @@ def _plain_language(state: EvidenceState, distribution: OutcomeDistribution, wat
     if provenance_status == "verified":
         provenance_clause = " Signed file provenance was also present."
     if ai >= 0.8:
-        return "Strong calibrated evidence suggests AI participation." + watermark_clause + provenance_clause
+        return (
+            "Strong calibrated evidence suggests AI participation."
+            + watermark_clause
+            + provenance_clause
+        )
     if ai >= 0.6:
-        return "Moderate calibrated evidence suggests AI participation." + watermark_clause + provenance_clause
+        return (
+            "Moderate calibrated evidence suggests AI participation."
+            + watermark_clause
+            + provenance_clause
+        )
     if ai <= 0.2:
         return "The calibrated evidence leans human-written, but this is not proof of authorship."
-    return "The evidence is mixed or close to the decision boundary." + watermark_clause + provenance_clause
+    return (
+        "The evidence is mixed or close to the decision boundary."
+        + watermark_clause
+        + provenance_clause
+    )
 
 
 def _standard_limitations(
@@ -464,23 +496,45 @@ def _standard_limitations(
     language: str,
     token_count: int,
     watermark_results,
+    *,
+    bundle: CalibrationBundle | None = None,
 ) -> list[str]:
     limitations = [
         "A negative watermark result is not evidence that content is human-written.",
         "Source-family values are conditional similarity, not proof of exact model identity.",
         "Provenance is not authorship.",
-        "Reference baselines calibrate this analysis through a signed, hash-verified artifact; community raw text is never a runtime input.",
+        "Reference baselines calibrate this analysis through a signed, hash-verified "
+        "artifact; community raw text is never a runtime input.",
     ]
     if state == EvidenceState.INSUFFICIENT_DATA:
         limitations.append("The input is below the minimum evidence threshold.")
     if content_type == ContentType.CODE:
-        limitations.append("Code formatting and semantic-preserving edits can remove or distort evidence.")
+        limitations.append(
+            "Code formatting and semantic-preserving edits can remove or distort evidence."
+        )
     if content_type == ContentType.PROSE and language != "en":
         limitations.append("Generic prose calibration currently supports English only.")
     if token_count < 150:
         limitations.append("Short inputs have low statistical power.")
     if any(result.status == "adapter_unavailable" for result in watermark_results):
-        limitations.append("Claude text watermark detection is unavailable until Anthropic publishes detector details.")
+        limitations.append(
+            "Claude text watermark detection is unavailable until Anthropic publishes "
+            "detector details."
+        )
+    if bundle is not None:
+        note = bundle.payload.get("watermark_note")
+        contaminated = bundle.payload.get("contaminated_cohorts") or []
+        if note:
+            limitations.append(str(note))
+        elif contaminated:
+            families = sorted(
+                {item.get("family", "?") for item in contaminated if isinstance(item, dict)}
+            )
+            limitations.append(
+                "Calibration cohort includes watermark-flagged families ("
+                + ", ".join(families)
+                + "); statistical evidence may partly reflect model lineage rather than direct use."
+            )
     return limitations
 
 
@@ -488,11 +542,16 @@ def _math_definitions() -> list[MathDefinition]:
     return [
         MathDefinition(
             name="Watermark z-score",
-            meaning="How many standard deviations the green-token count is above the null expectation.",
+            meaning=(
+                "How many standard deviations the green-token count is above the null expectation."
+            ),
             formula=r"z=\frac{G-\gamma n}{\sqrt{n\gamma(1-\gamma)}}",
             units="standard deviations",
             assumptions=["The tokenizer and watermark configuration match generation."],
-            limitations=["A p-value is not P(watermarked).", "Editing and short text reduce power."],
+            limitations=[
+                "A p-value is not P(watermarked).",
+                "Editing and short text reduce power.",
+            ],
             kind="hypothesis_test",
         ),
         MathDefinition(
@@ -515,11 +574,23 @@ def _math_definitions() -> list[MathDefinition]:
         ),
         MathDefinition(
             name="Calibrated posterior",
-            meaning="User-declared prior odds multiplied by a prevalence-corrected likelihood ratio from the calibrated detector probability.",
-            formula=r"O_1=O_0 \times \mathrm{LR},\quad \mathrm{LR}=\frac{p}{1-p}\cdot\frac{1-\pi}{\pi}",
+            meaning=(
+                "User-declared prior odds multiplied by a prevalence-corrected "
+                "likelihood ratio from the calibrated detector probability."
+            ),
+            formula=(
+                r"O_1=O_0 \times \mathrm{LR},\quad "
+                r"\mathrm{LR}=\frac{p}{1-p}\cdot\frac{1-\pi}{\pi}"
+            ),
             units="odds",
-            assumptions=["The input belongs to the calibration cohort.", "p is calibrated before the prior is applied."],
-            limitations=["Domain shift, paraphrase, and mixed authorship can invalidate calibration.", "ECE is a diagnostic of p, not a factor applied to O_1."],
+            assumptions=[
+                "The input belongs to the calibration cohort.",
+                "p is calibrated before the prior is applied.",
+            ],
+            limitations=[
+                "Domain shift, paraphrase, and mixed authorship can invalidate calibration.",
+                "ECE is a diagnostic of p, not a factor applied to O_1.",
+            ],
             kind="calibrated_evidence",
         ),
         MathDefinition(
@@ -527,14 +598,19 @@ def _math_definitions() -> list[MathDefinition]:
             meaning="Distance from a segment feature vector to each calibrated family centroid.",
             formula=r"d_m^2=(x-\mu_m)^{T}\Sigma^{-1}(x-\mu_m)",
             units="squared standardized distance",
-            assumptions=["Feature distributions are approximately stable for the calibration cohort."],
+            assumptions=[
+                "Feature distributions are approximately stable for the calibration cohort."
+            ],
             limitations=["Unsupported generators should remain unknown."],
             kind="descriptive_context",
         ),
         MathDefinition(
             name="Wilson confidence interval",
             meaning="Binomial uncertainty interval for the observed green-token rate.",
-            formula=r"\hat{p}\pm z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}+\frac{z^2}{4n^2}}",
+            formula=(
+                r"\hat{p}\pm z_{1-\alpha/2}\sqrt{\frac{\hat{p}(1-\hat{p})}{n}"
+                r"+\frac{z^2}{4n^2}}"
+            ),
             units="proportion",
             assumptions=["Eligible token decisions are approximately exchangeable under the null."],
             limitations=["The interval describes rate uncertainty, not authorship."],
@@ -542,8 +618,13 @@ def _math_definitions() -> list[MathDefinition]:
         ),
         MathDefinition(
             name="Conformal knownness",
-            meaning="Open-set threshold for whether an input resembles any calibrated source family.",
-            formula=r"t_\alpha=\mathrm{Quantile}\left(\{s_i\}; \frac{\lceil (n+1)(1-\alpha)\rceil}{n}\right)",
+            meaning=(
+                "Open-set threshold for whether an input resembles any calibrated source family."
+            ),
+            formula=(
+                r"t_\alpha=\mathrm{Quantile}\left(\{s_i\}; "
+                r"\frac{\lceil (n+1)(1-\alpha)\rceil}{n}\right)"
+            ),
             units="nonconformity score",
             assumptions=["Held-out known-family examples are exchangeable with the input."],
             limitations=["Coverage can degrade under domain shift."],

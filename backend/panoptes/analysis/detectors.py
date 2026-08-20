@@ -82,7 +82,9 @@ class HeuristicProseDetector(DetectorAdapter):
         score = 0.50
         score += 0.18 * _bounded(avg_word - 4.7, -2, 3)
         score += 0.16 * _bounded(long_word_rate - 0.16, -0.15, 0.25)
-        score += 0.15 * _bounded(0.25 - burstiness / max(sum(sentence_lengths) / len(sentence_lengths), 1), -0.2, 0.2)
+        score += 0.15 * _bounded(
+            0.25 - burstiness / max(sum(sentence_lengths) / len(sentence_lengths), 1), -0.2, 0.2
+        )
         score += 0.12 * _bounded(connector_rate - 0.012, -0.02, 0.06)
         score -= 0.16 * _bounded(unique_ratio - 0.58, -0.2, 0.3)
         score = min(max(score, 0.02), 0.98)
@@ -116,10 +118,14 @@ class HeuristicCodeDetector(DetectorAdapter):
         comment_ratio = comment_lines / max(len(lines), 1)
         identifiers = [token for token in tokens if token.isidentifier()]
         unique_identifier_ratio = len(set(identifiers)) / max(len(identifiers), 1)
-        long_identifier_ratio = sum(len(token) >= 14 for token in identifiers) / max(len(identifiers), 1)
+        long_identifier_ratio = sum(len(token) >= 14 for token in identifiers) / max(
+            len(identifiers), 1
+        )
         indentation_consistency = _indentation_consistency(lines)
         boilerplate_terms = ("example", "usage", "todo", "note:", "this function", "returns")
-        boilerplate_rate = sum(term in text.lower() for term in boilerplate_terms) / len(boilerplate_terms)
+        boilerplate_rate = sum(term in text.lower() for term in boilerplate_terms) / len(
+            boilerplate_terms
+        )
 
         score = 0.48
         score += 0.16 * _bounded(comment_ratio - 0.08, -0.08, 0.25)
@@ -143,9 +149,19 @@ class HeuristicCodeDetector(DetectorAdapter):
         )
 
 
-def select_detector(profile: str, content_type: ContentType) -> DetectorAdapter:
+def select_detector(profile: str, content_type: ContentType, settings=None) -> DetectorAdapter:
     if profile == "fixture":
         return FixtureDetector()
+    if settings is not None:
+        try:
+            from panoptes.plugins import get_plugin_registry
+
+            for detector in get_plugin_registry(settings).detectors:
+                types = getattr(detector, "content_types", ()) or ()
+                if not types or content_type in types or content_type.value in types:
+                    return detector
+        except Exception:
+            pass
     if content_type == ContentType.CODE:
         return HeuristicCodeDetector()
     return HeuristicProseDetector()
@@ -153,7 +169,9 @@ def select_detector(profile: str, content_type: ContentType) -> DetectorAdapter:
 
 def _abstain(detector_id: str, reason: str) -> DetectorScore:
     return DetectorScore(
-        distribution=OutcomeDistribution(human=1 / 3, ai_generated=1 / 3, ai_refined_or_mixed=1 / 3),
+        distribution=OutcomeDistribution(
+            human=1 / 3, ai_generated=1 / 3, ai_refined_or_mixed=1 / 3
+        ),
         raw_score=0.5,
         detector_id=detector_id,
         abstain_reason=reason,
@@ -183,7 +201,9 @@ def _indentation_consistency(lines: list[str]) -> float:
 
 def _looks_edited(text: str) -> bool:
     lowered = text.lower()
-    return any(term in lowered for term in ("edited", "revised", "paraphrased", "translated", "proofread"))
+    return any(
+        term in lowered for term in ("edited", "revised", "paraphrased", "translated", "proofread")
+    )
 
 
 def _fixture_signal(text: str) -> float:
