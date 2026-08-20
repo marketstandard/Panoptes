@@ -1,7 +1,8 @@
 # Panoptes documentation index
 
-Entry points by question. The paper itself lives at `frontend/public/paper.html`
-(served in-app at `/paper.html`).
+Entry points by question. The paper itself is rendered at
+[marketstandard.github.io/Panoptes/paper.html](https://marketstandard.github.io/Panoptes/paper.html)
+(source: `frontend/public/paper.html`, served in-app at `/paper.html`).
 
 ## Protocol and governance
 
