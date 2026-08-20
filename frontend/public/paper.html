@@ -11,6 +11,7 @@
 <meta name="citation_author" content="Huffine, Trey" />
 <meta name="citation_publication_date" content="2026/08/19" />
 <meta name="citation_technical_report_number" content="v2.1" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <style>
   :root {
     --ink: #1a2332;
@@ -148,10 +149,18 @@
 <body>
 
 <div class="toolbar">
-  <a href="/">&larr; Back to the observatory</a>
+  <a href="/" id="back-home">&larr; Back to the observatory</a>
   <button type="button" onclick="window.print()">Print / Save as PDF</button>
   <a href="https://github.com/marketstandard/Panoptes" target="_blank" rel="noreferrer">Source repository</a>
 </div>
+
+<script>
+  // The observatory app only exists when the Panoptes backend serves this
+  // file; on static hosts (GitHub Pages) the "/" target does not exist.
+  if (location.hostname.endsWith("github.io")) {
+    document.getElementById("back-home").style.display = "none";
+  }
+</script>
 
 <div class="sheet">
 
