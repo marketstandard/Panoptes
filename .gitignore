@@ -34,6 +34,9 @@ baselines/runs/
 # Trained model weights (local-only; cards and metrics are committed under backend/artifacts/)
 models/
 
+# Neural pilot crash-resume checkpoints (intermediate; only final signed cards are committed)
+backend/artifacts/cards/*.checkpoint.json
+
 research/figures/ui-audit/
 research/figures/paper-audit/
 

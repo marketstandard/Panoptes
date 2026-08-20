@@ -361,7 +361,7 @@ Paper **v2.1** makes evidence transportability the signature result: a preregist
 - [x] Real human–AI coauthoring sessions (CoAuthor: 1,445 sessions, 63 authors, author-disjoint participation/contribution evaluation)
 - [x] Adversarial paraphrase (RAID's 11 attack families evaluated as transport cells; LLM paraphrase added for the watermark-removal eval — DIPPER-grade human paraphrase still blocked)
 - [ ] Independent reproduction by an outside researcher ([template](docs/v2-updates/independent-reproduction.md))
-- [x] Hugging Face open-weights release (frozen three-seed neural ensemble, gated on the preregistered performance/calibration/license gates)
+- [x] Hugging Face open-weights release (frozen three-seed neural ensemble, gated on the preregistered performance/calibration/license gates) — [`MarketStandard/panoptes-neural-v1`](https://huggingface.co/MarketStandard/panoptes-neural-v1), pinned at immutable revision `76bf26782c783506c9af24d8277be0e1b708d243`
 
 Do not spend the next cycle making Panoptes-v1 a larger neural net.
 
