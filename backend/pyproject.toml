@@ -54,6 +54,21 @@ target-version = "py312"
 select = ["E", "F", "I", "UP", "B", "SIM", "RET", "TID"]
 ignore = []
 
+[tool.ruff.lint.flake8-bugbear]
+# Typer/FastAPI idiom: Option/Argument/Depends calls in defaults are the
+# documented API, not mutable-default bugs.
+extend-immutable-calls = [
+  "typer.Option",
+  "typer.Argument",
+  "fastapi.Depends",
+  "fastapi.Query",
+  "fastapi.Path",
+  "fastapi.Body",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+  "slow: opt-in tests that download model weights or run real training (deselect with -m 'not slow')",
+]
