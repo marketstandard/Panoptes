@@ -28,6 +28,7 @@ from bench.datasets import Dataset
 def _import_stack():
     import torch  # noqa: F401
     from transformers import AutoTokenizer  # noqa: F401
+
     from bench.neural import objectives as obj_mod  # noqa: F401
     from bench.neural.data import build_windowed_corpus  # noqa: F401
     from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: F401
@@ -101,7 +102,7 @@ class NeuralTrainableDetector:
         self._tokenizer = None
         self._stack = None
 
-    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> "NeuralTrainableDetector":
+    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> NeuralTrainableDetector:
         stack = _import_stack()
         self._stack = stack
         torch = stack["torch"]
@@ -112,14 +113,24 @@ class NeuralTrainableDetector:
         self._tokenizer = tokenizer
 
         train_idx = np.asarray(train_idx, dtype=int)
-        inner_train, inner_dev = _inner_group_split(dataset, train_idx, self.inner_dev_fraction, self.seed)
+        inner_train, inner_dev = _inner_group_split(
+            dataset, train_idx, self.inner_dev_fraction, self.seed
+        )
         train_corpus = stack["build_windowed_corpus"](
-            dataset, tokenizer, winner["max_length"], winner["overlap"],
-            indices=inner_train, max_windows=self.max_windows,
+            dataset,
+            tokenizer,
+            winner["max_length"],
+            winner["overlap"],
+            indices=inner_train,
+            max_windows=self.max_windows,
         )
         dev_corpus = stack["build_windowed_corpus"](
-            dataset, tokenizer, winner["max_length"], winner["overlap"],
-            indices=inner_dev, max_windows=self.max_windows,
+            dataset,
+            tokenizer,
+            winner["max_length"],
+            winner["overlap"],
+            indices=inner_dev,
+            max_windows=self.max_windows,
         )
         cfg = stack["PilotConfig"](
             seed=self.seed, max_windows=self.max_windows, **self.config_overrides
@@ -132,7 +143,13 @@ class NeuralTrainableDetector:
         while True:
             try:
                 model, history = stack["train_window_encoder"](
-                    model, train_corpus, dev_corpus, obj_name, payload, cfg, device,
+                    model,
+                    train_corpus,
+                    dev_corpus,
+                    obj_name,
+                    payload,
+                    cfg,
+                    device,
                     log_prefix=f"  [{self.name}] ",
                 )
                 break
@@ -162,13 +179,19 @@ class NeuralTrainableDetector:
         stack = self._stack
         winner = self.winner
         corpus = stack["build_windowed_corpus"](
-            dataset, self._tokenizer, winner["max_length"], winner["overlap"],
-            indices=np.asarray(idx, dtype=int), max_windows=self.max_windows,
+            dataset,
+            self._tokenizer,
+            winner["max_length"],
+            winner["overlap"],
+            indices=np.asarray(idx, dtype=int),
+            max_windows=self.max_windows,
         )
         out = stack["encode_corpus"](self._model, corpus, self._device, batch_size=32)
         if self._summary_head is not None:
             return np.asarray(
-                stack["summary_head_probabilities"](self._summary_head, out, self._device, self.max_windows),
+                stack["summary_head_probabilities"](
+                    self._summary_head, out, self._device, self.max_windows
+                ),
                 dtype=float,
             )
         return np.asarray(out.doc_probabilities_logit_mean(), dtype=float)

@@ -102,7 +102,7 @@ class Dataset:
     def feature_names(self) -> list[str]:
         return list(FEATURE_NAMES)
 
-    def subset(self, indices: np.ndarray | list[int]) -> "Dataset":
+    def subset(self, indices: np.ndarray | list[int]) -> Dataset:
         idx = [int(i) for i in indices]
         return Dataset(
             texts=[self.texts[i] for i in idx],
@@ -200,7 +200,9 @@ def load_user_dataset(path: Path) -> Dataset:
     labels = np.array([_LABELS[row["label"]] for row in rows])
     families = [row.get("family", "unknown") for row in rows]
     kinds = [row.get("kind", "text") for row in rows]
-    groups = [row.get("group") or row.get("source") or f"row-{index}" for index, row in enumerate(rows)]
+    groups = [
+        row.get("group") or row.get("source") or f"row-{index}" for index, row in enumerate(rows)
+    ]
     authors = [row.get("author", "") for row in rows]
     domains = [row.get("domain", "") for row in rows]
     return Dataset(
@@ -262,7 +264,7 @@ def reconstruct_story_groups(
     edges = 0
     for start in range(0, len(texts), chunk):
         distances, indices = neighbors.radius_neighbors(tfidf[start : start + chunk], radius=radius)
-        for offset, (dists, nbrs) in enumerate(zip(distances, indices, strict=True)):
+        for offset, (_dists, nbrs) in enumerate(zip(distances, indices, strict=True)):
             i = start + offset
             for j in nbrs:
                 j = int(j)
@@ -314,18 +316,14 @@ def _fetch_manifest_sha256(directory: Path) -> str | None:
     return json.loads(manifest.read_text(encoding="utf-8")).get("artifact_sha256")
 
 
-def _group_subsample_mask(
-    groups: list[str], max_rows: int, seed: int
-) -> tuple[np.ndarray, dict]:
+def _group_subsample_mask(groups: list[str], max_rows: int, seed: int) -> tuple[np.ndarray, dict]:
     """Deterministically select whole groups until `max_rows` is reached.
 
     Subsampling at the group level keeps every row that shares a leakage-
     control group in the evaluation cohort together.
     """
     unique = sorted(set(groups))
-    keyed = sorted(
-        unique, key=lambda g: hashlib.sha256(f"{seed}:{g}".encode("utf-8")).hexdigest()
-    )
+    keyed = sorted(unique, key=lambda g: hashlib.sha256(f"{seed}:{g}".encode()).hexdigest())
     counts = {g: 0 for g in unique}
     for g in groups:
         counts[g] += 1
@@ -411,7 +409,10 @@ def load_raid(attack: str = "none", max_rows: int = 150_000, seed: int = 13) -> 
         kinds=["text"] * len(texts),
         groups=groups,
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
-        provenance=f"raid (Dugan et al. 2024, arXiv:2405.07940; attack={attack}, hygiene-filtered, hash-pinned)",
+        provenance=(
+            f"raid (Dugan et al. 2024, arXiv:2405.07940; attack={attack}, "
+            "hygiene-filtered, hash-pinned)"
+        ),
         sha256=_dataset_hash(texts, labels),
         meta=meta,
         domains=domains,
@@ -429,7 +430,9 @@ def raid_attacks() -> list[str]:
     return sorted(v for v in (str(v) for v in values) if v and v != "none")
 
 
-def _load_m4gt_file(file_stem: str, provenance: str, max_rows: int | None = None, seed: int = 13) -> Dataset:
+def _load_m4gt_file(
+    file_stem: str, provenance: str, max_rows: int | None = None, seed: int = 13
+) -> Dataset:
     import pandas as pd
 
     path = M4GT_DIR / f"{file_stem}-clean.parquet"
@@ -465,8 +468,10 @@ def _load_m4gt_file(file_stem: str, provenance: str, max_rows: int | None = None
 def load_m4gt(max_rows: int | None = None, seed: int = 13) -> Dataset:
     """M4GT-Bench Subtask A (English, 5 domains, 6 generators)."""
     return _load_m4gt_file(
-        "subtask_a", "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)",
-        max_rows=max_rows, seed=seed,
+        "subtask_a",
+        "m4gt (Wang et al. 2024, arXiv:2403.14822; English, hygiene-filtered, hash-pinned)",
+        max_rows=max_rows,
+        seed=seed,
     )
 
 
@@ -475,7 +480,8 @@ def load_m4gtml(max_rows: int | None = None, seed: int = 13) -> Dataset:
     return _load_m4gt_file(
         "subtask_a_multilingual",
         "m4gt-multilingual (Wang et al. 2024, arXiv:2403.14822; hygiene-filtered, hash-pinned)",
-        max_rows=max_rows, seed=seed,
+        max_rows=max_rows,
+        seed=seed,
     )
 
 
@@ -557,7 +563,9 @@ def load_coauthor(split: str = "test", max_rows: int | None = None, seed: int = 
         "human_chars": [int(v) for v in frame["human_chars"].tolist()],
         "ai_chars": [int(v) for v in frame["ai_chars"].tolist()],
         "prompt_chars": [int(v) for v in frame["prompt_chars"].tolist()],
-        "written_by_human_official": [float(v) for v in frame["written_by_human_official"].tolist()],
+        "written_by_human_official": [
+            float(v) for v in frame["written_by_human_official"].tolist()
+        ],
         "rows_before_subsample": int(rows_before),
         "subsample": subsample,
         "fetch_manifest_sha256": _fetch_manifest_sha256(COAUTHOR_DIR),
@@ -569,7 +577,10 @@ def load_coauthor(split: str = "test", max_rows: int | None = None, seed: int = 
         kinds=["mixed_task"] * len(texts),
         groups=groups,
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
-        provenance=f"coauthor (Lee et al. 2022, arXiv:2201.06796; split={split}, author-disjoint, hash-pinned)",
+        provenance=(
+            f"coauthor (Lee et al. 2022, arXiv:2201.06796; split={split}, "
+            "author-disjoint, hash-pinned)"
+        ),
         sha256=_dataset_hash(texts, labels),
         meta=meta,
         authors=groups,
@@ -636,7 +647,9 @@ def load_mage(
         kinds=["text"] * len(texts),
         groups=groups,
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
-        provenance=f"mage (Li et al. 2023, arXiv:2305.13242; split={split}, hygiene-filtered, hash-pinned)",
+        provenance=(
+            f"mage (Li et al. 2023, arXiv:2305.13242; split={split}, hygiene-filtered, hash-pinned)"
+        ),
         sha256=_dataset_hash(texts, labels),
         meta=meta,
         domains=domains_list,
@@ -682,7 +695,9 @@ def load_defactify(
     cached = None
     if cache_path.exists():
         candidate = json.loads(cache_path.read_text(encoding="utf-8"))
-        if candidate.get("dataset_sha256") == dataset_hash and candidate.get("splits") == list(splits):
+        if candidate.get("dataset_sha256") == dataset_hash and candidate.get("splits") == list(
+            splits
+        ):
             cached = candidate
     if cached is not None:
         groups = cached["groups"]
@@ -700,7 +715,9 @@ def load_defactify(
             audit = {
                 "official_test_rows": int(test_mask.sum()),
                 "official_test_rows_with_train_near_duplicate": int(leaked.sum()),
-                "official_split_story_leakage_rate": float(leaked.mean()) if test_mask.sum() else 0.0,
+                "official_split_story_leakage_rate": float(leaked.mean())
+                if test_mask.sum()
+                else 0.0,
             }
         cache_path.write_text(
             json.dumps(
@@ -758,7 +775,9 @@ def load_defactify(
         kinds=["text"] * len(texts),
         groups=groups,
         buckets=[length_bucket(len(word_tokens(text))) for text in texts],
-        provenance="defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)",
+        provenance=(
+            "defactify-text (Roy et al. 2026, arXiv:2510.22874; hygiene-filtered, hash-pinned)"
+        ),
         sha256=dataset_hash if split is None and max_rows is None else _dataset_hash(texts, labels),
         meta=meta,
         domains=["journalism-nyt"] * len(texts),
@@ -884,7 +903,7 @@ def _group_partition_indices(
     cuts.append(n)
     part_of: dict[str, int] = {}
     for pi in range(len(fracs)):
-        for g in keyed[cuts[pi]:cuts[pi + 1]]:
+        for g in keyed[cuts[pi] : cuts[pi + 1]]:
             part_of[g] = pi
     part_arr = np.array([part_of[str(g)] for g in groups], dtype=int)
     return [np.where(part_arr == pi)[0] for pi in range(len(fracs))]

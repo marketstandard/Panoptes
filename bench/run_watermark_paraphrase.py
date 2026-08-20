@@ -16,16 +16,17 @@ import argparse
 import hashlib
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from bench.cards import sign  # noqa: E402
 from panoptes.analysis.watermarks import KGWReferenceAdapter  # noqa: E402
 from panoptes.schemas import ContentType  # noqa: E402
+
+from bench.cards import sign  # noqa: E402
 
 CARDS = ROOT / "backend" / "artifacts" / "cards"
 DEFAULT_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
@@ -69,7 +70,7 @@ def paraphrase_all(
                 top_p=0.9,
                 pad_token_id=tokenizer.eos_token_id,
             )
-        new_ids = generated[0, input_ids.shape[1]:]
+        new_ids = generated[0, input_ids.shape[1] :]
         out.append(tokenizer.decode(new_ids, skip_special_tokens=True).strip())
         del input_ids, generated, new_ids
         if device.startswith("cuda"):
@@ -91,7 +92,9 @@ def main() -> int:
     parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--max-new-tokens", type=int, default=220)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--limit", type=int, default=None, help="paraphrase only the first N (debug)")
+    parser.add_argument(
+        "--limit", type=int, default=None, help="paraphrase only the first N (debug)"
+    )
     parser.add_argument("--out", type=Path, default=CARDS / "watermarked-paraphrases.json")
     args = parser.parse_args()
 
@@ -102,7 +105,11 @@ def main() -> int:
     texts = [s["text"] for s in wm]
 
     paraphrases = paraphrase_all(
-        texts, model_name=args.model, max_new_tokens=args.max_new_tokens, seed=args.seed, progress=True
+        texts,
+        model_name=args.model,
+        max_new_tokens=args.max_new_tokens,
+        seed=args.seed,
+        progress=True,
     )
 
     det = KGWReferenceAdapter()
@@ -124,7 +131,7 @@ def main() -> int:
     tested = [s for s in samples if s["p_value"] is not None]
     card = {
         "schema": "panoptes-watermarked-generations-v1",
-        "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": {
             "scheme": "llm-paraphrase-rewrite",
             "family": "complete-rewrite attack (no watermark key)",
@@ -153,8 +160,10 @@ def main() -> int:
         },
         "samples": samples,
         "limitations": [
-            "Paraphrases are a complete-rewrite attack by an instruction-tuned LM that does not know the watermark key.",
-            "Paraphrase quality/fidelity is not separately scored; the card measures only whether the KGW watermark survives rewriting.",
+            "Paraphrases are a complete-rewrite attack by an instruction-tuned LM "
+            "that does not know the watermark key.",
+            "Paraphrase quality/fidelity is not separately scored; "
+            "the card measures only whether the KGW watermark survives rewriting.",
         ],
     }
     # Reuse the generations schema shape but relabel kind for clarity.

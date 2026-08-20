@@ -85,9 +85,7 @@ def extract(text: str, kind: str = "text") -> dict[str, float]:
     sentence_lengths = [
         len(_WORD_RE.findall(sentence)) for sentence in _SENTENCE_RE.split(text) if sentence.strip()
     ]
-    sentence_mean = (
-        sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0.0
-    )
+    sentence_mean = sum(sentence_lengths) / len(sentence_lengths) if sentence_lengths else 0.0
     sentence_sd = _stdev(sentence_lengths)
 
     lines = [line for line in text.splitlines() if line.strip()]

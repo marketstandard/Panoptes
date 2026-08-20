@@ -78,7 +78,9 @@ def document_windows(
     if n == 0:
         # Degenerate (whitespace-only) text: emit a single empty-content window
         # so downstream batching never sees a zero-window document.
-        input_ids = ([cls_id] if cls_id is not None else []) + ([sep_id] if sep_id is not None else [])
+        input_ids = ([cls_id] if cls_id is not None else []) + (
+            [sep_id] if sep_id is not None else []
+        )
         return [
             Window(
                 input_ids=input_ids,
@@ -95,8 +97,10 @@ def document_windows(
     while start < n and len(windows) < max_windows:
         end = min(start + content_budget, n)
         chunk = ids[start:end]
-        input_ids = ([cls_id] if cls_id is not None else []) + chunk + (
-            [sep_id] if sep_id is not None else []
+        input_ids = (
+            ([cls_id] if cls_id is not None else [])
+            + chunk
+            + ([sep_id] if sep_id is not None else [])
         )
         char_start = offsets[start][0]
         char_end = offsets[end - 1][1]

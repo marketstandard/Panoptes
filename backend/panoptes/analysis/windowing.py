@@ -46,7 +46,9 @@ def token_spans(text: str) -> list[tuple[int, int, str]]:
     return [(match.start(), match.end(), match.group(0)) for match in _TOKEN_RE.finditer(text)]
 
 
-def detect_content_type(text: str, filename: str | None = None, override: ContentType | None = None) -> ContentType:
+def detect_content_type(
+    text: str, filename: str | None = None, override: ContentType | None = None
+) -> ContentType:
     if override is not None:
         return override
     if filename:
@@ -101,7 +103,9 @@ def make_segments(
         start_index = 0
         while start_index < len(spans):
             end_index = min(start_index + target_tokens, len(spans))
-            windows.append((spans[start_index][0], spans[end_index - 1][1], end_index - start_index))
+            windows.append(
+                (spans[start_index][0], spans[end_index - 1][1], end_index - start_index)
+            )
             if end_index == len(spans):
                 break
             start_index += step
@@ -130,7 +134,9 @@ def make_segments(
 
 def _code_boundaries(text: str) -> list[int]:
     boundaries = [0]
-    for match in re.finditer(r"\n\s*(def |class |function |const |let |public |private |package |import |from )", text):
+    for match in re.finditer(
+        r"\n\s*(def |class |function |const |let |public |private |package |import |from )", text
+    ):
         if match.start() > boundaries[-1]:
             boundaries.append(match.start() + 1)
     if len(text) not in boundaries:

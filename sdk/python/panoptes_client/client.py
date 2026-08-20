@@ -48,7 +48,7 @@ class PanoptesClient:
     def close(self) -> None:
         self._client.close()
 
-    def __enter__(self) -> "PanoptesClient":
+    def __enter__(self) -> PanoptesClient:
         return self
 
     def __exit__(self, *_: object) -> None:

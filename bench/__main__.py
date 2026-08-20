@@ -1,10 +1,10 @@
 """Panoptes bench CLI.
 
-  python -m bench train --model logistic|gbm|panoptes-v0 --data corpus
-  python -m bench evaluate --model models/logistic-tier0/model.pkl
-  python -m bench validate --dataset your.csv
-  python -m bench contribute --dataset your.csv --name my-dataset
-  python -m bench predict --model models/logistic-tier0/model.pkl --text "..."
+python -m bench train --model logistic|gbm|panoptes-v0 --data corpus
+python -m bench evaluate --model models/logistic-tier0/model.pkl
+python -m bench validate --dataset your.csv
+python -m bench contribute --dataset your.csv --name my-dataset
+python -m bench predict --model models/logistic-tier0/model.pkl --text "..."
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import hashlib
 import json
 import pickle
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -37,7 +37,7 @@ class CliError(RuntimeError):
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _file_sha256(path: Path) -> str:
@@ -90,7 +90,11 @@ def _save_model(model, name: str, dataset: datasets.Dataset, out_dir: Path | Non
         "name": model.name,
         "tier": model.tier,
         "feature_names": list(FEATURE_NAMES),
-        "trained_on": {"provenance": dataset.provenance, "sha256": dataset.sha256, "n": len(dataset)},
+        "trained_on": {
+            "provenance": dataset.provenance,
+            "sha256": dataset.sha256,
+            "n": len(dataset),
+        },
         "created_utc": _utc_now(),
         "estimator": model,
     }
@@ -165,9 +169,14 @@ def cmd_train(args: argparse.Namespace) -> int:
 
     model = _make_model(args.model)
     if model.tier == 1 and len(dataset) < models.TIER1_MIN_N:
-        print(f"WARNING: tier-1 model with n={len(dataset)} < {models.TIER1_MIN_N}; results are exploratory.")
+        print(
+            f"WARNING: tier-1 model with n={len(dataset)} < {models.TIER1_MIN_N}; "
+            "results are exploratory."
+        )
     if model.tier == 2 and not gate["passes"]:
-        print("WARNING: neural tier below the power gate; results are exploratory, not comparative.")
+        print(
+            "WARNING: neural tier below the power gate; results are exploratory, not comparative."
+        )
 
     suffix = "-defactify" if args.data == "defactify" else ""
     evaluation = evaluate.cross_validate(lambda: _make_model(args.model), dataset)
@@ -183,7 +192,10 @@ def cmd_train(args: argparse.Namespace) -> int:
         gate=gate,
         config={"model": args.model, "data": args.data},
         created_utc=created_utc,
-        extra={"story_groups": dataset.meta["group_reconstruction"], "leakage_audit": dataset.meta["leakage_audit"]}
+        extra={
+            "story_groups": dataset.meta["group_reconstruction"],
+            "leakage_audit": dataset.meta["leakage_audit"],
+        }
         if dataset.meta.get("group_reconstruction")
         else None,
     )
@@ -191,10 +203,12 @@ def cmd_train(args: argparse.Namespace) -> int:
     card_path = cards.write_card(card, CARDS_DIR / card_name)
 
     metrics = evaluation["metrics"]
-    print(f"Out-of-fold: AUROC {metrics['auroc']:.3f} "
-          f"(95% CI {evaluation['auroc_ci95'][0]:.3f}–{evaluation['auroc_ci95'][1]:.3f}), "
-          f"Brier {metrics['brier']:.3f}, ECE {metrics['ece']:.3f}, "
-          f"TPR@1%FPR {metrics['tpr_at_1fpr']:.3f}")
+    print(
+        f"Out-of-fold: AUROC {metrics['auroc']:.3f} "
+        f"(95% CI {evaluation['auroc_ci95'][0]:.3f}–{evaluation['auroc_ci95'][1]:.3f}), "
+        f"Brier {metrics['brier']:.3f}, ECE {metrics['ece']:.3f}, "
+        f"TPR@1%FPR {metrics['tpr_at_1fpr']:.3f}"
+    )
     print(f"Model: {model_path}")
     print(f"Card:  {card_path} (sha256 {card['artifact_sha256'][:16]}…)")
     return 0
@@ -215,12 +229,17 @@ def _fresh_like(estimator):
         return models.LogisticTier0(C=estimator.C, seed=estimator.seed)
     if isinstance(estimator, models.GbmTier1):
         return models.GbmTier1(seed=estimator.seed)
-    raise CliError("evaluate supports logistic and gbm artifacts; panoptes-v0 has its own bench harness")
+    raise CliError(
+        "evaluate supports logistic and gbm artifacts; panoptes-v0 has its own bench harness"
+    )
 
 
 def _shipped_probabilities(dataset: datasets.Dataset) -> np.ndarray:
     raw = np.array(
-        [heuristic_raw_score(text, kind) for text, kind in zip(dataset.texts, dataset.kinds, strict=True)]
+        [
+            heuristic_raw_score(text, kind)
+            for text, kind in zip(dataset.texts, dataset.kinds, strict=True)
+        ]
     )
     if CALIBRATION_ARTIFACT.exists():
         artifact = json.loads(CALIBRATION_ARTIFACT.read_text(encoding="utf-8"))
@@ -307,9 +326,12 @@ def cmd_external_validate(args: argparse.Namespace) -> int:
             "n": float(len(dataset)),
         },
         "limitations": [
-            "Shipped runtime = heuristic raw score + corpus-fitted isotonic calibration; it never saw this dataset.",
-            "Domain shift: calibration was fitted on the 104-record project corpus, not on NYT prose.",
-            "External validation measures transportability, not the bench-trained tiers (see their cards).",
+            "Shipped runtime = heuristic raw score + corpus-fitted isotonic calibration; "
+            "it never saw this dataset.",
+            "Domain shift: calibration was fitted on the 104-record project corpus, "
+            "not on NYT prose.",
+            "External validation measures transportability, not the bench-trained tiers "
+            "(see their cards).",
         ],
     }
     cards.sign(card)
@@ -326,7 +348,9 @@ def cmd_attribute(args: argparse.Namespace) -> int:
 
     dataset = _load_dataset(args.data)
     created_utc = _corpus_created_utc(args.data)
-    attribution.run_attribution(dataset, created_utc=created_utc, skip_dirichlet=args.skip_dirichlet)
+    attribution.run_attribution(
+        dataset, created_utc=created_utc, skip_dirichlet=args.skip_dirichlet
+    )
     return 0
 
 
@@ -346,7 +370,11 @@ def cmd_measure(args: argparse.Namespace) -> int:
     card = run_measurement(dataset, cross_datasets=cross)
     card["created_utc"] = _corpus_created_utc(args.data) or _utc_now()
     cards.sign(card)
-    default_name = "measurement-protocol.json" if args.data == "corpus" else f"measurement-protocol-{args.data}.json"
+    default_name = (
+        "measurement-protocol.json"
+        if args.data == "corpus"
+        else f"measurement-protocol-{args.data}.json"
+    )
     out = Path(args.out) if args.out else CARDS_DIR / default_name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(card, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -384,7 +412,8 @@ def cmd_evaluate_repo(args: argparse.Namespace) -> int:
         gen_path = CARDS_DIR / "watermarked-generations.json"
         if not gen_path.exists():
             raise CliError(
-                f"need {gen_path.relative_to(ROOT)}; run python -m bench.run_watermark_generation first"
+                f"need {gen_path.relative_to(ROOT)}; "
+                "run python -m bench.run_watermark_generation first"
             )
         generations = json.loads(gen_path.read_text(encoding="utf-8"))
     if args.kind == "detector":
@@ -404,12 +433,18 @@ def cmd_evaluate_repo(args: argparse.Namespace) -> int:
     result.setdefault(
         "limitations",
         [
-            "External system ran in a subprocess against Panoptes fixtures; results characterize that system, not Panoptes.",
-            "Only run repositories you trust; subprocess isolation does not block network unless --docker is used.",
+            "External system ran in a subprocess against Panoptes fixtures; "
+            "results characterize that system, not Panoptes.",
+            "Only run repositories you trust; subprocess isolation does not block "
+            "network unless --docker is used.",
         ],
     )
     cards.sign(result)
-    out = Path(args.out) if args.out else CARDS_DIR / f"external-repo-{result['adapter']['kind']}.json"
+    out = (
+        Path(args.out)
+        if args.out
+        else CARDS_DIR / f"external-repo-{result['adapter']['kind']}.json"
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result["result"], indent=2, sort_keys=True))
@@ -423,9 +458,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     train = sub.add_parser("train", help="cross-validate, fit, and card a model")
     train.add_argument("--model", required=True, choices=["logistic", "gbm", "panoptes-v0"])
-    train.add_argument("--data", default="corpus", help="'corpus', 'defactify', or a CSV/JSONL path")
+    train.add_argument(
+        "--data", default="corpus", help="'corpus', 'defactify', or a CSV/JSONL path"
+    )
     train.add_argument("--out", default=None, help="model output directory")
-    train.add_argument("--card", default=None, help="card filename override (default: <model>[-defactify].json)")
+    train.add_argument(
+        "--card", default=None, help="card filename override (default: <model>[-defactify].json)"
+    )
     train.set_defaults(func=cmd_train)
 
     evaluate_cmd = sub.add_parser("evaluate", help="re-evaluate a saved model on the corpus")
@@ -445,14 +484,30 @@ def build_parser() -> argparse.ArgumentParser:
     contribute.add_argument("--license", dest="license", default=None)
     contribute.set_defaults(func=cmd_contribute)
 
-    external = sub.add_parser("external-validate", help="score an external dataset with the shipped runtime")
-    external.add_argument("--data", default="defactify", help="'defactify', 'corpus', or a CSV/JSONL path")
-    external.add_argument("--card", default="defactify-external-validation.json", help="card filename under backend/artifacts/cards/")
+    external = sub.add_parser(
+        "external-validate", help="score an external dataset with the shipped runtime"
+    )
+    external.add_argument(
+        "--data", default="defactify", help="'defactify', 'corpus', or a CSV/JSONL path"
+    )
+    external.add_argument(
+        "--card",
+        default="defactify-external-validation.json",
+        help="card filename under backend/artifacts/cards/",
+    )
     external.set_defaults(func=cmd_external_validate)
 
-    attribute = sub.add_parser("attribute", help="exploratory 7-class source attribution experiment")
-    attribute.add_argument("--data", default="defactify", help="'defactify' (the only 7-family dataset) or a CSV/JSONL path")
-    attribute.add_argument("--skip-dirichlet", action="store_true", help="run only the multinomial logistic contender")
+    attribute = sub.add_parser(
+        "attribute", help="exploratory 7-class source attribution experiment"
+    )
+    attribute.add_argument(
+        "--data",
+        default="defactify",
+        help="'defactify' (the only 7-family dataset) or a CSV/JSONL path",
+    )
+    attribute.add_argument(
+        "--skip-dirichlet", action="store_true", help="run only the multinomial logistic contender"
+    )
     attribute.set_defaults(func=cmd_attribute)
 
     measure = sub.add_parser("measure", help="run the frozen measurement protocol (train/cal/test)")
@@ -472,7 +527,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     repo = sub.add_parser(
         "evaluate-repo",
-        help="evaluate an external system (watermark-scheme, watermark-remover, detector) from a git repo",
+        help=(
+            "evaluate an external system (watermark-scheme, watermark-remover, "
+            "detector) from a git repo"
+        ),
     )
     repo.add_argument("url", help="git URL of the repository to evaluate")
     repo.add_argument(
@@ -484,8 +542,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="local panoptes_adapter.py to inject for repos that do not ship one",
     )
-    repo.add_argument("--docker", action="store_true", help="run the adapter in a network-disabled container")
-    repo.add_argument("--timeout", type=int, default=180, help="wall-clock limit (s) for the adapter subprocess")
+    repo.add_argument(
+        "--docker", action="store_true", help="run the adapter in a network-disabled container"
+    )
+    repo.add_argument(
+        "--timeout", type=int, default=180, help="wall-clock limit (s) for the adapter subprocess"
+    )
     repo.add_argument("--out", default=None, help="output card path")
     repo.set_defaults(func=cmd_evaluate_repo)
     return parser

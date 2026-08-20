@@ -53,14 +53,12 @@ class FrozenNeuralDetector:
     def available(self) -> bool:
         return self.manager.available()
 
-    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> "FrozenNeuralDetector":
+    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> FrozenNeuralDetector:
         # Frozen ensemble: no fitting. The index is accepted for interface
         # compatibility and intentionally unused.
         return self
 
     def predict_proba(self, dataset: Dataset, idx: np.ndarray) -> np.ndarray:
         """Raw (uncalibrated) participation probability per document."""
-        scores = [
-            self.manager.score_text(dataset.texts[int(i)])["raw_participation"] for i in idx
-        ]
+        scores = [self.manager.score_text(dataset.texts[int(i)])["raw_participation"] for i in idx]
         return np.array(scores, dtype=float)

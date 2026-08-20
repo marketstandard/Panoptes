@@ -52,11 +52,19 @@ def _build_tiny_artifact(root: Path, hidden: int = 16) -> Path:
     tok = Tokenizer(models.WordLevel(vocab=vocab, unk_token="[PAD]"))
     tok.pre_tokenizer = pre_tokenizers.Whitespace()
     PreTrainedTokenizerFast(
-        tokenizer_object=tok, cls_token="[CLS]", sep_token="[SEP]", pad_token="[PAD]", unk_token="[PAD]"
+        tokenizer_object=tok,
+        cls_token="[CLS]",
+        sep_token="[SEP]",
+        pad_token="[PAD]",
+        unk_token="[PAD]",
     ).save_pretrained(root)
     cfg = BertConfig(
-        vocab_size=len(vocab), hidden_size=hidden, num_hidden_layers=1,
-        num_attention_heads=2, intermediate_size=32, max_position_embeddings=32,
+        vocab_size=len(vocab),
+        hidden_size=hidden,
+        num_hidden_layers=1,
+        num_attention_heads=2,
+        intermediate_size=32,
+        max_position_embeddings=32,
     )
     cfg.save_pretrained(root)
     seed_dir = root / "seed-1"
@@ -66,11 +74,26 @@ def _build_tiny_artifact(root: Path, hidden: int = 16) -> Path:
     save_file(model.state_dict(), str(enc_path))
     manifest = {
         "schema": "panoptes-neural-ensemble-v1",
-        "winner": {"encoder": "tiny", "hf": "tiny", "objective": "erm",
-                   "aggregation": "overlap_corrected_logit_mean", "max_length": 16, "overlap": 4},
-        "seeds": [{"seed": 1, "encoder": "seed-1/encoder.safetensors",
-                   "encoder_sha256": _sha256(enc_path), "summary_head": None, "summary_head_sha256": None}],
-        "calibration": {"binary_calibrator": {"x_thresholds": [0.0, 1.0], "y_thresholds": [0.0, 1.0]}},
+        "winner": {
+            "encoder": "tiny",
+            "hf": "tiny",
+            "objective": "erm",
+            "aggregation": "overlap_corrected_logit_mean",
+            "max_length": 16,
+            "overlap": 4,
+        },
+        "seeds": [
+            {
+                "seed": 1,
+                "encoder": "seed-1/encoder.safetensors",
+                "encoder_sha256": _sha256(enc_path),
+                "summary_head": None,
+                "summary_head_sha256": None,
+            }
+        ],
+        "calibration": {
+            "binary_calibrator": {"x_thresholds": [0.0, 1.0], "y_thresholds": [0.0, 1.0]}
+        },
         "config_sha256": _sha256(root / "config.json"),
     }
     (root / "ensemble_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
@@ -82,9 +105,15 @@ def _dataset(n: int = 12) -> Dataset:
     texts = [" ".join(rng.choice(WORDS, size=10)) for _ in range(n)]
     labels = np.array([i % 2 for i in range(n)], dtype=int)
     return Dataset(
-        texts=texts, labels=labels, families=["gen" if l else "human" for i, l in enumerate(labels)],
-        kinds=["text"] * n, groups=[f"g{i // 4}" for i in range(n)], buckets=["short"] * n,
-        provenance="tiny", sha256="0" * 64, domains=["d0"] * n,
+        texts=texts,
+        labels=labels,
+        families=["gen" if label else "human" for i, label in enumerate(labels)],
+        kinds=["text"] * n,
+        groups=[f"g{i // 4}" for i in range(n)],
+        buckets=["short"] * n,
+        provenance="tiny",
+        sha256="0" * 64,
+        domains=["d0"] * n,
     )
 
 
@@ -105,5 +134,5 @@ def test_frozen_neural_detector_unavailable_raises_on_score(tmp_path):
     det = FrozenNeuralDetector(artifact_dir=str(tmp_path / "missing"), device="cpu")
     assert det.available() is False
     ds = _dataset()
-    with pytest.raises(Exception):
+    with pytest.raises(FileNotFoundError):
         det.predict_proba(ds, np.arange(len(ds)))

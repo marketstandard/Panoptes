@@ -172,7 +172,9 @@ def _token_budget_batches(
     for text in sorted_texts:
         est = max(1, (len(text) + 3) // 4)
         new_max = max(max_est, est)
-        if current and (len(current) + 1 > max_batch or (len(current) + 1) * new_max > token_budget):
+        if current and (
+            len(current) + 1 > max_batch or (len(current) + 1) * new_max > token_budget
+        ):
             batches.append((start, current))
             start += len(current)
             current = [text]
@@ -186,7 +188,12 @@ def _token_budget_batches(
 
 
 def _mean_token_loglik(
-    model, tokenizer, texts: list[str], max_tokens: int, batch_size: int = 16, progress: bool = False
+    model,
+    tokenizer,
+    texts: list[str],
+    max_tokens: int,
+    batch_size: int = 16,
+    progress: bool = False,
 ) -> np.ndarray:
     """Mean per-token log-likelihood of each text under the model (<= 0)."""
     import torch
@@ -289,7 +296,9 @@ def fast_detectgpt_scores(
             mask = encoded["attention_mask"][:, 1:].float()
             if generator is None:
                 generator = torch.Generator(device=logits.device).manual_seed(seed)
-            actual = torch.zeros(logits.shape[0], logits.shape[1], dtype=torch.float32, device=logits.device)
+            actual = torch.zeros(
+                logits.shape[0], logits.shape[1], dtype=torch.float32, device=logits.device
+            )
             sampled = torch.zeros_like(actual)
             # Vocab-wide softmax/sampling in sequence chunks: the full fp32
             # tensors are several GB and tip a 24 GB card into WDDM paging.
@@ -300,7 +309,9 @@ def fast_detectgpt_scores(
                 ).squeeze(-1)
                 flat_probs = logp.exp().reshape(-1, logp.shape[-1])
                 flat_logp = logp.reshape(-1, logp.shape[-1])
-                draws = torch.multinomial(flat_probs, n_samples, replacement=True, generator=generator)
+                draws = torch.multinomial(
+                    flat_probs, n_samples, replacement=True, generator=generator
+                )
                 sampled[:, s : s + 128] = (
                     flat_logp.gather(-1, draws).mean(dim=-1).reshape(logp.shape[0], logp.shape[1])
                 )

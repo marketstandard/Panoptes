@@ -28,10 +28,10 @@ except Exception:
 if not _HAS_ML:
     pytest.skip("torch/transformers unavailable", allow_module_level=True)
 
+from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: E402
 from tokenizers import Tokenizer, models, pre_tokenizers  # noqa: E402
 from transformers import BertConfig, BertModel, PreTrainedTokenizerFast  # noqa: E402
 
-from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: E402
 from panoptes.analysis.neural_runtime import (  # noqa: E402
     NeuralModelManager,
     NeuralProseDetector,
@@ -62,7 +62,11 @@ def _build_tiny_artifact(
     tok = Tokenizer(models.WordLevel(vocab=vocab, unk_token="[PAD]"))
     tok.pre_tokenizer = pre_tokenizers.Whitespace()
     fast = PreTrainedTokenizerFast(
-        tokenizer_object=tok, cls_token="[CLS]", sep_token="[SEP]", pad_token="[PAD]", unk_token="[PAD]"
+        tokenizer_object=tok,
+        cls_token="[CLS]",
+        sep_token="[SEP]",
+        pad_token="[PAD]",
+        unk_token="[PAD]",
     )
     fast.save_pretrained(root)
 
@@ -97,7 +101,9 @@ def _build_tiny_artifact(
             "encoder": "tiny-bert",
             "hf": "tiny-bert",
             "objective": "erm",
-            "aggregation": "hierarchical_summary_head" if with_summary_head else "overlap_corrected_logit_mean",
+            "aggregation": "hierarchical_summary_head"
+            if with_summary_head
+            else "overlap_corrected_logit_mean",
             "max_length": 16,
             "overlap": 4,
         },
@@ -111,7 +117,10 @@ def _build_tiny_artifact(
             }
         ],
         "calibration": {
-            "binary_calibrator": {"x_thresholds": [0.0, 0.5, 1.0], "y_thresholds": [0.05, 0.5, 0.95]}
+            "binary_calibrator": {
+                "x_thresholds": [0.0, 0.5, 1.0],
+                "y_thresholds": [0.05, 0.5, 0.95],
+            }
         },
         "config_sha256": _sha256(root / "config.json"),
     }
@@ -157,8 +166,8 @@ def test_load_and_score_summary_head(tmp_path):
     assert out["n_seeds"] == 1
     # Applicability diagnostic is present and well-formed.
     app = out["applicability"]
-    assert 0.0 <= app["seed_std"]
-    assert 0.0 <= app["segment_std"]
+    assert app["seed_std"] >= 0.0
+    assert app["segment_std"] >= 0.0
     assert app["in_calibration_range"] in (True, False)
     assert isinstance(app["flags"], list)
     assert "not proof" in app["note"]

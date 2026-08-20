@@ -1,5 +1,5 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from panoptes.main import app
 
@@ -24,7 +24,9 @@ def test_analyze_fixture() -> None:
 
 def test_analyze_reports_distinct_attribution_outputs() -> None:
     client = TestClient(app)
-    response = client.post("/api/v1/analyze", json={"text": "AI-generated " * 80, "prior_odds": 1.0})
+    response = client.post(
+        "/api/v1/analyze", json={"text": "AI-generated " * 80, "prior_odds": 1.0}
+    )
     payload = response.json()
     overall = payload["summary"]["overall"]
     assert payload["summary"]["ai_participation"] == pytest.approx(

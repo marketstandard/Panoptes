@@ -156,12 +156,12 @@ def _synthetic_defactify(monkeypatch, tmp_path, n_per_family: int = 12):
         family = families[i % len(families)]
         story = i // len(families)
         if family == "Human_Story":
-            text = f"Story {story}: " + body + f"neighbors said the decision mattered to them."
+            text = f"Story {story}: " + body + "neighbors said the decision mattered to them."
             label = 0
         else:
             text = (
-                f"Story {story}: " + body
-                + "Furthermore, the development additionally represents a significant milestone overall."
+                f"Story {story}: " + body + "Furthermore, the development additionally represents"
+                " a significant milestone overall."
             )
             label = 1
         rows[splits[i % 3]].append({"text": text, "label": label, "family": family})
@@ -174,8 +174,13 @@ def _synthetic_defactify(monkeypatch, tmp_path, n_per_family: int = 12):
         frame.to_parquet(local / f"{split}-clean.parquet", index=False)
         manifest_splits[split] = {"rows_clean": len(records)}
     (local / "fetch-manifest.json").write_text(
-        json.dumps({"created_utc": "2026-01-01T00:00:00Z", "splits": manifest_splits,
-                    "artifact_sha256": "0" * 64}),
+        json.dumps(
+            {
+                "created_utc": "2026-01-01T00:00:00Z",
+                "splits": manifest_splits,
+                "artifact_sha256": "0" * 64,
+            }
+        ),
         encoding="utf-8",
     )
     monkeypatch.setattr(datasets, "DEFACTIFY_DIR", local)

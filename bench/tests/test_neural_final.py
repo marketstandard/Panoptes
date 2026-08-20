@@ -28,7 +28,9 @@ def _minimal_detector_card() -> dict:
         "training_pool": {
             "cohorts": {"mage": 15000, "raid": 15000, "defactify": 5856},
             "n_rows": 35856,
-            "provenance": "pooled public-weight training pool (MAGE train + RAID clean + DeFactify train)",
+            "provenance": (
+                "pooled public-weight training pool (MAGE train + RAID clean + DeFactify train)"
+            ),
             "sha256": "b" * 64,
         },
         "calibration_partition": {

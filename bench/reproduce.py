@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,11 +62,21 @@ ARTIFACTS = [
     # --- v2.1 Phase 5 (frozen neural detector) ---
     ROOT / "backend" / "artifacts" / "cards" / "neural-detector.json",
     # --- v2.1 Phase 6 (evidence transportability), per detector tier ---
-    ROOT / "backend" / "artifacts" / "cards" / "transport-logistic" / "representation-transport.json",
+    ROOT
+    / "backend"
+    / "artifacts"
+    / "cards"
+    / "transport-logistic"
+    / "representation-transport.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-logistic" / "calibration-transfer.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-gbm" / "representation-transport.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-gbm" / "calibration-transfer.json",
-    ROOT / "backend" / "artifacts" / "cards" / "transport-heuristic" / "representation-transport.json",
+    ROOT
+    / "backend"
+    / "artifacts"
+    / "cards"
+    / "transport-heuristic"
+    / "representation-transport.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-heuristic" / "calibration-transfer.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-neural" / "representation-transport.json",
     ROOT / "backend" / "artifacts" / "cards" / "transport-neural" / "calibration-transfer.json",
@@ -181,7 +191,7 @@ def reproduce() -> dict:
 
     card = {
         "schema": "panoptes-reproduction-selfcheck-v1",
-        "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "kind": "author_selfcheck",
         "independent": False,
         "catalog_verified": catalog_ok,

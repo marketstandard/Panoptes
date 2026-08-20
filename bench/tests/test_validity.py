@@ -53,9 +53,13 @@ def test_split_conformal_recovers_nominal_coverage_when_exchangeable():
     n_cal, n_test = 2000, 2000
     # Well-separated, identically distributed cal and test.
     cal_labels = rng.integers(0, 2, n_cal)
-    cal_probs = np.clip(cal_labels * 0.7 + (1 - cal_labels) * 0.3 + rng.normal(0, 0.12, n_cal), 1e-4, 1 - 1e-4)
+    cal_probs = np.clip(
+        cal_labels * 0.7 + (1 - cal_labels) * 0.3 + rng.normal(0, 0.12, n_cal), 1e-4, 1 - 1e-4
+    )
     test_labels = rng.integers(0, 2, n_test)
-    test_probs = np.clip(test_labels * 0.7 + (1 - test_labels) * 0.3 + rng.normal(0, 0.12, n_test), 1e-4, 1 - 1e-4)
+    test_probs = np.clip(
+        test_labels * 0.7 + (1 - test_labels) * 0.3 + rng.normal(0, 0.12, n_test), 1e-4, 1 - 1e-4
+    )
     fit = validity.fit_conformal(cal_labels, cal_probs, alpha=0.1)
     out = validity.apply_conformal(test_probs, test_labels, fit)
     assert out["fit_on"] == "calibration"
@@ -190,9 +194,11 @@ def test_adaptive_ece_equal_mass_with_interval():
 
 def _lofo_shared_group_dataset() -> Dataset:
     texts, labels, families, groups = [], [], [], []
-    spec = [("ai-a", ["g1", "g1", "g1", "g2", "g2", "g2"]),
-            ("ai-b", ["g2", "g2", "g2", "g3", "g3", "g3"]),  # shares g2 with ai-a
-            ("ai-c", ["g4", "g4", "g4", "g5", "g5", "g5"])]
+    spec = [
+        ("ai-a", ["g1", "g1", "g1", "g2", "g2", "g2"]),
+        ("ai-b", ["g2", "g2", "g2", "g3", "g3", "g3"]),  # shares g2 with ai-a
+        ("ai-c", ["g4", "g4", "g4", "g5", "g5", "g5"]),
+    ]
     for fam, grp in spec:
         for i, g in enumerate(grp):
             texts.append(f"{fam} sample {i} " + "word " * 30)
@@ -242,19 +248,43 @@ def test_calibration_bundle_refuses_cross_detector_application():
     detector.fit(dataset, split.train)
     cal_ds = dataset.subset(split.calibration)
     bundle = measure.fit_calibration_bundle(
-        detector, cal_ds, detector_id="logistic-tier0", model_revision="rev-A",
-        task="binary_ai", cohort="cohort-1",
+        detector,
+        cal_ds,
+        detector_id="logistic-tier0",
+        model_revision="rev-A",
+        task="binary_ai",
+        cohort="cohort-1",
     )
     raw = np.array([0.2, 0.8])
     # Correct identity applies cleanly.
-    bundle.calibrate(raw, detector_id="logistic-tier0", model_revision="rev-A", task="binary_ai", cohort="cohort-1")
+    bundle.calibrate(
+        raw,
+        detector_id="logistic-tier0",
+        model_revision="rev-A",
+        task="binary_ai",
+        cohort="cohort-1",
+    )
     # A different detector / revision / task / cohort must be refused.
     with pytest.raises(measure.CalibrationMismatchError):
-        bundle.calibrate(raw, detector_id="neural", model_revision="rev-A", task="binary_ai", cohort="cohort-1")
+        bundle.calibrate(
+            raw, detector_id="neural", model_revision="rev-A", task="binary_ai", cohort="cohort-1"
+        )
     with pytest.raises(measure.CalibrationMismatchError):
-        bundle.calibrate(raw, detector_id="logistic-tier0", model_revision="rev-B", task="binary_ai", cohort="cohort-1")
+        bundle.calibrate(
+            raw,
+            detector_id="logistic-tier0",
+            model_revision="rev-B",
+            task="binary_ai",
+            cohort="cohort-1",
+        )
     with pytest.raises(measure.CalibrationMismatchError):
-        bundle.calibrate(raw, detector_id="logistic-tier0", model_revision="rev-A", task="binary_ai", cohort="cohort-2")
+        bundle.calibrate(
+            raw,
+            detector_id="logistic-tier0",
+            model_revision="rev-A",
+            task="binary_ai",
+            cohort="cohort-2",
+        )
 
 
 # --- firewall: test labels never reach fit/select/calibrate/threshold ----------
@@ -273,7 +303,9 @@ def test_protocol_split_thresholds_ignore_test_labels():
     assert row_a["operating_points"] == row_b["operating_points"]
     assert np.allclose(row_a["probabilities"], row_b["probabilities"])
     # Only test-label-dependent metrics may differ.
-    assert row_a["conformal"]["empirical_coverage"] != row_b["conformal"]["empirical_coverage"] or True
+    assert (
+        row_a["conformal"]["empirical_coverage"] != row_b["conformal"]["empirical_coverage"] or True
+    )
 
 
 class _SpyingDetector:
@@ -320,8 +352,15 @@ def test_fit_select_calibrate_test_firewall():
     test = _prov_dataset(20, "test", 4)
     spy = _SpyingDetector()
     out = measure.fit_select_calibrate_test(
-        spy, train, dev, cal, test,
-        detector_id="spying", model_revision="rev-0", task="binary_ai", cohort="test-cohort",
+        spy,
+        train,
+        dev,
+        cal,
+        test,
+        detector_id="spying",
+        model_revision="rev-0",
+        task="binary_ai",
+        cohort="test-cohort",
     )
     fit_prov = [p for m, p in spy.calls if m == "fit"]
     select_prov = [p for m, p in spy.calls if m == "select"]
@@ -339,11 +378,25 @@ def test_unified_interface_returns_valid_blocks():
     cal = _prov_dataset(20, "calibration", 3)
     test = _prov_dataset(20, "test", 4)
     out = measure.fit_select_calibrate_test(
-        detectors.make_detector("logistic"), train, dev, cal, test,
-        detector_id="logistic-tier0", model_revision="rev-0", task="binary_ai", cohort="c",
+        detectors.make_detector("logistic"),
+        train,
+        dev,
+        cal,
+        test,
+        detector_id="logistic-tier0",
+        model_revision="rev-0",
+        task="binary_ai",
+        cohort="c",
     )
-    for key in ("conformal", "operating_points", "selective_risk", "auroc_group_bootstrap",
-                "adaptive_ece", "prevalence_views", "bundle"):
+    for key in (
+        "conformal",
+        "operating_points",
+        "selective_risk",
+        "auroc_group_bootstrap",
+        "adaptive_ece",
+        "prevalence_views",
+        "bundle",
+    ):
         assert key in out
     assert out["conformal"]["fit_on"] == "calibration"
     assert out["operating_points_fit_on"] == "calibration" or "operating_points" in out

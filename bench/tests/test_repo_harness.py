@@ -9,10 +9,9 @@ from pathlib import Path
 import pytest
 
 from bench import repo_harness
-from bench.repo_harness import AdapterSpec
 
 # A deterministic mock watermark-remover: strips the two zero-width carriers.
-MOCK_ADAPTER = '''
+MOCK_ADAPTER = """
 def transform(text):
     return text.replace("\\u200b", "").replace("\\u200c", "")
 
@@ -21,7 +20,7 @@ def detect(text):
 
 def score(text):
     return 0.5
-'''
+"""
 
 LONG = " ".join(["the quick brown fox jumps over the lazy dog"] * 12)
 
@@ -37,7 +36,11 @@ def _make_repo(tmp_path: Path, with_manifest: bool = True) -> Path:
                     "kind": "watermark-remover",
                     "name": "mock-remover",
                     "version": "0.1",
-                    "entry": {"type": "python-function", "module": "panoptes_adapter", "callable": "transform"},
+                    "entry": {
+                        "type": "python-function",
+                        "module": "panoptes_adapter",
+                        "callable": "transform",
+                    },
                     "requires_network": False,
                 }
             ),
@@ -46,7 +49,18 @@ def _make_repo(tmp_path: Path, with_manifest: bool = True) -> Path:
     subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
     subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
     subprocess.run(
-        ["git", "-C", str(repo), "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init"],
+        [
+            "git",
+            "-C",
+            str(repo),
+            "-c",
+            "user.email=t@t",
+            "-c",
+            "user.name=t",
+            "commit",
+            "-qm",
+            "init",
+        ],
         check=True,
     )
     return repo

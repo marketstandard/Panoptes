@@ -29,7 +29,7 @@ distribution shift. That caveat is part of every result these functions emit.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
@@ -97,9 +97,7 @@ def fit_conformal(
     )
 
 
-def apply_conformal(
-    test_probs: np.ndarray, test_labels: np.ndarray, fit: ConformalFit
-) -> dict:
+def apply_conformal(test_probs: np.ndarray, test_labels: np.ndarray, fit: ConformalFit) -> dict:
     """Apply frozen conformal thresholds to untouched test labels."""
     p = np.asarray(test_probs, dtype=float)
     y = np.asarray(test_labels, dtype=int)
@@ -128,8 +126,12 @@ def apply_conformal(
         "n_test": int(len(y)),
         "empirical_coverage": float(np.mean(covered)) if covered else float("nan"),
         "mean_set_size": float(np.mean(set_sizes)) if set_sizes else float("nan"),
-        "singleton_rate": float(np.mean([s == 1 for s in set_sizes])) if set_sizes else float("nan"),
-        "abstention_rate": float(np.mean([s == 2 for s in set_sizes])) if set_sizes else float("nan"),
+        "singleton_rate": float(np.mean([s == 1 for s in set_sizes]))
+        if set_sizes
+        else float("nan"),
+        "abstention_rate": float(np.mean([s == 2 for s in set_sizes]))
+        if set_sizes
+        else float("nan"),
         "empty_rate": float(np.mean([s == 0 for s in set_sizes])) if set_sizes else float("nan"),
         "coverage_by_class": {
             str(cls): (float(np.mean(vals)) if vals else float("nan"))
@@ -274,7 +276,10 @@ def group_bootstrap_ci(
     point = float(metric_fn(y, p))
     return {
         "point": point,
-        "ci": [float(np.percentile(stats, 100 * alpha / 2)), float(np.percentile(stats, 100 * (1 - alpha / 2)))],
+        "ci": [
+            float(np.percentile(stats, 100 * alpha / 2)),
+            float(np.percentile(stats, 100 * (1 - alpha / 2))),
+        ],
         "n_boot": len(stats),
         "n_groups": int(len(unique)),
         "resample_unit": "group",
@@ -315,7 +320,12 @@ def paired_group_bootstrap(
         if diff == diff and abs(diff) != float("inf"):
             diffs.append(diff)
     if not diffs:
-        return {"diff": float("nan"), "ci": [float("nan"), float("nan")], "p_value": float("nan"), "n_boot": 0}
+        return {
+            "diff": float("nan"),
+            "ci": [float("nan"), float("nan")],
+            "p_value": float("nan"),
+            "n_boot": 0,
+        }
     diffs_arr = np.asarray(diffs)
     alpha = 1 - level
     point = float(metric_fn(y, pa) - metric_fn(y, pb))
@@ -323,7 +333,10 @@ def paired_group_bootstrap(
     p_ge = float(np.mean(diffs_arr >= 0))
     return {
         "diff": point,
-        "ci": [float(np.percentile(diffs_arr, 100 * alpha / 2)), float(np.percentile(diffs_arr, 100 * (1 - alpha / 2)))],
+        "ci": [
+            float(np.percentile(diffs_arr, 100 * alpha / 2)),
+            float(np.percentile(diffs_arr, 100 * (1 - alpha / 2))),
+        ],
         "p_value": float(min(1.0, 2 * min(p_le, p_ge))),
         "n_boot": len(diffs),
         "n_groups": int(len(unique)),
@@ -346,13 +359,19 @@ def standardized_prevalence_metrics(
     y = np.asarray(labels, dtype=int)
     p = np.asarray(probs, dtype=float)
     natural = float(y.mean()) if len(y) else float("nan")
-    w = np.where(y == 1, target_prevalence / max(natural, 1e-9), (1 - target_prevalence) / max(1 - natural, 1e-9))
+    w = np.where(
+        y == 1,
+        target_prevalence / max(natural, 1e-9),
+        (1 - target_prevalence) / max(1 - natural, 1e-9),
+    )
 
     def _views(sample_weight=None) -> dict:
         pred = p >= 0.5
         return {
             "brier": float(brier_score_loss(y, p, sample_weight=sample_weight)),
-            "log_loss": float(log_loss(y, np.clip(p, 1e-6, 1 - 1e-6), sample_weight=sample_weight, labels=[0, 1])),
+            "log_loss": float(
+                log_loss(y, np.clip(p, 1e-6, 1 - 1e-6), sample_weight=sample_weight, labels=[0, 1])
+            ),
             "accuracy": float(np.average((pred == y).astype(float), weights=sample_weight)),
         }
 
@@ -396,6 +415,7 @@ def adaptive_ece(
         ece += (hi - lo) / n * abs(float(sorted_p[lo:hi].mean()) - float(sorted_y[lo:hi].mean()))
     result: dict = {"adaptive_ece": float(ece), "bins": bins, "binning": "equal_mass"}
     if groups is not None and n_boot > 0:
+
         def _ece(ylabels, yprobs):
             return adaptive_ece(ylabels, yprobs, bins=bins)["adaptive_ece"]
 

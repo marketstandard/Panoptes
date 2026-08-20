@@ -15,14 +15,14 @@ passive AI detection? Kept separate from the passive attribution claim.
 from __future__ import annotations
 
 import numpy as np
+from panoptes.analysis.watermarks import KGWReferenceAdapter
+from panoptes.schemas import ContentType
 
 from bench.datasets import Dataset
 from bench.detectors import HeuristicDetector
 from bench.evaluate import binary_metrics
 from bench.watermark_attacks import ATTACKS
 from bench.watermark_unicode import detect_unicode_watermark, embed_unicode_watermark
-from panoptes.analysis.watermarks import KGWReferenceAdapter
-from panoptes.schemas import ContentType
 
 
 def _kgw_summary(det: KGWReferenceAdapter, texts: list[str]) -> dict:
@@ -112,7 +112,12 @@ def _unicode_retention(ctrl_texts: list[str]) -> dict:
                 "mean_marks_after": after["mean_marks"],
             }
         )
-    return {"scheme": "unicode-zerowidth-v1", "n": len(base), "baseline": baseline, "per_attack": per_attack}
+    return {
+        "scheme": "unicode-zerowidth-v1",
+        "n": len(base),
+        "baseline": baseline,
+        "per_attack": per_attack,
+    }
 
 
 def _passive_evasion(corpus: Dataset) -> dict:
@@ -148,7 +153,12 @@ def _passive_evasion(corpus: Dataset) -> dict:
                 "delta_auroc": (None if before != before or after != after else after - before),
             }
         )
-    return {"detector": detector.name, "dataset": corpus.provenance, "n": n, "per_attack": per_attack}
+    return {
+        "detector": detector.name,
+        "dataset": corpus.provenance,
+        "n": n,
+        "per_attack": per_attack,
+    }
 
 
 def watermark_removal_eval(
@@ -157,15 +167,15 @@ def watermark_removal_eval(
     samples = generations_card["samples"]
     wm_texts = [s["text"] for s in samples if s["kind"] == "watermarked"]
     ctrl_texts = [s["text"] for s in samples if s["kind"] == "control"]
-    para_texts = (
-        [s["text"] for s in paraphrases_card["samples"]] if paraphrases_card else None
-    )
+    para_texts = [s["text"] for s in paraphrases_card["samples"]] if paraphrases_card else None
     attacks = [name for name in ATTACKS if name != "identity"]
     if para_texts:
         attacks = attacks + ["llm_paraphrase"]
     return {
         "schema": "panoptes-watermark-removal-eval-card-v1",
-        "generations_ref": f"watermarked-generations.json sha256:{generations_card.get('artifact_sha256')}",
+        "generations_ref": (
+            f"watermarked-generations.json sha256:{generations_card.get('artifact_sha256')}"
+        ),
         "schemes": ["kgw-v1", "unicode-zerowidth-v1"],
         "attacks": attacks,
         "kgw": _kgw_retention(wm_texts, ctrl_texts, para_texts),
@@ -173,9 +183,16 @@ def watermark_removal_eval(
         "passive": _passive_evasion(corpus),
         "external_repos": [],
         "limitations": [
-            "KGW retention uses the demo-key watermarked generations (Aaronson/SynthID-Text family), not a vendor's private production key.",
-            "The Unicode scheme is a reference zero-width signature; real vendor Unicode watermarks differ in payload but share the same fragility to hygiene.",
-            "synonym_substitute is a deterministic stand-in for LLM paraphrase; a full neural rewrite is the strongest statistical attack and is evaluated via the external repo harness.",
-            "Passive-evasion AUROC is a full-corpus in-sample shift, consistent with the robustness pilot; it is not blended into the watermark claim.",
+            "KGW retention uses the demo-key watermarked generations "
+            "(Aaronson/SynthID-Text family), not a vendor's private production key.",
+            "The Unicode scheme is a reference zero-width signature; "
+            "real vendor Unicode watermarks differ in payload "
+            "but share the same fragility to hygiene.",
+            "synonym_substitute is a deterministic stand-in for LLM paraphrase; "
+            "a full neural rewrite is the strongest statistical attack "
+            "and is evaluated via the external repo harness.",
+            "Passive-evasion AUROC is a full-corpus in-sample shift, "
+            "consistent with the robustness pilot; "
+            "it is not blended into the watermark claim.",
         ],
     }

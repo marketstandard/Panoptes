@@ -13,7 +13,6 @@ import sys
 import tarfile
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,21 +45,42 @@ def _fetch_manifest(directory: Path) -> None:
 # --- load_raid ------------------------------------------------------------------
 
 
-def _raid_frame() -> "pd.DataFrame":
+def _raid_frame() -> pd.DataFrame:
     rows = []
     for source in range(6):
         rows.append(
-            {"text": _long_text(f"Human article {source}"), "label": 0, "family": "human",
-             "domain": "news", "attack": "", "decoding": "", "group": f"src-{source}"}
+            {
+                "text": _long_text(f"Human article {source}"),
+                "label": 0,
+                "family": "human",
+                "domain": "news",
+                "attack": "",
+                "decoding": "",
+                "group": f"src-{source}",
+            }
         )
         for model in ("gpt4", "llama3"):
             rows.append(
-                {"text": _long_text(f"Clean {model} rewrite {source}"), "label": 1, "family": model,
-                 "domain": "news", "attack": "none", "decoding": "greedy", "group": f"src-{source}"}
+                {
+                    "text": _long_text(f"Clean {model} rewrite {source}"),
+                    "label": 1,
+                    "family": model,
+                    "domain": "news",
+                    "attack": "none",
+                    "decoding": "greedy",
+                    "group": f"src-{source}",
+                }
             )
             rows.append(
-                {"text": _long_text(f"Paraphrased {model} rewrite {source}"), "label": 1, "family": model,
-                 "domain": "news", "attack": "paraphrase", "decoding": "greedy", "group": f"src-{source}"}
+                {
+                    "text": _long_text(f"Paraphrased {model} rewrite {source}"),
+                    "label": 1,
+                    "family": model,
+                    "domain": "news",
+                    "attack": "paraphrase",
+                    "decoding": "greedy",
+                    "group": f"src-{source}",
+                }
             )
     return pd.DataFrame(rows)
 
@@ -124,10 +144,24 @@ def _m4gt_fixture(tmp_path: Path, monkeypatch) -> Path:
     local.mkdir()
     rows = []
     for i in range(4):
-        rows.append({"text": _long_text(f"Human {i}"), "label": 0, "family": "human",
-                     "domain": "arxiv", "group": f"g{i}"})
-        rows.append({"text": _long_text(f"chatGPT {i}"), "label": 1, "family": "chatGPT",
-                     "domain": "arxiv", "group": f"h{i}"})
+        rows.append(
+            {
+                "text": _long_text(f"Human {i}"),
+                "label": 0,
+                "family": "human",
+                "domain": "arxiv",
+                "group": f"g{i}",
+            }
+        )
+        rows.append(
+            {
+                "text": _long_text(f"chatGPT {i}"),
+                "label": 1,
+                "family": "chatGPT",
+                "domain": "arxiv",
+                "group": f"h{i}",
+            }
+        )
     pd.DataFrame(rows).to_parquet(local / "subtask_a-clean.parquet", index=False)
     pd.DataFrame(rows).to_parquet(local / "subtask_a_multilingual-clean.parquet", index=False)
     _fetch_manifest(local)
@@ -166,10 +200,26 @@ def _evobench_fixture(tmp_path: Path, monkeypatch) -> Path:
     local.mkdir()
     rows = []
     for i in range(4):
-        rows.append({"text": _long_text(f"Original {i}"), "label": 0, "family": "human",
-                     "family_group": "human", "domain": "news", "group": f"news:g{i}"})
-        rows.append({"text": _long_text(f"Version v1 {i}"), "label": 1, "family": "v1",
-                     "family_group": "gpt", "domain": "news", "group": f"news:g{i}"})
+        rows.append(
+            {
+                "text": _long_text(f"Original {i}"),
+                "label": 0,
+                "family": "human",
+                "family_group": "human",
+                "domain": "news",
+                "group": f"news:g{i}",
+            }
+        )
+        rows.append(
+            {
+                "text": _long_text(f"Version v1 {i}"),
+                "label": 1,
+                "family": "v1",
+                "family_group": "gpt",
+                "domain": "news",
+                "group": f"news:g{i}",
+            }
+        )
     pd.DataFrame(rows).to_parquet(local / "clean.parquet", index=False)
     _fetch_manifest(local)
     monkeypatch.setattr(datasets, "EVOBENCH_DIR", local)
@@ -227,16 +277,51 @@ def test_fetch_raid_clean_split_filters(tmp_path):
     raw = tmp_path / "train.csv"
     frame = pd.DataFrame(
         [
-            {"id": 1, "source_id": "s1", "model": "human", "decoding": "", "attack": "",
-             "domain": "news", "generation": _long_text("human one")},
-            {"id": 2, "source_id": "s1", "model": "gpt4", "decoding": "greedy", "attack": "none",
-             "domain": "news", "generation": _long_text("ai one")},
-            {"id": 3, "source_id": "s2", "model": "gpt4", "decoding": "greedy", "attack": "none",
-             "domain": "news", "generation": _long_text("ai one")},  # dup text
-            {"id": 4, "source_id": "s3", "model": "gpt4", "decoding": "greedy", "attack": "none",
-             "domain": "news", "generation": "short"},
-            {"id": 5, "source_id": "s4", "model": "gpt4", "decoding": "greedy", "attack": "none",
-             "domain": "news", "generation": ""},
+            {
+                "id": 1,
+                "source_id": "s1",
+                "model": "human",
+                "decoding": "",
+                "attack": "",
+                "domain": "news",
+                "generation": _long_text("human one"),
+            },
+            {
+                "id": 2,
+                "source_id": "s1",
+                "model": "gpt4",
+                "decoding": "greedy",
+                "attack": "none",
+                "domain": "news",
+                "generation": _long_text("ai one"),
+            },
+            {
+                "id": 3,
+                "source_id": "s2",
+                "model": "gpt4",
+                "decoding": "greedy",
+                "attack": "none",
+                "domain": "news",
+                "generation": _long_text("ai one"),
+            },  # dup text
+            {
+                "id": 4,
+                "source_id": "s3",
+                "model": "gpt4",
+                "decoding": "greedy",
+                "attack": "none",
+                "domain": "news",
+                "generation": "short",
+            },
+            {
+                "id": 5,
+                "source_id": "s4",
+                "model": "gpt4",
+                "decoding": "greedy",
+                "attack": "none",
+                "domain": "news",
+                "generation": "",
+            },
         ]
     )
     frame.to_csv(raw, index=False)

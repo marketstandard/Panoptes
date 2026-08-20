@@ -74,7 +74,9 @@ def minhash_signature(
     return values.min(axis=1).astype(np.uint64)
 
 
-def signatures_for(texts: list[str], num_perm: int = 128, ngram: int = 3, seed: int = 13) -> np.ndarray:
+def signatures_for(
+    texts: list[str], num_perm: int = 128, ngram: int = 3, seed: int = 13
+) -> np.ndarray:
     """(n_texts, num_perm) MinHash signature matrix, computed row by row."""
     a, b = _hash_family(num_perm, seed)
     out = np.empty((len(texts), num_perm), dtype=np.uint64)
@@ -83,9 +85,7 @@ def signatures_for(texts: list[str], num_perm: int = 128, ngram: int = 3, seed: 
     return out
 
 
-def lsh_candidate_pairs(
-    signatures: np.ndarray, bands: int = 32
-) -> list[tuple[int, int]]:
+def lsh_candidate_pairs(signatures: np.ndarray, bands: int = 32) -> list[tuple[int, int]]:
     """Candidate near-duplicate pairs from LSH banding of the signatures.
 
     Two documents are candidates when they agree on every row of at least one

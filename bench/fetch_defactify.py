@@ -28,7 +28,7 @@ import json
 import re
 import sys
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,7 +38,9 @@ LOCAL = ROOT / "datasets" / "local" / "defactify"
 POINTER_OUT = ROOT / "datasets" / "manifests" / "defactify-text.json"
 MANIFEST = LOCAL / "fetch-manifest.json"
 
-HF_BASE = "https://huggingface.co/datasets/Rajarshi-Roy-research/Defactify_Text_Dataset/resolve/main/data"
+HF_BASE = (
+    "https://huggingface.co/datasets/Rajarshi-Roy-research/Defactify_Text_Dataset/resolve/main/data"
+)
 SPLITS: dict[str, dict] = {
     "train": {
         "file": "train-00000-of-00001.parquet",
@@ -110,7 +112,10 @@ def _download(url: str, dest: Path, expected_sha256: str, expected_bytes: int) -
     actual = sha256_file(dest)
     if actual != expected_sha256:
         dest.unlink(missing_ok=True)
-        raise FetchError(f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; refusing to use unverified data")
+        raise FetchError(
+            f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; "
+            "refusing to use unverified data"
+        )
 
 
 def clean_split(raw_path: Path, clean_path: Path) -> dict:
@@ -127,7 +132,9 @@ def clean_split(raw_path: Path, clean_path: Path) -> dict:
     frame["text"] = frame["text"].astype(str).str.strip()
     frame = frame.loc[frame["text"].str.len() > 0]
 
-    dup_mask = frame["text"].map(lambda t: hashlib.sha256(t.encode("utf-8")).hexdigest()).duplicated()
+    dup_mask = (
+        frame["text"].map(lambda t: hashlib.sha256(t.encode("utf-8")).hexdigest()).duplicated()
+    )
     counts["dropped_exact_duplicates"] = int(dup_mask.sum())
     frame = frame.loc[~dup_mask]
 
@@ -152,12 +159,17 @@ def clean_split(raw_path: Path, clean_path: Path) -> dict:
 def pointer_manifest(manifest: dict) -> dict:
     splits = {}
     for name, entry in manifest["splits"].items():
-        splits[name] = {"groups": ["story (reconstructed at load time via TF-IDF clustering)"], "n": entry["rows_clean"]}
+        splits[name] = {
+            "groups": ["story (reconstructed at load time via TF-IDF clustering)"],
+            "n": entry["rows_clean"],
+        }
     payload = {
         "schema": "panoptes-dataset-manifest-v1",
         "id": "defactify-text",
         "kind": "prose",
-        "title": "Defactify_Text_Dataset — NYT human articles vs six LLM families (Roy et al. 2026)",
+        "title": (
+            "Defactify_Text_Dataset — NYT human articles vs six LLM families (Roy et al. 2026)"
+        ),
         "license": {
             "spdx": "CC-BY-4.0",
             "redistributable": False,
@@ -165,13 +177,18 @@ def pointer_manifest(manifest: dict) -> dict:
         },
         "source": {
             "url": "https://huggingface.co/datasets/Rajarshi-Roy-research/Defactify_Text_Dataset",
-            "version": f"pinned-sha256 train:{SPLITS['train']['sha256'][:12]} validation:{SPLITS['validation']['sha256'][:12]} test:{SPLITS['test']['sha256'][:12]}",
+            "version": (
+                f"pinned-sha256 train:{SPLITS['train']['sha256'][:12]} "
+                f"validation:{SPLITS['validation']['sha256'][:12]} "
+                f"test:{SPLITS['test']['sha256'][:12]}"
+            ),
             "access": "public",
             "download_instructions": (
-                "Run `python -m bench.fetch_defactify`. The script downloads the three parquet splits "
-                "from Hugging Face, verifies them against pinned SHA-256 hashes, applies documented hygiene "
-                "filters, and stores clean parquet files under datasets/local/defactify/ (gitignored). "
-                "Raw text is never committed to this repository."
+                "Run `python -m bench.fetch_defactify`. The script downloads the three "
+                "parquet splits from Hugging Face, verifies them against pinned SHA-256 "
+                "hashes, applies documented hygiene filters, and stores clean parquet "
+                "files under datasets/local/defactify/ (gitignored). Raw text is never "
+                "committed to this repository."
             ),
         },
         "content_hash": {
@@ -186,7 +203,11 @@ def pointer_manifest(manifest: dict) -> dict:
         },
         "labels": {
             "schema": "binary_ai",
-            "values": ["human (Label_A=0, Label_B=Human_Story)", "ai (Label_A=1, Label_B in {Gemma-2-9B, Mistral-7B, Qwen-2-72B, Llama-8B, Yi-Large, GPT-4o})"],
+            "values": [
+                "human (Label_A=0, Label_B=Human_Story)",
+                "ai (Label_A=1, Label_B in {Gemma-2-9B, Mistral-7B, Qwen-2-72B, Llama-8B, "
+                "Yi-Large, GPT-4o})",
+            ],
         },
         "privacy": {
             "contains_pii_risk": "low",
@@ -194,10 +215,14 @@ def pointer_manifest(manifest: dict) -> dict:
             "sanitization": "hashes-only",
         },
         "limitations": [
-            "Domain is New York Times news prose; findings do not transfer automatically to other registers.",
-            "Upstream dataset contained API-error artifacts labeled as GPT-4o output; filtered at fetch time (counts in fetch-manifest.json).",
-            "AI texts are single-prompt rewrites of the human stories; story groups are reconstructed at load time via TF-IDF near-duplicate clustering.",
-            "Dataset repository declares no separate license; the associated paper is CC BY 4.0. We redistribute hashes and fitted parameters only.",
+            "Domain is New York Times news prose; findings do not transfer automatically "
+            "to other registers.",
+            "Upstream dataset contained API-error artifacts labeled as GPT-4o output; "
+            "filtered at fetch time (counts in fetch-manifest.json).",
+            "AI texts are single-prompt rewrites of the human stories; story groups are "
+            "reconstructed at load time via TF-IDF near-duplicate clustering.",
+            "Dataset repository declares no separate license; the associated paper is "
+            "CC BY 4.0. We redistribute hashes and fitted parameters only.",
         ],
         "notice_entry_required": True,
     }
@@ -214,7 +239,12 @@ def write_summary() -> Path:
     family_counts: dict[str, int] = {}
     for family in dataset.families:
         family_counts[family] = family_counts.get(family, 0) + 1
-    hygiene = {"rows_raw": 0, "dropped_error_artifacts": 0, "dropped_exact_duplicates": 0, "dropped_under_50_tokens": 0}
+    hygiene = {
+        "rows_raw": 0,
+        "dropped_error_artifacts": 0,
+        "dropped_exact_duplicates": 0,
+        "dropped_under_50_tokens": 0,
+    }
     for entry in manifest["splits"].values():
         for key in hygiene:
             hygiene[key] += int(entry[key])
@@ -244,8 +274,16 @@ def write_summary() -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="verify local files against the manifest without downloading")
-    parser.add_argument("--summary", action="store_true", help="write the signed defactify-summary.json artifact for the UI")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verify local files against the manifest without downloading",
+    )
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="write the signed defactify-summary.json artifact for the UI",
+    )
     args = parser.parse_args()
 
     if args.summary:
@@ -278,9 +316,12 @@ def main() -> int:
         counts["source_sha256"] = spec["sha256"]
         counts["source_bytes"] = spec["bytes"]
         splits[name] = counts
-        print(f"{name}: {counts['rows_raw']} raw -> {counts['rows_clean']} clean "
-              f"(errors {counts['dropped_error_artifacts']}, dups {counts['dropped_exact_duplicates']}, "
-              f"short {counts['dropped_under_50_tokens']})")
+        print(
+            f"{name}: {counts['rows_raw']} raw -> {counts['rows_clean']} clean "
+            f"(errors {counts['dropped_error_artifacts']}, "
+            f"dups {counts['dropped_exact_duplicates']}, "
+            f"short {counts['dropped_under_50_tokens']})"
+        )
 
     combined = hashlib.sha256(
         "".join(splits[name]["clean_sha256"] for name in sorted(splits)).encode("ascii")
@@ -288,7 +329,7 @@ def main() -> int:
     manifest = {
         "schema": "panoptes-defactify-fetch-v1",
         "dataset": "Rajarshi-Roy-research/Defactify_Text_Dataset",
-        "created_utc": prior_created or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": prior_created or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "min_word_tokens": MIN_WORD_TOKENS,
         "splits": splits,
         "combined_sha256": combined,

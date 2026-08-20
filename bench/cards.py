@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from bench.datasets import Dataset
@@ -53,9 +53,16 @@ def dataset_datasheet(dataset: Dataset) -> dict:
             "defaults. Human controls: original texts written by project authors. "
             "Community datasets: contributor-declared labels."
         ),
-        "labeling": "Labels are declared at ingestion and verified structurally (manifest hashes); content labels are contributor claims.",
-        "recommended_uses": "Model evaluation and calibration research. Not for training generators.",
-        "distribution": "Hash-pointer manifests only for community data; raw text stays with the contributor.",
+        "labeling": (
+            "Labels are declared at ingestion and verified structurally (manifest hashes); "
+            "content labels are contributor claims."
+        ),
+        "recommended_uses": (
+            "Model evaluation and calibration research. Not for training generators."
+        ),
+        "distribution": (
+            "Hash-pointer manifests only for community data; raw text stays with the contributor."
+        ),
         "maintenance": "Maintained by the Panoptes project; corrections via pull request.",
     }
 
@@ -75,7 +82,7 @@ def model_card(
     card = {
         "schema": CARD_SCHEMA,
         "model": {"name": model_name, "tier": tier},
-        "created_utc": created_utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": created_utc or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "intended_use": (
             "Research-grade AI-text detection support with visible uncertainty. "
             "Not for high-stakes automated decisions about individuals."

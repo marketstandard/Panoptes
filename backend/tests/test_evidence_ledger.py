@@ -12,6 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from panoptes.analysis.detectors import DetectorScore
+from panoptes.analysis.evidence import build_evidence_ledger
 from panoptes.schemas import (
     EvidenceChannel,
     EvidenceEntry,
@@ -24,7 +25,6 @@ from panoptes.schemas import (
     WatermarkEvidence,
     WatermarkResult,
 )
-from panoptes.analysis.evidence import build_evidence_ledger
 
 
 def _distribution(ai: float = 0.7) -> OutcomeDistribution:
@@ -162,7 +162,13 @@ def test_fusion_note_states_no_fusion_rule() -> None:
 def test_ledger_serializes_to_json() -> None:
     ledger = _ledger()
     payload = ledger.model_dump(mode="json")
-    assert set(payload) >= {"statistical", "watermark", "provenance", "channel_summaries", "fusion_note"}
+    assert set(payload) >= {
+        "statistical",
+        "watermark",
+        "provenance",
+        "channel_summaries",
+        "fusion_note",
+    }
 
 
 def test_pipeline_response_includes_ledger() -> None:

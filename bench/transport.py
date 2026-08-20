@@ -31,12 +31,11 @@ same path so the data firewall is enforced uniformly.
 
 from __future__ import annotations
 
-import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
-
 from sklearn.metrics import roc_auc_score
 
 from bench import validity
@@ -65,7 +64,9 @@ def cohort_keys(dataset: Dataset, axis: str) -> np.ndarray:
         raise ValueError(f"unknown cohort axis {axis!r}; expected one of {COHORT_AXES}")
     if axis == "dataset":
         if dataset.datasets is None:
-            raise ValueError("axis='dataset' requires a pooled Dataset with per-row `datasets` labels")
+            raise ValueError(
+                "axis='dataset' requires a pooled Dataset with per-row `datasets` labels"
+            )
         return np.array([str(d) for d in dataset.datasets])
     if axis == "domain":
         return np.array([str(d) for d in dataset.domains])
@@ -119,7 +120,9 @@ def transport_cell_metrics(
         "n_groups": int(len(set(groups.tolist()))),
         "n_calibration": int(len(cal_labels)),
         "target_prevalence": float(test_labels.mean()) if len(test_labels) else float("nan"),
-        "source_calibration_prevalence": float(cal_labels.mean()) if len(cal_labels) else float("nan"),
+        "source_calibration_prevalence": float(cal_labels.mean())
+        if len(cal_labels)
+        else float("nan"),
     }
     if not len(test_labels) or not _both_classes(test_labels):
         out.update(
@@ -179,7 +182,9 @@ def fit_source_scorer(
     """Fit the detector on ``train_idx`` and the isotonic map on ``cal_idx`` only."""
     detector = detector_factory()
     detector.fit(dataset, np.asarray(train_idx, dtype=int))
-    raw_cal = np.asarray(detector.predict_proba(dataset, np.asarray(cal_idx, dtype=int)), dtype=float)
+    raw_cal = np.asarray(
+        detector.predict_proba(dataset, np.asarray(cal_idx, dtype=int)), dtype=float
+    )
     cal_labels = dataset.labels[np.asarray(cal_idx, dtype=int)]
     calibrator = fit_isotonic(raw_cal, cal_labels)
     if calibrator is None:
@@ -221,7 +226,11 @@ def leave_one_cohort_out(
     index = cohort_index(dataset, axis)
     for cohort, target_idx in index.items():
         if len(target_idx) < min_cohort or not _both_classes(dataset.labels[target_idx]):
-            cells[cohort] = {"skipped": True, "reason": "too small or single-class", "n": int(len(target_idx))}
+            cells[cohort] = {
+                "skipped": True,
+                "reason": "too small or single-class",
+                "n": int(len(target_idx)),
+            }
             continue
         source_mask = np.ones(len(dataset), dtype=bool)
         source_mask[target_idx] = False
@@ -230,10 +239,18 @@ def leave_one_cohort_out(
         try:
             split = holdout_split(source, fractions=(0.7, 0.2, 0.1), seed=seed)
         except Exception as exc:
-            cells[cohort] = {"skipped": True, "reason": f"source split failed: {exc}", "n": int(len(target_idx))}
+            cells[cohort] = {
+                "skipped": True,
+                "reason": f"source split failed: {exc}",
+                "n": int(len(target_idx)),
+            }
             continue
         scorer = fit_source_scorer(
-            detector_factory, source, split.train, split.calibration, detector_id=f"loco-exclude-{cohort}"
+            detector_factory,
+            source,
+            split.train,
+            split.calibration,
+            detector_id=f"loco-exclude-{cohort}",
         )
         # Source diagonal (seen) reference.
         diag_raw = scorer.raw(source, split.test)
@@ -310,7 +327,11 @@ def calibration_transfer(
     """
     split = holdout_split(dataset, fractions=(0.6, 0.2, 0.2), seed=seed)
     scorer = fit_source_scorer(
-        detector_factory, dataset, split.train, split.calibration, detector_id="calibration-transfer-frozen"
+        detector_factory,
+        dataset,
+        split.train,
+        split.calibration,
+        detector_id="calibration-transfer-frozen",
     )
     keys = cohort_keys(dataset, axis)
     cal_idx = split.calibration
@@ -469,7 +490,11 @@ def dataset_origin_probe(
     keys = cohort_keys(dataset, axis)
     cohorts = sorted(set(keys.tolist()))
     if len(cohorts) < 2:
-        return {"axis": axis, "n_cohorts": len(cohorts), "note": "need >=2 cohorts for an origin probe"}
+        return {
+            "axis": axis,
+            "n_cohorts": len(cohorts),
+            "note": "need >=2 cohorts for an origin probe",
+        }
     X = dataset.features()
     # Standardize so the multinomial probe converges; features are on mixed scales.
     X = np.asarray(X, dtype=float)
@@ -542,7 +567,12 @@ def source_balanced_sensitivity(
     natural = float(labels.mean()) if len(labels) else float("nan")
     views = validity.standardized_prevalence_metrics(labels, probs, target_prevalence)
     boot = validity.group_bootstrap_ci(
-        labels, probs, np.asarray(list(groups)), lambda y, p: float(roc_auc_score(y, p)), n_boot=n_boot, seed=seed
+        labels,
+        probs,
+        np.asarray(list(groups)),
+        lambda y, p: float(roc_auc_score(y, p)),
+        n_boot=n_boot,
+        seed=seed,
     )
     return {
         "natural_prevalence": natural,
@@ -569,9 +599,10 @@ def _delta(reference: dict | None, cell: dict) -> dict:
     for key in ("auroc", "auprc", "brier", "ece", "calibration_slope"):
         a = cell.get(key)
         b = reference.get(key)
-        if isinstance(a, (int, float)) and isinstance(b, (int, float)):
-            if a == a and b == b:  # not NaN
-                out[f"delta_{key}"] = float(a - b)
+        if (
+            isinstance(a, (int, float)) and isinstance(b, (int, float)) and a == a and b == b
+        ):  # not NaN
+            out[f"delta_{key}"] = float(a - b)
     return out
 
 
@@ -624,6 +655,8 @@ def _calibration_transfer_summary(matrix: dict[str, dict[str, dict]]) -> dict:
         "on_diagonal_mean_brier": float(np.mean(on_brier)) if on_brier else float("nan"),
         "off_diagonal_mean_brier": float(np.mean(off_brier)) if off_brier else float("nan"),
         "calibration_transport_auroc_gap": (
-            float(np.mean(on_auroc) - np.mean(off_auroc)) if on_auroc and off_auroc else float("nan")
+            float(np.mean(on_auroc) - np.mean(off_auroc))
+            if on_auroc and off_auroc
+            else float("nan")
         ),
     }

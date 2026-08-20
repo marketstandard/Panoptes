@@ -33,7 +33,9 @@ def test_load_bundle_reads_committed_artifact():
 
 def test_load_bundle_missing_returns_none(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        calibration_bundle, "_candidate_paths", lambda _dir, _name=calibration_bundle.DEFAULT_BUNDLE: [tmp_path / "nowhere.json"]
+        calibration_bundle,
+        "_candidate_paths",
+        lambda _dir, _name=calibration_bundle.DEFAULT_BUNDLE: [tmp_path / "nowhere.json"],
     )
     assert load_bundle("artifacts") is None
 
@@ -44,7 +46,9 @@ def test_load_bundle_tampered_returns_none(tmp_path, monkeypatch):
     forged = tmp_path / "baseline-calibration.json"
     forged.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     monkeypatch.setattr(
-        calibration_bundle, "_candidate_paths", lambda _dir, _name=calibration_bundle.DEFAULT_BUNDLE: [forged]
+        calibration_bundle,
+        "_candidate_paths",
+        lambda _dir, _name=calibration_bundle.DEFAULT_BUNDLE: [forged],
     )
     assert load_bundle("artifacts") is None
 
@@ -131,7 +135,9 @@ def test_missing_selected_bundle_falls_back_to_default(tmp_path, monkeypatch):
 
 
 def test_pipeline_honors_bundle_setting():
-    settings = Settings(profile=RuntimeProfile.LOCAL_CPU, calibration_bundle="defactify-calibration.json")
+    settings = Settings(
+        profile=RuntimeProfile.LOCAL_CPU, calibration_bundle="defactify-calibration.json"
+    )
     response = analyze(AnalysisRequest(text=PROSE), settings)
     assert response.calibration is not None
     assert response.calibration.bundle == "defactify-text-v1"
@@ -161,10 +167,14 @@ def test_pipeline_calibrates_supported_prose():
     # abstains and the isotonic path is skipped. This regression test uses
     # above-threshold prose so the calibrator actually transforms the score
     # (a frozen-dataclass crash here previously 500'd the endpoint).
-    long_prose = PROSE + " " + (
-        "The review board examined each submission against the published criteria and "
-        "recorded its reasoning in the minutes; observers noted the deliberation was "
-        "methodical, transparent, and grounded in the documented evidence base."
+    long_prose = (
+        PROSE
+        + " "
+        + (
+            "The review board examined each submission against the published criteria and "
+            "recorded its reasoning in the minutes; observers noted the deliberation was "
+            "methodical, transparent, and grounded in the documented evidence base."
+        )
     )
     settings = Settings(profile=RuntimeProfile.LOCAL_CPU)
     response = analyze(AnalysisRequest(text=long_prose), settings)

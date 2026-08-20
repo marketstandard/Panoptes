@@ -42,14 +42,22 @@ HUMAN = [
     "he fixed the leaky faucet in the bathroom",
 ]
 AI = [
-    "Furthermore, we utilize comprehensive methodologies to demonstrate substantial improvements across benchmarks.",
-    "Moreover, the implementation leverages state-of-the-art techniques to optimize performance metrics.",
-    "Consequently, the proposed framework facilitates robust generalization across diverse distribution shifts.",
-    "Additionally, our approach demonstrates significant enhancements in computational efficiency and scalability.",
-    "Subsequently, the empirical evaluation reveals considerable advancements over existing baseline methodologies.",
-    "Nevertheless, the comprehensive analysis underscores the importance of rigorous experimental design.",
-    "Therefore, we present a novel architecture that effectively addresses these fundamental challenges.",
-    "Overall, the extensive experiments substantiate the effectiveness of our proposed methodological contributions.",
+    "Furthermore, we utilize comprehensive methodologies "
+    "to demonstrate substantial improvements across benchmarks.",
+    "Moreover, the implementation leverages state-of-the-art techniques "
+    "to optimize performance metrics.",
+    "Consequently, the proposed framework facilitates robust generalization "
+    "across diverse distribution shifts.",
+    "Additionally, our approach demonstrates significant enhancements "
+    "in computational efficiency and scalability.",
+    "Subsequently, the empirical evaluation reveals considerable advancements "
+    "over existing baseline methodologies.",
+    "Nevertheless, the comprehensive analysis underscores "
+    "the importance of rigorous experimental design.",
+    "Therefore, we present a novel architecture "
+    "that effectively addresses these fundamental challenges.",
+    "Overall, the extensive experiments substantiate "
+    "the effectiveness of our proposed methodological contributions.",
 ]
 
 

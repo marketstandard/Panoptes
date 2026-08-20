@@ -23,7 +23,12 @@ def _minimal_card() -> dict:
         "aggregation": "overlap_corrected_logit_mean",
         "window": {"max_length": 512, "overlap": 128},
         "status": "ok",
-        "dev": {"worst_cohort_auroc": 0.9, "auroc": 0.93, "brier": 0.08, "worst_cohort_brier": 0.12},
+        "dev": {
+            "worst_cohort_auroc": 0.9,
+            "auroc": 0.93,
+            "brier": 0.08,
+            "worst_cohort_brier": 0.12,
+        },
         "latency": {"ms_per_doc": 12.5},
     }
     return {
@@ -95,7 +100,9 @@ def test_real_pilot_card_validates_and_freezes_winner():
 
     card_path = ROOT / "backend" / "artifacts" / "cards" / "neural-pilot.json"
     if not card_path.exists():
-        pytest.skip("pilot card not present; private training runner not shipped in the public repo")
+        pytest.skip(
+            "pilot card not present; private training runner not shipped in the public repo"
+        )
     assert validate_file(card_path) == []
     card = json.loads(card_path.read_text(encoding="utf-8"))
     # The winner must be one of the evaluated ok runs, and every run recorded.

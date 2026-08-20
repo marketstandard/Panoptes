@@ -34,7 +34,9 @@ class ProtocolSplit:
         _assert_index_disjoint(self.train, self.calibration, self.test)
         _assert_group_disjoint(dataset.groups, self.train, self.calibration, self.test, "group")
         if dataset.enforce_author_disjoint and dataset.authors is not None:
-            _assert_group_disjoint(dataset.authors, self.train, self.calibration, self.test, "author")
+            _assert_group_disjoint(
+                dataset.authors, self.train, self.calibration, self.test, "author"
+            )
         if dataset.domains:
             # Domain overlap is allowed for in-domain evaluation; source/story
             # leakage is already covered by `groups` for Defactify.
@@ -89,7 +91,9 @@ def _assign_groups(
 ) -> tuple[set[str], set[str], set[str]]:
     unique = _unique_in_order(groups)
     if len(unique) < 3:
-        raise SplitError(f"need at least 3 groups to form train/calibration/test, found {len(unique)}")
+        raise SplitError(
+            f"need at least 3 groups to form train/calibration/test, found {len(unique)}"
+        )
     rng = np.random.default_rng(seed)
     order = rng.permutation(len(unique))
     shuffled = [unique[i] for i in order]

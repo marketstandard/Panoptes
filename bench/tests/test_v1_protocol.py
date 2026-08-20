@@ -7,15 +7,14 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from bench import mixtures, robustness  # noqa: E402
-from bench.tests.test_bench import tiny_dataset  # noqa: E402
 from bench.reproduce import reproduce  # noqa: E402
+from bench.tests.test_bench import tiny_dataset  # noqa: E402
 
 
 def test_paper_is_v2_with_named_authors():
@@ -58,8 +57,7 @@ def test_mixture_workflows_all_run():
         families.append("human")
         texts.append(
             "Furthermore, the systematic approach improves overall reliability. "
-            f"Moreover, iteration {i} additionally reinforces consistent verification."
-            + pad_a
+            f"Moreover, iteration {i} additionally reinforces consistent verification." + pad_a
         )
         labels.append(1)
         families.append("ai-x")

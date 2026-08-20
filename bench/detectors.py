@@ -21,7 +21,7 @@ from bench.models import GbmTier1, LogisticTier0
 class Detector(Protocol):
     name: str
 
-    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> "Detector": ...
+    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> Detector: ...
 
     def predict_proba(self, dataset: Dataset, idx: np.ndarray) -> np.ndarray: ...
 
@@ -31,7 +31,7 @@ class HeuristicDetector:
     name: str = "panoptes-heuristic"
     fitted: bool = False
 
-    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> "HeuristicDetector":
+    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> HeuristicDetector:
         self.fitted = True
         return self
 
@@ -49,7 +49,7 @@ class FeatureDetector:
     _model: Any = field(default=None, repr=False)
     _constant: float | None = field(default=None, repr=False)
 
-    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> "FeatureDetector":
+    def fit(self, dataset: Dataset, train_idx: np.ndarray) -> FeatureDetector:
         X = dataset.features()[train_idx]
         y = dataset.labels[train_idx]
         self._constant = None

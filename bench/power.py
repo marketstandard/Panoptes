@@ -41,7 +41,9 @@ def _z(value: float) -> float:
     return float(NormalDist().inv_cdf(value))
 
 
-def required_n(per_observation_variance: float, mde: float, alpha: float = ALPHA, power: float = TARGET_POWER) -> int:
+def required_n(
+    per_observation_variance: float, mde: float, alpha: float = ALPHA, power: float = TARGET_POWER
+) -> int:
     """Normal-approximation required n to detect `mde` in a mean-type metric."""
     if per_observation_variance <= 0 or mde <= 0:
         return 0

@@ -27,7 +27,13 @@ def _detect(text: str, kind: str):
 def _summarize(results: list) -> dict:
     tested = [row for row in results if row.status == "tested" and row.p_value is not None]
     if not tested:
-        return {"n": len(results), "n_tested": 0, "empirical_reject_0.05": None, "mean_z": None, "mean_power": None}
+        return {
+            "n": len(results),
+            "n_tested": 0,
+            "empirical_reject_0.05": None,
+            "mean_z": None,
+            "mean_power": None,
+        }
     rejects = sum(1 for row in tested if row.p_value < 0.05)
     return {
         "n": len(results),
@@ -60,10 +66,14 @@ def watermark_degradation(dataset: Dataset) -> dict:
                 "ai": _summarize(ai),
             }
         )
-    fpr = next(row["human"]["empirical_reject_0.05"] for row in rows if row["condition"] == "untouched")
+    fpr = next(
+        row["human"]["empirical_reject_0.05"] for row in rows if row["condition"] == "untouched"
+    )
     tpr = {
         row["condition"]: (
-            row["ai"]["empirical_reject_0.05"] if row["ai"]["empirical_reject_0.05"] is not None else 0.0
+            row["ai"]["empirical_reject_0.05"]
+            if row["ai"]["empirical_reject_0.05"] is not None
+            else 0.0
         )
         for row in rows
     }
@@ -87,9 +97,12 @@ def watermark_degradation(dataset: Dataset) -> dict:
         },
         "conditions": rows,
         "limitations": [
-            "The project corpus is not a watermarked generation set; AI documents are ordinary model outputs.",
-            "Empirical reject rates therefore measure Type I behavior of the public detector, not TPR of a known watermark.",
-            "Truncation, token drop, and sentence shuffle are proxy edits, not paraphrase, translation, or adversarial rewriting.",
+            "The project corpus is not a watermarked generation set; "
+            "AI documents are ordinary model outputs.",
+            "Empirical reject rates therefore measure Type I behavior "
+            "of the public detector, not TPR of a known watermark.",
+            "Truncation, token drop, and sentence shuffle are proxy edits, "
+            "not paraphrase, translation, or adversarial rewriting.",
             "Watermark results must not be blended into the passive AI-attribution claim.",
         ],
     }

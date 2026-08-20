@@ -59,9 +59,26 @@ TRUSTED_WARNING = (
 # Env vars that commonly hold credentials; dropped from the subprocess env so a
 # malicious repo cannot read them from its process environment.
 _SECRET_ENV_PREFIXES = (
-    "AWS_", "AZURE_", "GCP_", "GOOGLE_", "OPENAI", "ANTHROPIC", "HF_",
-    "HUGGING", "STRIPE", "GITHUB_", "GH_", "SLACK_", "SUPABASE", "VERCEL",
-    "SENTRY", "DATABASE_URL", "SECRET", "TOKEN", "PASSWORD", "API_KEY",
+    "AWS_",
+    "AZURE_",
+    "GCP_",
+    "GOOGLE_",
+    "OPENAI",
+    "ANTHROPIC",
+    "HF_",
+    "HUGGING",
+    "STRIPE",
+    "GITHUB_",
+    "GH_",
+    "SLACK_",
+    "SUPABASE",
+    "VERCEL",
+    "SENTRY",
+    "DATABASE_URL",
+    "SECRET",
+    "TOKEN",
+    "PASSWORD",
+    "API_KEY",
 )
 
 
@@ -77,7 +94,7 @@ class AdapterSpec:
 
 
 def _repo_sha(url: str, ref: str | None) -> str:
-    return hashlib.sha256(f"{url}@{ref or 'HEAD'}".encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(f"{url}@{ref or 'HEAD'}".encode()).hexdigest()[:16]
 
 
 def clone_repo(url: str, ref: str | None = None, dest_root: Path = REPOS_DIR) -> Path:
@@ -91,7 +108,9 @@ def clone_repo(url: str, ref: str | None = None, dest_root: Path = REPOS_DIR) ->
     if ref:
         subprocess.run(
             ["git", "-C", str(dest), "fetch", "--depth", "1", "origin", ref],
-            check=True, capture_output=True, text=True,
+            check=True,
+            capture_output=True,
+            text=True,
         )
         subprocess.run(
             ["git", "-C", str(dest), "checkout", ref], check=True, capture_output=True, text=True
@@ -164,15 +183,30 @@ def run_adapter(
         outp = Path(td) / "output.json"
         inp.write_text(json.dumps(texts), encoding="utf-8")
         cmd = [
-            sys.executable, str(RUNNER),
-            "--repo", str(repo_dir), "--module", spec.module, "--callable", spec.callable,
-            "--kind", spec.kind, "--input", str(inp), "--output", str(outp),
+            sys.executable,
+            str(RUNNER),
+            "--repo",
+            str(repo_dir),
+            "--module",
+            spec.module,
+            "--callable",
+            spec.callable,
+            "--kind",
+            spec.kind,
+            "--input",
+            str(inp),
+            "--output",
+            str(outp),
         ]
         if docker:
             cmd = _docker_wrap(cmd, repo_dir, Path(td), docker_image)
         proc = subprocess.run(
-            cmd, cwd=str(repo_dir), env=None if docker else _sandbox_env(),
-            timeout=timeout, capture_output=True, text=True,
+            cmd,
+            cwd=str(repo_dir),
+            env=None if docker else _sandbox_env(),
+            timeout=timeout,
+            capture_output=True,
+            text=True,
         )
         if proc.returncode != 0:
             raise RuntimeError(
@@ -188,9 +222,17 @@ def _docker_wrap(cmd: list[str], repo_dir: Path, td: Path, image: str) -> list[s
     the repo's dependencies; the repo and I/O dir are mounted read-only/read-write."""
     inner = cmd[1:]  # drop sys.executable; use the image's python
     return [
-        "docker", "run", "--rm", "--network=none",
-        "-v", f"{repo_dir}:/repo:ro", "-v", f"{td}:/io",
-        image, "python", *inner,
+        "docker",
+        "run",
+        "--rm",
+        "--network=none",
+        "-v",
+        f"{repo_dir}:/repo:ro",
+        "-v",
+        f"{td}:/io",
+        image,
+        "python",
+        *inner,
     ]
 
 
@@ -198,9 +240,10 @@ def _docker_wrap(cmd: list[str], repo_dir: Path, td: Path, image: str) -> list[s
 
 
 def evaluate_remover(repo_dir: Path, spec: AdapterSpec, generations_card: dict, **run_kw) -> dict:
-    from bench.watermark_unicode import detect_unicode_watermark, embed_unicode_watermark
     from panoptes.analysis.watermarks import KGWReferenceAdapter
     from panoptes.schemas import ContentType
+
+    from bench.watermark_unicode import detect_unicode_watermark, embed_unicode_watermark
 
     samples = generations_card["samples"]
     wm = [s["text"] for s in samples if s["kind"] == "watermarked"]
@@ -208,7 +251,7 @@ def evaluate_remover(repo_dir: Path, spec: AdapterSpec, generations_card: dict, 
     uni_in = [embed_unicode_watermark(t) for t in ctrl]
 
     outputs = run_adapter(repo_dir, spec, wm + uni_in, **run_kw)
-    wm_out, uni_out = outputs[: len(wm)], outputs[len(wm):]
+    wm_out, uni_out = outputs[: len(wm)], outputs[len(wm) :]
 
     det = KGWReferenceAdapter()
 
@@ -249,7 +292,7 @@ def evaluate_scheme(repo_dir: Path, spec: AdapterSpec, generations_card: dict, *
     wm = [s["text"] for s in samples if s["kind"] == "watermarked"]
     ctrl = [s["text"] for s in samples if s["kind"] == "control"]
     outputs = run_adapter(repo_dir, spec, wm + ctrl, **run_kw)
-    wm_out, ctrl_out = outputs[: len(wm)], outputs[len(wm):]
+    wm_out, ctrl_out = outputs[: len(wm)], outputs[len(wm) :]
 
     def detected(res) -> bool:
         try:
@@ -266,7 +309,6 @@ def evaluate_scheme(repo_dir: Path, spec: AdapterSpec, generations_card: dict, *
 
 
 def evaluate_detector(repo_dir: Path, spec: AdapterSpec, corpus, **run_kw) -> dict:
-    import numpy as np
 
     from bench.evaluate import evaluate_protocol
     from bench.external_baselines import PrecomputedScoreDetector
@@ -319,8 +361,12 @@ def evaluate_repo(
         "schema": "panoptes-external-repo-eval-v1",
         "repo": {"url": url, "ref": ref or "HEAD", "dir_sha": _repo_sha(url, ref)},
         "adapter": {
-            "kind": spec.kind, "name": spec.name, "version": spec.version,
-            "module": spec.module, "callable": spec.callable, "source": spec.source,
+            "kind": spec.kind,
+            "name": spec.name,
+            "version": spec.version,
+            "module": spec.module,
+            "callable": spec.callable,
+            "source": spec.source,
         },
         "kind": kind,
         "result": result,

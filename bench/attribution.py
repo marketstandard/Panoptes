@@ -27,8 +27,20 @@ if str(ROOT) not in sys.path:
 from bench import cards, evaluate, models  # noqa: E402
 from bench.datasets import Dataset, grouped_splits  # noqa: E402
 
-ATTRIBUTION_CLASSES = ["human", "gemma-2-9b", "gpt-4o", "llama-8b", "mistral-7b", "qwen-2-72b", "yi-large"]
-ROY_ET_AL_ATTRIBUTION = {"low": 0.05, "high": 0.09, "note": "Roy et al. 2026 attribution baselines (paper Table 4)"}
+ATTRIBUTION_CLASSES = [
+    "human",
+    "gemma-2-9b",
+    "gpt-4o",
+    "llama-8b",
+    "mistral-7b",
+    "qwen-2-72b",
+    "yi-large",
+]
+ROY_ET_AL_ATTRIBUTION = {
+    "low": 0.05,
+    "high": 0.09,
+    "note": "Roy et al. 2026 attribution baselines (paper Table 4)",
+}
 
 
 class AttributionError(RuntimeError):
@@ -46,13 +58,13 @@ def _class_index(dataset: Dataset) -> np.ndarray:
 def _f1_report(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     from sklearn.metrics import confusion_matrix, f1_score
 
-    per_family = f1_score(y_true, y_pred, average=None, labels=list(range(len(ATTRIBUTION_CLASSES))))
+    per_family = f1_score(
+        y_true, y_pred, average=None, labels=list(range(len(ATTRIBUTION_CLASSES)))
+    )
     return {
         "macro_f1": float(f1_score(y_true, y_pred, average="macro")),
         "accuracy": float(np.mean(y_true == y_pred)),
-        "per_family_f1": {
-            name: float(per_family[i]) for i, name in enumerate(ATTRIBUTION_CLASSES)
-        },
+        "per_family_f1": {name: float(per_family[i]) for i, name in enumerate(ATTRIBUTION_CLASSES)},
         "confusion_matrix": confusion_matrix(
             y_true, y_pred, labels=list(range(len(ATTRIBUTION_CLASSES)))
         ).tolist(),
@@ -155,7 +167,9 @@ def dirichlet_attribution_cv(dataset: Dataset, seeds: tuple[int, ...] = (13, 42,
             with torch.no_grad():
                 for start in range(0, len(test), 4096):
                     sl = slice(start, min(start + 4096, len(test)))
-                    xt_ = torch.tensor((X[test][sl] - mean) / scale, dtype=torch.float32, device=device)
+                    xt_ = torch.tensor(
+                        (X[test][sl] - mean) / scale, dtype=torch.float32, device=device
+                    )
                     ct_ = torch.tensor(chars[test][sl], dtype=torch.long, device=device)
                     oof[test][sl] = net(xt_, ct_)["probs"].cpu().numpy()
         oof_seeds.append(oof)
@@ -166,22 +180,34 @@ def dirichlet_attribution_cv(dataset: Dataset, seeds: tuple[int, ...] = (13, 42,
     return report
 
 
-def run_attribution(dataset: Dataset, created_utc: str | None = None, skip_dirichlet: bool = False) -> dict:
+def run_attribution(
+    dataset: Dataset, created_utc: str | None = None, skip_dirichlet: bool = False
+) -> dict:
     """Full attribution experiment: both contenders, signed card."""
     gate = models.power_gate(len(dataset))
     print(f"attribution experiment: {len(ATTRIBUTION_CLASSES)} classes, n={len(dataset)}")
 
     logistic = logistic_attribution_cv(dataset)
-    print(f"multinomial logistic: macro-F1 {logistic['macro_f1']:.3f}, accuracy {logistic['accuracy']:.3f}")
+    print(
+        f"multinomial logistic: macro-F1 {logistic['macro_f1']:.3f}, "
+        f"accuracy {logistic['accuracy']:.3f}"
+    )
 
-    contenders = {"multinomial-logistic": {k: v for k, v in logistic.items() if k != "oof_probabilities"}}
+    contenders = {
+        "multinomial-logistic": {k: v for k, v in logistic.items() if k != "oof_probabilities"}
+    }
     best_oof = logistic["oof_probabilities"]
     best_name = "multinomial-logistic"
 
     if not skip_dirichlet:
         dirichlet = dirichlet_attribution_cv(dataset)
-        print(f"K=7 Dirichlet net: macro-F1 {dirichlet['macro_f1']:.3f}, accuracy {dirichlet['accuracy']:.3f}")
-        contenders["panoptes-v0-dirichlet-k7"] = {k: v for k, v in dirichlet.items() if k != "oof_probabilities"}
+        print(
+            f"K=7 Dirichlet net: macro-F1 {dirichlet['macro_f1']:.3f}, "
+            f"accuracy {dirichlet['accuracy']:.3f}"
+        )
+        contenders["panoptes-v0-dirichlet-k7"] = {
+            k: v for k, v in dirichlet.items() if k != "oof_probabilities"
+        }
         if dirichlet["macro_f1"] >= logistic["macro_f1"]:
             best_oof = dirichlet["oof_probabilities"]
             best_name = "panoptes-v0-dirichlet-k7"
@@ -192,7 +218,10 @@ def run_attribution(dataset: Dataset, created_utc: str | None = None, skip_diric
     binary_ci = evaluate.auroc_ci(dataset.labels, p_ai)
 
     evaluation = {
-        "protocol": "GroupKFold(5) by reconstructed story group; 7-class out-of-fold; binary metrics derived as P(AI) = 1 - P(human).",
+        "protocol": (
+            "GroupKFold(5) by reconstructed story group; 7-class out-of-fold; "
+            "binary metrics derived as P(AI) = 1 - P(human)."
+        ),
         "metrics": binary,
         "auroc_ci95": binary_ci,
         "reliability_bins": evaluate.reliability_bins(dataset.labels, p_ai),
@@ -216,8 +245,10 @@ def run_attribution(dataset: Dataset, created_utc: str | None = None, skip_diric
             "best_by_macro_f1": best_name,
         },
         limitations=[
-            "Exploratory: attribution is far harder than detection; Roy et al. baselines are 5-9% accuracy.",
-            "AI texts are single-prompt rewrites of NYT stories; family cues may be prompt-specific.",
+            "Exploratory: attribution is far harder than detection; Roy et al. baselines "
+            "are 5-9% accuracy.",
+            "AI texts are single-prompt rewrites of NYT stories; family cues may be "
+            "prompt-specific.",
             "Family labels are the generating model names, not verified provenance.",
             "Not for accusing individuals of using a specific model.",
         ],
@@ -227,8 +258,16 @@ def run_attribution(dataset: Dataset, created_utc: str | None = None, skip_diric
                 "best_by_macro_f1": best_name,
                 "external_reference": ROY_ET_AL_ATTRIBUTION,
             },
-            **({"story_groups": dataset.meta["group_reconstruction"]} if dataset.meta.get("group_reconstruction") else {}),
-            **({"leakage_audit": dataset.meta["leakage_audit"]} if dataset.meta.get("leakage_audit") else {}),
+            **(
+                {"story_groups": dataset.meta["group_reconstruction"]}
+                if dataset.meta.get("group_reconstruction")
+                else {}
+            ),
+            **(
+                {"leakage_audit": dataset.meta["leakage_audit"]}
+                if dataset.meta.get("leakage_audit")
+                else {}
+            ),
         },
     )
     out = ROOT / "backend" / "artifacts" / "cards" / "attribution-defactify.json"

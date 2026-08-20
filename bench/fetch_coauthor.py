@@ -37,7 +37,7 @@ import hashlib
 import json
 import urllib.request
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -100,7 +100,7 @@ def _download_metadata() -> None:
         return
     COAUTHOR_DIR.mkdir(parents=True, exist_ok=True)
     url = f"https://docs.google.com/spreadsheets/d/{METADATA_SHEET_ID}/export?format=csv"
-    print(f"[fetch_coauthor] downloading metadata sheet")
+    print("[fetch_coauthor] downloading metadata sheet")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     data = urllib.request.urlopen(req, timeout=60).read()
     META_CSV.write_bytes(data)
@@ -150,7 +150,11 @@ def reconstruct_session(lines: list[str]) -> tuple[str, str] | None:
 
 def _assign_split(worker_id: str) -> str:
     """Deterministic author-disjoint split from a frozen hash of the worker id."""
-    h = int(hashlib.sha256(f"{SPLIT_SEED}:{worker_id}".encode()).hexdigest(), 16) % 10_000 / 10_000.0
+    h = (
+        int(hashlib.sha256(f"{SPLIT_SEED}:{worker_id}".encode()).hexdigest(), 16)
+        % 10_000
+        / 10_000.0
+    )
     acc = 0.0
     for split, prop in SPLIT_PROPORTIONS.items():
         acc += prop
@@ -162,7 +166,7 @@ def _assign_split(worker_id: str) -> str:
 def _pearson(xs: list[float], ys: list[float]) -> float:
     n = len(xs)
     mx, my = sum(xs) / n, sum(ys) / n
-    cov = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    cov = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=False))
     sx = sum((x - mx) ** 2 for x in xs) ** 0.5
     sy = sum((y - my) ** 2 for y in ys) ** 0.5
     return cov / max(sx * sy, 1e-9)
@@ -234,8 +238,8 @@ def main() -> None:
             print(f"  ... {i + 1}/{len(names)} sessions")
 
     pearson = _pearson(val_my, val_official) if len(val_my) > 2 else 0.0
-    mae = sum(abs(x - y) for x, y in zip(val_my, val_official)) / max(len(val_my), 1)
-    print(f"[fetch_coauthor] reconstruction validation vs official written_by_human:")
+    mae = sum(abs(x - y) for x, y in zip(val_my, val_official, strict=True)) / max(len(val_my), 1)
+    print("[fetch_coauthor] reconstruction validation vs official written_by_human:")
     print(f"    n={len(val_my)}  pearson_r={pearson:.4f}  MAE={mae:.4f}")
     if pearson < VALIDATION_MIN_PEARSON:
         raise SystemExit(
@@ -273,17 +277,35 @@ def main() -> None:
         "schema": "panoptes-dataset-manifest-v1",
         "id": "coauthor",
         "kind": "prose",
-        "title": "CoAuthor — Human+GPT-3 collaborative writing with keystroke provenance (Lee et al. 2022)",
+        "title": (
+            "CoAuthor — Human+GPT-3 collaborative writing with keystroke provenance "
+            "(Lee et al. 2022)"
+        ),
         "license": {
             "spdx": "NOASSERTION",
             "redistributable": False,
-            "citation": "@inproceedings{lee2022coauthor, title={CoAuthor: Designing a Human-AI Collaborative Writing Dataset for Exploring Language Model Capabilities}, author={Lee, Mina and Liang, Percy and Yang, Qian}, booktitle={CHI Conference on Human Factors in Computing Systems}, year={2022}, url={https://arxiv.org/abs/2201.06796}}",
+            "citation": (
+                "@inproceedings{lee2022coauthor, title={CoAuthor: Designing a Human-AI "
+                "Collaborative Writing Dataset for Exploring Language Model Capabilities}, "
+                "author={Lee, Mina and Liang, Percy and Yang, Qian}, booktitle={CHI "
+                "Conference on Human Factors in Computing Systems}, year={2022}, "
+                "url={https://arxiv.org/abs/2201.06796}}"
+            ),
         },
         "source": {
             "url": "https://coauthor.stanford.edu",
             "version": "v1.0 (2021 collection; metadata sheet pinned)",
             "access": "public",
-            "download_instructions": "Run `python -m bench.fetch_coauthor`. The script downloads the session zip from Google Drive and the public metadata sheet, replays each session's Quill deltas to reconstruct the final text plus a per-character authorship mask (prompt/user/api), validates the reconstruction against the official written_by_human (Pearson r >= 0.95), filters degenerate sessions, and locks author-disjoint (worker_id) train/development/calibration/test splits. Clean parquet + masks live under datasets/local/coauthor/ (gitignored). Raw text is never committed.",
+            "download_instructions": (
+                "Run `python -m bench.fetch_coauthor`. The script downloads the session zip "
+                "from Google Drive and the public metadata sheet, replays each session's "
+                "Quill deltas to reconstruct the final text plus a per-character authorship "
+                "mask (prompt/user/api), validates the reconstruction against the official "
+                "written_by_human (Pearson r >= 0.95), filters degenerate sessions, and "
+                "locks author-disjoint (worker_id) train/development/calibration/test "
+                "splits. Clean parquet + masks live under datasets/local/coauthor/ "
+                "(gitignored). Raw text is never committed."
+            ),
         },
         "content_hash": {"algorithm": "sha256", "value": _sha256(parquet_path)},
         "splits": {
@@ -305,11 +327,18 @@ def main() -> None:
             "sanitization": "hashes-only",
         },
         "limitations": [
-            "mixed_task cohort: every session used GPT-3, so CoAuthor is NEVER a binary fully-AI positive set.",
-            "Only the 830 sessions with released author metadata (worker_id, written_by_human) are used; 617 sessions without worker ids are excluded to keep splits author-disjoint.",
-            f"development split ({split_n.get('development', 0)} sessions) is held between train and calibration; see the v2.1 split manifest for the four-way firewall.",
-            "Reconstruction is validated against the official written_by_human (see fetch-manifest reconstruction_validation).",
-            "GPT-3 suggestions are text-davinci-002 era (2021); contribution fractions reflect that generator.",
+            "mixed_task cohort: every session used GPT-3, so CoAuthor is NEVER a binary "
+            "fully-AI positive set.",
+            "Only the 830 sessions with released author metadata (worker_id, "
+            "written_by_human) are used; 617 sessions without worker ids are excluded to "
+            "keep splits author-disjoint.",
+            f"development split ({split_n.get('development', 0)} sessions) is held "
+            "between train and calibration; see the v2.1 split manifest for the "
+            "four-way firewall.",
+            "Reconstruction is validated against the official written_by_human "
+            "(see fetch-manifest reconstruction_validation).",
+            "GPT-3 suggestions are text-davinci-002 era (2021); contribution fractions "
+            "reflect that generator.",
         ],
         "notice_entry_required": True,
     }
@@ -321,15 +350,19 @@ def main() -> None:
     prior_created = None
     if FETCH_MANIFEST.exists():
         try:
-            prior_created = json.loads(FETCH_MANIFEST.read_text(encoding="utf-8")).get("created_utc")
+            prior_created = json.loads(FETCH_MANIFEST.read_text(encoding="utf-8")).get(
+                "created_utc"
+            )
         except Exception:
             prior_created = None
     fetch_manifest = {
         "dataset": "coauthor",
         "version": "v1.0",
-        "created_utc": prior_created or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": prior_created or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source": "https://coauthor.stanford.edu (Lee et al. 2022, arXiv:2201.06796)",
-        "license": "NOASSERTION (publicly available for research; no explicit data license; see NOTICE)",
+        "license": (
+            "NOASSERTION (publicly available for research; no explicit data license; see NOTICE)"
+        ),
         "gdrive_file_id": GDRIVE_FILE_ID,
         "metadata_sheet_id": METADATA_SHEET_ID,
         "zip_sha256": _sha256(ZIP_PATH),

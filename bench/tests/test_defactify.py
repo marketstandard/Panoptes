@@ -34,7 +34,9 @@ def _fixture(tmp_path: Path, monkeypatch, records_by_split: dict[str, list[dict]
         json.dumps(
             {
                 "created_utc": "2026-01-01T00:00:00Z",
-                "splits": {split: {"rows_clean": len(rows)} for split, rows in records_by_split.items()},
+                "splits": {
+                    split: {"rows_clean": len(rows)} for split, rows in records_by_split.items()
+                },
                 "artifact_sha256": "0" * 64,
             }
         ),
@@ -68,7 +70,15 @@ def test_load_defactify_maps_labels_and_families(tmp_path, monkeypatch):
     dataset = datasets.load_defactify(splits=("train",))
     assert len(dataset) == len(families)
     assert dataset.labels.tolist() == [0] + [1] * 6
-    assert dataset.families == ["human", "gemma-2-9b", "mistral-7b", "qwen-2-72b", "llama-8b", "yi-large", "gpt-4o"]
+    assert dataset.families == [
+        "human",
+        "gemma-2-9b",
+        "mistral-7b",
+        "qwen-2-72b",
+        "llama-8b",
+        "yi-large",
+        "gpt-4o",
+    ]
     assert dataset.kinds == ["text"] * len(families)
     assert dataset.provenance.startswith("defactify-text")
     assert len(dataset.sha256) == 64
@@ -110,7 +120,10 @@ def test_reconstruct_story_groups_finds_constructed_near_duplicates():
         base = f"Report {story}: the {vocab} dominated the discussion this week."
         texts.append(base)
         for variant in range(3):  # three near-rewrites of the same story
-            texts.append(base + f" Furthermore, officials described the {vocab.split()[0]} outcome as significant ({variant}).")
+            texts.append(
+                base + f" Furthermore, officials described the {vocab.split()[0]} outcome"
+                f" as significant ({variant})."
+            )
     loners = [
         "asteroid telescope orbit comet nasa astronomers tracked the object",
         "ballet dancer theater rehearsal symphony performers captivated audiences",
@@ -150,7 +163,9 @@ def test_leakage_audit_math(tmp_path, monkeypatch):
         _row("Train-only story: " + HUMAN_BODY + "it ended quietly.", 0, "Human_Story"),
     ]
     test = [
-        _row(shared + " Furthermore, the outcome was significant.", 1, "GPT-4o"),  # leaks into train
+        _row(
+            shared + " Furthermore, the outcome was significant.", 1, "GPT-4o"
+        ),  # leaks into train
         _row("Test-only story: " + HUMAN_BODY[::-1] + "nothing followed.", 1, "Llama-8B"),
     ]
     _fixture(tmp_path, monkeypatch, {"train": train, "test": test})
@@ -185,7 +200,10 @@ def _attribution_dataset(n_per_family: int = 8) -> datasets.Dataset:
         families.append("human")
         groups.append(f"story-{story}")
         for family in attribution.ATTRIBUTION_CLASSES[1:]:
-            texts.append(base + f" Furthermore, the {family} rewrite additionally emphasized significance overall.")
+            texts.append(
+                base + f" Furthermore, the {family} rewrite additionally"
+                f" emphasized significance overall."
+            )
             labels.append(1)
             families.append(family)
             groups.append(f"story-{story}")

@@ -49,9 +49,13 @@ def _valid_operating_block(
     )
     return {
         "conformal": validity.apply_conformal(test_probs, test_labels, conformal_fit),
-        "operating_points": validity.tpr_at_fixed_thresholds(test_labels, test_probs, fpr_thresholds),
+        "operating_points": validity.tpr_at_fixed_thresholds(
+            test_labels, test_probs, fpr_thresholds
+        ),
         "operating_points_fit_on": "calibration",
-        "selective_risk": validity.apply_selective_thresholds(test_labels, test_probs, selective_thresholds),
+        "selective_risk": validity.apply_selective_thresholds(
+            test_labels, test_probs, selective_thresholds
+        ),
         "auroc_group_bootstrap": auroc_boot,
         "adaptive_ece": validity.adaptive_ece(
             test_labels, test_probs, groups=np.asarray(list(test_groups)), n_boot=1000, seed=SEED
@@ -60,7 +64,9 @@ def _valid_operating_block(
     }
 
 
-def expected_calibration_error(labels: np.ndarray, probabilities: np.ndarray, bins: int = 10) -> float:
+def expected_calibration_error(
+    labels: np.ndarray, probabilities: np.ndarray, bins: int = 10
+) -> float:
     edges = np.linspace(0, 1, bins + 1)
     error = 0.0
     for index in range(bins):
@@ -159,7 +165,9 @@ def worst_group_metrics(
 
 def binary_metrics(labels: np.ndarray, probabilities: np.ndarray) -> dict[str, float]:
     result = {
-        "auroc": float(roc_auc_score(labels, probabilities)) if len(set(labels)) > 1 else float("nan"),
+        "auroc": float(roc_auc_score(labels, probabilities))
+        if len(set(labels)) > 1
+        else float("nan"),
         "auprc": auprc(labels, probabilities),
         "brier": float(brier_score_loss(labels, probabilities)),
         "ece": expected_calibration_error(labels, probabilities),
@@ -499,7 +507,9 @@ def cross_validate(model_factory, dataset: Dataset, n_splits: int = 5) -> dict:
         model = model_factory()
         model.fit(X[train], y[train])
         oof[test] = model.predict_proba(X[test])
-        fold_metrics.append({"fold": fold, "n_test": len(test), **binary_metrics(y[test], oof[test])})
+        fold_metrics.append(
+            {"fold": fold, "n_test": len(test), **binary_metrics(y[test], oof[test])}
+        )
     return {
         "oof_probabilities": oof,
         "metrics": binary_metrics(y, oof),
@@ -569,7 +579,9 @@ def evaluate_protocol_split(detector, dataset: Dataset, split) -> dict:
         "cohort_prevalence": prevalence,
         "calibration_applied": calibration_applied,
         "metrics": metrics,
-        "metrics_note": "test-ranked and descriptive; headline operating points are calibration-fit",
+        "metrics_note": (
+            "test-ranked and descriptive; headline operating points are calibration-fit"
+        ),
         "selective_risk": valid["selective_risk"],
         "selective_risk_descriptive": selective_risk_curve(labels, calibrated),
         "operating_points": valid["operating_points"],
@@ -606,7 +618,9 @@ def evaluate_protocol(detector_factory, dataset: Dataset, seed: int = SEED) -> d
         pooled_p.append(row["probabilities"])
         pooled_y.append(row["labels"])
         pooled_idx.append(row["test_idx"])
-        fold_rows.append({k: v for k, v in row.items() if k not in {"probabilities", "labels", "test_idx"}})
+        fold_rows.append(
+            {k: v for k, v in row.items() if k not in {"probabilities", "labels", "test_idx"}}
+        )
     y = np.concatenate(pooled_y)
     p = np.concatenate(pooled_p)
     idx = np.concatenate(pooled_idx)

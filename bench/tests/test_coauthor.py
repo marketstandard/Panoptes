@@ -14,7 +14,6 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,13 +35,21 @@ def _init(doc: str) -> str:
 
 def _insert(pos: int, text: str, source: str) -> str:
     return json.dumps(
-        {"eventName": "text-insert", "eventSource": source, "textDelta": {"ops": [{"retain": pos}, {"insert": text}]}}
+        {
+            "eventName": "text-insert",
+            "eventSource": source,
+            "textDelta": {"ops": [{"retain": pos}, {"insert": text}]},
+        }
     )
 
 
 def _delete(pos: int, n: int, source: str) -> str:
     return json.dumps(
-        {"eventName": "text-delete", "eventSource": source, "textDelta": {"ops": [{"retain": pos}, {"delete": n}]}}
+        {
+            "eventName": "text-delete",
+            "eventSource": source,
+            "textDelta": {"ops": [{"retain": pos}, {"delete": n}]},
+        }
     )
 
 
@@ -99,24 +106,46 @@ def test_assign_split_covers_multiple_splits():
 # --- load_coauthor --------------------------------------------------------------
 
 
-def _coauthor_frame() -> "pd.DataFrame":
+def _coauthor_frame() -> pd.DataFrame:
     rows = []
     # Two authors; each appears in only one split (author-disjoint by construction).
     for i in range(4):
         rows.append(
-            {"id": f"s_train_{i}", "text": f"train doc {i} " * 30, "label": 1,
-             "group": "workerA", "split": "train", "worker_id": "workerA",
-             "prompt_code": "shapeshifter", "ai_contribution_fraction": 0.10 * (i + 1),
-             "human_chars": 300, "ai_chars": 30 * (i + 1), "prompt_chars": 50,
-             "num_query": "5", "num_selected": "4", "written_by_human_official": 1.0 - 0.10 * (i + 1)}
+            {
+                "id": f"s_train_{i}",
+                "text": f"train doc {i} " * 30,
+                "label": 1,
+                "group": "workerA",
+                "split": "train",
+                "worker_id": "workerA",
+                "prompt_code": "shapeshifter",
+                "ai_contribution_fraction": 0.10 * (i + 1),
+                "human_chars": 300,
+                "ai_chars": 30 * (i + 1),
+                "prompt_chars": 50,
+                "num_query": "5",
+                "num_selected": "4",
+                "written_by_human_official": 1.0 - 0.10 * (i + 1),
+            }
         )
     for i in range(3):
         rows.append(
-            {"id": f"s_test_{i}", "text": f"test doc {i} " * 30, "label": 1,
-             "group": "workerB", "split": "test", "worker_id": "workerB",
-             "prompt_code": "obama", "ai_contribution_fraction": 0.50,
-             "human_chars": 200, "ai_chars": 200, "prompt_chars": 40,
-             "num_query": "9", "num_selected": "7", "written_by_human_official": 0.50}
+            {
+                "id": f"s_test_{i}",
+                "text": f"test doc {i} " * 30,
+                "label": 1,
+                "group": "workerB",
+                "split": "test",
+                "worker_id": "workerB",
+                "prompt_code": "obama",
+                "ai_contribution_fraction": 0.50,
+                "human_chars": 200,
+                "ai_chars": 200,
+                "prompt_chars": 40,
+                "num_query": "9",
+                "num_selected": "7",
+                "written_by_human_official": 0.50,
+            }
         )
     return pd.DataFrame(rows)
 
@@ -137,7 +166,9 @@ def test_load_coauthor_split_and_provenance(tmp_path, monkeypatch):
     _coauthor_fixture(tmp_path, monkeypatch)
     test = datasets.load_coauthor(split="test")
     assert len(test) == 3
-    assert set(test.labels.tolist()) == {1}, "every CoAuthor row is AI-assisted (never binary human)"
+    assert set(test.labels.tolist()) == {1}, (
+        "every CoAuthor row is AI-assisted (never binary human)"
+    )
     # groups and authors are the worker id (author-disjoint unit)
     assert set(test.groups) == {"workerB"}
     assert test.enforce_author_disjoint is True

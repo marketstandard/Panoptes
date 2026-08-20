@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from bench.features import FEATURE_NAMES, extract, heuristic_raw_score  # noqa: E402
 from bench.baseline_corpus import load_corpus  # noqa: E402
+from bench.features import FEATURE_NAMES, extract, heuristic_raw_score  # noqa: E402
 
 HYPOTHESES_PATH = ROOT / "bench" / "hypotheses.json"
 REPORT_JSON = ROOT / "backend" / "artifacts" / "methodology-report.json"
@@ -202,7 +202,9 @@ def welch_t(ai: np.ndarray, human: np.ndarray, direction: str) -> dict:
     }
 
 
-def mann_whitney(ai: np.ndarray, human: np.ndarray, direction: str, bootstrap_cap: int = 4000) -> dict:
+def mann_whitney(
+    ai: np.ndarray, human: np.ndarray, direction: str, bootstrap_cap: int = 4000
+) -> dict:
     result = stats.mannwhitneyu(ai, human, alternative="two-sided")
     u = float(result.statistic)
     rbc = 1.0 - 2.0 * u / (len(ai) * len(human))  # >0: AI tends lower on this U convention
@@ -249,8 +251,10 @@ def logistic_lr_test(y: np.ndarray, reduced: np.ndarray, full: np.ndarray) -> di
         "statistic": float(lr),
         "p_value": p_value,
         "effect_size": {"name": "odds_ratio", "value": float(math.exp(np.clip(beta_new, -20, 20)))},
-        "ci95": [float(math.exp(np.clip(beta_new - 1.96 * se, -20, 20))),
-                 float(math.exp(np.clip(beta_new + 1.96 * se, -20, 20)))],
+        "ci95": [
+            float(math.exp(np.clip(beta_new - 1.96 * se, -20, 20))),
+            float(math.exp(np.clip(beta_new + 1.96 * se, -20, 20))),
+        ],
         "estimate": beta_new,
         "df": df,
     }
@@ -305,14 +309,19 @@ def _dw_matrix(resid: np.ndarray) -> float:
     return (within + boundary) / denom if denom > 0 else 2.0
 
 
-def durbin_watson_permutation(segment_scores: list[list[float]], permutations: int = PERMUTATIONS) -> dict:
+def durbin_watson_permutation(
+    segment_scores: list[list[float]], permutations: int = PERMUTATIONS
+) -> dict:
     """DW on document-ordered residuals with a within-document permutation p.
 
     Vectorized over the (documents x segments) matrix: each permutation
     shuffles segments within every document independently."""
     doc_means = [float(np.mean(scores)) for scores in segment_scores]
     resid = np.array(
-        [[score - mean for score in scores] for scores, mean in zip(segment_scores, doc_means, strict=True)]
+        [
+            [score - mean for score in scores]
+            for scores, mean in zip(segment_scores, doc_means, strict=True)
+        ]
     )
     observed = _dw_matrix(resid)
     rng = np.random.default_rng(SEED)
@@ -346,9 +355,13 @@ def link_test(y: np.ndarray, X: np.ndarray) -> dict:
     fit = logistic_irls(augmented, y)
     lr = 2.0 * (fit["ll"] - base["ll"])
     p_value = float(stats.chi2.sf(max(lr, 0.0), 1))
-    return {"statistic": float(lr), "p_value": p_value, "df": 1,
-            "adequate": p_value > 0.05,
-            "meaning": "H0: the linear logit link is correctly specified (eta^2 adds nothing)."}
+    return {
+        "statistic": float(lr),
+        "p_value": p_value,
+        "df": 1,
+        "adequate": p_value > 0.05,
+        "meaning": "H0: the linear logit link is correctly specified (eta^2 adds nothing).",
+    }
 
 
 def reset_test(y: np.ndarray, X: np.ndarray, powers: tuple[int, ...] = (2, 3)) -> dict:
@@ -358,9 +371,13 @@ def reset_test(y: np.ndarray, X: np.ndarray, powers: tuple[int, ...] = (2, 3)) -
     fit = logistic_irls(augmented, y)
     lr = 2.0 * (fit["ll"] - base["ll"])
     p_value = float(stats.chi2.sf(max(lr, 0.0), len(powers)))
-    return {"statistic": float(lr), "p_value": p_value, "df": len(powers),
-            "adequate": p_value > 0.05,
-            "meaning": "Ramsey RESET: H0: no omitted nonlinear structure in the index."}
+    return {
+        "statistic": float(lr),
+        "p_value": p_value,
+        "df": len(powers),
+        "adequate": p_value > 0.05,
+        "meaning": "Ramsey RESET: H0: no omitted nonlinear structure in the index.",
+    }
 
 
 def hosmer_lemeshow(y: np.ndarray, p: np.ndarray, groups: int = 10) -> dict:
@@ -380,9 +397,13 @@ def hosmer_lemeshow(y: np.ndarray, p: np.ndarray, groups: int = 10) -> dict:
             statistic += (obs - exp) ** 2 / denom
     df = max(used - 2, 1)
     p_value = float(stats.chi2.sf(statistic, df))
-    return {"statistic": float(statistic), "p_value": p_value, "df": df,
-            "adequate": p_value > 0.05,
-            "meaning": "H0: observed and expected event counts agree across risk deciles."}
+    return {
+        "statistic": float(statistic),
+        "p_value": p_value,
+        "df": df,
+        "adequate": p_value > 0.05,
+        "meaning": "H0: observed and expected event counts agree across risk deciles.",
+    }
 
 
 def cooks_distance(y: np.ndarray, fit: dict) -> np.ndarray:
@@ -408,21 +429,28 @@ def breusch_pagan(residuals: np.ndarray, X: np.ndarray) -> dict:
     lm = len(residuals) * r2
     df = design.shape[1] - 1
     p_value = float(stats.chi2.sf(max(lm, 0.0), df))
-    return {"statistic": float(lm), "p_value": p_value, "df": df,
-            "adequate": p_value > 0.05,
-            "meaning": "H0: error variance is constant (homoscedastic).",
-            "r_squared": r2}
+    return {
+        "statistic": float(lm),
+        "p_value": p_value,
+        "df": df,
+        "adequate": p_value > 0.05,
+        "meaning": "H0: error variance is constant (homoscedastic).",
+        "r_squared": r2,
+    }
 
 
 def jarque_bera(residuals: np.ndarray) -> dict:
     result = stats.jarque_bera(residuals)
-    return {"statistic": float(result.statistic), "p_value": float(result.pvalue),
-            "adequate": float(result.pvalue) > 0.05,
-            "meaning": (
-                "H0: residuals have normal skewness and kurtosis. Diagnostic only: Pearson "
-                "residuals of a binary model are non-normal by construction, so rejection is "
-                "expected and does not by itself invalidate the fit."
-            )}
+    return {
+        "statistic": float(result.statistic),
+        "p_value": float(result.pvalue),
+        "adequate": float(result.pvalue) > 0.05,
+        "meaning": (
+            "H0: residuals have normal skewness and kurtosis. Diagnostic only: Pearson "
+            "residuals of a binary model are non-normal by construction, so rejection is "
+            "expected and does not by itself invalidate the fit."
+        ),
+    }
 
 
 def mcfadden_r2(ll_model: float, ll_null: float) -> float:
@@ -447,11 +475,21 @@ def mcnemar(correct_a: np.ndarray, correct_b: np.ndarray) -> dict:
         return {"b": b, "c": c, "statistic": 0.0, "p_value": 1.0, "method": "exact"}
     if b + c < 25:
         p_value = float(stats.binomtest(min(b, c), b + c, 0.5).pvalue)
-        return {"b": b, "c": c, "statistic": float(min(b, c)), "p_value": p_value,
-                "method": "exact_binomial"}
+        return {
+            "b": b,
+            "c": c,
+            "statistic": float(min(b, c)),
+            "p_value": p_value,
+            "method": "exact_binomial",
+        }
     statistic = (abs(b - c) - 1) ** 2 / (b + c)
-    return {"b": b, "c": c, "statistic": float(statistic),
-            "p_value": float(stats.chi2.sf(statistic, 1)), "method": "chi2_continuity"}
+    return {
+        "b": b,
+        "c": c,
+        "statistic": float(statistic),
+        "p_value": float(stats.chi2.sf(statistic, 1)),
+        "method": "chi2_continuity",
+    }
 
 
 def _midranks(x: np.ndarray) -> np.ndarray:
@@ -527,7 +565,9 @@ class Cohort:
     @property
     def features(self) -> list[dict]:
         if self._features is None:
-            self._features = [extract(text, kind) for text, kind in zip(self.texts, self.kinds, strict=True)]
+            self._features = [
+                extract(text, kind) for text, kind in zip(self.texts, self.kinds, strict=True)
+            ]
         return self._features
 
     @property
@@ -610,10 +650,21 @@ def _run_hypotheses_cohort(cohort: Cohort, registry_path: Path = HYPOTHESES_PATH
         if test in {"welch_t", "mann_whitney"}:
             ai, human = _feature_arrays_cohort(cohort, variables["feature"], variables.get("kind"))
             if len(ai) < 3 or len(human) < 3:
-                results.append({**{k: hypothesis[k] for k in ("id", "statement", "null", "direction", "alpha")},
-                                "test": test, "statistic": None, "p_value": 1.0,
-                                "effect_size": {"name": "n/a", "value": None}, "ci95": [None, None],
-                                "estimate": None, "skipped": f"cohort lacks kind={variables.get('kind')} support"})
+                results.append(
+                    {
+                        **{
+                            k: hypothesis[k]
+                            for k in ("id", "statement", "null", "direction", "alpha")
+                        },
+                        "test": test,
+                        "statistic": None,
+                        "p_value": 1.0,
+                        "effect_size": {"name": "n/a", "value": None},
+                        "ci95": [None, None],
+                        "estimate": None,
+                        "skipped": f"cohort lacks kind={variables.get('kind')} support",
+                    }
+                )
                 continue
             outcome = (
                 welch_t(ai, human, hypothesis["direction"])
@@ -806,7 +857,9 @@ def _render_cohort(lines: list[str], name: str, cohort: dict) -> list[str]:
         ci = result["ci95"]
         ci_text = f"[{ci[0]:.4g}, {ci[1]:.4g}]" if ci[0] is not None else "—"
         effect = result["effect_size"]
-        effect_text = f"{effect['name']} = {effect['value']:.4g}" if effect["value"] is not None else "—"
+        effect_text = (
+            f"{effect['name']} = {effect['value']:.4g}" if effect["value"] is not None else "—"
+        )
         stat_text = f"{result['statistic']:.3f}" if result["statistic"] is not None else "—"
         lines.append(
             f"| {result['id']} | {result['test']} | {stat_text} | "
@@ -835,8 +888,8 @@ def _render_cohort(lines: list[str], name: str, cohort: dict) -> list[str]:
         lines.append(f"| {key} | {row['statistic']:.3f} | {row['p_value']:.4f} | {verdict} |")
     lines += [
         "",
-        f"- Durbin-Watson (probability-ordered residuals): {spec['durbin_watson']['statistic']:.3f} "
-        "(2.0 = no serial correlation)",
+        f"- Durbin-Watson (probability-ordered residuals): "
+        f"{spec['durbin_watson']['statistic']:.3f} (2.0 = no serial correlation)",
         f"- Cook's distance: max {spec['cooks_distance']['max']:.4f}; "
         f"{spec['cooks_distance']['n_above_4_over_n']} points above 4/n",
         f"- Pseudo-R^2: McFadden {spec['pseudo_r2']['mcfadden']:.3f}, "

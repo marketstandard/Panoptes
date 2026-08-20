@@ -31,7 +31,7 @@ import hashlib
 import json
 import sys
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -100,7 +100,8 @@ def _download(url: str, dest: Path, expected_sha256: str, expected_bytes: int) -
     if actual != expected_sha256:
         dest.unlink(missing_ok=True)
         raise FetchError(
-            f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; refusing to use unverified data"
+            f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; "
+            "refusing to use unverified data"
         )
 
 
@@ -191,7 +192,9 @@ def pointer_manifest(manifest: dict) -> dict:
         "schema": "panoptes-dataset-manifest-v1",
         "id": "raid",
         "kind": "prose",
-        "title": "RAID — shared benchmark for robust evaluation of MGT detectors (Dugan et al. 2024)",
+        "title": (
+            "RAID — shared benchmark for robust evaluation of MGT detectors (Dugan et al. 2024)"
+        ),
         "license": {
             "spdx": "MIT",
             "redistributable": False,
@@ -203,9 +206,10 @@ def pointer_manifest(manifest: dict) -> dict:
             "access": "public",
             "download_instructions": (
                 "Run `python -m bench.fetch_raid`. The script downloads the labeled train.csv "
-                "from Hugging Face, verifies it against the pinned SHA-256 hash, applies documented "
-                "hygiene filters, and stores a clean parquet under datasets/local/raid/ (gitignored). "
-                "Raw text is never committed to this repository."
+                "from Hugging Face, verifies it against the pinned SHA-256 hash, applies "
+                "documented hygiene filters, and stores a clean parquet under "
+                "datasets/local/raid/ (gitignored). Raw text is never committed to this "
+                "repository."
             ),
         },
         "content_hash": {
@@ -228,9 +232,12 @@ def pointer_manifest(manifest: dict) -> dict:
             "sanitization": "hashes-only",
         },
         "limitations": [
-            "Only the labeled train split is fetched; the leaderboard test split ships without labels.",
-            "Adversarial-attack rows are retained and flagged via the attack column; clean evaluation uses attack=none unless stated.",
-            "RAID covers English prose domains plus code/Czech/German in extra.csv, which is not fetched here.",
+            "Only the labeled train split is fetched; the leaderboard test split ships "
+            "without labels.",
+            "Adversarial-attack rows are retained and flagged via the attack column; "
+            "clean evaluation uses attack=none unless stated.",
+            "RAID covers English prose domains plus code/Czech/German in extra.csv, "
+            "which is not fetched here.",
         ],
         "notice_entry_required": True,
     }
@@ -240,7 +247,11 @@ def pointer_manifest(manifest: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="verify local files against the manifest without downloading")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verify local files against the manifest without downloading",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -270,7 +281,8 @@ def main() -> int:
         splits[name] = counts
         print(
             f"{name}: {counts['rows_raw']} raw -> {counts['rows_clean']} clean "
-            f"(dups {counts['dropped_exact_duplicates']}, short {counts['dropped_under_50_tokens']})",
+            f"(dups {counts['dropped_exact_duplicates']}, "
+            f"short {counts['dropped_under_50_tokens']})",
             flush=True,
         )
 
@@ -280,7 +292,7 @@ def main() -> int:
     manifest = {
         "schema": "panoptes-raid-fetch-v1",
         "dataset": "liamdugan/raid",
-        "created_utc": prior_created or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": prior_created or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "min_word_tokens": MIN_WORD_TOKENS,
         "splits": splits,
         "combined_sha256": combined,

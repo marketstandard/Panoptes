@@ -12,7 +12,6 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,8 +19,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from bench import datasets  # noqa: E402
-from bench.near_dup import near_duplicate_clusters  # noqa: E402
 from bench.fetch_mage import parse_src  # noqa: E402
+from bench.near_dup import near_duplicate_clusters  # noqa: E402
 
 pd = pytest.importorskip("pandas", reason="MAGE loader requires pandas/pyarrow")
 
@@ -43,20 +42,44 @@ def _long_text(tag: str) -> str:
 @pytest.mark.parametrize(
     "src,expected",
     [
-        ("cmv_human", {"domain": "cmv", "family": "human", "prompt_mode": "human", "paraphrased": False}),
+        (
+            "cmv_human",
+            {"domain": "cmv", "family": "human", "prompt_mode": "human", "paraphrased": False},
+        ),
         (
             "roct_machine_continuation_flan_t5_large",
-            {"domain": "roct", "family": "flan_t5_large", "prompt_mode": "continuation", "paraphrased": False},
+            {
+                "domain": "roct",
+                "family": "flan_t5_large",
+                "prompt_mode": "continuation",
+                "paraphrased": False,
+            },
         ),
         (
             "wp_machine_topical_gpt-3.5-trubo",
-            {"domain": "wp", "family": "gpt-3.5-trubo", "prompt_mode": "topical", "paraphrased": False},
+            {
+                "domain": "wp",
+                "family": "gpt-3.5-trubo",
+                "prompt_mode": "topical",
+                "paraphrased": False,
+            },
         ),
-        ("cnn_gpt4", {"domain": "cnn", "family": "gpt4", "prompt_mode": "ood", "paraphrased": False}),
-        ("cnn_gpt4_para", {"domain": "cnn", "family": "gpt4", "prompt_mode": "paraphrase", "paraphrased": True}),
+        (
+            "cnn_gpt4",
+            {"domain": "cnn", "family": "gpt4", "prompt_mode": "ood", "paraphrased": False},
+        ),
+        (
+            "cnn_gpt4_para",
+            {"domain": "cnn", "family": "gpt4", "prompt_mode": "paraphrase", "paraphrased": True},
+        ),
         (
             "imdb_human_para",
-            {"domain": "imdb", "family": "paraphrased_human", "prompt_mode": "paraphrase", "paraphrased": True},
+            {
+                "domain": "imdb",
+                "family": "paraphrased_human",
+                "prompt_mode": "paraphrase",
+                "paraphrased": True,
+            },
         ),
     ],
 )
@@ -92,18 +115,34 @@ def test_near_duplicate_clusters_deterministic():
 # --- load_mage ------------------------------------------------------------------
 
 
-def _mage_frame() -> "pd.DataFrame":
+def _mage_frame() -> pd.DataFrame:
     rows = []
     for source in range(5):
         rows.append(
-            {"text": _long_text(f"Human post {source}"), "label": 0, "family": "human",
-             "domain": "cmv", "prompt_mode": "human", "paraphrased": False,
-             "official_split": "test", "src": "cmv_human", "group": f"mage:{source}"}
+            {
+                "text": _long_text(f"Human post {source}"),
+                "label": 0,
+                "family": "human",
+                "domain": "cmv",
+                "prompt_mode": "human",
+                "paraphrased": False,
+                "official_split": "test",
+                "src": "cmv_human",
+                "group": f"mage:{source}",
+            }
         )
         rows.append(
-            {"text": _long_text(f"Machine continuation {source}"), "label": 1, "family": "gpt_j",
-             "domain": "cmv", "prompt_mode": "continuation", "paraphrased": False,
-             "official_split": "test", "src": "cmv_machine_continuation_gpt_j", "group": f"mage:{source}"}
+            {
+                "text": _long_text(f"Machine continuation {source}"),
+                "label": 1,
+                "family": "gpt_j",
+                "domain": "cmv",
+                "prompt_mode": "continuation",
+                "paraphrased": False,
+                "official_split": "test",
+                "src": "cmv_machine_continuation_gpt_j",
+                "group": f"mage:{source}",
+            }
         )
     return pd.DataFrame(rows)
 

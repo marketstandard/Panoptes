@@ -40,9 +40,7 @@ class _FakeTokenizer:
         self.eos_token = "<eos>"
 
     def __call__(self, batch, return_tensors, padding, truncation, max_length):
-        rows = [
-            [ord(c) % (self.vocab - 1) + 1 for c in text][:max_length] for text in batch
-        ]
+        rows = [[ord(c) % (self.vocab - 1) + 1 for c in text][:max_length] for text in batch]
         longest = max(len(row) for row in rows)
         input_ids = torch.zeros(len(batch), longest, dtype=torch.long)
         mask = torch.zeros(len(batch), longest, dtype=torch.long)
@@ -222,7 +220,9 @@ def test_fast_detectgpt_seeded_sampling_is_deterministic(monkeypatch):
     vocab = 64
     tokenizer = _FakeTokenizer(vocab)
     monkeypatch.setattr(
-        eb, "_load_causal_lm", lambda name, torch_dtype="bfloat16": (tokenizer, _PeakedModel(vocab, token=5, peak=8.0))
+        eb,
+        "_load_causal_lm",
+        lambda name, torch_dtype="bfloat16": (tokenizer, _PeakedModel(vocab, token=5, peak=8.0)),
     )
     texts = ["text with several tokens", "another one here"]
     first = eb.fast_detectgpt_scores(texts, n_samples=4, max_tokens=64, batch_size=2, seed=13)

@@ -14,8 +14,8 @@ if str(ROOT) not in sys.path:
 
 from bench import detectors, evaluate, evidence, mixtures, splits  # noqa: E402
 from bench.datasets import Dataset  # noqa: E402
-from bench.tests.test_bench import tiny_dataset  # noqa: E402
 from bench.protocol import validate_protocol  # noqa: E402
+from bench.tests.test_bench import tiny_dataset  # noqa: E402
 
 
 def test_protocol_document_validates():
@@ -182,7 +182,9 @@ def test_sliced_conformal_coverage_math():
     rng = np.random.default_rng(7)
     n = 400
     labels = rng.integers(0, 2, n)
-    probabilities = np.clip(labels * 0.7 + (1 - labels) * 0.3 + rng.normal(0, 0.1, n), 1e-4, 1 - 1e-4)
+    probabilities = np.clip(
+        labels * 0.7 + (1 - labels) * 0.3 + rng.normal(0, 0.1, n), 1e-4, 1 - 1e-4
+    )
     slices = {
         "length_bucket": ["150-499" if i % 2 == 0 else "500plus" for i in range(n)],
         "family": ["human" if int(v) == 0 else "ai-x" for v in labels],
@@ -217,7 +219,9 @@ def test_calibration_power_required_n_scales_inverse_square():
 
     labels = np.array([0, 1] * 200)
     rng = np.random.default_rng(3)
-    probabilities = np.clip(labels * 0.65 + (1 - labels) * 0.35 + rng.normal(0, 0.12, 400), 1e-4, 1 - 1e-4)
+    probabilities = np.clip(
+        labels * 0.65 + (1 - labels) * 0.35 + rng.normal(0, 0.12, 400), 1e-4, 1 - 1e-4
+    )
     block = calibration_power(labels, probabilities)
     assert block["n_evaluated"] == 400
     for metric in ("brier", "ece"):

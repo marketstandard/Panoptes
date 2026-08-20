@@ -50,7 +50,9 @@ def prior_sensitivity(lr: float, prevalences: list[float] | None = None) -> list
     rows = []
     for pi in grid:
         p = float(posterior_probability(prior_odds_from_prevalence(pi), lr))
-        rows.append({"prevalence": pi, "prior_odds": prior_odds_from_prevalence(pi), "posterior": p})
+        rows.append(
+            {"prevalence": pi, "prior_odds": prior_odds_from_prevalence(pi), "posterior": p}
+        )
     return rows
 
 

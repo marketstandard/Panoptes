@@ -54,10 +54,10 @@ def _import_neural_stack():
         sys.path.insert(0, str(_REPO_ROOT))
     try:
         import torch  # noqa: F401
-        from transformers import AutoConfig, AutoModel, AutoTokenizer  # noqa: F401
         from bench.neural.aggregate import aggregate_documents, sigmoid  # noqa: F401
         from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: F401
         from bench.neural.windowing import document_windows, pad_windows  # noqa: F401
+        from transformers import AutoConfig, AutoModel, AutoTokenizer  # noqa: F401
     except Exception as exc:  # pragma: no cover - depends on environment
         raise NeuralRuntimeError(
             f"neural stack unavailable ({type(exc).__name__}: {exc}); "
@@ -133,7 +133,7 @@ def _applicability(
 class NeuralModelManager:
     """Lazy, singleton, concurrency-safe loader for the frozen neural ensemble."""
 
-    _instance: "NeuralModelManager | None" = None
+    _instance: NeuralModelManager | None = None
     _instance_lock = threading.Lock()
 
     def __init__(
@@ -153,7 +153,7 @@ class NeuralModelManager:
         self._loaded: dict | None = None
 
     @classmethod
-    def instance(cls, artifact_dir: str | Path = _DEFAULT_ARTIFACT, **kwargs) -> "NeuralModelManager":
+    def instance(cls, artifact_dir: str | Path = _DEFAULT_ARTIFACT, **kwargs) -> NeuralModelManager:
         with cls._instance_lock:
             if cls._instance is None:
                 cls._instance = cls(artifact_dir, **kwargs)
@@ -176,7 +176,9 @@ class NeuralModelManager:
             manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return False
-        return manifest.get("schema") == "panoptes-neural-ensemble-v1" and bool(manifest.get("seeds"))
+        return manifest.get("schema") == "panoptes-neural-ensemble-v1" and bool(
+            manifest.get("seeds")
+        )
 
     def _verify_and_load(self) -> dict:
         stack = _import_neural_stack()
@@ -253,12 +255,19 @@ class NeuralModelManager:
         device = ens["device"]
 
         raw_windows = stack["document_windows"](
-            text, tokenizer, max_length=winner["max_length"], overlap=winner["overlap"],
+            text,
+            tokenizer,
+            max_length=winner["max_length"],
+            overlap=winner["overlap"],
             max_windows=self.max_windows,
         )
         if not raw_windows:
             raise NeuralRuntimeError("document produced no windows")
-        pad_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else (tokenizer.eos_token_id or 0)
+        pad_id = (
+            tokenizer.pad_token_id
+            if tokenizer.pad_token_id is not None
+            else (tokenizer.eos_token_id or 0)
+        )
         wins = stack["pad_windows"](raw_windows, pad_id=pad_id, max_length=winner["max_length"])
         input_ids = np.array([w.input_ids for w in wins], dtype=np.int64)
         attention_mask = np.array([w.attention_mask for w in wins], dtype=np.int64)
@@ -274,9 +283,15 @@ class NeuralModelManager:
                 logits_out = []
                 cls_out = []
                 for start in range(0, len(input_ids), self.max_batch_windows):
-                    ids = torch.from_numpy(input_ids[start:start + self.max_batch_windows]).to(device)
-                    mask = torch.from_numpy(attention_mask[start:start + self.max_batch_windows]).to(device)
-                    with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")):
+                    ids = torch.from_numpy(input_ids[start : start + self.max_batch_windows]).to(
+                        device
+                    )
+                    mask = torch.from_numpy(
+                        attention_mask[start : start + self.max_batch_windows]
+                    ).to(device)
+                    with torch.autocast(
+                        device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")
+                    ):
                         logits, cls = model(ids, mask)
                     logits_out.append(logits.float().cpu().numpy())
                     if head is not None:
@@ -300,7 +315,9 @@ class NeuralModelManager:
                     logit_diff = float((head_logits[:, 1] - head_logits[:, 0])[0])
                     prob = float(stack["sigmoid"](logit_diff))
                 else:
-                    prob = float(stack["aggregate_documents"]([window_logits], [spans], [n_tokens])[0])
+                    prob = float(
+                        stack["aggregate_documents"]([window_logits], [spans], [n_tokens])[0]
+                    )
                 seed_probs.append(prob)
 
         raw = float(np.mean(seed_probs))
@@ -352,7 +369,9 @@ class NeuralProseDetector(DetectorAdapter):
 
     def _abstain(self, reason: str) -> DetectorScore:
         return DetectorScore(
-            distribution=OutcomeDistribution(human=1 / 3, ai_generated=1 / 3, ai_refined_or_mixed=1 / 3),
+            distribution=OutcomeDistribution(
+                human=1 / 3, ai_generated=1 / 3, ai_refined_or_mixed=1 / 3
+            ),
             raw_score=0.5,
             detector_id=self.id,
             abstain_reason=reason,

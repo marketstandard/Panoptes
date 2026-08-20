@@ -14,12 +14,18 @@ def test_likelihood_ratio_divides_out_cohort_prevalence() -> None:
 
 def test_posterior_uses_bayes_not_ece_blend() -> None:
     distribution = OutcomeDistribution(human=0.2, ai_generated=0.8, ai_refined_or_mixed=0.0)
-    even = _calibrate_distribution(distribution, EvidenceState.SUPPORTED, prior_odds=1.0, cohort_prevalence=0.5)
+    even = _calibrate_distribution(
+        distribution, EvidenceState.SUPPORTED, prior_odds=1.0, cohort_prevalence=0.5
+    )
     assert even.ai_generated == pytest.approx(0.8, rel=1e-6)
-    rare = _calibrate_distribution(distribution, EvidenceState.SUPPORTED, prior_odds=1.0 / 9.0, cohort_prevalence=0.5)
+    rare = _calibrate_distribution(
+        distribution, EvidenceState.SUPPORTED, prior_odds=1.0 / 9.0, cohort_prevalence=0.5
+    )
     assert rare.ai_generated < even.ai_generated
     # ECE is not an input; doubling the prior odds must increase the posterior.
-    common = _calibrate_distribution(distribution, EvidenceState.SUPPORTED, prior_odds=9.0, cohort_prevalence=0.5)
+    common = _calibrate_distribution(
+        distribution, EvidenceState.SUPPORTED, prior_odds=9.0, cohort_prevalence=0.5
+    )
     assert common.ai_generated > even.ai_generated
 
 

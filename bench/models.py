@@ -25,7 +25,7 @@ class BenchModel(Protocol):
     name: str
     tier: int
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "BenchModel": ...
+    def fit(self, X: np.ndarray, y: np.ndarray) -> BenchModel: ...
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return P(AI-generated) for each row."""
@@ -67,7 +67,7 @@ class LogisticTier0:
     _mean: np.ndarray | None = field(default=None, repr=False)
     _scale: np.ndarray | None = field(default=None, repr=False)
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "LogisticTier0":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> LogisticTier0:
         from sklearn.linear_model import LogisticRegression
 
         self._mean = X.mean(axis=0)
@@ -89,12 +89,16 @@ class GbmTier1:
     seed: int = 13
     _model: Any = field(default=None, repr=False)
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "GbmTier1":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> GbmTier1:
         from sklearn.ensemble import HistGradientBoostingClassifier
 
         self._model = HistGradientBoostingClassifier(
-            max_depth=3, learning_rate=0.06, max_iter=300,
-            early_stopping=True, validation_fraction=0.15, random_state=self.seed,
+            max_depth=3,
+            learning_rate=0.06,
+            max_iter=300,
+            early_stopping=True,
+            validation_fraction=0.15,
+            random_state=self.seed,
         )
         self._model.fit(X, y)
         return self
@@ -111,7 +115,9 @@ def zoo(n_records: int, include_neural: bool = True) -> list[dict]:
             "tier": 0,
             "factory": LogisticTier0,
             "admitted": True,
-            "rationale": "Penalized logistic regression is always admissible (small-sample baseline).",
+            "rationale": (
+                "Penalized logistic regression is always admissible (small-sample baseline)."
+            ),
         },
         {
             "name": "gbm-tier1",

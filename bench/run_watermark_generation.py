@@ -17,17 +17,18 @@ import argparse
 import hashlib
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from bench.cards import sign  # noqa: E402
-from bench.watermark_gen import DEFAULT_DELTA, DEFAULT_MODEL, generate_watermarked  # noqa: E402
 from panoptes.analysis.watermarks import KGWReferenceAdapter  # noqa: E402
 from panoptes.schemas import ContentType  # noqa: E402
+
+from bench.cards import sign  # noqa: E402
+from bench.watermark_gen import DEFAULT_DELTA, DEFAULT_MODEL, generate_watermarked  # noqa: E402
 
 CARDS = ROOT / "backend" / "artifacts" / "cards"
 
@@ -100,7 +101,9 @@ def _summarize(rows: list) -> dict:
     }
 
 
-def _samples(texts: list[str], prompts: list[str], kind: str, det: KGWReferenceAdapter) -> list[dict]:
+def _samples(
+    texts: list[str], prompts: list[str], kind: str, det: KGWReferenceAdapter
+) -> list[dict]:
     out = []
     for i, (prompt, text) in enumerate(zip(prompts, texts, strict=True)):
         res = _detect(det, text)
@@ -131,7 +134,7 @@ def main() -> int:
     args = parser.parse_args()
 
     prompts: list[str] = []
-    for seed in args.seeds:
+    for _seed in args.seeds:
         prompts.extend(PROMPTS)
     # tag each prompt occurrence with its seed so generation varies
     watermarked_texts: list[str] = []
@@ -139,14 +142,24 @@ def main() -> int:
     for seed in args.seeds:
         watermarked_texts.extend(
             generate_watermarked(
-                PROMPTS, model_name=args.model, delta=args.delta,
-                max_tokens=args.max_tokens, top_k=args.top_k, seed=seed, progress=True,
+                PROMPTS,
+                model_name=args.model,
+                delta=args.delta,
+                max_tokens=args.max_tokens,
+                top_k=args.top_k,
+                seed=seed,
+                progress=True,
             )
         )
         control_texts.extend(
             generate_watermarked(
-                PROMPTS, model_name=args.model, delta=0.0,
-                max_tokens=args.max_tokens, top_k=args.top_k, seed=1000 + seed, progress=True,
+                PROMPTS,
+                model_name=args.model,
+                delta=0.0,
+                max_tokens=args.max_tokens,
+                top_k=args.top_k,
+                seed=1000 + seed,
+                progress=True,
             )
         )
 
@@ -159,7 +172,7 @@ def main() -> int:
 
     card = {
         "schema": "panoptes-watermarked-generations-v1",
-        "created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": {
             "scheme": "kgw-green-list",
             "family": "Aaronson 2022 / KGW / SynthID-Text",
@@ -179,9 +192,13 @@ def main() -> int:
         },
         "samples": samples,
         "limitations": [
-            "Passages are synthetic gpt2-family generations produced with the demo KGW key; they model the Aaronson/SynthID-Text family, not Anthropic's private production key.",
-            "Text naturalness is limited by the small generator model; the watermark (green-list density) is the controlled variable, not fluency.",
-            "Controls share prompts and model with delta=0, so detection-rate differences isolate the watermark bias.",
+            "Passages are synthetic gpt2-family generations produced with the demo "
+            "KGW key; they model the Aaronson/SynthID-Text family, "
+            "not Anthropic's private production key.",
+            "Text naturalness is limited by the small generator model; "
+            "the watermark (green-list density) is the controlled variable, not fluency.",
+            "Controls share prompts and model with delta=0, "
+            "so detection-rate differences isolate the watermark bias.",
         ],
     }
     sign(card)

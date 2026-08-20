@@ -57,7 +57,9 @@ def source_family_distribution(
     return SourceFamilies(
         conditional_on_ai=[
             SourceFamilyProbability(family=family, probability=probability)
-            for family, probability in sorted(probabilities.items(), key=lambda item: item[1], reverse=True)
+            for family, probability in sorted(
+                probabilities.items(), key=lambda item: item[1], reverse=True
+            )
         ],
         unknown_score=unknown,
         interpretation=(
@@ -84,7 +86,9 @@ def _features(text: str, content_type: ContentType) -> dict[str, float]:
         }
     counts = Counter(words)
     sentence_lengths = [
-        len(_WORD_RE.findall(sentence)) for sentence in re.split(r"[.!?]+", text) if sentence.strip()
+        len(_WORD_RE.findall(sentence))
+        for sentence in re.split(r"[.!?]+", text)
+        if sentence.strip()
     ]
     lines = [line for line in text.splitlines() if line.strip()]
     avg_line = sum(len(line) for line in lines) / max(len(lines), 1)

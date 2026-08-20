@@ -42,7 +42,7 @@ import argparse
 import hashlib
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -151,7 +151,7 @@ def parse_src(src: str) -> dict:
     }
 
 
-def clean_split(split: str, raw_name: str) -> tuple["object", dict]:
+def clean_split(split: str, raw_name: str) -> tuple[object, dict]:
     """Read, label-invert, and hygiene-filter one split. Returns (frame, counts).
 
     Exact-duplicate removal is scoped to *this* split: the same human control
@@ -215,7 +215,7 @@ def clean_split(split: str, raw_name: str) -> tuple["object", dict]:
     return frame, counts
 
 
-def _assign_groups(frames: dict[str, "object"]) -> tuple[dict[str, list[str]], dict]:
+def _assign_groups(frames: dict[str, object]) -> tuple[dict[str, list[str]], dict]:
     """Near-duplicate cluster index across every split jointly (cached)."""
     import pandas as pd
 
@@ -276,7 +276,6 @@ def _assign_groups(frames: dict[str, "object"]) -> tuple[dict[str, list[str]], d
 
 def pointer_manifest(manifest: dict) -> dict:
     main = manifest["splits"]
-    n_total = sum(main[s]["rows_clean"] for s in main)
     payload = {
         "schema": "panoptes-dataset-manifest-v1",
         "id": "mage",
@@ -305,7 +304,10 @@ def pointer_manifest(manifest: dict) -> dict:
         },
         "splits": {
             "train": {"groups": ["mage:<near-dup-cluster>"], "n": main["train"]["rows_clean"]},
-            "calibration": {"groups": ["mage:<near-dup-cluster>"], "n": main["valid"]["rows_clean"]},
+            "calibration": {
+                "groups": ["mage:<near-dup-cluster>"],
+                "n": main["valid"]["rows_clean"],
+            },
             "test": {"groups": ["mage:<near-dup-cluster>"], "n": main["test"]["rows_clean"]},
             "group_keys": ["near_duplicate_cluster", "domain", "generator", "prompt_mode"],
         },
@@ -319,7 +321,8 @@ def pointer_manifest(manifest: dict) -> dict:
             "sanitization": "hashes-only",
         },
         "limitations": [
-            "OOD domains (cnn, dialogsum, imdb, pubmed) are disjoint from the 10 in-domain domains.",
+            "OOD domains (cnn, dialogsum, imdb, pubmed) are disjoint from the 10 "
+            "in-domain domains.",
             "The paraphrase set labels machine-paraphrased human text as AI (machine-touched).",
             "Generator tag 'gpt-3.5-trubo' is the upstream spelling (sic).",
             "Near-duplicate clusters are approximate (MinHash-LSH, Jaccard ~0.42 threshold).",
@@ -361,7 +364,8 @@ def main() -> int:
         split_counts[split] = counts
         print(
             f"{split}: {counts['rows_raw']} raw -> {counts['rows_clean']} clean "
-            f"(dups {counts['dropped_exact_duplicates']}, short {counts['dropped_under_50_tokens']}, "
+            f"(dups {counts['dropped_exact_duplicates']}, "
+            f"short {counts['dropped_under_50_tokens']}, "
             f"err {counts['dropped_error_marker']})",
             flush=True,
         )
@@ -381,7 +385,7 @@ def main() -> int:
     manifest = {
         "schema": "panoptes-mage-fetch-v1",
         "dataset": f"{HF_REPO}@{REVISION}",
-        "created_utc": prior_created or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": prior_created or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "min_word_tokens": MIN_WORD_TOKENS,
         "splits": split_counts,
         "combined_sha256": combined_sha,

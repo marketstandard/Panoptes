@@ -17,8 +17,16 @@ from bench.detectors import make_detector
 
 HUMAN_WORDS = ["the", "cat", "sat", "on", "a", "mat", "and", "ran", "big", "red", "dog", "sun"]
 AI_WORDS = [
-    "utilize", "furthermore", "consequently", "nevertheless", "comprehensive",
-    "implementation", "optimization", "demonstrate", "substantial", "methodology",
+    "utilize",
+    "furthermore",
+    "consequently",
+    "nevertheless",
+    "comprehensive",
+    "implementation",
+    "optimization",
+    "demonstrate",
+    "substantial",
+    "methodology",
 ]
 
 
@@ -103,8 +111,12 @@ def test_transport_cell_metrics_block():
     cal_p = det.predict_proba(ds, cal)
     test_p = det.predict_proba(ds, test)
     cell = transport.transport_cell_metrics(
-        ds.labels[cal], cal_p, ds.labels[test], test_p,
-        [ds.groups[int(i)] for i in test], n_boot=50,
+        ds.labels[cal],
+        cal_p,
+        ds.labels[test],
+        test_p,
+        [ds.groups[int(i)] for i in test],
+        n_boot=50,
     )
     assert cell["n_test"] == len(test)
     assert 0.0 <= cell["auroc"] <= 1.0
@@ -119,9 +131,7 @@ def test_transport_cell_metrics_block():
 def test_transport_cell_metrics_degenerate_single_class():
     labels = np.ones(10, dtype=int)
     probs = np.full(10, 0.9)
-    cell = transport.transport_cell_metrics(
-        labels, probs, labels, probs, ["g"] * 10, n_boot=10
-    )
+    cell = transport.transport_cell_metrics(labels, probs, labels, probs, ["g"] * 10, n_boot=10)
     assert cell.get("degenerate") is True
 
 
@@ -189,7 +199,7 @@ def test_pooled_generalization_labels_seen_cohort():
     result = transport.pooled_generalization(ds, "domain", _logistic, min_cell=4, n_boot=20)
     assert result["kind"] == "pooled_generalization"
     assert result["cohort_role"] == "seen-cohort"
-    for cohort, cell in result["cells"].items():
+    for _cohort, cell in result["cells"].items():
         assert cell["cohort_role"] == "seen-cohort"
         assert "auroc" in cell
 
@@ -215,9 +225,7 @@ def test_source_balanced_sensitivity_reports_both_views():
     idx = np.arange(n)
     det = _logistic().fit(ds, idx)
     probs = det.predict_proba(ds, idx)
-    sens = transport.source_balanced_sensitivity(
-        ds.labels, probs, ds.groups, n_boot=20
-    )
+    sens = transport.source_balanced_sensitivity(ds.labels, probs, ds.groups, n_boot=20)
     assert "natural" in sens and "source_balanced" in sens
     assert sens["target_prevalence"] == 0.5
     assert sens["auroc_group_bootstrap"]["resample_unit"] == "group"
@@ -227,14 +235,13 @@ def test_source_balanced_sensitivity_reports_both_views():
 
 
 def _wrap_card(result: dict, schema: str, detector: str) -> dict:
-    card = {
+    return {
         "schema": schema,
         "detector": detector,
         "created_utc": "2026-08-19T00:00:00Z",
         "limitations": ["synthetic test card"],
         **{k: v for k, v in result.items() if k not in {"schema"}},
     }
-    return card
 
 
 def _wrap_transport_card_v21(loco_result: dict, detector: str) -> dict:

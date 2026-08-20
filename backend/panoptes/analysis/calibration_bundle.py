@@ -68,9 +68,7 @@ class CalibrationBundle:
 
     def calibrate(self, raw_score: float) -> float:
         calibrator = self.payload["binary_calibrator"]
-        return float(
-            np.interp(raw_score, calibrator["x_thresholds"], calibrator["y_thresholds"])
-        )
+        return float(np.interp(raw_score, calibrator["x_thresholds"], calibrator["y_thresholds"]))
 
 
 def canonical_hash(payload: dict) -> str:

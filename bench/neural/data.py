@@ -186,7 +186,9 @@ def build_windowed_corpus(
         i = int(i)
         text = dataset.texts[i]
         label = int(dataset.labels[i])
-        raw = document_windows(text, tokenizer, max_length=max_length, overlap=overlap, max_windows=max_windows)
+        raw = document_windows(
+            text, tokenizer, max_length=max_length, overlap=overlap, max_windows=max_windows
+        )
         wins = pad_windows(raw, pad_id=pad_id, max_length=max_length)
         windows.append(wins)
         labels.append(label)
@@ -194,7 +196,9 @@ def build_windowed_corpus(
         domains.append(str(dom[i]))
         families.append(str(dataset.families[i]))
         group_keys.append(
-            group_key(dom[i], dataset.families[i], label, dataset=ds_labels[i] if ds_labels else None)
+            group_key(
+                dom[i], dataset.families[i], label, dataset=ds_labels[i] if ds_labels else None
+            )
         )
         n_tokens.append(max((w.token_end for w in raw), default=0))
         if show_progress and (pos + 1) % 2000 == 0:

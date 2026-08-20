@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,7 +69,7 @@ def main() -> int:
     corpus = load_verified_corpus()
     card = watermark_removal_eval(generations, corpus, paraphrases)
     card["external_repos"] = _external_remover_results()
-    card["created_utc"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    card["created_utc"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     card = _jsonable(card)
     sign(card)
     args.out.parent.mkdir(parents=True, exist_ok=True)

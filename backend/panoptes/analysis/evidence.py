@@ -36,7 +36,11 @@ from panoptes.schemas import (
 def _statistical_validity(state: EvidenceState, abstain_reason: str | None) -> EvidenceValidity:
     if state == EvidenceState.SUPPORTED and not abstain_reason:
         return EvidenceValidity.VALID
-    if state in (EvidenceState.INSUFFICIENT_DATA, EvidenceState.UNSUPPORTED_LANGUAGE, EvidenceState.UNSUPPORTED_CONTENT):
+    if state in (
+        EvidenceState.INSUFFICIENT_DATA,
+        EvidenceState.UNSUPPORTED_LANGUAGE,
+        EvidenceState.UNSUPPORTED_CONTENT,
+    ):
         return EvidenceValidity.NOT_APPLICABLE
     if state == EvidenceState.OUT_OF_DISTRIBUTION:
         return EvidenceValidity.WEAKENED
@@ -106,9 +110,10 @@ def _statistical_entry(
 def _watermark_entry(result: WatermarkResult) -> EvidenceEntry:
     tested = result.status == "tested" and result.q_value is not None
     significant = tested and result.q_value is not None and result.q_value < 0.05
-    if result.status == "insufficient_data":
-        validity = EvidenceValidity.NOT_APPLICABLE
-    elif result.status in ("adapter_unavailable", "not_applicable"):
+    if result.status == "insufficient_data" or result.status in (
+        "adapter_unavailable",
+        "not_applicable",
+    ):
         validity = EvidenceValidity.NOT_APPLICABLE
     elif tested:
         validity = EvidenceValidity.VALID
@@ -120,16 +125,17 @@ def _watermark_entry(result: WatermarkResult) -> EvidenceEntry:
         strength = round(1.0 - min(max(result.q_value, 0.0), 1.0), 4)
     uncertainty = None
     if tested:
-        uncertainty = (
-            f"z={result.z:.2f}, q={result.q_value:.3g}"
-            + (f", power={result.power:.2f}" if result.power is not None else "")
+        uncertainty = f"z={result.z:.2f}, q={result.q_value:.3g}" + (
+            f", power={result.power:.2f}" if result.power is not None else ""
         )
     limitations = [
         "A negative watermark result is not evidence that content is human-written.",
         "Editing, paraphrase, and short text reduce test power.",
     ]
     if result.power is not None and result.power < 0.5:
-        limitations.append("This test had low power at the observed length; a null result is weakly informative.")
+        limitations.append(
+            "This test had low power at the observed length; a null result is weakly informative."
+        )
     return EvidenceEntry(
         channel=EvidenceChannel.WATERMARK,
         target_claim="watermark_present",
@@ -230,10 +236,13 @@ def build_evidence_ledger(
         )
     tested = [r for r in watermark_results if r.status == "tested" and r.q_value is not None]
     if any(r.q_value is not None and r.q_value < 0.05 for r in tested):
-        summaries["watermark"] = "A configured watermark test found statistically significant evidence."
+        summaries["watermark"] = (
+            "A configured watermark test found statistically significant evidence."
+        )
     elif tested:
         summaries["watermark"] = (
-            "No configured watermark test reached significance; this is not evidence of human authorship."
+            "No configured watermark test reached significance; "
+            "this is not evidence of human authorship."
         )
     else:
         summaries["watermark"] = "No watermark test was applicable to this input."
@@ -243,7 +252,9 @@ def build_evidence_ledger(
             "this attests provenance, not authorship."
         )
     elif provenance.status == "tampered":
-        summaries["provenance"] = "A provenance manifest was present but failed verification (tampered)."
+        summaries["provenance"] = (
+            "A provenance manifest was present but failed verification (tampered)."
+        )
     else:
         summaries["provenance"] = "No usable provenance manifest was present."
 

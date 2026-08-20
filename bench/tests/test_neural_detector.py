@@ -54,8 +54,12 @@ class MockTokenizer:
 
 def _tiny_window_encoder(hidden=24, vocab=200):
     cfg = BertConfig(
-        vocab_size=vocab, hidden_size=hidden, num_hidden_layers=1,
-        num_attention_heads=2, intermediate_size=48, max_position_embeddings=64,
+        vocab_size=vocab,
+        hidden_size=hidden,
+        num_hidden_layers=1,
+        num_attention_heads=2,
+        intermediate_size=48,
+        max_position_embeddings=64,
     )
     return WindowEncoder(encoder=BertModel(cfg), hidden_size=hidden, num_labels=2)
 
@@ -71,10 +75,15 @@ def _dataset(n=24, seed=0) -> Dataset:
         texts.append(" ".join(rng.choice(vocab, size=12)))
         labels.append(label)
     return Dataset(
-        texts=texts, labels=np.array(labels, dtype=int),
-        families=["gen" if l else "human" for l in labels], kinds=["text"] * n,
-        groups=[f"g{i // 4}" for i in range(n)], buckets=["short"] * n,
-        provenance="tiny", sha256="0" * 64, domains=["d0"] * n,
+        texts=texts,
+        labels=np.array(labels, dtype=int),
+        families=["gen" if label else "human" for label in labels],
+        kinds=["text"] * n,
+        groups=[f"g{i // 4}" for i in range(n)],
+        buckets=["short"] * n,
+        provenance="tiny",
+        sha256="0" * 64,
+        domains=["d0"] * n,
     )
 
 
@@ -84,16 +93,27 @@ _REAL_IMPORT_STACK = detector_mod._import_stack
 def _patched_stack():
     stack = _REAL_IMPORT_STACK()
     stack["WindowEncoder"] = lambda hf: _tiny_window_encoder()
-    stack["AutoTokenizer"] = type("AT", (), {"from_pretrained": staticmethod(lambda hf: MockTokenizer())})
+    stack["AutoTokenizer"] = type(
+        "AT", (), {"from_pretrained": staticmethod(lambda hf: MockTokenizer())}
+    )
     return stack
 
 
 def test_trainable_detector_fit_predict_cpu(monkeypatch):
     monkeypatch.setattr(detector_mod, "_import_stack", _patched_stack)
-    winner = {"encoder": "tiny", "hf": "tiny", "objective": "erm",
-              "aggregation": "overlap_corrected_logit_mean", "max_length": 24, "overlap": 4}
+    winner = {
+        "encoder": "tiny",
+        "hf": "tiny",
+        "objective": "erm",
+        "aggregation": "overlap_corrected_logit_mean",
+        "max_length": 24,
+        "overlap": 4,
+    }
     det = detector_mod.NeuralTrainableDetector(
-        winner, device="cpu", max_windows=4, config_overrides={"max_epochs": 1, "batch_size": 8, "grad_accum": 1}
+        winner,
+        device="cpu",
+        max_windows=4,
+        config_overrides={"max_epochs": 1, "batch_size": 8, "grad_accum": 1},
     )
     ds = _dataset()
     idx = np.arange(len(ds))
@@ -105,8 +125,14 @@ def test_trainable_detector_fit_predict_cpu(monkeypatch):
 
 
 def test_trainable_detector_requires_fit_first():
-    winner = {"encoder": "tiny", "hf": "tiny", "objective": "erm",
-              "aggregation": "overlap_corrected_logit_mean", "max_length": 24, "overlap": 4}
+    winner = {
+        "encoder": "tiny",
+        "hf": "tiny",
+        "objective": "erm",
+        "aggregation": "overlap_corrected_logit_mean",
+        "max_length": 24,
+        "overlap": 4,
+    }
     det = detector_mod.NeuralTrainableDetector(winner, device="cpu")
     ds = _dataset()
     with pytest.raises(RuntimeError, match="fit"):

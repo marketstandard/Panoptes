@@ -11,13 +11,13 @@ ever loaded here.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 import torch
 from torch import nn
 
-from bench.neural.aggregate import aggregate_documents, log_odds, sigmoid
+from bench.neural.aggregate import aggregate_documents
 from bench.neural.data import WindowedCorpus
 from bench.neural.objectives import GroupDRO
 
@@ -63,7 +63,9 @@ def _batch_iter(n: int, batch_size: int, rng: np.random.Generator, shuffle: bool
 
 
 @torch.no_grad()
-def encode_corpus(model, corpus: WindowedCorpus, device: str, batch_size: int = 32) -> EncoderOutput:
+def encode_corpus(
+    model, corpus: WindowedCorpus, device: str, batch_size: int = 32
+) -> EncoderOutput:
     """Run the window encoder over every window; collect logits + embeddings."""
     model.eval()
     flat = corpus.flat()
@@ -121,7 +123,11 @@ def cohort_metrics(labels: np.ndarray, probs: np.ndarray, cohorts: list[str]) ->
         m = cohorts_arr == c
         y = labels[m]
         if len(set(y.tolist())) < 2:
-            per[c] = {"n": int(m.sum()), "auroc": float("nan"), "brier": float(np.mean((probs[m] - y) ** 2))}
+            per[c] = {
+                "n": int(m.sum()),
+                "auroc": float("nan"),
+                "brier": float(np.mean((probs[m] - y) ** 2)),
+            }
             continue
         per[c] = {
             "n": int(m.sum()),
@@ -191,7 +197,9 @@ def train_window_encoder(
             mask = torch.from_numpy(attention_mask[batch_idx]).to(device)
             y = torch.from_numpy(labels[batch_idx]).to(device)
             gk = [group_keys[int(i)] for i in batch_idx]
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")):
+            with torch.autocast(
+                device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")
+            ):
                 logits, _ = model(ids, mask)
                 per = ce(logits, y)
                 if objective == "group_dro" and isinstance(objective_payload, GroupDRO):
@@ -272,7 +280,8 @@ def train_summary_head(
         for start in range(0, n_docs, batch_docs):
             sel = order[start : start + batch_docs]
             maxw = max(
-                min(output.doc_slices[d][1] - output.doc_slices[d][0], config.max_windows) for d in sel
+                min(output.doc_slices[d][1] - output.doc_slices[d][0], config.max_windows)
+                for d in sel
             )
             embeds = np.zeros((len(sel), maxw, hidden), dtype=np.float32)
             mask = np.zeros((len(sel), maxw), dtype=bool)
@@ -317,7 +326,9 @@ def train_summary_head(
             seen += len(y)
         dev_metrics = evaluate(dev_output)
         key = (dev_metrics["worst_cohort_auroc"], dev_metrics["auroc"])
-        history["epochs"].append({"epoch": epoch + 1, "train_loss": running / max(seen, 1), "dev": dev_metrics})
+        history["epochs"].append(
+            {"epoch": epoch + 1, "train_loss": running / max(seen, 1), "dev": dev_metrics}
+        )
         print(
             f"{log_prefix}[summary epoch {epoch + 1}] train_loss {running / max(seen, 1):.4f} | "
             f"dev worst-cohort AUROC {dev_metrics['worst_cohort_auroc']:.4f}",
@@ -334,7 +345,9 @@ def train_summary_head(
 
 
 @torch.no_grad()
-def summary_head_probabilities(head: nn.Module, output: EncoderOutput, device: str, max_windows: int = 32, batch_docs: int = 64) -> np.ndarray:
+def summary_head_probabilities(
+    head: nn.Module, output: EncoderOutput, device: str, max_windows: int = 32, batch_docs: int = 64
+) -> np.ndarray:
     """Apply a trained summary head to a corpus's frozen window embeddings."""
     from bench.neural.aggregate import sigmoid as _sig
 
@@ -358,10 +371,11 @@ def summary_head_probabilities(head: nn.Module, output: EncoderOutput, device: s
     return probs
 
 
-def measure_latency(model: nn.Module, corpus: WindowedCorpus, device: str, n_docs: int = 200, batch_size: int = 32) -> dict:
+def measure_latency(
+    model: nn.Module, corpus: WindowedCorpus, device: str, n_docs: int = 200, batch_size: int = 32
+) -> dict:
     """Inference latency per document and peak memory on a dev subset."""
     flat = corpus.flat()
-    n_windows_total = len(flat["input_ids"])
     # take the first n_docs documents' windows
     doc_slices = []
     cursor = 0
@@ -382,7 +396,9 @@ def measure_latency(model: nn.Module, corpus: WindowedCorpus, device: str, n_doc
         for start in range(0, n_w, batch_size):
             i = torch.from_numpy(ids[start : start + batch_size]).to(device)
             m = torch.from_numpy(mask[start : start + batch_size]).to(device)
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")):
+            with torch.autocast(
+                device_type="cuda", dtype=torch.bfloat16, enabled=(device == "cuda")
+            ):
                 model(i, m)
     if device == "cuda":
         torch.cuda.synchronize()

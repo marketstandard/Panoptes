@@ -34,22 +34,20 @@ def tiny_dataset(n: int = 48) -> datasets.Dataset:
             texts.append(
                 "Furthermore, the systematic approach improves overall reliability. "
                 f"Moreover, iteration {i} additionally reinforces consistent verification. "
-                "Therefore the process is robust and comprehensive."
-                + ai_pad
+                "Therefore the process is robust and comprehensive." + ai_pad
             )
             labels.append(1)
         else:
             texts.append(
                 f"i fixed the thing on my machine after a few tries. note {i}: the logs "
-                "were messy but the fix worked. ask me if it breaks again."
-                + human_pad
+                "were messy but the fix worked. ask me if it breaks again." + human_pad
             )
             labels.append(0)
         groups.append(f"prompt-{i % 6}")
     return datasets.Dataset(
         texts=texts,
         labels=np.array(labels),
-        families=["ai-x" if l else "human" for l in labels],
+        families=["ai-x" if label else "human" for label in labels],
         kinds=["text"] * n,
         groups=groups,
         buckets=["50-149"] * n,
@@ -123,7 +121,7 @@ def test_user_dataset_csv_roundtrip(tmp_path):
 def test_user_dataset_rejects_bad_label(tmp_path):
     path = tmp_path / "bad.jsonl"
     path.write_text(
-        "\n".join('{"text": "row %d text", "label": "maybe"}' % i for i in range(10)),
+        "\n".join(f'{{"text": "row {i} text", "label": "maybe"}}' for i in range(10)),
         encoding="utf-8",
     )
     with pytest.raises(datasets.DatasetError):
@@ -175,8 +173,6 @@ def test_attribution_feature_parity_with_backend():
     ]
     for text, kind in samples:
         bench = features.extract(text, kind)
-        backend = backend_features(
-            text, ContentType.CODE if kind == "code" else ContentType.PROSE
-        )
+        backend = backend_features(text, ContentType.CODE if kind == "code" else ContentType.PROSE)
         for name in features.ATTRIBUTION_FEATURES:
             assert bench[name] == pytest.approx(backend[name], rel=1e-9, abs=1e-12), name

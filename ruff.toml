@@ -1,0 +1,22 @@
+line-length = 100
+target-version = "py312"
+
+# baselines/reference holds hash-manifested corpus fixtures: any byte change
+# (including code-fence reformatting) breaks SHA-256 verification.
+extend-exclude = ["baselines/reference"]
+
+[lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RET", "TID"]
+ignore = []
+
+[lint.flake8-bugbear]
+# Typer/FastAPI idiom: Option/Argument/Depends calls in defaults are the
+# documented API, not mutable-default bugs.
+extend-immutable-calls = [
+  "typer.Option",
+  "typer.Argument",
+  "fastapi.Depends",
+  "fastapi.Query",
+  "fastapi.Path",
+  "fastapi.Body",
+]

@@ -36,7 +36,7 @@ import json
 import re
 import sys
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -142,7 +142,8 @@ def _drive_download(file_id: str, dest: Path, expected_sha256: str, expected_byt
     if actual != expected_sha256:
         dest.unlink(missing_ok=True)
         raise FetchError(
-            f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; refusing to use unverified data"
+            f"{dest.name}: sha256 {actual} != pinned {expected_sha256}; "
+            "refusing to use unverified data"
         )
 
 
@@ -213,7 +214,10 @@ def pointer_manifest(manifest: dict) -> dict:
         "schema": "panoptes-dataset-manifest-v1",
         "id": "m4gt",
         "kind": "prose",
-        "title": "M4GT-Bench Subtask A — multi-domain, multilingual, multi-generator MGT detection (Wang et al. 2024)",
+        "title": (
+            "M4GT-Bench Subtask A — multi-domain, multilingual, multi-generator MGT "
+            "detection (Wang et al. 2024)"
+        ),
         "license": {
             "spdx": "NOASSERTION",
             "redistributable": False,
@@ -258,8 +262,8 @@ def pointer_manifest(manifest: dict) -> dict:
             "sanitization": "hashes-only",
         },
         "limitations": [
-            "The upstream files carry no identifier linking a parallel human/AI pair, so paired rows "
-            "cannot be group-linked; groups are exact-duplicate-level only.",
+            "The upstream files carry no identifier linking a parallel human/AI pair, "
+            "so paired rows cannot be group-linked; groups are exact-duplicate-level only.",
             "The multilingual file overlaps the English file's domains; the two are evaluated as "
             "separate datasets (m4gt, m4gtml) and never mixed in one split.",
             "Repository declares no license for the data files; we redistribute hashes and fitted "
@@ -273,7 +277,11 @@ def pointer_manifest(manifest: dict) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="verify local files against the manifest without downloading")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verify local files against the manifest without downloading",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -303,7 +311,8 @@ def main() -> int:
         splits[name] = counts
         print(
             f"{name}: {counts['rows_raw']} raw -> {counts['rows_clean']} clean "
-            f"(dups {counts['dropped_exact_duplicates']}, short {counts['dropped_under_50_tokens']})",
+            f"(dups {counts['dropped_exact_duplicates']}, "
+            f"short {counts['dropped_under_50_tokens']})",
             flush=True,
         )
 
@@ -313,7 +322,7 @@ def main() -> int:
     manifest = {
         "schema": "panoptes-m4gt-fetch-v1",
         "dataset": "mbzuai-nlp/M4GT-Bench Subtask A",
-        "created_utc": prior_created or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_utc": prior_created or datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "min_word_tokens": MIN_WORD_TOKENS,
         "splits": splits,
         "combined_sha256": combined,

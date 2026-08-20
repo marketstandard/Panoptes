@@ -15,6 +15,7 @@ import pytest
 try:  # the lightweight bench interpreter may lack a working torch/transformers
     import torch  # noqa: F401
     import transformers  # noqa: F401
+
     _HAS_ML = True
 except Exception:  # ImportError or a broken-dependency ValueError
     _HAS_ML = False
@@ -26,7 +27,12 @@ from transformers import BertConfig, BertModel  # noqa: E402
 
 from bench.neural import aggregate, data, objectives, windowing  # noqa: E402
 from bench.neural.model import HierarchicalSummaryHead, WindowEncoder  # noqa: E402
-from bench.neural.train import PilotConfig, cohort_metrics, encode_corpus, train_window_encoder  # noqa: E402
+from bench.neural.train import (  # noqa: E402
+    PilotConfig,
+    cohort_metrics,
+    encode_corpus,
+    train_window_encoder,
+)
 
 
 class MockTokenizer:
@@ -87,7 +93,7 @@ def test_windowing_overlap_and_spans_tile_long_document():
     assert wins[0].token_start == 0
     assert wins[-1].token_end == 40
     # Consecutive windows overlap by `overlap` content tokens.
-    for a, b in zip(wins, wins[1:]):
+    for a, b in zip(wins, wins[1:], strict=False):
         assert b.token_start == a.token_start + (max_length - 2 - overlap)
         assert b.token_start < a.token_end  # overlap region is shared
     # Char offsets are monotone and within the text.
@@ -234,8 +240,8 @@ def _make_tiny_corpus(labels, n_tokens=8):
         labels=np.array(labels, dtype=np.int64),
         groups=[f"g{i}" for i in range(len(labels))],
         domains=["dA" if i % 2 == 0 else "dB" for i in range(len(labels))],
-        families=["human" if l == 0 else "gen" for l in labels],
-        group_keys=[f"d|f|{l}" for l in labels],
+        families=["human" if label == 0 else "gen" for label in labels],
+        group_keys=[f"d|f|{label}" for label in labels],
         n_tokens=[n_tokens] * len(labels),
         max_length=n_tokens + 2,
         overlap=0,

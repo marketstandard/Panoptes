@@ -1,6 +1,6 @@
 """Run the frozen measurement protocol and write a signed card.
 
-  python -m bench measure --data corpus
+python -m bench measure --data corpus
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ import hashlib
 import json
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import numpy as np
@@ -31,8 +31,8 @@ from bench.evidence import compare_dependence
 from bench.features import heuristic_raw_score
 from bench.mixtures import mixture_curve
 from bench.power import calibration_power
-from bench.splits import protocol_splits
 from bench.protocol import load_protocol
+from bench.splits import protocol_splits
 
 
 class CalibrationMismatchError(RuntimeError):
@@ -61,7 +61,7 @@ class CalibrationBundle:
     iso_x: list[float] | None = None  # isotonic input thresholds (None = identity)
     iso_y: list[float] | None = None  # isotonic output values
     created_utc: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        default_factory=lambda: datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     )
 
     def identity(self) -> dict[str, str]:
@@ -89,7 +89,9 @@ class CalibrationBundle:
         canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(canonical).hexdigest()
 
-    def _assert_identity(self, detector_id: str, model_revision: str, task: str, cohort: str) -> None:
+    def _assert_identity(
+        self, detector_id: str, model_revision: str, task: str, cohort: str
+    ) -> None:
         expected = self.identity()
         given = {
             "detector_id": detector_id,
@@ -104,7 +106,13 @@ class CalibrationBundle:
             )
 
     def calibrate(
-        self, raw_scores: np.ndarray, *, detector_id: str, model_revision: str, task: str, cohort: str
+        self,
+        raw_scores: np.ndarray,
+        *,
+        detector_id: str,
+        model_revision: str,
+        task: str,
+        cohort: str,
     ) -> np.ndarray:
         """Apply the frozen isotonic map, enforcing the detector/revision/task/cohort."""
         self._assert_identity(detector_id, model_revision, task, cohort)
@@ -119,7 +127,9 @@ class CalibrationBundle:
             "prevalence": self.prevalence,
             "conformal": {
                 "alpha": self.conformal.alpha,
-                "threshold_by_class": {str(k): v for k, v in self.conformal.threshold_by_class.items()},
+                "threshold_by_class": {
+                    str(k): v for k, v in self.conformal.threshold_by_class.items()
+                },
                 "n_calibration": self.conformal.n_calibration,
                 "mondrian": self.conformal.mondrian,
             },
@@ -180,7 +190,8 @@ def fit_select_calibrate_test(
     cohort: str = "unknown",
     alpha: float = 0.1,
 ) -> dict:
-    """The single v2.1 measurement interface: fit(train) → select(dev) → calibrate(cal) → test(test).
+    """The single v2.1 measurement interface: fit(train) → select(dev) → calibrate(cal)
+    → test(test).
 
     Every detector tier — heuristic, logistic, GBM, and the neural detector —
     runs through this one path so the data firewall is enforced uniformly:
@@ -198,17 +209,33 @@ def fit_select_calibrate_test(
     if hasattr(detector, "select"):
         detector.select(dev, np.arange(len(dev)))
     bundle = fit_calibration_bundle(
-        detector, cal, detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort, alpha=alpha
+        detector,
+        cal,
+        detector_id=detector_id,
+        model_revision=model_revision,
+        task=task,
+        cohort=cohort,
+        alpha=alpha,
     )
     raw_test = detector.predict_proba(test, np.arange(len(test)))
     calibrated = bundle.calibrate(
         raw_test, detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort
     )
     labels = test.labels
-    valid = _valid_operating_block(cal.labels, bundle.calibrate(
-        detector.predict_proba(cal, np.arange(len(cal))),
-        detector_id=detector_id, model_revision=model_revision, task=task, cohort=cohort,
-    ), labels, calibrated, test.groups, alpha=alpha)
+    valid = _valid_operating_block(
+        cal.labels,
+        bundle.calibrate(
+            detector.predict_proba(cal, np.arange(len(cal))),
+            detector_id=detector_id,
+            model_revision=model_revision,
+            task=task,
+            cohort=cohort,
+        ),
+        labels,
+        calibrated,
+        test.groups,
+        alpha=alpha,
+    )
     return {
         "detector_id": detector_id,
         "model_revision": model_revision,
@@ -367,12 +394,16 @@ def run_measurement(
             "open_set": leave_one_family_out(dataset),
             "dependence": _dependence_pilot(dataset),
             "limitations": [
-                "Train, calibration, and test groups are disjoint; calibration is never fit on test.",
-                "Human controls in the project corpus are few; mixture and calibration estimates are a pilot.",
+                "Train, calibration, and test groups are disjoint; calibration is never "
+                "fit on test.",
+                "Human controls in the project corpus are few; mixture and calibration "
+                "estimates are a pilot.",
                 "Transport cells are omitted when a domain lacks both classes.",
                 "Watermark evaluation is a separate subsystem and is not included in this card.",
-                "Conformal coverage is guaranteed marginally; per-slice coverage is reported diagnostically.",
-                "Calibration-metric power uses a normal approximation; ECE variance is a fixed-bin proxy.",
+                "Conformal coverage is guaranteed marginally; per-slice coverage is "
+                "reported diagnostically.",
+                "Calibration-metric power uses a normal approximation; ECE variance is "
+                "a fixed-bin proxy.",
             ],
         }
     )

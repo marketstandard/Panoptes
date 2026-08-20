@@ -86,7 +86,12 @@ def device_name() -> str:
 if TORCH_AVAILABLE:
 
     class PanoptesV0Net(nn.Module):
-        def __init__(self, n_features: int = FEATURE_DIM, use_sequence: bool = False, n_classes: int = K_CLASSES):
+        def __init__(
+            self,
+            n_features: int = FEATURE_DIM,
+            use_sequence: bool = False,
+            n_classes: int = K_CLASSES,
+        ):
             super().__init__()
             self.use_sequence = use_sequence
             self.n_classes = n_classes
@@ -109,7 +114,9 @@ if TORCH_AVAILABLE:
             hidden = self.feature_branch(x_features)
             if self.use_sequence and x_chars is not None:
                 embedded = self.char_embed(x_chars).mean(dim=1)
-                hidden = torch.cat([hidden, torch.nn.functional.gelu(self.seq_proj(embedded))], dim=1)
+                hidden = torch.cat(
+                    [hidden, torch.nn.functional.gelu(self.seq_proj(embedded))], dim=1
+                )
             evidence = torch.nn.functional.softplus(self.evidence_head(hidden))
             alpha = evidence + 1.0
             strength = alpha.sum(dim=1)
@@ -117,7 +124,9 @@ if TORCH_AVAILABLE:
             vacuity = self.n_classes / strength
             if self.n_classes == 2:
                 e = evidence
-                dissonance = 1.0 - torch.abs(e[:, 0] - e[:, 1]) / torch.clamp(e.sum(dim=1), min=1e-8)
+                dissonance = 1.0 - torch.abs(e[:, 0] - e[:, 1]) / torch.clamp(
+                    e.sum(dim=1), min=1e-8
+                )
                 p = alpha[:, 1] / strength
             else:
                 # Sensoy's dissonance is a binary construct; the K-class
@@ -155,11 +164,15 @@ def evidential_loss(alpha, y, epoch: int, anneal_epochs: int = 50, n_classes: in
     y_onehot = torch.nn.functional.one_hot(y, n_classes).float()
     mse = ((y_onehot - p) ** 2 + p * (1 - p) / (strength + 1)).sum(dim=1).mean()
     alpha_tilde = y_onehot + (1 - y_onehot) * alpha
-    kl = torch.lgamma(alpha_tilde.sum(dim=1)) - torch.lgamma(
-        torch.tensor(float(n_classes), device=alpha.device)
-    ) - torch.sum(torch.lgamma(alpha_tilde), dim=1) + torch.sum(
-        (alpha_tilde - 1) * (torch.digamma(alpha_tilde) - torch.digamma(alpha_tilde.sum(dim=1, keepdim=True))),
-        dim=1,
+    kl = (
+        torch.lgamma(alpha_tilde.sum(dim=1))
+        - torch.lgamma(torch.tensor(float(n_classes), device=alpha.device))
+        - torch.sum(torch.lgamma(alpha_tilde), dim=1)
+        + torch.sum(
+            (alpha_tilde - 1)
+            * (torch.digamma(alpha_tilde) - torch.digamma(alpha_tilde.sum(dim=1, keepdim=True))),
+            dim=1,
+        )
     )
     anneal = min(1.0, epoch / max(anneal_epochs, 1))
     return mse + anneal * 0.1 * kl.mean()
@@ -184,7 +197,7 @@ class PanoptesV0:
     _scale: np.ndarray | None = field(default=None, repr=False)
     device: str = "cpu"
 
-    def fit(self, X: np.ndarray, y: np.ndarray, texts: list[str] | None = None) -> "PanoptesV0":
+    def fit(self, X: np.ndarray, y: np.ndarray, texts: list[str] | None = None) -> PanoptesV0:
         _require_torch()
         self.device = device_name()
         torch.manual_seed(self.seed)
@@ -268,7 +281,11 @@ def _train_tracked(
     yt = torch.tensor(ytr, dtype=torch.long, device=device)
     xv = torch.tensor((Xval - mean) / scale, dtype=torch.float32, device=device)
     ct = torch.tensor(chars_tr, dtype=torch.long) if use_sequence and chars_tr is not None else None
-    cv_ = torch.tensor(chars_val, dtype=torch.long) if use_sequence and chars_val is not None else None
+    cv_ = (
+        torch.tensor(chars_val, dtype=torch.long)
+        if use_sequence and chars_val is not None
+        else None
+    )
     xv_chars = cv_.to(device) if cv_ is not None else None
 
     curve: list[dict] = []
@@ -289,9 +306,7 @@ def _train_tracked(
             epoch_loss += float(loss.detach()) * len(idx)
         with torch.no_grad():
             val_p = net(xv, xv_chars)["p"].cpu().numpy()
-        val_ece = (
-            expected_calibration_error(yval, val_p) if len(set(yval)) > 1 else float("nan")
-        )
+        val_ece = expected_calibration_error(yval, val_p) if len(set(yval)) > 1 else float("nan")
         curve.append({"epoch": epoch, "train_loss": epoch_loss / len(xt), "val_ece": val_ece})
         if not math.isnan(val_ece) and val_ece < best_ece - 1e-4:
             best_ece = val_ece
@@ -360,7 +375,9 @@ def train_cv(dataset, seeds: tuple[int, ...] = SEEDS, use_sequence: bool = False
                 chars_tr=chars[train_idx][tr_sub] if chars is not None else None,
                 chars_val=chars[train_idx][val_sub] if chars is not None else None,
             )
-            oof[test_idx] = _predict_p(net, X[test_idx], chars[test_idx] if chars is not None else None)
+            oof[test_idx] = _predict_p(
+                net, X[test_idx], chars[test_idx] if chars is not None else None
+            )
         per_seed[seed] = {"oof": oof}
     return {"per_seed": per_seed, "X": X, "y": y}
 
@@ -422,8 +439,11 @@ def comparison_battery(dataset, v0_oof: np.ndarray) -> dict:
             "durbin_watson": durbin_watson(resid[order]),
         }
 
-    pairs = [("panoptes-v0", "logistic-tier0"), ("panoptes-v0", "heuristic"),
-             ("logistic-tier0", "heuristic")]
+    pairs = [
+        ("panoptes-v0", "logistic-tier0"),
+        ("panoptes-v0", "heuristic"),
+        ("logistic-tier0", "heuristic"),
+    ]
     if "gbm-tier1" in contenders:
         pairs += [("panoptes-v0", "gbm-tier1"), ("gbm-tier1", "logistic-tier0")]
     comparisons = []
@@ -515,9 +535,12 @@ def train_final(
         "schema": "panoptes-v0-config-v1",
         "architecture": {
             "feature_branch": "Linear(d,64) -> GELU -> LayerNorm -> Linear(64,64) -> GELU",
-            "evidence_head": f"Linear({'128' if use_sequence else '64'},2) -> softplus + 1 (Dirichlet alpha)",
+            "evidence_head": (
+                f"Linear({'128' if use_sequence else '64'},2) -> softplus + 1 (Dirichlet alpha)"
+            ),
             "sequence_branch": (
-                "char embedding (128 vocab, 32-d) -> mean pool -> Linear(32,64) [ENABLED: power gate passed]"
+                "char embedding (128 vocab, 32-d) -> mean pool -> Linear(32,64) "
+                "[ENABLED: power gate passed]"
                 if use_sequence
                 else "disabled by power gate (see card)"
             ),
@@ -680,17 +703,30 @@ def run_harness(
         "Not for high-stakes decisions about individuals.",
     ]
     if use_sequence:
-        limitations.insert(0, "Trained on NYT-domain news prose (Defactify); domain shift is quantified in cross_domain.")
+        limitations.insert(
+            0,
+            "Trained on NYT-domain news prose (Defactify); "
+            "domain shift is quantified in cross_domain.",
+        )
     else:
-        limitations.insert(0, "Exploratory: the corpus is below the neural power gate; treat comparisons as hypothesis-generating.")
+        limitations.insert(
+            0,
+            "Exploratory: the corpus is below the neural power gate; "
+            "treat comparisons as hypothesis-generating.",
+        )
         limitations.insert(1, "Sequence branch disabled by the power gate; feature branch only.")
     if is_defactify:
         cross = _cross_domain_block(weights_dir, use_sequence)
         if cross is not None:
             extra["cross_domain"] = cross
-        if prior_card is not None and not prior_card["training_data"]["provenance"].startswith("defactify"):
+        if prior_card is not None and not prior_card["training_data"]["provenance"].startswith(
+            "defactify"
+        ):
             extra["corpus_trained"] = {
-                "note": "Previous iteration trained on the 104-record project corpus (below the power gate); kept for comparison.",
+                "note": (
+                    "Previous iteration trained on the 104-record project corpus "
+                    "(below the power gate); kept for comparison."
+                ),
                 "training_data_n": prior_card["training_data"]["n"],
                 "metrics": prior_card["evaluation"]["metrics"],
                 "auroc_ci95": prior_card["evaluation"]["auroc_ci95"],
@@ -719,20 +755,25 @@ def run_harness(
         extra=extra,
     )
     cards.write_card(card, card_path)
-    _write_findings_log(card, dataset, gate, seed_metrics, aggregate, aggregate_ci, battery, device, use_sequence)
+    _write_findings_log(
+        card, dataset, gate, seed_metrics, aggregate, aggregate_ci, battery, device, use_sequence
+    )
     print(f"Card: {card_path} (sha256 {card['artifact_sha256'][:16]}…)")
     print(f"Weights: {weights_dir} (local; Hugging Face release coming soon)")
     return card
 
 
-def _write_findings_log(card, dataset, gate, seed_metrics, aggregate, aggregate_ci, battery, device, use_sequence) -> None:
+def _write_findings_log(
+    card, dataset, gate, seed_metrics, aggregate, aggregate_ci, battery, device, use_sequence
+) -> None:
     FINDINGS_LOG.parent.mkdir(parents=True, exist_ok=True)
     existing = FINDINGS_LOG.read_text(encoding="utf-8") if FINDINGS_LOG.exists() else ""
     iteration = existing.count("## Iteration") + 1
     if not existing:
         existing = (
             "# Panoptes-v0 iteration log\n\n"
-            "Every training run is appended with its config, data hash, metrics, statistical tests,\n"
+            "Every training run is appended with its config, data hash, metrics, "
+            "statistical tests,\n"
             "the decision taken, and the next refinement. Newest last.\n"
         )
 
@@ -747,7 +788,8 @@ def _write_findings_log(card, dataset, gate, seed_metrics, aggregate, aggregate_
         "",
         f"**Config**: evidential MLP ({seq_note}), "
         f"Dirichlet evidence head, {card['config']['optimizer']}, "
-        f"<={card['config']['epochs_max']} epochs, {card['config']['early_stop']}, seeds {card['config']['seeds']}.",
+        f"<={card['config']['epochs_max']} epochs, {card['config']['early_stop']}, "
+        f"seeds {card['config']['seeds']}.",
         "",
         f"**Data**: {dataset.provenance}, n={len(dataset)}, sha256 `{dataset.sha256}`.",
         f"**Device**: {device}. **Power gate**: {gate['rationale']}.",
@@ -759,7 +801,8 @@ def _write_findings_log(card, dataset, gate, seed_metrics, aggregate, aggregate_
         lines += [
             f"**Story groups**: {stats['n_groups']} reconstructed (threshold {stats['threshold']}, "
             f"mean size {stats['group_size_mean']:.2f}, max {stats['group_size_max']}). "
-            f"Official-split leakage audit: {audit.get('official_test_rows_with_train_near_duplicate', 0)}"
+            f"Official-split leakage audit: "
+            f"{audit.get('official_test_rows_with_train_near_duplicate', 0)}"
             f"/{audit.get('official_test_rows', 0)} test rows share a story with train "
             f"({audit.get('official_split_story_leakage_rate', 0.0):.1%}).",
             "",
@@ -822,9 +865,9 @@ def _write_findings_log(card, dataset, gate, seed_metrics, aggregate, aggregate_
         ]
     else:
         lines += [
-            "**Decision**: ship as *exploratory* — the corpus is below the neural power gate, so no "
-            "comparative claim is made. Weights saved locally with SHA-256 sidecars; Hugging Face "
-            "release pending a corpus that passes the gate.",
+            "**Decision**: ship as *exploratory* — the corpus is below the neural power gate, "
+            "so no comparative claim is made. Weights saved locally with SHA-256 sidecars; "
+            "Hugging Face release pending a corpus that passes the gate.",
             "",
             "**Next refinements**: (1) grow human controls and community datasets until the gate "
             "passes; (2) enable the char-sequence branch and re-run this battery; (3) per-kind "

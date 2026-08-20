@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import numpy as np
+from panoptes.analysis.watermarks import _green_for, green_for
 
 from bench.watermark_gen import biased_pick, candidate_vocabulary
-from panoptes.analysis.watermarks import _green_for, green_for
 
 
 class _FakeTokenizer:
@@ -30,17 +30,17 @@ def test_green_for_matches_private_prf() -> None:
 def test_candidate_vocabulary_filters_to_single_regex_tokens() -> None:
     tok = _FakeTokenizer(
         {
-            0: " the",      # word-initial word -> keep ("the")
-            1: "ing",       # fragment without leading space -> drop
-            2: " ing",      # word-initial fragment -> kept as a word token
-            3: ".",         # bare punctuation -> keep
-            4: " ,",        # spaced punctuation -> drop (we keep punctuation attached)
+            0: " the",  # word-initial word -> keep ("the")
+            1: "ing",  # fragment without leading space -> drop
+            2: " ing",  # word-initial fragment -> kept as a word token
+            3: ".",  # bare punctuation -> keep
+            4: " ,",  # spaced punctuation -> drop (we keep punctuation attached)
             5: " hello world",  # two words -> drop
-            6: "",          # empty -> drop
+            6: "",  # empty -> drop
         }
     )
     cand = candidate_vocabulary(tok)
-    got = dict(zip(cand.ids, cand.tokens))
+    got = dict(zip(cand.ids, cand.tokens, strict=True))
     assert got[0] == "the"
     assert got[2] == "ing"
     assert got[3] == "."

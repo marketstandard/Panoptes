@@ -27,6 +27,7 @@
     "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
+    "globals": "^17.11.0",
     "jsdom": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",
