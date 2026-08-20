@@ -5,11 +5,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/marketstandard/Panoptes/actions/workflows/ci.yml"><img src="https://github.com/marketstandard/Panoptes/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/marketstandard/Panoptes/releases"><img src="https://img.shields.io/github/v/release/marketstandard/Panoptes" alt="Release"></a>
   <a href="https://github.com/marketstandard/Panoptes/stargazers"><img src="https://img.shields.io/github/stars/marketstandard/Panoptes" alt="Stars"></a>
   <a href="https://github.com/marketstandard/Panoptes/forks"><img src="https://img.shields.io/github/forks/marketstandard/Panoptes" alt="Forks"></a>
 </p>
+
+> **New here? [Read the plain-language TL;DR](docs/tldr.md)** — what Panoptes does and why, in five minutes, no math required.
 
 **Research paper v2.1** (20 August 2026): [Panoptes: Calibrated Evidence and Distribution-Shift Analysis for AI-Text Attribution](https://marketstandard.github.io/Panoptes/paper.html) (rendered; source at [`frontend/public/paper.html`](frontend/public/paper.html)). Authors: **Carrington Junior** ([Encryptic1](https://github.com/Encryptic1)) and **Trey Huffine** ([treyhuffine](https://github.com/treyhuffine)). Cite via [`CITATION.cff`](CITATION.cff). v2.1 makes evidence transportability the signature result: a preregistered pooled multi-dataset training pool (MAGE + RAID clean + DeFactify), a frozen three-seed hierarchical neural detector released with verified weights, cross-dataset leave-one-dataset-out and calibration-transfer matrices, and untouched OOD/paraphrase/adversarial and human-AI-collaboration evaluation (MAGE OOD, M4GT English/multilingual, EvoBench, RAID attacks, CoAuthor). Watermark intelligence cards add temperature-dependent detection power, distillation radioactivity / removal, and contamination governance for post-2026 provider watermarks (SynthID-Text family).
 

@@ -1,6 +1,8 @@
 # Panoptes documentation index
 
-Entry points by question. The paper itself is rendered at
+Entry points by question. **Non-technical readers start here:
+[tldr.md](tldr.md)** — the plain-language overview. The paper itself is
+rendered at
 [marketstandard.github.io/Panoptes/paper.html](https://marketstandard.github.io/Panoptes/paper.html)
 (source: `frontend/public/paper.html`, served in-app at `/paper.html`).
 
